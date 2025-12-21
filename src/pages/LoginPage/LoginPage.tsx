@@ -1,11 +1,9 @@
+import { LoginSection } from "./components/LoginSection";
+
 function LoginPage() {
   return (
-    <div>
-      <p>CHECKY</p>
-      <p className="text-sm tracking-tight opacity-80 text-red-500">
-        어제 보다 더 나은 오늘을 위해
-      </p>
-      <button>시작하기</button>
+    <div className="w-full h-[100vh] flex flex-col justify-center items-center">
+      <LoginSection />
     </div>
   );
 }
