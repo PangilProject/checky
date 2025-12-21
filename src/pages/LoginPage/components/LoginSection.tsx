@@ -1,6 +1,8 @@
 import { wickedMouseStyle } from "@/styles/font";
 import LogoImage from "../../../assets/images/logo.png";
 import { FillButton } from "@/shared/ui/Button";
+import { useNavigate } from "react-router-dom";
+import { signInWithGoogle } from "@/services/firebase/auth";
 
 export const LoginSection = () => {
   return (
@@ -34,11 +36,24 @@ const ServiceLogo = () => {
 };
 
 const LoginButton = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      await signInWithGoogle();
+      navigate("/home");
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      alert("로그인에 실패했어요. 다시 시도해 주세요.");
+    }
+  };
+
   return (
     <div className="flex w-full flex-col max-w-[1000px] items-center">
       <FillButton
-        text="시작하기"
+        text="Google로 시작하기"
         className="text-white bg-black hover:opacity-50"
+        onClick={handleLogin}
       />
     </div>
   );
