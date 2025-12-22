@@ -6,6 +6,7 @@ import CategoryPage from "@/pages/CategoryPage";
 import RoutinePage from "@/pages/RoutinePage";
 import MyPage from "@/pages/MyPage";
 import PageNotFound from "./pages/PageNotFound";
+import PrivateRoute from "./shared/ui/PrivateRoute";
 
 function Router() {
   return (
@@ -15,12 +16,16 @@ function Router() {
         <Route path="/" element={<LoginPage />} />
 
         {/* 메인 */}
-        <Route path="/home" element={<HomePage />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/home" element={<HomePage />} />
+        </Route>
 
         {/* 관리 페이지 */}
-        <Route path="/category" element={<CategoryPage />} />
-        <Route path="/routine" element={<RoutinePage />} />
-        <Route path="/my" element={<MyPage />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/category" element={<CategoryPage />} />
+          <Route path="/routine" element={<RoutinePage />} />
+          <Route path="/my" element={<MyPage />} />
+        </Route>
 
         {/* fallback */}
         <Route path="*" element={<PageNotFound />} />

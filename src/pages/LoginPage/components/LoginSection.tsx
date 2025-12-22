@@ -3,6 +3,8 @@ import LogoImage from "../../../assets/images/logo.png";
 import { FillButton } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { signInWithGoogle } from "@/services/firebase/auth";
+import { Text3 } from "@/shared/ui/Text";
+import { Space10, Space12, Space4 } from "@/shared/ui/Space";
 
 export const LoginSection = () => {
   return (
@@ -17,22 +19,31 @@ export const LoginSection = () => {
 
 const ServiceTitle = () => {
   return (
-    <p style={wickedMouseStyle} className="text-4xl mb-4">
-      CHECKY
-    </p>
+    <>
+      <p style={wickedMouseStyle} className="text-4xl">
+        CHECKY
+      </p>
+      <Space4 direction="mb" />
+    </>
   );
 };
 
 const ServiceDesc = () => {
   return (
-    <p className="text-sm tracking-tight opacity-80 text-base mb-12">
-      어제 보다 더 나은 오늘을 위해
-    </p>
+    <>
+      <Text3 text="어제 보다 더 나은 오늘을 위해" />
+      <Space10 direction="mb" />
+    </>
   );
 };
 
 const ServiceLogo = () => {
-  return <img src={LogoImage} className="w-15 h-15 mb-12" />;
+  return (
+    <>
+      <img src={LogoImage} className="w-15 h-15" />
+      <Space12 direction="mb" />
+    </>
+  );
 };
 
 const LoginButton = () => {
