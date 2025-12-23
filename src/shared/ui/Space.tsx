@@ -1,6 +1,12 @@
 type Direction = "mb" | "mt" | "ml" | "mr";
 
 const SPACE_MAP = {
+  2: {
+    mb: "mb-2",
+    mt: "mt-2",
+    ml: "ml-2",
+    mr: "mr-2",
+  },
   4: {
     mb: "mb-4",
     mt: "mt-4",
@@ -39,6 +45,7 @@ const createSpace =
     return <div className={SPACE_MAP[size][direction]} />;
   };
 
+export const Space2 = createSpace(2);
 export const Space4 = createSpace(4);
 export const Space10 = createSpace(10);
 export const Space12 = createSpace(12);
