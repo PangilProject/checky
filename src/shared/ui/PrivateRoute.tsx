@@ -2,6 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/shared/hooks/useAuth";
 import LoadingPage from "../../pages/LoadingPage/LoadingPage";
 import Header from "./Header";
+import { Space10 } from "./Space";
 
 function PrivateRoute() {
   const { user, isLoading } = useAuth();
@@ -12,8 +13,9 @@ function PrivateRoute() {
 
   return user ? (
     <div className="w-full flex flex-col items-center">
-      <div className="w-[1000px] flex flex-col bg-gray-200">
+      <div className="w-full max-w-[1000px] flex flex-col bg-gray-200">
         <Header />
+        <Space10 direction="mb" />
         <Outlet />
       </div>
     </div>

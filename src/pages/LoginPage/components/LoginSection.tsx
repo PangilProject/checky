@@ -1,6 +1,6 @@
 import { wickedMouseClass } from "@/styles/font";
 import LogoImage from "../../../assets/images/logoRound.png";
-import { FillButton } from "@/shared/ui/Button";
+import { LongBlackButton } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { signInWithGoogle } from "@/services/firebase/auth";
 import { Text3 } from "@/shared/ui/Text";
@@ -59,10 +59,11 @@ const LoginButton = () => {
 
   return (
     <div className="flex w-full flex-col max-w-[1000px] items-center">
-      <FillButton
+      <LongBlackButton
         text="Google로 시작하기"
-        className="text-white bg-black hover:opacity-50"
         onClick={handleLogin}
+        width="w-50"
+        height="h-10"
       />
     </div>
   );
