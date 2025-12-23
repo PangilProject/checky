@@ -1,9 +1,9 @@
-import { wickedMouseStyle } from "./styles/font";
+import { wickedMouseClass } from "@/styles/font";
 
 function App() {
   return (
     <div>
-      <h1 style={wickedMouseStyle}>CHECKY</h1>
+      <h1 className={wickedMouseClass}>CHECKY</h1>
       <span>good</span>
     </div>
   );

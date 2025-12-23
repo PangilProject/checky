@@ -1,15 +1,42 @@
 type Direction = "mb" | "mt" | "ml" | "mr";
-const createSpace =
-  (size: 4 | 10 | 12 | 20 | 24) =>
-  ({ direction }: { direction: Direction }) => {
-    const map = {
-      mb: `mb-${size}`,
-      mt: `mt-${size}`,
-      ml: `ml-${size}`,
-      mr: `mr-${size}`,
-    };
 
-    return <div className={map[direction]} />;
+const SPACE_MAP = {
+  4: {
+    mb: "mb-4",
+    mt: "mt-4",
+    ml: "ml-4",
+    mr: "mr-4",
+  },
+  10: {
+    mb: "mb-10",
+    mt: "mt-10",
+    ml: "ml-10",
+    mr: "mr-10",
+  },
+  12: {
+    mb: "mb-12",
+    mt: "mt-12",
+    ml: "ml-12",
+    mr: "mr-12",
+  },
+  20: {
+    mb: "mb-20",
+    mt: "mt-20",
+    ml: "ml-20",
+    mr: "mr-20",
+  },
+  24: {
+    mb: "mb-24",
+    mt: "mt-24",
+    ml: "ml-24",
+    mr: "mr-24",
+  },
+} as const;
+
+const createSpace =
+  (size: keyof typeof SPACE_MAP) =>
+  ({ direction }: { direction: Direction }) => {
+    return <div className={SPACE_MAP[size][direction]} />;
   };
 
 export const Space4 = createSpace(4);

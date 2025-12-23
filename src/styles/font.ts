@@ -1,3 +1,1 @@
-export const wickedMouseStyle = {
-  fontFamily: "WickedMouse",
-} as const;
+export const wickedMouseClass = "font-wicked";

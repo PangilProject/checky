@@ -12,3 +12,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.font-paperlogy {
+  font-family: "Paperlogy", system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.font-wicked {
+  font-family: "WickedMouse", cursive;
+}

@@ -1,5 +1,5 @@
-import { wickedMouseStyle } from "@/styles/font";
-import LogoImage from "../../../assets/images/logo.png";
+import { wickedMouseClass } from "@/styles/font";
+import LogoImage from "../../../assets/images/logoRound.png";
 import { FillButton } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { signInWithGoogle } from "@/services/firebase/auth";
@@ -20,9 +20,7 @@ export const LoginSection = () => {
 const ServiceTitle = () => {
   return (
     <>
-      <p style={wickedMouseStyle} className="text-4xl">
-        CHECKY
-      </p>
+      <p className={`text-4xl ${wickedMouseClass}`}>CHECKY</p>
       <Space4 direction="mb" />
     </>
   );
