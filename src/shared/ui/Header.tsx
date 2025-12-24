@@ -34,7 +34,7 @@ const MenuSection = () => {
           <Link
             key={menu.path}
             to={menu.path}
-            className={`${
+            className={`pressable ${
               isActive ? "font-bold text-black" : "font-normal text-[#8E8E93]"
             }`}
           >

@@ -20,3 +20,9 @@
 .font-wicked {
   font-family: "WickedMouse", cursive;
 }
+
+@layer utilities {
+  .pressable {
+    @apply transition-transform duration-500 ease-out active:scale-50;
+  }
+}

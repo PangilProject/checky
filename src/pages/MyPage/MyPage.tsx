@@ -1,4 +1,4 @@
-import { Text2, Text3, Text5 } from "@/shared/ui/Text";
+import { Text2, Text3 } from "@/shared/ui/Text";
 import LogoImage from "../../assets/images/logoRound.png";
 import { Space10, Space4 } from "@/shared/ui/Space";
 import { NormalBlackButton } from "@/shared/ui/Button";
@@ -7,11 +7,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/services/firebase/firebase";
 import { toast } from "react-toastify";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { TitleSection } from "@/shared/ui/TitleSection";
 
 function MyPage() {
   return (
     <div>
-      <PageTitleSection />
+      <TitleSection text="마이 정보" />
       <Space4 direction="mb" />
       <UserInfoSection />
       <Space10 direction="mb" />
@@ -19,10 +20,6 @@ function MyPage() {
     </div>
   );
 }
-
-const PageTitleSection = () => {
-  return <Text5 text="마이 정보" className="font-bold" />;
-};
 
 const UserInfoSection = () => {
   const user = useAuth();

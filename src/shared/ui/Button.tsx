@@ -8,7 +8,7 @@ const FillButton = ({ text, onClick, className }: FillButtonProps) => {
   return (
     <button
       onClick={onClick}
-      className={`${className} box-border font-bold rounded-md hover:opacity-50`}
+      className={`${className} box-border font-bold rounded-md hover:opacity-50 pressable`}
     >
       {text}
     </button>
