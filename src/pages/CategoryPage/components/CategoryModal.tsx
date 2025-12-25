@@ -13,7 +13,11 @@ import {
 import { Space10, Space8 } from "@/shared/ui/Space";
 import { RxTriangleDown, RxTriangleUp } from "react-icons/rx";
 import { COLORS } from "@/shared/constants/color";
-import { createCategory, updateCategory } from "@/shared/api/category";
+import {
+  createCategory,
+  endCategory,
+  updateCategory,
+} from "@/shared/api/category";
 import { useAuth } from "@/shared/hooks/useAuth";
 import type { Category } from "./ActiveCategorySection";
 
@@ -76,6 +80,21 @@ export default function CategoryModal({
     }
   };
 
+  const handleEndCategory = async () => {
+    if (!category || !user) return;
+
+    try {
+      await endCategory({
+        userId: user.uid,
+        categoryId: category.id,
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("카테고리 종료 실패", error);
+    }
+  };
+
   return (
     <ModalWrapper onClose={onClose}>
       <ModalTitle mode={currentMode} />
@@ -102,6 +121,7 @@ export default function CategoryModal({
         onSubmit={
           currentMode === "CREATE" ? handleCreateCategory : handleUpdateCategory
         }
+        onEnd={handleEndCategory}
       />
     </ModalWrapper>
   );
@@ -237,18 +257,20 @@ interface ButtonSectionProps {
   onClose: () => void;
   onEdit?: () => void;
   onSubmit?: () => void;
+  onEnd?: () => void;
 }
 const ButtonSection = ({
   mode,
   onClose,
   onEdit,
   onSubmit,
+  onEnd,
 }: ButtonSectionProps) => {
   if (mode === "VIEW") {
     return (
       <div className="flex justify-between">
         <NormalBlackUnFillButton text="닫기" onClick={onClose} />
-        <NormalRedUnFillButton text="종료" />
+        <NormalRedUnFillButton text="종료" onClick={onEnd} />
         <NormalBlackButton text="수정" onClick={onEdit} />
       </div>
     );

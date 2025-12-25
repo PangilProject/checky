@@ -69,6 +69,24 @@ export const updateCategory = async ({
   });
 };
 
+// 카테고리 삭제
+interface EndCategoryParams {
+  userId: string;
+  categoryId: string;
+}
+
+export const endCategory = async ({
+  userId,
+  categoryId,
+}: EndCategoryParams) => {
+  const categoryRef = doc(db, "users", userId, "categories", categoryId);
+
+  await updateDoc(categoryRef, {
+    status: "ENDED",
+    updatedAt: serverTimestamp(),
+  });
+};
+
 /*
 
 */
