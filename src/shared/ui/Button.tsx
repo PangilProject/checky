@@ -1,14 +1,25 @@
-interface FillButtonProps {
+interface ButtonProps {
   onClick?: () => void;
   className?: string;
   text: string;
 }
 
-const FillButton = ({ text, onClick, className }: FillButtonProps) => {
+const FillButton = ({ text, onClick, className }: ButtonProps) => {
   return (
     <button
       onClick={onClick}
       className={`${className} box-border font-bold rounded-md hover:opacity-50 pressable`}
+    >
+      {text}
+    </button>
+  );
+};
+
+export const UnFillButton = ({ text, onClick, className }: ButtonProps) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`${className} box-border border font-bold rounded-md hover:opacity-50 pressable`}
     >
       {text}
     </button>
@@ -53,13 +64,36 @@ export const LongBlackButton = ({
   );
 };
 
-export const UnFillButton = ({ text, onClick, className }: FillButtonProps) => {
+/*
+  unfilled
+*/
+
+export const NormalBlackUnFillButton = ({ onClick, text }: NormalButton) => {
   return (
-    <button
+    <UnFillButton
       onClick={onClick}
-      className={`${className} border box-border w-50 h-10 font-bold rounded-md`}
-    >
-      {text}
-    </button>
+      text={text}
+      className="text-black border-black px-4 py-1"
+    />
+  );
+};
+
+export const NormalRedUnFillButton = ({ onClick, text }: NormalButton) => {
+  return (
+    <UnFillButton
+      onClick={onClick}
+      text={text}
+      className="text-red-500 border-red-500 px-4 py-1"
+    />
+  );
+};
+
+export const NormalBlueUnFillButton = ({ onClick, text }: NormalButton) => {
+  return (
+    <UnFillButton
+      onClick={onClick}
+      text={text}
+      className="text-blue-500 border-blue-500 px-4 py-1"
+    />
   );
 };
