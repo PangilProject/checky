@@ -19,7 +19,7 @@ import {
   updateCategory,
 } from "@/shared/api/category";
 import { useAuth } from "@/shared/hooks/useAuth";
-import type { Category } from "./ActiveCategorySection";
+import type { Category } from "./CategorySection";
 
 interface CategoryModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";

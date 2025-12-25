@@ -13,7 +13,7 @@ function PrivateRoute() {
 
   return user ? (
     <div className="w-full flex flex-col items-center px-2">
-      <div className="w-full max-w-[1000px] flex flex-col ">
+      <div className="w-full max-w-[800px] flex flex-col ">
         <Header />
         <Space10 direction="mb" />
         <Outlet />

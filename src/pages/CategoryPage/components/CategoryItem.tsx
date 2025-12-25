@@ -1,5 +1,5 @@
 import { Text3 } from "@/shared/ui/Text";
-import type { Category } from "./ActiveCategorySection";
+import type { Category } from "./CategorySection";
 import { COLOR_CLASS_MAP } from "@/shared/constants/color";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Space2 } from "@/shared/ui/Space";
@@ -18,7 +18,7 @@ export const CategoryItem = ({ category }: CategoryItemProps) => {
       <Space2 direction="mb" />
       <div className="w-full  flex justify-between items-center">
         <Text3 text={category.name} className={`${textColor} font-bold`} />
-        <button onClick={() => setIsOpen(true)}>
+        <button onClick={() => setIsOpen(true)} className="pressable">
           <HiDotsHorizontal color="#8E8E93" size={20} />
         </button>
       </div>
