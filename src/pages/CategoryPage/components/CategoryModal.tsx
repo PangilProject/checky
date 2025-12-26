@@ -215,8 +215,8 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
   }
 
   return (
-    <div className="w-full flex flex-col">
-      <div className="flex justify-between items-center">
+    <div className="w-full flex flex-col items-end">
+      <div className="w-full flex justify-between items-center">
         <Text3 text="색상" />
 
         <div
@@ -240,7 +240,7 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
       <div
         className={`
           mt-4 py-2 flex gap-3 flex-wrap justify-end
-          transition-all duration-200 overflow-hidden
+          transition-all duration-200 overflow-hidden mr-6 max-sm:w-[60%] px-1
           ${isOpen && !disabled ? "opacity-100" : "opacity-0"}
           ${isOpen && !disabled ? "pointer-events-auto" : "pointer-events-none"}
         `}
