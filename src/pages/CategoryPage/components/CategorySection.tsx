@@ -8,12 +8,15 @@ import { Text2 } from "@/shared/ui/Text";
 import ImageEmpty from "@/assets/images/empty.png";
 import { CategoryItem } from "./CategoryItem";
 import CategoryModal from "./CategoryModal";
+import type { Timestamp } from "firebase/firestore";
 
 export interface Category {
   id: string;
   name: string;
   color: string;
   status: "ACTIVE" | "ENDED";
+  createdAt?: Timestamp;
+  endedAt?: Timestamp;
 }
 
 interface CategorySectionProps {
