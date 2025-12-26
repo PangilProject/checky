@@ -16,6 +16,7 @@ import { COLORS } from "@/shared/constants/color";
 import {
   createCategory,
   endCategory,
+  restoreCategory,
   updateCategory,
 } from "@/shared/api/category";
 import { useAuth } from "@/shared/hooks/useAuth";
@@ -95,6 +96,21 @@ export default function CategoryModal({
     }
   };
 
+  const handleRestoreCategory = async () => {
+    if (!category || !user) return;
+
+    try {
+      await restoreCategory({
+        userId: user.uid,
+        categoryId: category.id,
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("카테고리 복구 실패", error);
+    }
+  };
+
   return (
     <ModalWrapper onClose={onClose}>
       <ModalTitle mode={currentMode} />
@@ -116,12 +132,14 @@ export default function CategoryModal({
 
       <ButtonSection
         mode={currentMode}
+        categoryStatus={category?.status}
         onClose={onClose}
         onEdit={() => setCurrentMode("EDIT")}
         onSubmit={
           currentMode === "CREATE" ? handleCreateCategory : handleUpdateCategory
         }
         onEnd={handleEndCategory}
+        onRestore={handleRestoreCategory}
       />
     </ModalWrapper>
   );
@@ -254,19 +272,35 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
 
 interface ButtonSectionProps {
   mode: "CREATE" | "VIEW" | "EDIT";
+  categoryStatus?: "ACTIVE" | "ENDED";
   onClose: () => void;
   onEdit?: () => void;
   onSubmit?: () => void;
   onEnd?: () => void;
+  onRestore?: () => void;
 }
 const ButtonSection = ({
   mode,
+  categoryStatus,
   onClose,
   onEdit,
   onSubmit,
   onEnd,
+  onRestore,
 }: ButtonSectionProps) => {
+  // VIEW 모드
   if (mode === "VIEW") {
+    // ✅ 종료된 카테고리
+    if (categoryStatus === "ENDED") {
+      return (
+        <div className="flex justify-between">
+          <NormalBlackUnFillButton text="닫기" onClick={onClose} />
+          <NormalBlackButton text="복구" onClick={onRestore} />
+        </div>
+      );
+    }
+
+    // ✅ 진행중 카테고리
     return (
       <div className="flex justify-between">
         <NormalBlackUnFillButton text="닫기" onClick={onClose} />
@@ -276,6 +310,7 @@ const ButtonSection = ({
     );
   }
 
+  // EDIT
   if (mode === "EDIT") {
     return (
       <div className="flex justify-between">

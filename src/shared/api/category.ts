@@ -20,6 +20,7 @@ export interface Category {
   status: CategoryStatus;
   createdAt: any;
   updatedAt: any;
+  endedAt: any;
 }
 
 interface CreateCategoryParams {
@@ -43,6 +44,7 @@ export const createCategory = async ({
     status: "ACTIVE",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
+    endedAt: serverTimestamp(),
   };
 
   await setDoc(categoryRef, category);
@@ -83,6 +85,25 @@ export const endCategory = async ({
 
   await updateDoc(categoryRef, {
     status: "ENDED",
+    updatedAt: serverTimestamp(),
+    endedAt: serverTimestamp(),
+  });
+};
+
+// 카테고리 복구
+interface RestoreCategoryParams {
+  userId: string;
+  categoryId: string;
+}
+
+export const restoreCategory = async ({
+  userId,
+  categoryId,
+}: RestoreCategoryParams) => {
+  const categoryRef = doc(db, "users", userId, "categories", categoryId);
+
+  await updateDoc(categoryRef, {
+    status: "ACTIVE",
     updatedAt: serverTimestamp(),
   });
 };
