@@ -8,7 +8,7 @@ const FillButton = ({ text, onClick, className }: ButtonProps) => {
   return (
     <button
       onClick={onClick}
-      className={`${className} box-border font-bold rounded-md hover:opacity-50 pressable`}
+      className={` box-border font-bold rounded-md hover:opacity-50 pressable ${className}`}
     >
       {text}
     </button>
@@ -19,7 +19,7 @@ export const UnFillButton = ({ text, onClick, className }: ButtonProps) => {
   return (
     <button
       onClick={onClick}
-      className={`${className} box-border border font-bold rounded-md hover:opacity-50 pressable`}
+      className={`box-border border font-bold rounded-md hover:opacity-50 pressable ${className}`}
     >
       {text}
     </button>
@@ -33,13 +33,18 @@ export const UnFillButton = ({ text, onClick, className }: ButtonProps) => {
 interface NormalButton {
   onClick?: () => void;
   text: string;
+  className?: string;
 }
-export const NormalBlackButton = ({ onClick, text }: NormalButton) => {
+export const NormalBlackButton = ({
+  onClick,
+  text,
+  className,
+}: NormalButton) => {
   return (
     <FillButton
       onClick={onClick}
       text={text}
-      className="text-white bg-black px-4 py-1"
+      className={`text-white bg-black px-4 py-1 ${className}`}
     />
   );
 };
@@ -47,6 +52,7 @@ export const NormalBlackButton = ({ onClick, text }: NormalButton) => {
 interface LongNormalButton extends NormalButton {
   width: string;
   height: string;
+  className?: string;
 }
 
 export const LongBlackButton = ({
@@ -54,12 +60,13 @@ export const LongBlackButton = ({
   text,
   width,
   height,
+  className,
 }: LongNormalButton) => {
   return (
     <FillButton
       onClick={onClick}
       text={text}
-      className={`text-white bg-black ${width} ${height}`}
+      className={`text-white bg-black ${width} ${height} ${className}`}
     />
   );
 };

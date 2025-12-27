@@ -1,6 +1,6 @@
 import { Text1, Text3 } from "@/shared/ui/Text";
 import type { Category } from "./CategorySection";
-import { COLOR_CLASS_MAP } from "@/shared/constants/color";
+import { COLOR_CLASS_TEXT_MAP } from "@/shared/constants/color";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Space2 } from "@/shared/ui/Space";
 import { useState } from "react";
@@ -12,7 +12,7 @@ interface CategoryItemProps {
 }
 
 export const CategoryItem = ({ category }: CategoryItemProps) => {
-  const textColor = COLOR_CLASS_MAP[category.color];
+  const textColor = COLOR_CLASS_TEXT_MAP[category.color];
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="w-full flex flex-col hover:bg-gray-100">
