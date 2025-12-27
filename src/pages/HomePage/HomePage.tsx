@@ -1,26 +1,16 @@
-import { useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth";
-import { auth } from "@/services/firebase/firebase";
+import { Space20 } from "@/shared/ui/Space.tsx";
+import MonthlyReportSection from "./components/MonthlyReport/MonthlyReportSection.tsx";
+import RoutineReportSection from "./components/RoutineReport/RoutineReportSection.tsx";
+import TaskReportSection from "./components/TaskReport/TaskReportSection.tsx";
 
 function HomePage() {
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate("/");
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-      alert("로그아웃에 실패했습니다.");
-    }
-  };
-
   return (
     <div>
-      <p>HomePage</p>
-      <button onClick={handleLogout} className="p-2 bg-red-500 text-white rounded">
-        로그아웃
-      </button>
+      <MonthlyReportSection />
+      <Space20 direction="mb" />
+      <RoutineReportSection />
+      <Space20 direction="mb" />
+      <TaskReportSection />
     </div>
   );
 }

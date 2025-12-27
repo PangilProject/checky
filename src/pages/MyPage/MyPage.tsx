@@ -7,12 +7,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/services/firebase/firebase";
 import { toast } from "react-toastify";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { TitleSection } from "@/shared/ui/TitleSection";
+import { TitleText } from "@/shared/ui/TitleText";
 
 function MyPage() {
   return (
     <div>
-      <TitleSection text="마이 정보" />
+      <TitleText text="마이 정보" />
       <Space4 direction="mb" />
       <UserInfoSection />
       <Space10 direction="mb" />

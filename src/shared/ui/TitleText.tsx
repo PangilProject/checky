@@ -1,9 +1,9 @@
 import { Text5 } from "./Text";
 
-interface TitleSectionProps {
+interface TitleTextProps {
   text: string;
 }
 
-export const TitleSection = ({ text }: TitleSectionProps) => {
+export const TitleText = ({ text }: TitleTextProps) => {
   return <Text5 text={text} className="font-bold" />;
 };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { getCategories } from "@/shared/api/category";
-import { TitleSection } from "@/shared/ui/TitleSection";
+import { TitleText } from "@/shared/ui/TitleText";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { Space10, Space4 } from "@/shared/ui/Space";
 import { Text2 } from "@/shared/ui/Text";
@@ -56,7 +56,7 @@ export const CategorySection = ({
     <div className="w-full flex flex-col">
       {/* 타이틀 영역 */}
       <div className="flex items-center justify-between">
-        <TitleSection text={title} />
+        <TitleText text={title} />
         {showAddButton && (
           <>
             <NormalBlackButton text="추가" onClick={() => setIsOpen(true)} />
