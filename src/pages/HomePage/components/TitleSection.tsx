@@ -16,17 +16,19 @@ function TitleSection({
   rightOnClick,
 }: TitleSectionProps) {
   return (
-    <div className="flex justify-between items-start">
-      <div>
-        <TitleText text={title} />
-        <SubTitle text={subTitle} />
-      </div>
-      <div className="flex gap-3">
-        <div className="pressable" onClick={leftOnClick}>
-          <VscTriangleLeft size={20} />
+    <div>
+      <div className="flex justify-between items-start">
+        <div>
+          <TitleText text={title} />
+          <SubTitle text={subTitle} />
         </div>
-        <div className="pressable" onClick={rightOnClick}>
-          <VscTriangleRight size={20} />
+        <div className="flex gap-3">
+          <div className="pressable" onClick={leftOnClick}>
+            <VscTriangleLeft size={20} />
+          </div>
+          <div className="pressable" onClick={rightOnClick}>
+            <VscTriangleRight size={20} />
+          </div>
         </div>
       </div>
     </div>
