@@ -21,6 +21,7 @@ import {
 } from "@/shared/api/category";
 import { useAuth } from "@/shared/hooks/useAuth";
 import type { Category } from "./CategorySection";
+import { ModalWrapper } from "@/shared/ui/Modal";
 
 interface CategoryModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -149,22 +150,6 @@ interface ModalWrapperProps {
   onClose: () => void;
   children: ReactNode;
 }
-
-export const ModalWrapper = ({ onClose, children }: ModalWrapperProps) => {
-  return (
-    <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40"
-      onClick={onClose}
-    >
-      <div
-        className="w-[480px] rounded-xl bg-white p-8 shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {children}
-      </div>
-    </div>
-  );
-};
 
 interface ModalTitleProps {
   mode: "CREATE" | "VIEW" | "EDIT";

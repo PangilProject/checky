@@ -1,14 +1,22 @@
 import {
-  addDoc,
   collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
   onSnapshot,
-  orderBy,
   query,
-  serverTimestamp,
   where,
+  orderBy,
+  serverTimestamp,
+  writeBatch,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/services/firebase/firebase";
 
+/* =========================
+   Task 타입
+========================= */
 export interface Task {
   id: string;
   title: string;
@@ -17,21 +25,22 @@ export interface Task {
   date: string;
 }
 
-interface CreateTaskParams {
-  userId: string;
-  title: string;
-  categoryId: string;
-  categoryColor: string;
-  date: string;
-}
-
+/* =========================
+   CREATE
+========================= */
 export const createTask = async ({
   userId,
   title,
   categoryId,
   categoryColor,
   date,
-}: CreateTaskParams) => {
+}: {
+  userId: string;
+  title: string;
+  categoryId: string;
+  categoryColor: string;
+  date: string;
+}) => {
   const tasksRef = collection(db, "users", userId, "tasks");
 
   const docRef = await addDoc(tasksRef, {
@@ -49,16 +58,21 @@ export const createTask = async ({
     categoryId,
     categoryColor,
     date,
-  };
+  } as Task;
 };
 
-interface getTasksParams {
+/* =========================
+   READ (date 기준)
+========================= */
+export const getTasksByDate = ({
+  userId,
+  date,
+  onChange,
+}: {
   userId: string;
   date: string;
   onChange: (tasks: Task[]) => void;
-}
-
-export const getTasksByDate = ({ userId, date, onChange }: getTasksParams) => {
+}) => {
   const tasksRef = collection(db, "users", userId, "tasks");
 
   const q = query(
@@ -67,14 +81,62 @@ export const getTasksByDate = ({ userId, date, onChange }: getTasksParams) => {
     orderBy("createdAt", "asc")
   );
 
-  const tasks = onSnapshot(q, (snapshot) => {
-    const tasks: Task[] = snapshot.docs.map((doc) => ({
+  return onSnapshot(q, (snapshot) => {
+    const tasks = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...(doc.data() as Omit<Task, "id">),
     }));
 
     onChange(tasks);
   });
+};
 
-  return tasks;
+/* =========================
+   UPDATE 
+========================= */
+export const updateTask = async ({
+  userId,
+  taskId,
+  title,
+}: {
+  userId: string;
+  taskId: string;
+  title: string;
+}) => {
+  const taskRef = doc(db, "users", userId, "tasks", taskId);
+
+  await updateDoc(taskRef, {
+    title,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+/* =========================
+   DELETE
+========================= */
+export const deleteTaskWithLogs = async ({
+  userId,
+  taskId,
+}: {
+  userId: string;
+  taskId: string;
+}) => {
+  const batch = writeBatch(db);
+
+  // 1️⃣ task 삭제
+  const taskRef = doc(db, "users", userId, "tasks", taskId);
+  batch.delete(taskRef);
+
+  // 2️⃣ 관련 taskLogs 조회
+  const logsRef = collection(db, "users", userId, "taskLogs");
+  const q = query(logsRef, where("taskId", "==", taskId));
+  const snapshot = await getDocs(q);
+
+  // 3️⃣ taskLogs 전부 삭제
+  snapshot.forEach((docSnap) => {
+    batch.delete(docSnap.ref);
+  });
+
+  // 4️⃣ 커밋
+  await batch.commit();
 };

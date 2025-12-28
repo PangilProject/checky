@@ -12,6 +12,13 @@ import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { LongBlackButton } from "@/shared/ui/Button";
 import { createTask, getTasksByDate, type Task } from "@/shared/api/task";
+import {
+  getTaskLogsByDate,
+  toggleTaskLog,
+  type TaskLog,
+} from "@/shared/api/taskLog";
+import { HiDotsHorizontal } from "react-icons/hi";
+import TaskModal from "./TaskModal";
 
 export const TaskListSection = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -55,6 +62,19 @@ const CategoryItem = ({
 }: CategoryItemProps) => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [taskLogs, setTaskLogs] = useState<TaskLog[]>([]);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
+
+  const handleOpenTaskModal = (task: Task) => {
+    setSelectedTask(task);
+    setIsTaskModalOpen(true);
+  };
+
+  const handleCloseTaskModal = () => {
+    setSelectedTask(undefined);
+    setIsTaskModalOpen(false);
+  };
 
   const { user } = useAuth();
   const selectedDate = "2026-01-06";
@@ -70,6 +90,33 @@ const CategoryItem = ({
 
     return () => unsubscribe();
   }, [user, selectedDate]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribe = getTaskLogsByDate({
+      userId: user.uid,
+      date: selectedDate,
+      onChange: setTaskLogs,
+    });
+
+    return () => unsubscribe();
+  }, [user, selectedDate]);
+
+  const taskLogMap = new Map(taskLogs.map((log) => [log.taskId, log]));
+
+  const handleToggleTask = async (taskId: string) => {
+    if (!user) return;
+
+    const currentLog = taskLogMap.get(taskId);
+
+    await toggleTaskLog({
+      userId: user.uid,
+      taskId,
+      date: selectedDate,
+      currentLog,
+    });
+  };
 
   const filteredTasks = tasks.filter(
     (task) => task.categoryId === categoryId && task.date === selectedDate
@@ -117,7 +164,13 @@ const CategoryItem = ({
         onClick={() => setIsAddOpen(true)}
       />
 
-      <TaskList tasks={filteredTasks} categoryColor={categoryColor} />
+      <TaskList
+        tasks={filteredTasks}
+        categoryColor={categoryColor}
+        taskLogMap={taskLogMap}
+        onToggle={handleToggleTask}
+        onClickTask={handleOpenTaskModal}
+      />
 
       {isAddOpen && (
         <AddTaskInput
@@ -128,6 +181,17 @@ const CategoryItem = ({
       )}
 
       <Space8 direction="mb" />
+
+      {isTaskModalOpen && selectedTask && (
+        <TaskModal
+          mode="VIEW"
+          task={selectedTask}
+          selectedDate={selectedDate}
+          categoryId={categoryId}
+          categoryColor={categoryColor}
+          onClose={handleCloseTaskModal}
+        />
+      )}
     </div>
   );
 };
@@ -154,22 +218,52 @@ const AddCategory = ({
 const TaskList = ({
   categoryColor,
   tasks,
+  taskLogMap,
+  onToggle,
+  onClickTask,
 }: {
   categoryColor: string;
   tasks: Task[];
+  taskLogMap: Map<string, TaskLog>;
+  onToggle: (taskId: string) => void;
+  onClickTask: (task: Task) => void;
 }) => {
   if (tasks.length === 0) return null;
 
   return (
     <>
-      {tasks.map((task, index) => (
-        <div className="py-1" key={index}>
-          <div className="flex gap-2">
-            <FaCheckCircle size={20} color={categoryColor} />
-            <Text3 text={task.title} />
+      {tasks.map((task) => {
+        const log = taskLogMap.get(task.id);
+        const completed = log?.completed;
+
+        return (
+          <div key={task.id} className="py-1 flex justify-between">
+            <div
+              className="flex gap-2 items-center cursor-pointer"
+              onClick={() => onToggle(task.id)}
+            >
+              {completed ? (
+                <FaCheckCircle size={20} color={categoryColor} />
+              ) : (
+                <LuCircleDashed size={20} color={categoryColor} />
+              )}
+              <Text3
+                text={task.title}
+                className={completed ? "line-through opacity-60" : ""}
+              />
+            </div>
+            <button
+              className="pressable"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClickTask(task);
+              }}
+            >
+              <HiDotsHorizontal color="#8E8E93" size={20} />
+            </button>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </>
   );
 };
