@@ -1,5 +1,5 @@
 // mocks/tasks.ts
-export interface Task {
+interface Task {
   id: string;
   title: string;
   categoryId: string;

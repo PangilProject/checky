@@ -11,8 +11,7 @@ import { FaCirclePlus } from "react-icons/fa6";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { LongBlackButton } from "@/shared/ui/Button";
-import { type Task } from "@/pages/mocks/tasks";
-import { createTask } from "@/shared/api/task";
+import { createTask, getTasksByDate, type Task } from "@/shared/api/task";
 
 export const TaskListSection = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -59,6 +58,18 @@ const CategoryItem = ({
 
   const { user } = useAuth();
   const selectedDate = "2026-01-06";
+
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribe = getTasksByDate({
+      userId: user.uid,
+      date: selectedDate,
+      onChange: setTasks,
+    });
+
+    return () => unsubscribe();
+  }, [user, selectedDate]);
 
   const filteredTasks = tasks.filter(
     (task) => task.categoryId === categoryId && task.date === selectedDate
@@ -152,8 +163,8 @@ const TaskList = ({
   return (
     <>
       {tasks.map((task, index) => (
-        <div className="py-1">
-          <div className="flex gap-2" key={index}>
+        <div className="py-1" key={index}>
+          <div className="flex gap-2">
             <FaCheckCircle size={20} color={categoryColor} />
             <Text3 text={task.title} />
           </div>
