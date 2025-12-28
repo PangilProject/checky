@@ -4,13 +4,15 @@ import {
   COLOR_CLASS_TEXT_MAP,
 } from "@/shared/constants/color";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { Space2, Space20 } from "@/shared/ui/Space";
+import { Space10, Space8 } from "@/shared/ui/Space";
 import { Text3, Text4 } from "@/shared/ui/Text";
 import { useEffect, useRef, useState } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { LongBlackButton } from "@/shared/ui/Button";
+import { type Task } from "@/pages/mocks/tasks";
+import { createTask } from "@/shared/api/task";
 
 export const TaskListSection = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -32,8 +34,10 @@ export const TaskListSection = () => {
     <div className="flex flex-col w-full">
       {categories.map((category) => (
         <CategoryItem
+          key={category.id}
           categoryName={category.name}
           categoryColor={category.color}
+          categoryId={category.id}
         />
       ))}
     </div>
@@ -43,29 +47,82 @@ export const TaskListSection = () => {
 interface CategoryItemProps {
   categoryName: string;
   categoryColor: string;
+  categoryId: string;
 }
-const CategoryItem = ({ categoryName, categoryColor }: CategoryItemProps) => {
+const CategoryItem = ({
+  categoryId,
+  categoryName,
+  categoryColor,
+}: CategoryItemProps) => {
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  const { user } = useAuth();
+  const selectedDate = "2026-01-06";
+
+  const filteredTasks = tasks.filter(
+    (task) => task.categoryId === categoryId && task.date === selectedDate
+  );
+
+  const handleAddTask = async (title: string) => {
+    if (!title.trim() || !user) return;
+
+    const tempId = `temp-${Date.now()}`;
+
+    const optimisticTask: Task = {
+      id: tempId,
+      title,
+      categoryId,
+      categoryColor,
+      date: selectedDate,
+    };
+
+    setTasks((prev) => [...prev, optimisticTask]);
+    setIsAddOpen(false);
+
+    try {
+      const savedTask = await createTask({
+        userId: user.uid,
+        title,
+        categoryId,
+        categoryColor,
+        date: selectedDate,
+      });
+
+      setTasks((prev) =>
+        prev.map((task) => (task.id === tempId ? savedTask : task))
+      );
+    } catch (error) {
+      setTasks((prev) => prev.filter((task) => task.id !== tempId));
+      console.error("Failed to create task", error);
+    }
+  };
+
   return (
-    <div className="">
+    <div>
       <AddCategory
         categoryName={categoryName}
         categoryColor={categoryColor}
         onClick={() => setIsAddOpen(true)}
       />
-      <TaskList categoryColor={categoryColor} />
-      <Space2 direction="mb" />
+
+      <TaskList tasks={filteredTasks} categoryColor={categoryColor} />
+
       {isAddOpen && (
         <AddTaskInput
           categoryColor={categoryColor}
+          onAddTask={handleAddTask}
           onBlurClose={() => setIsAddOpen(false)}
         />
       )}
+
+      <Space8 direction="mb" />
     </div>
   );
 };
-
-interface AddCategoryProps extends CategoryItemProps {
+interface AddCategoryProps {
+  categoryName: string;
+  categoryColor: string;
   onClick: () => void;
 }
 const AddCategory = ({
@@ -78,50 +135,108 @@ const AddCategory = ({
     <div className="flex gap-2 items-center" onClick={onClick}>
       <Text4 text={categoryName} className={`${textColor} font-bold`} />
       <FaCirclePlus size={15} color={categoryColor} />
-      <Space20 direction="mb" />
+      <Space10 direction="mb" />
     </div>
   );
 };
 
-const TaskList = ({ categoryColor }: { categoryColor: string }) => {
+const TaskList = ({
+  categoryColor,
+  tasks,
+}: {
+  categoryColor: string;
+  tasks: Task[];
+}) => {
+  if (tasks.length === 0) return null;
+
   return (
-    <div className="flex gap-2">
-      <FaCheckCircle size={20} color={categoryColor} />
-      <Text3 text="밥 먹기" />
-    </div>
+    <>
+      {tasks.map((task, index) => (
+        <div className="py-1">
+          <div className="flex gap-2" key={index}>
+            <FaCheckCircle size={20} color={categoryColor} />
+            <Text3 text={task.title} />
+          </div>
+        </div>
+      ))}
+    </>
   );
 };
 
 interface AddTaskInputProps {
   categoryColor: string;
+  onAddTask: (title: string) => void;
   onBlurClose: () => void;
 }
-
-const AddTaskInput = ({ categoryColor, onBlurClose }: AddTaskInputProps) => {
+const AddTaskInput = ({
+  categoryColor,
+  onAddTask,
+  onBlurClose,
+}: AddTaskInputProps) => {
   const [taskInput, setTaskInput] = useState("");
   const borderColor = COLOR_CLASS_BORDER_MAP[categoryColor];
   const inputRef = useRef<HTMLInputElement>(null);
+  const isSubmittingRef = useRef(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (isSubmittingRef.current) {
+      return; // ⭐ submit 중이면 blur 무시
+    }
+
+    const nextFocused = e.relatedTarget as Node | null;
+    if (containerRef.current?.contains(nextFocused)) {
+      return;
+    }
+
+    onBlurClose();
+  };
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
+  const handleSubmit = () => {
+    if (!taskInput.trim()) return;
+
+    isSubmittingRef.current = true;
+    onAddTask(taskInput);
+    setTaskInput("");
+
+    // 다음 tick에서 ref 초기화
+    requestAnimationFrame(() => {
+      isSubmittingRef.current = false;
+    });
+  };
+
   return (
-    <div className="flex items-end gap-2">
+    <div className="flex items-end gap-2" ref={containerRef}>
       <LuCircleDashed size={26} color={categoryColor} />
       <input
         ref={inputRef}
-        className={`outline-none border-b w-full ${borderColor} `}
+        className={`outline-none border-b w-full ${borderColor}`}
         value={taskInput}
         onChange={(e) => setTaskInput(e.target.value)}
-        onBlur={onBlurClose}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleSubmit();
+        }}
+        onBlur={handleBlur}
       />
-      <LongBlackButton
-        text="추가"
-        className="text-[12px]"
-        width="w-15"
-        height="h-7"
-      />
+      <div
+        className="flex items-center"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
+        <LongBlackButton
+          text="추가"
+          className="text-[12px]"
+          width="w-15"
+          height="h-7"
+        />
+      </div>
     </div>
   );
 };
