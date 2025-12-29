@@ -9,3 +9,5 @@ export const formatDate = (timestamp?: Timestamp) => {
     day: "2-digit",
   });
 };
+
+export const formatDateByDate = (date: Date) => date.toISOString().slice(0, 10); // yyyy-mm-dd

@@ -1,9 +1,4 @@
-import {
-  useState,
-  type Dispatch,
-  type ReactNode,
-  type SetStateAction,
-} from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { Text3, Text5 } from "@/shared/ui/Text";
 import {
   NormalBlackButton,
@@ -144,11 +139,6 @@ export default function CategoryModal({
       />
     </ModalWrapper>
   );
-}
-
-interface ModalWrapperProps {
-  onClose: () => void;
-  children: ReactNode;
 }
 
 interface ModalTitleProps {

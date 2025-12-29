@@ -1,3 +1,10 @@
+import type { ReactNode } from "react";
+
+interface ModalWrapperProps {
+  onClose: () => void;
+  children: ReactNode;
+}
+
 export const ModalWrapper = ({ onClose, children }: ModalWrapperProps) => {
   return (
     <div
