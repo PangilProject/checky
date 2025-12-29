@@ -10,6 +10,7 @@ import {
   serverTimestamp,
   writeBatch,
   getDocs,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/services/firebase/firebase";
 
@@ -93,23 +94,53 @@ export const getTasksByDate = ({
 /* =========================
    UPDATE 
 ========================= */
-export const updateTask = async ({
+export const updateTaskWithDateMove = async ({
   userId,
   taskId,
+  prevDate,
+  nextDate,
   title,
 }: {
   userId: string;
   taskId: string;
-  title: string;
+  prevDate: string;
+  nextDate: string;
+  title?: string;
 }) => {
   const taskRef = doc(db, "users", userId, "tasks", taskId);
 
+  // 1️⃣ Task 업데이트
   await updateDoc(taskRef, {
-    title,
+    ...(title !== undefined && { title }),
+    date: nextDate,
+    updatedAt: serverTimestamp(),
+  });
+
+  // 2️⃣ 기존 TaskLog 조회
+  const prevLogQuery = query(
+    collection(db, "users", userId, "taskLogs"),
+    where("taskId", "==", taskId),
+    where("date", "==", prevDate)
+  );
+
+  const snapshot = await getDocs(prevLogQuery);
+
+  if (snapshot.empty) return;
+
+  // 3️⃣ TaskLog 이동
+  const prevLog = snapshot.docs[0];
+  const prevLogData = prevLog.data();
+
+  // 기존 로그 삭제
+  await deleteDoc(prevLog.ref);
+
+  // 새 날짜로 로그 생성
+  await addDoc(collection(db, "users", userId, "taskLogs"), {
+    ...prevLogData,
+    date: nextDate,
     updatedAt: serverTimestamp(),
   });
 };
-
 /* =========================
    DELETE
 ========================= */

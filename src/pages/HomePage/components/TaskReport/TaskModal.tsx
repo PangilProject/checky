@@ -9,9 +9,9 @@ import { Space10, Space8 } from "@/shared/ui/Space";
 import { useAuth } from "@/shared/hooks/useAuth";
 import {
   createTask,
-  updateTask,
   deleteTaskWithLogs,
   type Task,
+  updateTaskWithDateMove,
 } from "@/shared/api/task";
 import { ModalWrapper } from "@/shared/ui/Modal";
 
@@ -35,6 +35,7 @@ export default function TaskModal({
   const { user } = useAuth();
 
   const [taskInput, setTaskInput] = useState(task?.title ?? "");
+  const [taskDate, setTaskDate] = useState(task?.date ?? selectedDate);
   const [currentMode, setCurrentMode] = useState(mode);
 
   const isReadOnly = currentMode === "VIEW";
@@ -51,7 +52,7 @@ export default function TaskModal({
         title: taskInput,
         categoryId,
         categoryColor,
-        date: selectedDate,
+        date: taskDate,
       });
       onClose();
     } catch (e) {
@@ -66,17 +67,18 @@ export default function TaskModal({
     if (!task || !taskInput.trim() || !user) return;
 
     try {
-      await updateTask({
+      await updateTaskWithDateMove({
         userId: user.uid,
         taskId: task.id,
         title: taskInput,
+        prevDate: task.date,
+        nextDate: taskDate,
       });
       onClose();
     } catch (e) {
       console.error("태스크 수정 실패", e);
     }
   };
-
   /* ======================
      DELETE
   ====================== */
@@ -106,7 +108,11 @@ export default function TaskModal({
       />
       <Space8 direction="mb" />
 
-      <DateInfo date={selectedDate} />
+      <DateField
+        value={taskDate}
+        onChange={setTaskDate}
+        disabled={isReadOnly}
+      />
       <Space10 direction="mb" />
 
       <ButtonSection
@@ -121,6 +127,10 @@ export default function TaskModal({
     </ModalWrapper>
   );
 }
+
+/* ======================
+   Sub Components
+====================== */
 
 const ModalTitle = ({ mode }: { mode: "CREATE" | "VIEW" | "EDIT" }) => {
   if (mode === "CREATE")
@@ -150,11 +160,28 @@ const TaskInput = ({
   );
 };
 
-const DateInfo = ({ date }: { date: string }) => {
+const DateField = ({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) => {
   return (
     <div className="flex justify-between items-center">
       <Text3 text="날짜" />
-      <Text3 text={date} className="opacity-60" />
+      {disabled ? (
+        <Text3 text={value} className="opacity-60" />
+      ) : (
+        <input
+          type="date"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="border-b border-gray-300 outline-none text-[14px]"
+        />
+      )}
     </div>
   );
 };

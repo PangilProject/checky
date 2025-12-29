@@ -320,7 +320,7 @@ const AddTaskInput = ({
 
   return (
     <div className="flex items-end gap-2" ref={containerRef}>
-      <LuCircleDashed size={26} color={categoryColor} />
+      <LuCircleDashed size={23} color={categoryColor} />
       <input
         ref={inputRef}
         className={`outline-none border-b w-full ${borderColor}`}
