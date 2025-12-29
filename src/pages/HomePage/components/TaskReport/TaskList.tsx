@@ -19,6 +19,8 @@ import {
 } from "@/shared/api/taskLog";
 import { HiDotsHorizontal } from "react-icons/hi";
 import TaskModal from "./TaskModal";
+import { useSelectedDate } from "@/shared/contexts/DateContext";
+import { formatDateByDate } from "@/shared/hooks/formatDate";
 
 export const TaskListSection = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -77,14 +79,15 @@ const CategoryItem = ({
   };
 
   const { user } = useAuth();
-  const selectedDate = "2026-01-06";
+  const { selectedDate } = useSelectedDate();
+  const dateString = formatDateByDate(selectedDate);
 
   useEffect(() => {
     if (!user) return;
 
     const unsubscribe = getTasksByDate({
       userId: user.uid,
-      date: selectedDate,
+      date: dateString,
       onChange: setTasks,
     });
 
@@ -96,7 +99,7 @@ const CategoryItem = ({
 
     const unsubscribe = getTaskLogsByDate({
       userId: user.uid,
-      date: selectedDate,
+      date: dateString,
       onChange: setTaskLogs,
     });
 
@@ -113,13 +116,13 @@ const CategoryItem = ({
     await toggleTaskLog({
       userId: user.uid,
       taskId,
-      date: selectedDate,
+      date: dateString,
       currentLog,
     });
   };
 
   const filteredTasks = tasks.filter(
-    (task) => task.categoryId === categoryId && task.date === selectedDate
+    (task) => task.categoryId === categoryId && task.date === dateString
   );
 
   const handleAddTask = async (title: string) => {
@@ -132,7 +135,7 @@ const CategoryItem = ({
       title,
       categoryId,
       categoryColor,
-      date: selectedDate,
+      date: dateString,
     };
 
     setTasks((prev) => [...prev, optimisticTask]);
@@ -144,7 +147,7 @@ const CategoryItem = ({
         title,
         categoryId,
         categoryColor,
-        date: selectedDate,
+        date: dateString,
       });
 
       setTasks((prev) =>
@@ -186,7 +189,7 @@ const CategoryItem = ({
         <TaskModal
           mode="VIEW"
           task={selectedTask}
-          selectedDate={selectedDate}
+          selectedDate={dateString}
           categoryId={categoryId}
           categoryColor={categoryColor}
           onClose={handleCloseTaskModal}
