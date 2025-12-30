@@ -1,7 +1,9 @@
+import { RoutineList } from "./components/RoutineList";
+
 function RoutinePage() {
   return (
     <div>
-      <p>RoutinePage</p>
+      <RoutineList />
     </div>
   );
 }
