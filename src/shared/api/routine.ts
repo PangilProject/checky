@@ -7,6 +7,8 @@ import {
   addDoc,
   serverTimestamp,
   onSnapshot,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
 import { db } from "@/services/firebase/firebase";
 import type { Category } from "./category";
@@ -96,5 +98,27 @@ export const subscribeRoutinesByCategory = ({
     }));
 
     onChange(routines);
+  });
+};
+
+// 루틴 수정
+
+export const updateRoutine = async ({
+  userId,
+  routineId,
+  title,
+  days,
+}: {
+  userId: string;
+  routineId: string;
+  title: string;
+  days: number[];
+}) => {
+  const routineRef = doc(db, "users", userId, "routines", routineId);
+
+  await updateDoc(routineRef, {
+    title,
+    days,
+    updatedAt: serverTimestamp(),
   });
 };

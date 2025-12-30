@@ -20,6 +20,7 @@ export const RoutineList = () => {
     []
   );
 
+  // 생성 모달을 위한 상태 관리
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null
@@ -36,6 +37,9 @@ export const RoutineList = () => {
     setSelectedCategoryId(null);
     setIsModalOpen(false);
   };
+
+  // 상세, 수정 모달을 위한 상태 관리
+  const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -109,7 +113,15 @@ export const RoutineList = () => {
             {/* 루틴 리스트 */}
             <div className="flex flex-col gap-2">
               {routines.map((routine) => (
-                <RoutineItem routine={routine} key={routine.id} />
+                <RoutineItem
+                  routine={routine}
+                  key={routine.id}
+                  onClickMore={() => {
+                    setIsModalOpen(false);
+                    setSelectedCategoryId(null);
+                    setSelectedRoutine(routine);
+                  }}
+                />
               ))}
             </div>
 
@@ -118,10 +130,22 @@ export const RoutineList = () => {
         );
       })}
 
-      {isModalOpen && selectedCategoryId && (
+      {/* CREATE */}
+      {isModalOpen && selectedCategoryId && !selectedRoutine && (
         <RoutineModal
+          mode="CREATE"
           categoryId={selectedCategoryId}
           onClose={handleCloseModal}
+        />
+      )}
+
+      {/* VIEW / EDIT */}
+      {selectedRoutine && (
+        <RoutineModal
+          mode="VIEW"
+          routine={selectedRoutine}
+          categoryId={selectedRoutine.categoryId}
+          onClose={() => setSelectedRoutine(null)}
         />
       )}
     </div>
@@ -130,8 +154,9 @@ export const RoutineList = () => {
 
 interface RoutineItemProps {
   routine: Routine;
+  onClickMore: () => void;
 }
-const RoutineItem = ({ routine }: RoutineItemProps) => {
+const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
   return (
     <div className="flex justify-between items-center w-full">
       <div className="flex w-2/3 items-center">
@@ -146,7 +171,7 @@ const RoutineItem = ({ routine }: RoutineItemProps) => {
             ))}
         </div>
       </div>
-      <button onClick={() => null} className="pressable">
+      <button onClick={onClickMore} className="pressable">
         <HiDotsHorizontal color="#8E8E93" size={20} />
       </button>
     </div>
