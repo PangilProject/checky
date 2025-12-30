@@ -6,11 +6,11 @@ import {
 } from "@/shared/api/routine";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { NormalBlackButton } from "@/shared/ui/Button";
-import { Space10 } from "@/shared/ui/Space";
+import { Space10, Space2 } from "@/shared/ui/Space";
 import { TitleText } from "@/shared/ui/TitleText";
 import { useEffect, useRef, useState } from "react";
 import RoutineModal from "./RoutineModal";
-import { Text3 } from "@/shared/ui/Text";
+import { Text2, Text3 } from "@/shared/ui/Text";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { getDayLabel } from "@/shared/constants/da";
 
@@ -111,7 +111,7 @@ export const RoutineList = () => {
             <Space10 direction="mb" />
 
             {/* 루틴 리스트 */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col">
               {routines.map((routine) => (
                 <RoutineItem
                   routine={routine}
@@ -158,22 +158,28 @@ interface RoutineItemProps {
 }
 const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
   return (
-    <div className="flex justify-between items-center w-full">
-      <div className="flex w-2/3 items-center">
-        <Text3 text={routine.title} className="font-bold flex  flex-1" />
-        <div className="flex flex-3 gap-2">
-          {routine.days
-            .sort((a, b) => a - b)
-            .map((day, index) => (
-              <div key={index} className="text-[#8E8E93]">{`${getDayLabel(
-                day
-              )}`}</div>
-            ))}
+    <div className="w-full flex flex-col hover:bg-gray-100">
+      <Space2 direction="mb" />
+      <div className="flex justify-between items-center w-full ">
+        <div className="flex flex-col">
+          <Text3 text={routine.title} className="font-bold" />
+          <div className="flex gap-2">
+            {routine.days
+              .sort((a, b) => a - b)
+              .map((day, index) => (
+                <Text2
+                  key={index}
+                  className="text-[#8E8E93]"
+                  text={getDayLabel(day)}
+                />
+              ))}
+          </div>
         </div>
+        <button onClick={onClickMore} className="pressable">
+          <HiDotsHorizontal color="#8E8E93" size={20} />
+        </button>
       </div>
-      <button onClick={onClickMore} className="pressable">
-        <HiDotsHorizontal color="#8E8E93" size={20} />
-      </button>
+      <Space2 direction="mb" />
     </div>
   );
 };

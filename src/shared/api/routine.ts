@@ -122,3 +122,36 @@ export const updateRoutine = async ({
     updatedAt: serverTimestamp(),
   });
 };
+
+// RoutineReport.types.ts
+
+export interface RoutineReportWeek {
+  startDate: string; // "2026-01-05"
+  endDate: string; // "2026-01-11"
+  days: {
+    date: string; // "2026-01-05"
+    day: number; // 1 (월)
+    label: string; // "월"
+  }[];
+}
+
+export interface RoutineReportRow {
+  routineId: string;
+  routineTitle: string;
+
+  category: {
+    id: string;
+    name: string;
+    color: string; // ✅ UI 핵심
+  };
+
+  startDate: string; // 루틴 시작일
+  repeatDays: number[]; // [1, 4] (월, 목)
+
+  checks: Record<string, boolean>; // date -> done
+}
+
+export interface RoutineReport {
+  week: RoutineReportWeek;
+  rows: RoutineReportRow[];
+}
