@@ -1,8 +1,8 @@
-import { getCategories, type Category } from "@/shared/api/category";
+import { getCategories } from "@/shared/api/category";
 import {
   subscribeRoutinesByCategory,
-  type Routine,
   type RoutineCategory,
+  type Routine,
 } from "@/shared/api/routine";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { NormalBlackButton } from "@/shared/ui/Button";
@@ -10,6 +10,9 @@ import { Space10 } from "@/shared/ui/Space";
 import { TitleText } from "@/shared/ui/TitleText";
 import { useEffect, useRef, useState } from "react";
 import RoutineModal from "./RoutineModal";
+import { Text3 } from "@/shared/ui/Text";
+import { HiDotsHorizontal } from "react-icons/hi";
+import { getDayLabel } from "@/shared/constants/da";
 
 export const RoutineList = () => {
   const { user } = useAuth();
@@ -17,13 +20,11 @@ export const RoutineList = () => {
     []
   );
 
-  // 모달 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null
   );
 
-  // 🔑 routines 구독 해제 관리
   const routineUnsubscribes = useRef<Record<string, () => void>>({});
 
   const handleOpenModal = (categoryId: string) => {
@@ -39,13 +40,11 @@ export const RoutineList = () => {
   useEffect(() => {
     if (!user) return;
 
-    // 1️⃣ 카테고리 subscribe
     const unsubscribeCategories = getCategories({
       userId: user.uid,
       status: "ACTIVE",
       onChange: (categories) => {
         setRoutineCategories((prev) => {
-          // 기존 state 유지하면서 category 갱신
           return categories.map((category) => {
             const existing = prev.find(
               (item) => item.category.id === category.id
@@ -60,7 +59,6 @@ export const RoutineList = () => {
           });
         });
 
-        // 2️⃣ 각 카테고리별 루틴 subscribe
         categories.forEach((category) => {
           if (routineUnsubscribes.current[category.id]) return;
 
@@ -111,7 +109,7 @@ export const RoutineList = () => {
             {/* 루틴 리스트 */}
             <div className="flex flex-col gap-2">
               {routines.map((routine) => (
-                <div key={routine.id}>{routine.title}</div>
+                <RoutineItem routine={routine} key={routine.id} />
               ))}
             </div>
 
@@ -126,6 +124,31 @@ export const RoutineList = () => {
           onClose={handleCloseModal}
         />
       )}
+    </div>
+  );
+};
+
+interface RoutineItemProps {
+  routine: Routine;
+}
+const RoutineItem = ({ routine }: RoutineItemProps) => {
+  return (
+    <div className="flex justify-between items-center w-full">
+      <div className="flex w-2/3 items-center">
+        <Text3 text={routine.title} className="font-bold flex  flex-1" />
+        <div className="flex flex-3 gap-2">
+          {routine.days
+            .sort((a, b) => a - b)
+            .map((day, index) => (
+              <div key={index} className="text-[#8E8E93]">{`${getDayLabel(
+                day
+              )}`}</div>
+            ))}
+        </div>
+      </div>
+      <button onClick={() => null} className="pressable">
+        <HiDotsHorizontal color="#8E8E93" size={20} />
+      </button>
     </div>
   );
 };
