@@ -5,34 +5,76 @@ import type { ReactNode } from "react";
 import type { RoutineReport } from "@/shared/api/routine";
 import { GoDash } from "react-icons/go";
 
-export const RoutineTable = ({ report }: { report: RoutineReport }) => {
+import { toggleRoutineLog } from "@/shared/api/routineLog";
+import { useAuth } from "@/shared/hooks/useAuth";
+
+export const RoutineTable = ({
+  report,
+  setReport,
+}: {
+  report: RoutineReport;
+  setReport: React.Dispatch<React.SetStateAction<RoutineReport | null>>;
+}) => {
+  const { user } = useAuth();
   const { week, rows } = report;
 
+  const handleToggle = async (
+    routineId: string,
+    date: string,
+    current: boolean
+  ) => {
+    if (!user) return;
+
+    // ✅ 1. UI 먼저 업데이트 (Optimistic)
+    setReport((prev) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        rows: prev.rows.map((row) =>
+          row.routineId !== routineId
+            ? row
+            : {
+                ...row,
+                checks: {
+                  ...row.checks,
+                  [date]: !current,
+                },
+              }
+        ),
+      };
+    });
+
+    // ✅ 2. Firestore 반영
+    await toggleRoutineLog({
+      userId: user.uid,
+      routineId,
+      date,
+      done: !current,
+    });
+  };
   return (
     <table border={1} cellPadding={8} className="w-full">
-      {/* 헤더 */}
       <thead>
         <tr className="border-b border-[#8E8E93]">
-          <TD className="border-r border-[#8E8E93]" children="루틴" />
+          <TD className="border-r border-[#8E8E93]">루틴</TD>
           {week.days.map((day) => (
-            <TD key={day.date} children={day.label} />
+            <TD key={day.date}>{day.label}</TD>
           ))}
-          <TD className="border-l border-[#8E8E93]" children="합계" />
+          <TD className="border-l border-[#8E8E93]">합계</TD>
         </tr>
       </thead>
 
-      {/* 바디 */}
       <tbody>
         {rows.map((row) => {
           const doneCount = Object.values(row.checks).filter(Boolean).length;
           const totalCount = Object.keys(row.checks).length;
-          const textColor = `text-[${row.category.color}]`;
+
           return (
             <tr key={row.routineId}>
-              <TD
-                className={`${textColor} border-r border-[#8E8E93]`}
-                children={row.routineTitle}
-              />
+              <TD className={`border-r border-[#8E8E93]`}>
+                {row.routineTitle}
+              </TD>
 
               {week.days.map((day) => {
                 const hasCheck = day.date in row.checks;
@@ -40,7 +82,7 @@ export const RoutineTable = ({ report }: { report: RoutineReport }) => {
                 if (!hasCheck) {
                   return (
                     <TD key={day.date}>
-                      <GoDash size={20} color={"#8E8E93"} />
+                      <GoDash size={20} color="#8E8E93" />
                     </TD>
                   );
                 }
@@ -49,19 +91,25 @@ export const RoutineTable = ({ report }: { report: RoutineReport }) => {
 
                 return (
                   <TD key={day.date}>
-                    {checked ? (
-                      <FaCheckCircle size={20} color={row.category.color} />
-                    ) : (
-                      <LuCircleDashed size={20} color={row.category.color} />
-                    )}
+                    <button
+                      onClick={() =>
+                        handleToggle(row.routineId, day.date, checked)
+                      }
+                      className="pressable"
+                    >
+                      {checked ? (
+                        <FaCheckCircle size={20} color={row.category.color} />
+                      ) : (
+                        <LuCircleDashed size={20} color={row.category.color} />
+                      )}
+                    </button>
                   </TD>
                 );
               })}
 
-              <TD
-                className="border-l border-[#8E8E93]"
-                children={`${doneCount} / ${totalCount}`}
-              />
+              <TD className="border-l border-[#8E8E93]">
+                {doneCount} / {totalCount}
+              </TD>
             </tr>
           );
         })}
@@ -69,7 +117,6 @@ export const RoutineTable = ({ report }: { report: RoutineReport }) => {
     </table>
   );
 };
-
 interface TDProps {
   children: ReactNode;
   className?: string;

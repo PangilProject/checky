@@ -59,7 +59,12 @@ function RoutineReportSection() {
       />
 
       {/* ✅ 데이터 준비되었을 때만 렌더 */}
-      {report && <RoutineTable report={report} />}
+      {report && (
+        <RoutineTable
+          report={report}
+          setReport={setReport} // ✅ 추가
+        />
+      )}
 
       <Space24 direction="mb" />
     </div>
