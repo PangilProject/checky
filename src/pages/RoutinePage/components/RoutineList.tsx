@@ -108,8 +108,6 @@ export const RoutineList = () => {
               />
             </div>
 
-            <Space10 direction="mb" />
-
             {/* 루틴 리스트 */}
             <div className="flex flex-col">
               {routines.map((routine) => (

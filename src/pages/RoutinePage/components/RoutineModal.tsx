@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Text3, Text5 } from "@/shared/ui/Text";
+import { Text2, Text3, Text5 } from "@/shared/ui/Text";
 import {
   NormalBlackButton,
   NormalBlackUnFillButton,
   NormalRedUnFillButton,
 } from "@/shared/ui/Button";
-import { Space10, Space8 } from "@/shared/ui/Space";
+import { Space10, Space2, Space8 } from "@/shared/ui/Space";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import {
@@ -14,6 +14,8 @@ import {
   updateRoutine,
   type Routine,
 } from "@/shared/api/routine";
+import { IoIosCheckbox } from "react-icons/io";
+import { IoIosCheckboxOutline } from "react-icons/io";
 
 interface RoutineModalProps {
   mode?: "CREATE" | "VIEW" | "EDIT"; // ✅ 추가 (optional 권장)
@@ -106,6 +108,16 @@ export default function RoutineModal({
     }
   };
 
+  const [selectAllDays, setSelectAllDays] = useState(false);
+
+  const handleSelectAllDays = () => {
+    const ALL_DAYS = DAYS.map((d) => d.value); // [0,1,2,3,4,5,6]
+    setSelectAllDays(!selectAllDays);
+    setSelectedDays((prev) =>
+      prev.length === ALL_DAYS.length ? [] : ALL_DAYS
+    );
+  };
+
   return (
     <ModalWrapper onClose={onClose}>
       <ModalTitle mode={currentMode} />
@@ -114,6 +126,7 @@ export default function RoutineModal({
       {/* 루틴 이름 입력 */}
       <div>
         <Text3 text="루틴명" className="font-bold" />
+        <Space2 direction="mb" />
         <input
           className="w-full border-0 border-b border-gray-300 text-sm outline-none"
           placeholder="루틴 입력"
@@ -126,9 +139,25 @@ export default function RoutineModal({
       <Space8 direction="mb" />
 
       {/* 요일 선택 */}
-      <div className="flex justify-between items-center">
-        <Text3 text="반복" className="font-bold" />
-        <div className="flex gap-2">
+      <div className="flex flex-col">
+        <div className="w-full flex justify-between">
+          <Text3 text="반복" className="font-bold" />
+          {!isReadOnly && (
+            <button
+              className="flex items-center gap-1"
+              onClick={handleSelectAllDays}
+            >
+              <Text2 text="전체" />
+              {selectAllDays ? (
+                <IoIosCheckbox size={15} />
+              ) : (
+                <IoIosCheckboxOutline size={15} />
+              )}
+            </button>
+          )}
+        </div>
+        <Space2 direction="mb" />
+        <div className="flex gap-3 justify-between">
           {DAYS.map((day) => {
             const active = selectedDays.includes(day.value);
             return (
@@ -137,8 +166,8 @@ export default function RoutineModal({
                 disabled={isReadOnly}
                 onClick={() => toggleDay(day.value)}
                 className={`
-                  w-7 h-7 rounded-full text-sm
-                  border
+                  w-8 h-8 rounded-full text-sm
+                  border pressable
                   ${
                     active
                       ? "bg-black text-white border-black"
@@ -157,6 +186,7 @@ export default function RoutineModal({
 
       <div>
         <Text3 text="시작 날짜" className="font-bold" />
+        <Space2 direction="mb" />
         <input
           className="w-full border-0 border-b border-gray-300 text-sm outline-none"
           type="date"
