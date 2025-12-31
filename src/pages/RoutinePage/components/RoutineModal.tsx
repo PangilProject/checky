@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { Text3, Text5 } from "@/shared/ui/Text";
-import { NormalBlackButton, NormalBlackUnFillButton } from "@/shared/ui/Button";
+import {
+  NormalBlackButton,
+  NormalBlackUnFillButton,
+  NormalRedUnFillButton,
+} from "@/shared/ui/Button";
 import { Space10, Space8 } from "@/shared/ui/Space";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import {
   createRoutine,
+  deleteRoutine,
   updateRoutine,
   type Routine,
 } from "@/shared/api/routine";
@@ -83,6 +88,24 @@ export default function RoutineModal({
     }
   };
 
+  const handleDelete = async () => {
+    if (!user || !routine) return;
+
+    // const confirmed = window.confirm("이 루틴을 삭제할까요?");
+    // if (!confirmed) return;
+
+    try {
+      await deleteRoutine({
+        userId: user.uid,
+        routineId: routine.id,
+      });
+
+      onClose();
+    } catch (e) {
+      console.error("루틴 삭제 실패", e);
+    }
+  };
+
   return (
     <ModalWrapper onClose={onClose}>
       <ModalTitle mode={currentMode} />
@@ -151,6 +174,7 @@ export default function RoutineModal({
         onClose={onClose}
         onEdit={() => setCurrentMode("EDIT")}
         onSubmit={handleSubmit}
+        onDelete={handleDelete}
       />
     </ModalWrapper>
   );
@@ -168,16 +192,19 @@ const ButtonSection = ({
   onClose,
   onEdit,
   onSubmit,
+  onDelete,
 }: {
   mode: "CREATE" | "VIEW" | "EDIT";
   onClose: () => void;
   onEdit?: () => void;
   onSubmit?: () => void;
+  onDelete?: () => void;
 }) => {
   if (mode === "VIEW") {
     return (
       <div className="flex justify-between">
         <NormalBlackUnFillButton text="닫기" onClick={onClose} />
+        <NormalRedUnFillButton text="삭제" onClick={onDelete} />
         <NormalBlackButton text="수정" onClick={onEdit} />
       </div>
     );

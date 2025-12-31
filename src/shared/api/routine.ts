@@ -9,6 +9,7 @@ import {
   onSnapshot,
   updateDoc,
   doc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/services/firebase/firebase";
 import type { Category } from "./category";
@@ -155,6 +156,7 @@ export interface RoutineReportRow {
   checks: Record<string, boolean>; // date -> done
 }
 
+// 주 별 루틴 목록 가져오기
 export interface RoutineReport {
   week: RoutineReportWeek;
   rows: RoutineReportRow[];
@@ -265,4 +267,17 @@ export const getRoutineReportByWeek = async ({
     week,
     rows,
   };
+};
+
+// 루틴 삭제
+
+export const deleteRoutine = async ({
+  userId,
+  routineId,
+}: {
+  userId: string;
+  routineId: string;
+}) => {
+  const routineRef = doc(db, "users", userId, "routines", routineId);
+  await deleteDoc(routineRef);
 };

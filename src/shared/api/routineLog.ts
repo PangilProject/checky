@@ -1,11 +1,5 @@
 // routineLog.ts
-import {
-  collection,
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-} from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/services/firebase/firebase";
 
 export const toggleRoutineLog = async ({
@@ -19,7 +13,7 @@ export const toggleRoutineLog = async ({
   date: string;
   done: boolean;
 }) => {
-  const logId = `${routineId}_${date}`; // ✅ deterministic id
+  const logId = `${routineId}_${date}`;
   const logRef = doc(db, "users", userId, "routineLogs", logId);
 
   await setDoc(
@@ -31,6 +25,6 @@ export const toggleRoutineLog = async ({
       updatedAt: serverTimestamp(),
       createdAt: serverTimestamp(),
     },
-    { merge: true } // ✅ 있으면 update, 없으면 create
+    { merge: true }
   );
 };
