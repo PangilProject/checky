@@ -17,10 +17,10 @@ export interface Routine {
   id: string;
   title: string;
   categoryId: string;
-  days: number[]; // [0~6] (일~토)
+  days: number[];
+  startDate: string; // ✅ 추가
   createdAt?: Date;
 }
-
 export interface RoutineCategory {
   category: Category;
   routines: Routine[];
@@ -50,17 +50,18 @@ export const getRoutinesByCategory = async ({
   }));
 };
 
-// 루틴 생성
 export const createRoutine = async ({
   userId,
   title,
   categoryId,
   days,
+  startDate,
 }: {
   userId: string;
   title: string;
   categoryId: string;
   days: number[];
+  startDate: string;
 }) => {
   const routinesRef = collection(db, "users", userId, "routines");
 
@@ -68,6 +69,7 @@ export const createRoutine = async ({
     title,
     categoryId,
     days,
+    startDate, // ✅ 저장
     status: "ACTIVE",
     createdAt: serverTimestamp(),
   });
@@ -108,21 +110,23 @@ export const updateRoutine = async ({
   routineId,
   title,
   days,
+  startDate,
 }: {
   userId: string;
   routineId: string;
   title: string;
   days: number[];
+  startDate: string;
 }) => {
   const routineRef = doc(db, "users", userId, "routines", routineId);
 
   await updateDoc(routineRef, {
     title,
     days,
+    startDate, // ✅ 추가
     updatedAt: serverTimestamp(),
   });
 };
-
 // RoutineReport.types.ts
 
 export interface RoutineReportWeek {
@@ -155,3 +159,110 @@ export interface RoutineReport {
   week: RoutineReportWeek;
   rows: RoutineReportRow[];
 }
+
+export const getRoutineReportByWeek = async ({
+  userId,
+  startDate,
+  endDate,
+}: {
+  userId: string;
+  startDate: string;
+  endDate: string;
+}): Promise<RoutineReport> => {
+  const days = [];
+  const start = new Date(startDate);
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+
+    days.push({
+      date: d.toISOString().slice(0, 10),
+      day: d.getDay(),
+      label: ["일", "월", "화", "수", "목", "금", "토"][d.getDay()],
+    });
+  }
+
+  const week = {
+    startDate,
+    endDate,
+    days,
+  };
+  // 1️⃣ 루틴 가져오기
+  const routinesSnap = await getDocs(
+    query(
+      collection(db, "users", userId, "routines"),
+      where("startDate", "<=", week.endDate)
+    )
+  );
+
+  const routines = routinesSnap.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as any),
+  }));
+
+  // 2️⃣ routineLogs 가져오기
+  const logsSnap = await getDocs(
+    query(
+      collection(db, "users", userId, "routineLogs"),
+      where("date", ">=", week.startDate),
+      where("date", "<=", week.endDate)
+    )
+  );
+
+  const logs = logsSnap.docs.map((doc) => doc.data());
+
+  // 3️⃣ 로그를 Map으로 변환
+  const logMap = new Map<string, boolean>();
+  logs.forEach((log) => {
+    logMap.set(`${log.routineId}_${log.date}`, log.done);
+  });
+
+  const categoriesSnap = await getDocs(
+    collection(db, "users", userId, "categories")
+  );
+
+  const categoriesMap = Object.fromEntries(
+    categoriesSnap.docs.map((doc) => [
+      doc.id,
+      { id: doc.id, ...(doc.data() as any) },
+    ])
+  );
+
+  // 4️⃣ RoutineReportRow 생성 + 정렬
+  const rows = routines
+    .map((routine) => {
+      const checks: Record<string, boolean> = {};
+
+      week.days.forEach((day) => {
+        const isRepeatDay = routine.days.includes(day.day);
+        const isAfterStart = day.date >= routine.startDate;
+
+        if (isRepeatDay && isAfterStart) {
+          checks[day.date] = logMap.get(`${routine.id}_${day.date}`) ?? false;
+        }
+      });
+
+      return {
+        routineId: routine.id,
+        routineTitle: routine.title,
+        category: categoriesMap[routine.categoryId],
+        startDate: routine.startDate,
+        repeatDays: routine.days,
+        checks,
+      };
+    })
+    .sort((a, b) => {
+      // 1️⃣ 카테고리 id 기준 정렬
+      if (a.category.id < b.category.id) return -1;
+      if (a.category.id > b.category.id) return 1;
+
+      // 2️⃣ 같은 카테고리면 루틴 제목 기준 정렬 (선택)
+      return a.routineTitle.localeCompare(b.routineTitle);
+    });
+
+  return {
+    week,
+    rows,
+  };
+};

@@ -49,6 +49,10 @@ export default function RoutineModal({
     );
   };
 
+  const [startDate, setStartDate] = useState(
+    routine?.startDate ?? new Date().toISOString().slice(0, 10)
+  );
+
   const handleSubmit = async () => {
     if (!title.trim() || selectedDays.length === 0 || !user) return;
 
@@ -59,6 +63,7 @@ export default function RoutineModal({
           title,
           categoryId,
           days: selectedDays,
+          startDate, // ✅ 필수
         });
       }
 
@@ -68,6 +73,7 @@ export default function RoutineModal({
           routineId: routine.id,
           title,
           days: selectedDays,
+          startDate, // (선택) 수정 가능
         });
       }
 
@@ -83,19 +89,22 @@ export default function RoutineModal({
       <Space10 direction="mb" />
 
       {/* 루틴 이름 입력 */}
-      <input
-        className="w-full border-0 border-b border-gray-300 text-[16px] outline-none"
-        placeholder="루틴 입력"
-        value={title}
-        disabled={isReadOnly}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+      <div>
+        <Text3 text="루틴명" className="font-bold" />
+        <input
+          className="w-full border-0 border-b border-gray-300 text-sm outline-none"
+          placeholder="루틴 입력"
+          value={title}
+          disabled={isReadOnly}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </div>
 
       <Space8 direction="mb" />
 
       {/* 요일 선택 */}
       <div className="flex justify-between items-center">
-        <Text3 text="반복" />
+        <Text3 text="반복" className="font-bold" />
         <div className="flex gap-2">
           {DAYS.map((day) => {
             const active = selectedDays.includes(day.value);
@@ -119,6 +128,19 @@ export default function RoutineModal({
             );
           })}
         </div>
+      </div>
+
+      <Space8 direction="mb" />
+
+      <div>
+        <Text3 text="시작 날짜" className="font-bold" />
+        <input
+          className="w-full border-0 border-b border-gray-300 text-sm outline-none"
+          type="date"
+          value={startDate}
+          disabled={isReadOnly}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
       </div>
 
       <Space10 direction="mb" />

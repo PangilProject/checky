@@ -1,11 +1,12 @@
-import { mockRoutineReport } from "@/pages/mocks/mockRoutineReport";
 import { Text2 } from "@/shared/ui/Text";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import type { ReactNode } from "react";
+import type { RoutineReport } from "@/shared/api/routine";
+import { GoDash } from "react-icons/go";
 
-export const RoutineTable = () => {
-  const { week, rows } = mockRoutineReport;
+export const RoutineTable = ({ report }: { report: RoutineReport }) => {
+  const { week, rows } = report;
 
   return (
     <table border={1} cellPadding={8} className="w-full">
@@ -30,11 +31,22 @@ export const RoutineTable = () => {
             <tr key={row.routineId}>
               <TD
                 className={`${textColor} border-r border-[#8E8E93]`}
-                children={row.category.name}
+                children={row.routineTitle}
               />
 
               {week.days.map((day) => {
+                const hasCheck = day.date in row.checks;
+
+                if (!hasCheck) {
+                  return (
+                    <TD key={day.date}>
+                      <GoDash size={20} color={"#8E8E93"} />
+                    </TD>
+                  );
+                }
+
                 const checked = row.checks[day.date];
+
                 return (
                   <TD key={day.date}>
                     {checked ? (
