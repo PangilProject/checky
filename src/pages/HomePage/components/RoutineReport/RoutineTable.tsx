@@ -127,7 +127,7 @@ const TD = ({ children, className }: TDProps) => {
     <td
       className={`
         h-10
-        hover:bg-gray-500
+        hover:bg-[#f4f4f4]
         ${className ?? ""}
       `}
     >

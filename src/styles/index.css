@@ -23,6 +23,6 @@
 
 @layer utilities {
   .pressable {
-    @apply transition-transform duration-500 ease-out active:scale-50;
+    @apply transition-transform duration-500 ease-out active:scale-50 cursor-pointer;
   }
 }

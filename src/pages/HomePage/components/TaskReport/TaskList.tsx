@@ -212,7 +212,7 @@ const AddCategory = ({
   return (
     <div className="flex gap-2 items-center" onClick={onClick}>
       <Text4 text={categoryName} className={`${textColor} font-bold`} />
-      <FaCirclePlus size={15} color={categoryColor} />
+      <FaCirclePlus size={15} color={categoryColor} className="pressable" />
       <Space10 direction="mb" />
     </div>
   );
