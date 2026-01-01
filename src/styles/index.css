@@ -35,3 +35,9 @@
     user-select: none;
   }
 }
+
+@layer utilities {
+  .touch-none {
+    touch-action: none;
+  }
+}

@@ -10,7 +10,13 @@ import { SortableCategoryItem } from "./SortableCategoryItem";
 import CategoryModal from "./CategoryModal";
 import type { Timestamp } from "firebase/firestore";
 import type { DragEndEvent } from "@dnd-kit/core";
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import {
+  useSensor,
+  DndContext,
+  closestCenter,
+  useSensors,
+  PointerSensor,
+} from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -44,6 +50,15 @@ export const CategorySection = ({
   const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        delay: 150, // 150ms 이상 눌러야 drag 시작
+        tolerance: 5, // 5px 움직여도 drag 유지
+      },
+    })
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -121,6 +136,7 @@ export const CategorySection = ({
           <DndContext
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
+            sensors={sensors}
           >
             <SortableContext
               items={categories.map((c) => c.id)}
