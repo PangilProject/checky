@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { getCategories } from "@/shared/api/category";
+import { getCategories, updateCategoryOrder } from "@/shared/api/category";
 import { TitleText } from "@/shared/ui/TitleText";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { Space10, Space4 } from "@/shared/ui/Space";
 import { Text2 } from "@/shared/ui/Text";
 import ImageEmpty from "@/assets/images/empty.png";
-import { CategoryItem } from "./CategoryItem";
+import { SortableCategoryItem } from "./SortableCategoryItem";
 import CategoryModal from "./CategoryModal";
 import type { Timestamp } from "firebase/firestore";
+import type { DragEndEvent } from "@dnd-kit/core";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
 
 export interface Category {
   id: string;
@@ -52,6 +59,35 @@ export const CategorySection = ({
 
   if (!user) return null;
 
+  const saveCategoryOrder = (list: Category[]) => {
+    if (!user) return;
+
+    updateCategoryOrder({
+      userId: user.uid,
+      categories: list.map((c, index) => ({
+        id: c.id,
+        orderIndex: index,
+      })),
+    });
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setCategories((prev) => {
+      const oldIndex = prev.findIndex((c) => c.id === active.id);
+      const newIndex = prev.findIndex((c) => c.id === over.id);
+
+      const newList = arrayMove(prev, oldIndex, newIndex);
+
+      // 👉 여기서 DB 저장 (뒤에서 설명)
+      saveCategoryOrder(newList);
+
+      return newList;
+    });
+  };
+
   return (
     <div className="w-full flex flex-col">
       {/* 타이틀 영역 */}
@@ -82,9 +118,19 @@ export const CategorySection = ({
             <Space10 direction="mb" />
           </div>
         ) : (
-          categories.map((category) => (
-            <CategoryItem key={category.id} category={category} />
-          ))
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={categories.map((c) => c.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {categories.map((category) => (
+                <SortableCategoryItem key={category.id} category={category} />
+              ))}
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </div>

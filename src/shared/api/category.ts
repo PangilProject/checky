@@ -8,6 +8,8 @@ import {
   orderBy,
   onSnapshot,
   updateDoc,
+  getDocs,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "@/services/firebase/firebase";
 
@@ -18,6 +20,7 @@ export interface Category {
   name: string;
   color: string;
   status: CategoryStatus;
+  orderIndex: number;
   createdAt: any;
   updatedAt: any;
   endedAt: any;
@@ -35,21 +38,25 @@ export const createCategory = async ({
   name,
   color,
 }: CreateCategoryParams) => {
-  const categoryRef = doc(collection(db, "users", userId, "categories"));
+  const baseRef = collection(db, "users", userId, "categories");
 
-  const category: Category = {
+  // 현재 ACTIVE 카테고리 개수 가져오기
+  const snap = await getDocs(query(baseRef, where("status", "==", "ACTIVE")));
+
+  const orderIndex = snap.size; // 마지막에 추가
+
+  const categoryRef = doc(baseRef);
+
+  await setDoc(categoryRef, {
     id: categoryRef.id,
     name,
     color,
     status: "ACTIVE",
+    orderIndex,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-    endedAt: serverTimestamp(),
-  };
-
-  await setDoc(categoryRef, category);
-
-  return category;
+    endedAt: null,
+  });
 };
 
 // 카테고리 수정
@@ -100,10 +107,13 @@ export const restoreCategory = async ({
   userId,
   categoryId,
 }: RestoreCategoryParams) => {
-  const categoryRef = doc(db, "users", userId, "categories", categoryId);
+  const baseRef = collection(db, "users", userId, "categories");
 
-  await updateDoc(categoryRef, {
+  const snap = await getDocs(query(baseRef, where("status", "==", "ACTIVE")));
+
+  await updateDoc(doc(baseRef, categoryId), {
     status: "ACTIVE",
+    orderIndex: snap.size,
     updatedAt: serverTimestamp(),
   });
 };
@@ -134,9 +144,9 @@ export const getCategories = ({
     ? query(
         baseRef,
         where("status", "==", status),
-        orderBy("createdAt", "desc")
+        orderBy("orderIndex", "asc")
       )
-    : query(baseRef, orderBy("createdAt", "desc"));
+    : query(baseRef, orderBy("orderIndex", "asc"));
 
   const categories = onSnapshot(q, (snapshot) => {
     const categories: Category[] = snapshot.docs.map((doc) => ({
@@ -164,3 +174,43 @@ useEffect(() => {
   return () => unsubscribe();
 }, [user]);
 */
+
+// 카테고리 순번 바꾸기
+export const updateCategoryOrder = async ({
+  userId,
+  categories,
+}: {
+  userId: string;
+  categories: { id: string; orderIndex: number }[];
+}) => {
+  const batch = writeBatch(db);
+
+  categories.forEach(({ id, orderIndex }) => {
+    batch.update(doc(db, "users", userId, "categories", id), { orderIndex });
+  });
+
+  await batch.commit();
+};
+
+// export const migrateCategoryOrderIndex = async (userId: string) => {
+//   const baseRef = collection(db, "users", userId, "categories");
+
+//   // 기존 카테고리 전체 가져오기 (정렬 기준 아무거나)
+//   const snap = await getDocs(query(baseRef, orderBy("createdAt", "asc")));
+
+//   const batch = writeBatch(db);
+
+//   snap.docs.forEach((docSnap, index) => {
+//     const data = docSnap.data();
+
+//     // 이미 orderIndex 있으면 스킵
+//     if (typeof data.orderIndex === "number") return;
+
+//     batch.update(docSnap.ref, {
+//       orderIndex: index,
+//       updatedAt: serverTimestamp(),
+//     });
+//   });
+
+//   await batch.commit();
+// };

@@ -26,3 +26,12 @@
     @apply transition-transform duration-500 ease-out active:scale-50 cursor-pointer;
   }
 }
+
+@layer utilities {
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+}

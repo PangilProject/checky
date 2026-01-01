@@ -6,5 +6,5 @@ interface TitleTextProps {
 }
 
 export const TitleText = ({ text, className }: TitleTextProps) => {
-  return <Text5 text={text} className={`font-bold ${className}`} />;
+  return <Text5 text={text} className={`font-bold ${className} `} />;
 };
