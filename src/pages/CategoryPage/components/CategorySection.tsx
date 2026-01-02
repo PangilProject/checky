@@ -22,6 +22,7 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 export interface Category {
   id: string;
@@ -137,6 +138,7 @@ export const CategorySection = ({
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
             sensors={sensors}
+            modifiers={[restrictToVerticalAxis]}
           >
             <SortableContext
               items={categories.map((c) => c.id)}

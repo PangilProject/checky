@@ -3,6 +3,8 @@ import {
   subscribeRoutinesByCategory,
   type RoutineCategory,
   type Routine,
+  updateRoutineOrder,
+  migrateRoutineOrderIndex,
 } from "@/shared/api/routine";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { NormalBlackButton } from "@/shared/ui/Button";
@@ -13,11 +15,37 @@ import RoutineModal from "./RoutineModal";
 import { Text2, Text3 } from "@/shared/ui/Text";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { getDayLabel } from "@/shared/constants/da";
+import {
+  closestCenter,
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 export const RoutineList = () => {
   const { user } = useAuth();
   const [routineCategories, setRoutineCategories] = useState<RoutineCategory[]>(
     []
+  );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        delay: 150,
+        tolerance: 5,
+      },
+    })
   );
 
   // 생성 모달을 위한 상태 관리
@@ -43,6 +71,7 @@ export const RoutineList = () => {
 
   useEffect(() => {
     if (!user) return;
+    migrateRoutineOrderIndex(user.uid);
 
     const unsubscribeCategories = getCategories({
       userId: user.uid,
@@ -95,11 +124,36 @@ export const RoutineList = () => {
   return (
     <div>
       {routineCategories.map(({ category, routines }) => {
+        const handleDragEnd = (event: DragEndEvent) => {
+          const { active, over } = event;
+          if (!over || active.id === over.id) return;
+
+          const oldIndex = routines.findIndex((r) => r.id === active.id);
+          const newIndex = routines.findIndex((r) => r.id === over.id);
+
+          const newList = arrayMove(routines, oldIndex, newIndex);
+
+          setRoutineCategories((prev) =>
+            prev.map((item) =>
+              item.category.id === category.id
+                ? { ...item, routines: newList }
+                : item
+            )
+          );
+
+          updateRoutineOrder({
+            userId: user!.uid,
+            routines: newList.map((r, index) => ({
+              id: r.id,
+              orderIndex: index,
+            })),
+          });
+        };
+
         const textColor = `text-[${category.color}]`;
 
         return (
           <div key={category.id}>
-            {/* 카테고리 헤더 */}
             <div className="flex justify-between items-center">
               <TitleText text={category.name} className={textColor} />
               <NormalBlackButton
@@ -108,26 +162,30 @@ export const RoutineList = () => {
               />
             </div>
 
-            {/* 루틴 리스트 */}
-            <div className="flex flex-col">
-              {routines.map((routine) => (
-                <RoutineItem
-                  routine={routine}
-                  key={routine.id}
-                  onClickMore={() => {
-                    setIsModalOpen(false);
-                    setSelectedCategoryId(null);
-                    setSelectedRoutine(routine);
-                  }}
-                />
-              ))}
-            </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+              modifiers={[restrictToVerticalAxis]}
+            >
+              <SortableContext
+                items={routines.map((r) => r.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {routines.map((routine) => (
+                  <RoutineItem
+                    key={routine.id}
+                    routine={routine}
+                    onClickMore={() => setSelectedRoutine(routine)}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
 
             <Space10 direction="mb" />
           </div>
         );
       })}
-
       {/* CREATE */}
       {isModalOpen && selectedCategoryId && !selectedRoutine && (
         <RoutineModal
@@ -154,10 +212,34 @@ interface RoutineItemProps {
   routine: Routine;
   onClickMore: () => void;
 }
-const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
+
+export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: routine.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
-    <div className="w-full flex flex-col hover:bg-gray-100">
-      <Space2 direction="mb" />
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`w-full flex flex-col
+        cursor-grab touch-none
+        transition-all duration-200 ease-out
+        ${isDragging ? "bg-white shadow-xl scale-[1.01]" : "hover:bg-gray-100"}
+      `}
+    >
       <div className="flex justify-between items-center w-full ">
         <div className="flex flex-col">
           <Text3 text={routine.title} className="font-bold" />
@@ -177,7 +259,6 @@ const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
           <HiDotsHorizontal color="#8E8E93" size={20} />
         </button>
       </div>
-      <Space2 direction="mb" />
     </div>
   );
 };
