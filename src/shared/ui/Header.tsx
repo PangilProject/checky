@@ -3,9 +3,10 @@ import LogoImage from "../../assets/images/logo.png";
 import { Text4, Text6 } from "./Text";
 import { Space2 } from "./Space";
 import { Link, useLocation } from "react-router-dom";
+
 function Header() {
   return (
-    <div className="w-full flex justify-between items-center">
+    <div className="w-full sticky top-0 z-50 bg-white flex justify-between items-center">
       <LogoSection />
       <MenuSection />
     </div>
