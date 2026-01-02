@@ -12,7 +12,7 @@ import { Space10, Space2 } from "@/shared/ui/Space";
 import { TitleText } from "@/shared/ui/TitleText";
 import { useEffect, useRef, useState } from "react";
 import RoutineModal from "./RoutineModal";
-import { Text2, Text3 } from "@/shared/ui/Text";
+import { Text1, Text2, Text3 } from "@/shared/ui/Text";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { getDayLabel } from "@/shared/constants/da";
 import {
@@ -173,11 +173,12 @@ export const RoutineList = () => {
                 strategy={verticalListSortingStrategy}
               >
                 {routines.map((routine) => (
-                  <RoutineItem
-                    key={routine.id}
-                    routine={routine}
-                    onClickMore={() => setSelectedRoutine(routine)}
-                  />
+                  <div key={routine.id} className="py-2">
+                    <RoutineItem
+                      routine={routine}
+                      onClickMore={() => setSelectedRoutine(routine)}
+                    />
+                  </div>
                 ))}
               </SortableContext>
             </DndContext>

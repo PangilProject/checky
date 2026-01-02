@@ -181,7 +181,7 @@ export const getRoutineReportByWeek = async ({
   const days = [];
   const start = new Date(startDate);
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 1; i < 8; i++) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
 
@@ -255,6 +255,7 @@ export const getRoutineReportByWeek = async ({
       return {
         routineId: routine.id,
         routineTitle: routine.title,
+        routineOrderIndex: routine.orderIndex,
         category: categoriesMap[routine.categoryId],
         startDate: routine.startDate,
         repeatDays: routine.days,
@@ -262,12 +263,13 @@ export const getRoutineReportByWeek = async ({
       };
     })
     .sort((a, b) => {
-      // 1️⃣ 카테고리 id 기준 정렬
-      if (a.category.id < b.category.id) return -1;
-      if (a.category.id > b.category.id) return 1;
+      // 1️⃣ 카테고리 순서
+      if (a.category.orderIndex !== b.category.orderIndex) {
+        return a.category.orderIndex - b.category.orderIndex;
+      }
 
-      // 2️⃣ 같은 카테고리면 루틴 제목 기준 정렬 (선택)
-      return a.routineTitle.localeCompare(b.routineTitle);
+      // 2️⃣ 같은 카테고리면 루틴 순서
+      return a.routineOrderIndex - b.routineOrderIndex;
     });
 
   return {
