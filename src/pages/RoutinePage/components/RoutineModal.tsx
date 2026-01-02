@@ -187,13 +187,15 @@ export default function RoutineModal({
       <div>
         <Text3 text="시작 날짜" className="font-bold" />
         <Space2 direction="mb" />
-        <input
-          className="w-full border-0 border-b border-gray-300 text-sm outline-none"
-          type="date"
-          value={startDate}
-          disabled={isReadOnly}
-          onChange={(e) => setStartDate(e.target.value)}
-        />
+        {isReadOnly ? (
+          <Text2 text={startDate} className="text-gray-700" />
+        ) : (
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        )}
       </div>
 
       <Space10 direction="mb" />
