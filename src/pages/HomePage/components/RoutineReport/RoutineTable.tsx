@@ -7,6 +7,7 @@ import { GoDash } from "react-icons/go";
 
 import { toggleRoutineLog } from "@/shared/api/routineLog";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { Space20 } from "@/shared/ui/Space";
 
 export const RoutineTable = ({
   report,
@@ -17,6 +18,15 @@ export const RoutineTable = ({
 }) => {
   const { user } = useAuth();
   const { week, rows } = report;
+
+  if (rows.length === 0) {
+    return (
+      <div className="w-full flex flex-col items-center">
+        <Space20 direction="mb" />
+        <Text2 className="text-[#8E8E93]" text="해당 기간에 루틴이 없습니다." />
+      </div>
+    );
+  }
 
   const handleToggle = async (
     routineId: string,
