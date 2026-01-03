@@ -35,16 +35,24 @@ export const createTask = async ({
   categoryId,
   categoryColor,
   date,
-  orderIndex,
 }: {
   userId: string;
   title: string;
   categoryId: string;
   categoryColor: string;
   date: string;
-  orderIndex: number;
 }) => {
   const tasksRef = collection(db, "users", userId, "tasks");
+
+  const q = query(
+    tasksRef,
+    where("date", "==", date),
+    where("categoryId", "==", categoryId),
+    orderBy("orderIndex", "desc")
+  );
+
+  const snap = await getDocs(q);
+  const orderIndex = snap.empty ? 0 : (snap.docs[0].data().orderIndex ?? 0) + 1;
 
   const docRef = await addDoc(tasksRef, {
     title,
@@ -62,9 +70,9 @@ export const createTask = async ({
     categoryId,
     categoryColor,
     date,
+    orderIndex,
   } as Task;
 };
-
 /* =========================
    READ (date 기준)
 ========================= */
@@ -104,19 +112,36 @@ export const updateTaskWithDateMove = async ({
   prevDate,
   nextDate,
   title,
+  categoryId,
 }: {
   userId: string;
   taskId: string;
   prevDate: string;
   nextDate: string;
   title?: string;
+  categoryId: string;
 }) => {
   const taskRef = doc(db, "users", userId, "tasks", taskId);
 
-  // 1️⃣ Task 업데이트
+  // ✅ 날짜가 바뀐 경우: 새 날짜의 마지막 orderIndex 계산
+  let nextOrderIndex: number | undefined;
+
+  if (prevDate !== nextDate) {
+    const q = query(
+      collection(db, "users", userId, "tasks"),
+      where("date", "==", nextDate),
+      where("categoryId", "==", categoryId),
+      orderBy("orderIndex", "desc")
+    );
+
+    const snap = await getDocs(q);
+    nextOrderIndex = snap.empty ? 0 : (snap.docs[0].data().orderIndex ?? 0) + 1;
+  }
+
   await updateDoc(taskRef, {
     ...(title !== undefined && { title }),
     date: nextDate,
+    ...(nextOrderIndex !== undefined && { orderIndex: nextOrderIndex }),
     updatedAt: serverTimestamp(),
   });
 

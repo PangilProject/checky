@@ -73,7 +73,9 @@ export default function TaskModal({
         title: taskInput,
         prevDate: task.date,
         nextDate: taskDate,
+        categoryId,
       });
+
       onClose();
     } catch (e) {
       console.error("태스크 수정 실패", e);

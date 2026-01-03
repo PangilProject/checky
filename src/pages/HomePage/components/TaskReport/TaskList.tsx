@@ -180,7 +180,6 @@ const CategoryItem = ({
         categoryId,
         categoryColor,
         date: dateString,
-        orderIndex: filteredTasks.length,
       });
 
       setTasks((prev) =>
@@ -367,9 +366,9 @@ const SortableTaskItem = ({
       {...attributes}
       {...listeners}
       className={`
-        py-1 flex justify-between cursor-grab touch-none
-        ${isDragging ? "bg-gray-100 shadow-md scale-[1.02]" : ""}
-      `}
+          py-1 flex justify-between cursor-grab touch-none
+          ${isDragging ? "bg-gray-100 shadow-md scale-[1.02]" : ""}
+        `}
     >
       <div
         className="flex gap-2 items-center"
