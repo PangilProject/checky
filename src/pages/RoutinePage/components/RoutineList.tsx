@@ -8,11 +8,11 @@ import {
 } from "@/shared/api/routine";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { NormalBlackButton } from "@/shared/ui/Button";
-import { Space10, Space2 } from "@/shared/ui/Space";
+import { Space10 } from "@/shared/ui/Space";
 import { TitleText } from "@/shared/ui/TitleText";
 import { useEffect, useRef, useState } from "react";
 import RoutineModal from "./RoutineModal";
-import { Text1, Text2, Text3 } from "@/shared/ui/Text";
+import { Text2, Text3 } from "@/shared/ui/Text";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { getDayLabel } from "@/shared/constants/da";
 import {
