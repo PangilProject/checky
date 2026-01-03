@@ -11,7 +11,12 @@ import { FaCirclePlus } from "react-icons/fa6";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { LongBlackButton } from "@/shared/ui/Button";
-import { createTask, getTasksByDate, type Task } from "@/shared/api/task";
+import {
+  createTask,
+  getTasksByDate,
+  updateTaskOrder,
+  type Task,
+} from "@/shared/api/task";
 import {
   getTaskLogsByDate,
   toggleTaskLog,
@@ -21,6 +26,21 @@ import { HiDotsHorizontal } from "react-icons/hi";
 import TaskModal from "./TaskModal";
 import { useSelectedDate } from "@/shared/contexts/DateContext";
 import { formatDateByDate } from "@/shared/hooks/formatDate";
+import {
+  closestCenter,
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export const TaskListSection = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -82,6 +102,15 @@ const CategoryItem = ({
   const { selectedDate } = useSelectedDate();
   const dateString = formatDateByDate(selectedDate);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        delay: 150,
+        tolerance: 5,
+      },
+    })
+  );
+
   useEffect(() => {
     if (!user) return;
 
@@ -121,9 +150,11 @@ const CategoryItem = ({
     });
   };
 
-  const filteredTasks = tasks.filter(
-    (task) => task.categoryId === categoryId && task.date === dateString
-  );
+  const filteredTasks = tasks
+    .filter(
+      (task) => task.categoryId === categoryId && task.date === dateString
+    )
+    .sort((a, b) => a.orderIndex - b.orderIndex);
 
   const handleAddTask = async (title: string) => {
     if (!title.trim() || !user) return;
@@ -136,6 +167,7 @@ const CategoryItem = ({
       categoryId,
       categoryColor,
       date: dateString,
+      orderIndex: filteredTasks.length,
     };
 
     setTasks((prev) => [...prev, optimisticTask]);
@@ -148,6 +180,7 @@ const CategoryItem = ({
         categoryId,
         categoryColor,
         date: dateString,
+        orderIndex: filteredTasks.length,
       });
 
       setTasks((prev) =>
@@ -159,6 +192,40 @@ const CategoryItem = ({
     }
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = filteredTasks.findIndex((t) => t.id === active.id);
+    const newIndex = filteredTasks.findIndex((t) => t.id === over.id);
+
+    const newList = arrayMove(filteredTasks, oldIndex, newIndex);
+
+    // 1️⃣ UI 반영
+    setTasks((prev) => {
+      const others = prev.filter(
+        (t) => t.categoryId !== categoryId || t.date !== dateString
+      );
+
+      return [
+        ...others,
+        ...newList.map((t, index) => ({
+          ...t,
+          orderIndex: index,
+        })),
+      ];
+    });
+
+    // 2️⃣ DB 반영
+    updateTaskOrder({
+      userId: user!.uid,
+      tasks: newList.map((t, index) => ({
+        id: t.id,
+        orderIndex: index,
+      })),
+    });
+  };
+
   return (
     <div>
       <AddCategory
@@ -167,13 +234,24 @@ const CategoryItem = ({
         onClick={() => setIsAddOpen(true)}
       />
 
-      <TaskList
-        tasks={filteredTasks}
-        categoryColor={categoryColor}
-        taskLogMap={taskLogMap}
-        onToggle={handleToggleTask}
-        onClickTask={handleOpenTaskModal}
-      />
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={filteredTasks.map((t) => t.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <TaskList
+            tasks={filteredTasks}
+            categoryColor={categoryColor}
+            taskLogMap={taskLogMap}
+            onToggle={handleToggleTask}
+            onClickTask={handleOpenTaskModal}
+          />
+        </SortableContext>
+      </DndContext>
 
       {isAddOpen && (
         <AddTaskInput
@@ -219,8 +297,8 @@ const AddCategory = ({
 };
 
 const TaskList = ({
-  categoryColor,
   tasks,
+  categoryColor,
   taskLogMap,
   onToggle,
   onClickTask,
@@ -236,38 +314,88 @@ const TaskList = ({
   return (
     <>
       {tasks.map((task) => {
-        const log = taskLogMap.get(task.id);
-        const completed = log?.completed;
+        const completed = taskLogMap.get(task.id)?.completed;
 
         return (
-          <div key={task.id} className="py-1 flex justify-between">
-            <div
-              className="flex gap-2 items-center cursor-pointer"
-              onClick={() => onToggle(task.id)}
-            >
-              {completed ? (
-                <FaCheckCircle size={20} color={categoryColor} />
-              ) : (
-                <LuCircleDashed size={20} color={categoryColor} />
-              )}
-              <Text3
-                text={task.title}
-                className={completed ? "line-through opacity-60" : ""}
-              />
-            </div>
-            <button
-              className="pressable"
-              onClick={(e) => {
-                e.stopPropagation();
-                onClickTask(task);
-              }}
-            >
-              <HiDotsHorizontal color="#8E8E93" size={20} />
-            </button>
-          </div>
+          <SortableTaskItem
+            key={task.id}
+            task={task}
+            categoryColor={categoryColor}
+            completed={completed}
+            onToggle={onToggle}
+            onClickTask={onClickTask}
+          />
         );
       })}
     </>
+  );
+};
+
+interface SortableTaskItemProps {
+  task: Task;
+  categoryColor: string;
+  completed?: boolean;
+  onToggle: (taskId: string) => void;
+  onClickTask: (task: Task) => void;
+}
+
+const SortableTaskItem = ({
+  task,
+  categoryColor,
+  completed,
+  onToggle,
+  onClickTask,
+}: SortableTaskItemProps) => {
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`
+        py-1 flex justify-between cursor-grab touch-none
+        ${isDragging ? "bg-gray-100 shadow-md scale-[1.02]" : ""}
+      `}
+    >
+      <div
+        className="flex gap-2 items-center"
+        onClick={() => onToggle(task.id)}
+      >
+        {completed ? (
+          <FaCheckCircle size={20} color={categoryColor} />
+        ) : (
+          <LuCircleDashed size={20} color={categoryColor} />
+        )}
+        <Text3
+          text={task.title}
+          className={completed ? "line-through opacity-60" : ""}
+        />
+      </div>
+
+      <button
+        className="pressable"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClickTask(task);
+        }}
+      >
+        <HiDotsHorizontal color="#8E8E93" size={20} />
+      </button>
+    </div>
   );
 };
 
