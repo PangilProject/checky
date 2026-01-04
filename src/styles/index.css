@@ -36,8 +36,8 @@
   }
 }
 
-@layer utilities {
+/* @layer utilities {
   .touch-none {
     touch-action: none;
   }
-}
+} */

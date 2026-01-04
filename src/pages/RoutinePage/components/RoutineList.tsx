@@ -236,7 +236,7 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
       {...attributes}
       {...listeners}
       className={`w-full flex flex-col
-        cursor-grab touch-none
+        cursor-grab 
         transition-all duration-200 ease-out
         ${isDragging ? "bg-white shadow-xl scale-[1.01]" : "hover:bg-gray-100"}
       `}

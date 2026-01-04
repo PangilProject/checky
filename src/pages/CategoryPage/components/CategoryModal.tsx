@@ -205,7 +205,7 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
           }}
         >
           <div
-            className="w-[18px] h-[18px] rounded-full"
+            className="w-4.5[h-4.5unded-full"
             style={{ backgroundColor: value.value }}
           />
           {!disabled && (isOpen ? <RxTriangleUp /> : <RxTriangleDown />)}
@@ -225,7 +225,7 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
           <button
             key={color.name}
             className={`
-              w-[18px] h-[18px] rounded-full transition-transform
+              w-4.5 h-4.5 rounded-full transition-transform
               ${
                 value.name === color.name
                   ? "scale-110 ring-2 ring-black"

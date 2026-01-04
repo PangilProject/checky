@@ -41,6 +41,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 export const TaskListSection = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -237,6 +238,7 @@ const CategoryItem = ({
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
+        modifiers={[restrictToVerticalAxis]}
       >
         <SortableContext
           items={filteredTasks.map((t) => t.id)}
@@ -366,7 +368,7 @@ const SortableTaskItem = ({
       {...attributes}
       {...listeners}
       className={`
-          py-1 flex justify-between cursor-grab touch-none
+          py-1 flex justify-between cursor-grab 
           ${isDragging ? "bg-gray-100 shadow-md scale-[1.02]" : ""}
         `}
     >
