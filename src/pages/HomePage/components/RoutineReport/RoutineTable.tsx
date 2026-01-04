@@ -68,9 +68,25 @@ export const RoutineTable = ({
       <thead>
         <tr className="border-b border-[#8E8E93]">
           <TD className="border-r border-[#8E8E93]">루틴</TD>
-          {week.days.map((day) => (
-            <TD key={day.date}>{day.label}</TD>
-          ))}
+          {week.days.map((day) => {
+            const isSunday = day.label === "일";
+            const isSaturday = day.label === "토";
+
+            return (
+              <TD
+                key={day.date}
+                className={
+                  isSunday
+                    ? "text-[#FF393C]"
+                    : isSaturday
+                    ? "text-[#0088FF]"
+                    : undefined
+                }
+              >
+                {day.label}
+              </TD>
+            );
+          })}
           <TD className="border-l border-[#8E8E93]">합계</TD>
         </tr>
       </thead>
@@ -118,7 +134,7 @@ export const RoutineTable = ({
               })}
 
               <TD className="border-l border-[#8E8E93]">
-                {doneCount} / {totalCount}
+                <Text2 text={`${doneCount} / ${totalCount}`} />
               </TD>
             </tr>
           );

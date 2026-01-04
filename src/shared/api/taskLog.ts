@@ -72,3 +72,35 @@ export const toggleTaskLog = async ({
     updatedAt: serverTimestamp(),
   });
 };
+
+// 태스크 로그
+export const getTaskLogsByMonth = ({
+  userId,
+  date,
+  onChange,
+}: {
+  userId: string;
+  date: Date;
+  onChange: (logs: TaskLog[]) => void;
+}) => {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+
+  const start = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+  const end = `${year}-${String(month + 1).padStart(2, "0")}-31`;
+
+  const q = query(
+    collection(db, "users", userId, "taskLogs"),
+    where("date", ">=", start),
+    where("date", "<=", end)
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const logs = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<TaskLog, "id">),
+    }));
+
+    onChange(logs);
+  });
+};

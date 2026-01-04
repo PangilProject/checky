@@ -254,3 +254,36 @@ export const migrateTaskOrderIndex = async (userId: string) => {
     console.log("[Task] orderIndex migration done");
   }
 };
+
+// 월 별 모든 내용
+export const getTasksByMonth = ({
+  userId,
+  date,
+  onChange,
+}: {
+  userId: string;
+  date: Date;
+  onChange: (tasks: Task[]) => void;
+}) => {
+  const year = date.getFullYear();
+  const month = date.getMonth(); // 0-based
+
+  const start = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+  const end = `${year}-${String(month + 1).padStart(2, "0")}-31`;
+
+  const q = query(
+    collection(db, "users", userId, "tasks"),
+    where("date", ">=", start),
+    where("date", "<=", end),
+    orderBy("date", "asc")
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const tasks = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<Task, "id">),
+    }));
+
+    onChange(tasks);
+  });
+};

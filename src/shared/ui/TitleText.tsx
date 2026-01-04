@@ -1,4 +1,4 @@
-import { Text5 } from "./Text";
+import { Text4 } from "./Text";
 
 interface TitleTextProps {
   text: string;
@@ -6,5 +6,5 @@ interface TitleTextProps {
 }
 
 export const TitleText = ({ text, className }: TitleTextProps) => {
-  return <Text5 text={text} className={`font-bold ${className} `} />;
+  return <Text4 text={text} className={`font-bold ${className} `} />;
 };

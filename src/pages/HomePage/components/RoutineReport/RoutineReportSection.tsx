@@ -52,7 +52,7 @@ function RoutineReportSection() {
   return (
     <div>
       <TitleSection
-        title="Routine Report"
+        title="루틴 목록"
         subTitle={label}
         leftOnClick={() => setSelectedDate(moveWeek(selectedDate, -1))}
         rightOnClick={() => setSelectedDate(moveWeek(selectedDate, 1))}

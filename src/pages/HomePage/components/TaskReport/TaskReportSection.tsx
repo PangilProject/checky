@@ -14,7 +14,7 @@ function TaskReportSection() {
   return (
     <div>
       <TitleSection
-        title="Task Report"
+        title="할 일 목록"
         subTitle={label}
         leftOnClick={() => setSelectedDate(moveDay(selectedDate, -1))}
         rightOnClick={() => setSelectedDate(moveDay(selectedDate, 1))}
