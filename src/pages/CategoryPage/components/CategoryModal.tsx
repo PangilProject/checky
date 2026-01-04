@@ -205,7 +205,7 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
           }}
         >
           <div
-            className="w-4.5[h-4.5unded-full"
+            className="w-4.5 h-4.5 rounded-4xl"
             style={{ backgroundColor: value.value }}
           />
           {!disabled && (isOpen ? <RxTriangleUp /> : <RxTriangleDown />)}
