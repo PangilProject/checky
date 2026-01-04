@@ -8,6 +8,7 @@ import { auth } from "@/services/firebase/firebase";
 import { toast } from "react-toastify";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { TitleText } from "@/shared/ui/TitleText";
+import { deleteAccount } from "@/services/firebase/auth";
 
 function MyPage() {
   return (
@@ -52,13 +53,26 @@ const ButtonSection = () => {
     }
   };
 
+  const handleWithdraw = async () => {
+    const confirmed = confirm(
+      "정말로 탈퇴하시겠습니까?\n모든 데이터가 삭제됩니다."
+    );
+    if (!confirmed) return;
+
+    try {
+      await deleteAccount();
+      alert("회원탈퇴가 완료되었습니다.");
+      navigate("/");
+    } catch (e) {
+      console.error(e);
+      alert("회원탈퇴에 실패했습니다.");
+    }
+  };
+
   return (
     <div className="flex gap-3">
       <NormalBlackButton text="로그아웃" onClick={handleLogout} />
-      <NormalBlackButton
-        text="회원탈퇴"
-        onClick={() => toast.warning("준비중입니다.")}
-      />
+      <NormalBlackButton text="회원탈퇴" onClick={handleWithdraw} />
     </div>
   );
 };
