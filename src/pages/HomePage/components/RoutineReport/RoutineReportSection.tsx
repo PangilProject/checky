@@ -9,6 +9,7 @@ import {
   getRoutineReportByWeek,
   type RoutineReport,
 } from "@/shared/api/routine";
+import { formatDateKST } from "@/shared/hooks/formatDate";
 
 function RoutineReportSection() {
   const { user } = useAuth();
@@ -29,8 +30,8 @@ function RoutineReportSection() {
 
   // ✅ week 객체 (RoutineReport용)
   const week = {
-    startDate: start.toISOString().slice(0, 10),
-    endDate: end.toISOString().slice(0, 10),
+    startDate: formatDateKST(start),
+    endDate: formatDateKST(end),
   };
 
   useEffect(() => {

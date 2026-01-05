@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/services/firebase/firebase";
 import type { Category } from "./category";
+import { formatDateKST } from "../hooks/formatDate";
 
 export interface Routine {
   id: string;
@@ -181,12 +182,12 @@ export const getRoutineReportByWeek = async ({
   const days = [];
   const start = new Date(startDate);
 
-  for (let i = 1; i < 8; i++) {
+  for (let i = 0; i < 7; i++) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
 
     days.push({
-      date: d.toISOString().slice(0, 10),
+      date: formatDateKST(d),
       day: d.getDay(),
       label: ["일", "월", "화", "수", "목", "금", "토"][d.getDay()],
     });
