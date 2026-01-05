@@ -1,4 +1,4 @@
-import { Text2 } from "@/shared/ui/Text";
+import { Text1, Text2 } from "@/shared/ui/Text";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import type { ReactNode } from "react";
@@ -63,6 +63,10 @@ export const RoutineTable = ({
       done: !current,
     });
   };
+
+  function getDay(dateString: string): string {
+    return dateString.split("-")[2];
+  }
   return (
     <table border={1} cellPadding={8} className="w-full">
       <thead>
@@ -75,15 +79,19 @@ export const RoutineTable = ({
             return (
               <TD
                 key={day.date}
-                className={
-                  isSunday
-                    ? "text-[#FF393C]"
-                    : isSaturday
-                    ? "text-[#0088FF]"
-                    : undefined
-                }
+                className={`
+                  ${
+                    isSunday
+                      ? "text-[#FF393C]"
+                      : isSaturday
+                      ? "text-[#0088FF]"
+                      : undefined
+                  }`}
               >
-                {day.label}
+                <div className="flex flex-col items-center">
+                  <Text1 text={day.label} />
+                  <Text1 text={getDay(day.date)} />
+                </div>
               </TD>
             );
           })}
