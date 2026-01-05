@@ -68,11 +68,15 @@ export const useMonthlyActivityMap = ({
 import { useAuth } from "@/shared/hooks/useAuth";
 import { getTasksByMonth } from "../api/task";
 import { getTaskLogsByMonth } from "../api/taskLog";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "@/services/firebase/firebase";
 
 export const useMonthlyData = (date: Date) => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<any[]>([]);
   const [taskLogs, setTaskLogs] = useState<any[]>([]);
+  const [routines, setRoutines] = useState<any[]>([]);
+  const [routineLogs, setRoutineLogs] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -89,11 +93,160 @@ export const useMonthlyData = (date: Date) => {
       onChange: setTaskLogs,
     });
 
+    const unsubscribeRoutines = getRoutinesByMonth({
+      userId: user.uid,
+      date,
+      onChange: setRoutines,
+    });
+
+    const unsubscribeRoutineLogs = getRoutineLogsByMonth({
+      userId: user.uid,
+      date,
+      onChange: setRoutineLogs,
+    });
+
     return () => {
       unsubscribeTasks();
       unsubscribeLogs();
+      unsubscribeRoutines();
+      unsubscribeRoutineLogs();
     };
   }, [user, date]);
 
-  return { tasks, taskLogs };
+  return { tasks, taskLogs, routines, routineLogs };
+};
+
+//
+export interface MonthlyActivityCount {
+  total: number;
+  completed: number;
+  remaining: number;
+}
+export const useMonthlyActivityCountMap = ({
+  date, // ⭐ 추가
+  tasks,
+  taskLogs,
+  routines,
+  routineLogs,
+}: {
+  date: Date;
+  tasks: { date: string }[];
+  taskLogs: { date: string; completed: boolean }[];
+  routines: { startDate: string; days: number[] }[];
+  routineLogs: { date: string; done: boolean }[];
+}) => {
+  const [map, setMap] = useState<Map<string, MonthlyActivityCount>>(new Map());
+
+  useEffect(() => {
+    const next = new Map<string, MonthlyActivityCount>();
+
+    const ensure = (date: string) => {
+      if (!next.has(date)) {
+        next.set(date, { total: 0, completed: 0, remaining: 0 });
+      }
+      return next.get(date)!;
+    };
+
+    // 1️⃣ Task 전체 개수
+    tasks.forEach(({ date }) => {
+      ensure(date).total += 1;
+    });
+
+    // 2️⃣ Routine 전체 개수
+    routines.forEach((routine) => {
+      const { startDate, days } = routine;
+
+      days.forEach((dayOfWeek: number) => {
+        const year = date.getFullYear(); // ✅ 여기
+        const month = date.getMonth(); // ✅ 여기
+
+        const lastDay = new Date(year, month + 1, 0).getDate();
+
+        for (let d = 1; d <= lastDay; d++) {
+          const dateObj = new Date(year, month, d);
+          const dateStr = `${year}-${String(month + 1).padStart(
+            2,
+            "0"
+          )}-${String(d).padStart(2, "0")}`;
+
+          if (dateStr >= startDate && dateObj.getDay() === dayOfWeek) {
+            ensure(dateStr).total += 1;
+          }
+        }
+      });
+    });
+    // 3️⃣ Task 완료
+    taskLogs.forEach(({ date, completed }) => {
+      if (completed) ensure(date).completed += 1;
+    });
+
+    // 4️⃣ Routine 완료
+    routineLogs.forEach(({ date, done }) => {
+      if (done) ensure(date).completed += 1;
+    });
+
+    // 5️⃣ remaining 계산
+    next.forEach((value) => {
+      value.remaining = Math.max(value.total - value.completed, 0);
+    });
+
+    setMap(next);
+  }, [date, tasks, taskLogs, routines, routineLogs]);
+
+  return map;
+};
+
+export const getRoutinesByMonth = ({
+  userId,
+  date,
+  onChange,
+}: {
+  userId: string;
+  date: Date;
+  onChange: (routines: { startDate: string; days: number[] }[]) => void;
+}) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+
+  const end = `${year}-${month}-31`;
+
+  const ref = collection(db, "users", userId, "routines");
+  const q = query(ref, where("startDate", "<=", end));
+
+  return onSnapshot(q, (snapshot) => {
+    const routines = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        startDate: data.startDate,
+        days: data.days, // ⭐ 반드시 필요
+      };
+    });
+
+    onChange(routines);
+  });
+};
+
+export const getRoutineLogsByMonth = ({
+  userId,
+  date,
+  onChange,
+}: {
+  userId: string;
+  date: Date;
+  onChange: (logs: { date: string; done: boolean }[]) => void;
+}) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+
+  const start = `${year}-${month}-01`;
+  const end = `${year}-${month}-31`;
+
+  const ref = collection(db, "users", userId, "routineLogs");
+
+  const q = query(ref, where("date", ">=", start), where("date", "<=", end));
+
+  return onSnapshot(q, (snapshot) => {
+    const logs = snapshot.docs.map((doc) => doc.data() as any);
+    onChange(logs);
+  });
 };

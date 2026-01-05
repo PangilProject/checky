@@ -1,7 +1,10 @@
-import { useCalendar } from "@/shared/hooks/calendar";
+import {
+  useCalendar,
+  type MonthlyActivityCount,
+} from "@/shared/hooks/calendar";
 import { useSelectedDate } from "@/shared/contexts/DateContext";
-import { FaCheckCircle } from "react-icons/fa";
-import { LuCircleDashed } from "react-icons/lu";
+// import { FaCheckCircle } from "react-icons/fa";
+// import { LuCircleDashed } from "react-icons/lu";
 import { Text1, Text2 } from "@/shared/ui/Text";
 
 const SUNDAY_COLOR = "#FF393C";
@@ -10,7 +13,7 @@ const SATURDAY_COLOR = "#0088FF";
 export const CalanderSection = ({
   activityMap,
 }: {
-  activityMap: Map<string, boolean>;
+  activityMap: Map<string, MonthlyActivityCount>;
 }) => {
   const { selectedDate, setSelectedDate } = useSelectedDate();
   const { year, month, cells } = useCalendar(selectedDate);
@@ -60,13 +63,14 @@ export const CalanderSection = ({
             "0"
           )}-${String(day).padStart(2, "0")}`;
 
-          const hasActivity = activityMap.get(dateKey);
           const isSelected =
             selectedDate.getFullYear() === year &&
             selectedDate.getMonth() === month &&
             selectedDate.getDate() === day;
 
           const textColor = `text-[${dateColor}]`;
+
+          const activity = activityMap.get(dateKey);
           return (
             <button
               key={index}
@@ -76,10 +80,22 @@ export const CalanderSection = ({
                 ${isSelected ? "bg-gray-100" : ""}
               `}
             >
-              {hasActivity ? (
-                <FaCheckCircle size={20} />
+              {activity ? (
+                <div
+                  className={`
+                    w-6 h-6 flex items-center justify-center rounded-full
+                    text-xs font-bold
+                    ${
+                      activity.remaining === 0
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-200 text-black"
+                    }
+                  `}
+                >
+                  {activity.remaining}
+                </div>
               ) : (
-                <LuCircleDashed size={20} />
+                <div className="w-6 h-6" />
               )}
               <Text1 text={String(day)} className={textColor} />
             </button>

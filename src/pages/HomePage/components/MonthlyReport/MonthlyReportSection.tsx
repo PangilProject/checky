@@ -2,7 +2,7 @@ import TitleSection from "../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/DateContext";
 import { moveMonth } from "@/shared/hooks/dateNavigation";
 import { CalanderSection } from "./CalanderSection";
-import { useMonthlyActivityMap } from "@/shared/hooks/calendar";
+import { useMonthlyActivityCountMap } from "@/shared/hooks/calendar";
 
 import { useMonthlyData } from "@/shared/hooks/calendar";
 
@@ -13,11 +13,15 @@ function MonthlyReportSection() {
     selectedDate.getMonth() + 1
   }월`;
 
-  const { tasks, taskLogs } = useMonthlyData(selectedDate);
+  const { tasks, taskLogs, routines, routineLogs } =
+    useMonthlyData(selectedDate);
 
-  const activityMap = useMonthlyActivityMap({
+  const activityMap = useMonthlyActivityCountMap({
+    date: selectedDate, // ⭐ 반드시 전달
     tasks,
     taskLogs,
+    routines,
+    routineLogs,
   });
 
   return (
