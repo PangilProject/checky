@@ -8,12 +8,14 @@ interface TitleSectionProps {
   subTitle: string;
   leftOnClick?: () => void;
   rightOnClick?: () => void;
+  onTodayClick?: () => void; // ✅ 추가
 }
 function TitleSection({
   title,
   subTitle,
   leftOnClick,
   rightOnClick,
+  onTodayClick,
 }: TitleSectionProps) {
   return (
     <div>
@@ -22,7 +24,18 @@ function TitleSection({
           <TitleText text={title} />
           <SubTitle text={subTitle} />
         </div>
-        <div className="flex gap-3">
+
+        <div className="flex items-center gap-3">
+          {/* ✅ 오늘 버튼 */}
+          {onTodayClick && (
+            <button
+              onClick={onTodayClick}
+              className="px-3 py-1 text-sm rounded-md bg-gray-100 pressable"
+            >
+              오늘
+            </button>
+          )}
+
           <div className="pressable" onClick={leftOnClick}>
             <VscTriangleLeft size={20} />
           </div>

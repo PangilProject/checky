@@ -31,6 +31,7 @@ function MonthlyReportSection() {
         subTitle={label}
         leftOnClick={() => setSelectedDate(moveMonth(selectedDate, -1))}
         rightOnClick={() => setSelectedDate(moveMonth(selectedDate, 1))}
+        onTodayClick={() => setSelectedDate(new Date())}
       />
       <CalanderSection activityMap={activityMap} />
     </div>

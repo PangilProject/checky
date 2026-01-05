@@ -57,6 +57,7 @@ function RoutineReportSection() {
         subTitle={label}
         leftOnClick={() => setSelectedDate(moveWeek(selectedDate, -1))}
         rightOnClick={() => setSelectedDate(moveWeek(selectedDate, 1))}
+        onTodayClick={() => setSelectedDate(new Date())}
       />
 
       {/* ✅ 데이터 준비되었을 때만 렌더 */}

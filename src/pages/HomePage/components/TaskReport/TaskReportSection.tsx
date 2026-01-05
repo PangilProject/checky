@@ -18,6 +18,7 @@ function TaskReportSection() {
         subTitle={label}
         leftOnClick={() => setSelectedDate(moveDay(selectedDate, -1))}
         rightOnClick={() => setSelectedDate(moveDay(selectedDate, 1))}
+        onTodayClick={() => setSelectedDate(new Date())}
       />
       <TaskListSection />
       <Space24 direction="mb" />

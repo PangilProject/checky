@@ -95,7 +95,7 @@ export const CalanderSection = ({
                   {activity.remaining}
                 </div>
               ) : (
-                <div className="w-6 h-6" />
+                <div className="w-6 h-6 bg-gray-200 rounded-full" />
               )}
               <Text1 text={String(day)} className={textColor} />
             </button>
