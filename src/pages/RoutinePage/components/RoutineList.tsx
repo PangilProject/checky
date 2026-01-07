@@ -35,6 +35,7 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 import ImageEmpty from "@/assets/images/empty.png";
 import { Link } from "react-router-dom";
+import { RiCheckboxBlankFill } from "react-icons/ri";
 
 export const RoutineList = () => {
   const { user } = useAuth();
@@ -282,18 +283,22 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
       `}
     >
       <div className="flex justify-between items-center w-full ">
-        <div className="flex flex-col">
-          <Text3 text={routine.title} className="font-bold" />
-          <div className="flex gap-2">
-            {routine.days
-              .sort((a, b) => a - b)
-              .map((day, index) => (
-                <Text2
-                  key={index}
-                  className="text-[#8E8E93]"
-                  text={getDayLabel(day)}
-                />
-              ))}
+        <div className="flex items-center">
+          <RiCheckboxBlankFill size={10} />
+          <Space2 direction="mr" />
+          <div className="flex flex-col">
+            <Text3 text={routine.title} className="font-bold" />
+            <div className="flex gap-2">
+              {routine.days
+                .sort((a, b) => a - b)
+                .map((day, index) => (
+                  <Text2
+                    key={index}
+                    className="text-[#8E8E93]"
+                    text={getDayLabel(day)}
+                  />
+                ))}
+            </div>
           </div>
         </div>
         <button onClick={onClickMore} className="pressable">
