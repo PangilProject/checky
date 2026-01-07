@@ -15,11 +15,13 @@ function Header() {
 
 const LogoSection = () => {
   return (
-    <div className="flex items-center my-4">
-      <img src={LogoImage} className="w-8" />
-      <Space2 direction="mr" />
-      <Text6 className={wickedMouseClass} text="CHECKY" />
-    </div>
+    <Link to="/">
+      <div className="flex items-center my-4">
+        <img src={LogoImage} className="w-8" />
+        <Space2 direction="mr" />
+        <Text6 className={wickedMouseClass} text="CHECKY" />
+      </div>
+    </Link>
   );
 };
 
