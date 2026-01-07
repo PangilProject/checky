@@ -12,7 +12,7 @@ import {
   deleteDoc,
   writeBatch,
 } from "firebase/firestore";
-import { db } from "@/services/firebase/firebase";
+import { db } from "@/firebase/firebase";
 import type { Category } from "./category";
 import { formatDateKST } from "../hooks/formatDate";
 

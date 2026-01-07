@@ -4,11 +4,11 @@ import { Space10, Space4 } from "@/shared/ui/Space";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
-import { auth } from "@/services/firebase/firebase";
+import { auth } from "@/firebase/firebase";
 import { toast } from "react-toastify";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { TitleText } from "@/shared/ui/TitleText";
-import { deleteAccount } from "@/services/firebase/auth";
+import { deleteAccount } from "@/firebase/auth";
 
 function MyPage() {
   return (

@@ -69,7 +69,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { getTasksByMonth } from "../api/task";
 import { getTaskLogsByMonth } from "../api/taskLog";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { db } from "@/services/firebase/firebase";
+import { db } from "@/firebase/firebase";
 
 export const useMonthlyData = (date: Date) => {
   const { user } = useAuth();

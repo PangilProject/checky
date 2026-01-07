@@ -1,6 +1,6 @@
 // routineLog.ts
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/services/firebase/firebase";
+import { db } from "@/firebase/firebase";
 
 export const toggleRoutineLog = async ({
   userId,

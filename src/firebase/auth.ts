@@ -13,7 +13,7 @@ import {
   getDocs,
   deleteDoc,
 } from "firebase/firestore";
-import { auth, googleProvider, db } from "@/services/firebase/firebase";
+import { auth, googleProvider, db } from "@/firebase/firebase";
 
 export const signInWithGoogle = async () => {
   const result = await signInWithPopup(auth, googleProvider);

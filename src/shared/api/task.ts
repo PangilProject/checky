@@ -12,7 +12,7 @@ import {
   getDocs,
   deleteDoc,
 } from "firebase/firestore";
-import { db } from "@/services/firebase/firebase";
+import { db } from "@/firebase/firebase";
 
 /* =========================
    Task 타입
