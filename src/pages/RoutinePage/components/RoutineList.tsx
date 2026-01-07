@@ -8,11 +8,11 @@ import {
 } from "@/shared/api/routine";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { NormalBlackButton } from "@/shared/ui/Button";
-import { Space10 } from "@/shared/ui/Space";
+import { Space10, Space2, Space4 } from "@/shared/ui/Space";
 import { TitleText } from "@/shared/ui/TitleText";
 import { useEffect, useRef, useState } from "react";
 import RoutineModal from "./RoutineModal";
-import { Text2, Text3 } from "@/shared/ui/Text";
+import { Text2, Text3, Text4 } from "@/shared/ui/Text";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { getDayLabel } from "@/shared/constants/da";
 import {
@@ -32,6 +32,9 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+
+import ImageEmpty from "@/assets/images/empty.png";
+import { Link } from "react-router-dom";
 
 export const RoutineList = () => {
   const { user } = useAuth();
@@ -120,7 +123,31 @@ export const RoutineList = () => {
       routineUnsubscribes.current = {};
     };
   }, [user]);
-
+  if (routineCategories.length === 0) {
+    return (
+      <div>
+        <Text4 text="루틴 페이지" className="font-bold mb-5" />
+        <Space4 direction="mb" />
+        <div className="flex flex-col items-center">
+          <img src={ImageEmpty} className="h-15" />
+          <Space4 direction="mb" />
+          <Text2 text="추가된 카테고리가 없습니다." className="text-gray-400" />
+          <Text2
+            text={`"카테고리 페이지에서 루틴을 추가해보세요.`}
+            className="text-gray-400"
+          />
+          <Space2 direction="mb" />
+          <Link
+            to="/category"
+            className="text-xs text-blue-400 hover:text-blue-200"
+          >
+            추가하러 가기
+          </Link>
+          <Space10 direction="mb" />
+        </div>
+      </div>
+    );
+  }
   return (
     <div>
       {routineCategories.map(({ category, routines }) => {
@@ -172,14 +199,27 @@ export const RoutineList = () => {
                 items={routines.map((r) => r.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {routines.map((routine) => (
-                  <div key={routine.id} className="py-2">
-                    <RoutineItem
-                      routine={routine}
-                      onClickMore={() => setSelectedRoutine(routine)}
+                {routines.length === 0 ? (
+                  <div className="flex flex-col items-center">
+                    <Space4 direction="mb" />
+                    <img src={ImageEmpty} className="h-15" />
+                    <Space4 direction="mb" />
+                    <Text2
+                      text="추가된 루틴이 없습니다."
+                      className="text-gray-400"
                     />
+                    <Space10 direction="mb" />
                   </div>
-                ))}
+                ) : (
+                  routines.map((routine) => (
+                    <div key={routine.id} className="py-2">
+                      <RoutineItem
+                        routine={routine}
+                        onClickMore={() => setSelectedRoutine(routine)}
+                      />
+                    </div>
+                  ))
+                )}
               </SortableContext>
             </DndContext>
 
