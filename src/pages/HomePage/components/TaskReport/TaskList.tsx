@@ -4,8 +4,8 @@ import {
   COLOR_CLASS_TEXT_MAP,
 } from "@/shared/constants/color";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { Space10, Space8 } from "@/shared/ui/Space";
-import { Text3, Text4 } from "@/shared/ui/Text";
+import { Space10, Space6, Space8 } from "@/shared/ui/Space";
+import { Text1, Text3, Text4 } from "@/shared/ui/Text";
 import { useEffect, useRef, useState } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
 import { FaCheckCircle } from "react-icons/fa";
@@ -372,19 +372,24 @@ const SortableTaskItem = ({
           ${isDragging ? "bg-gray-100 shadow-md scale-[1.02]" : ""}
         `}
     >
-      <div
-        className="flex gap-2 items-center"
-        onClick={() => onToggle(task.id)}
-      >
-        {completed ? (
-          <FaCheckCircle size={20} color={categoryColor} />
-        ) : (
-          <LuCircleDashed size={20} color={categoryColor} />
-        )}
-        <Text3
-          text={task.title}
-          className={completed ? "line-through opacity-60" : ""}
-        />
+      <div className="flex flex-col" onClick={() => onToggle(task.id)}>
+        <div className="flex gap-2 itmes-center">
+          {completed ? (
+            <FaCheckCircle size={20} color={categoryColor} />
+          ) : (
+            <LuCircleDashed size={20} color={categoryColor} />
+          )}
+          <Text3
+            text={task.title}
+            className={completed ? "line-through opacity-60" : ""}
+          />
+        </div>
+        <div className="flex">
+          <Space6 direction="mr" />
+          {task.time && (
+            <Text1 text={task.time} className="ml-1 text-[#8E8E93]" />
+          )}
+        </div>
       </div>
 
       <button

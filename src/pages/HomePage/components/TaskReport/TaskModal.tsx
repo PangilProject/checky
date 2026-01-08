@@ -36,6 +36,11 @@ export default function TaskModal({
 
   const [taskInput, setTaskInput] = useState(task?.title ?? "");
   const [taskDate, setTaskDate] = useState(task?.date ?? selectedDate);
+  const DEFAULT_TIME = "12:30";
+
+  const [timeEnabled, setTimeEnabled] = useState<boolean>(Boolean(task?.time));
+
+  const [taskTime, setTaskTime] = useState<string>(task?.time ?? DEFAULT_TIME);
   const [currentMode, setCurrentMode] = useState(mode);
 
   const isReadOnly = currentMode === "VIEW";
@@ -53,6 +58,7 @@ export default function TaskModal({
         categoryId,
         categoryColor,
         date: taskDate,
+        ...(timeEnabled && { time: taskTime }),
       });
       onClose();
     } catch (e) {
@@ -71,6 +77,7 @@ export default function TaskModal({
         userId: user.uid,
         taskId: task.id,
         title: taskInput,
+        ...(timeEnabled ? { time: taskTime } : { time: undefined }),
         prevDate: task.date,
         nextDate: taskDate,
         categoryId,
@@ -98,6 +105,8 @@ export default function TaskModal({
     }
   };
 
+  const shouldShowTimeField = !isReadOnly || Boolean(task?.time);
+
   return (
     <ModalWrapper onClose={onClose}>
       <ModalTitle mode={currentMode} />
@@ -117,6 +126,23 @@ export default function TaskModal({
       />
       <Space10 direction="mb" />
 
+      {shouldShowTimeField && (
+        <>
+          <TimeField
+            enabled={timeEnabled}
+            value={taskTime}
+            onToggle={(v) => {
+              setTimeEnabled(v);
+              if (v && !taskTime) {
+                setTaskTime(DEFAULT_TIME);
+              }
+            }}
+            onChange={setTaskTime}
+            disabled={isReadOnly}
+          />
+          <Space10 direction="mb" />
+        </>
+      )}
       <ButtonSection
         mode={currentMode}
         onClose={onClose}
@@ -183,6 +209,55 @@ const DateField = ({
           onChange={(e) => onChange(e.target.value)}
           className="border-b border-gray-300 outline-none text-[14px]"
         />
+      )}
+    </div>
+  );
+};
+
+const TimeField = ({
+  enabled,
+  value,
+  onToggle,
+  onChange,
+  disabled,
+}: {
+  enabled: boolean;
+  value: string;
+  onToggle: (v: boolean) => void;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) => {
+  return (
+    <div className="flex justify-between items-center">
+      <Text3 text="시간" />
+      {disabled ? (
+        enabled && <Text3 text={value} className="opacity-60" />
+      ) : (
+        <div className="flex items-center gap-3">
+          {/* 선택 버튼 (체크박스 역할) */}
+          <button
+            type="button"
+            onClick={() => onToggle(!enabled)}
+            className={`text-xs px-2 py-1 rounded border
+              ${
+                enabled
+                  ? "border-black text-black"
+                  : "border-gray-300 text-gray-400"
+              }`}
+          >
+            {enabled ? "삭제" : "선택"}
+          </button>
+
+          {/* time input */}
+          <input
+            type="time"
+            value={value}
+            disabled={!enabled}
+            onChange={(e) => onChange(e.target.value)}
+            className={`border-b outline-none text-[14px]
+              ${!enabled && "opacity-40"}`}
+          />
+        </div>
       )}
     </div>
   );

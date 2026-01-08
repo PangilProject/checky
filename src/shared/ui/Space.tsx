@@ -13,6 +13,12 @@ const SPACE_MAP = {
     ml: "ml-4",
     mr: "mr-4",
   },
+  6: {
+    mb: "mb-6",
+    mt: "mt-6",
+    ml: "ml-6",
+    mr: "mr-6",
+  },
   8: {
     mb: "mb-8",
     mt: "mt-8",
@@ -53,6 +59,8 @@ const createSpace =
 
 export const Space2 = createSpace(2);
 export const Space4 = createSpace(4);
+export const Space6 = createSpace(6);
+
 export const Space8 = createSpace(8);
 export const Space10 = createSpace(10);
 export const Space12 = createSpace(12);

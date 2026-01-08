@@ -11,6 +11,7 @@ import {
   writeBatch,
   getDocs,
   deleteDoc,
+  deleteField,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
@@ -23,6 +24,7 @@ export interface Task {
   categoryId: string;
   categoryColor: string;
   date: string;
+  time?: string;
   orderIndex: number;
 }
 
@@ -35,12 +37,14 @@ export const createTask = async ({
   categoryId,
   categoryColor,
   date,
+  time,
 }: {
   userId: string;
   title: string;
   categoryId: string;
   categoryColor: string;
   date: string;
+  time?: string;
 }) => {
   const tasksRef = collection(db, "users", userId, "tasks");
 
@@ -59,6 +63,7 @@ export const createTask = async ({
     categoryId,
     categoryColor,
     date,
+    time,
     orderIndex,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -70,6 +75,7 @@ export const createTask = async ({
     categoryId,
     categoryColor,
     date,
+    time,
     orderIndex,
   } as Task;
 };
@@ -113,6 +119,7 @@ export const updateTaskWithDateMove = async ({
   nextDate,
   title,
   categoryId,
+  time,
 }: {
   userId: string;
   taskId: string;
@@ -120,6 +127,7 @@ export const updateTaskWithDateMove = async ({
   nextDate: string;
   title?: string;
   categoryId: string;
+  time?: string;
 }) => {
   const taskRef = doc(db, "users", userId, "tasks", taskId);
 
@@ -140,11 +148,11 @@ export const updateTaskWithDateMove = async ({
 
   await updateDoc(taskRef, {
     ...(title !== undefined && { title }),
+    ...(time !== undefined ? { time } : { time: deleteField() }),
     date: nextDate,
     ...(nextOrderIndex !== undefined && { orderIndex: nextOrderIndex }),
     updatedAt: serverTimestamp(),
   });
-
   // 2️⃣ 기존 TaskLog 조회
   const prevLogQuery = query(
     collection(db, "users", userId, "taskLogs"),
