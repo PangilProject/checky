@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
 export interface AdminUser {
@@ -18,7 +18,12 @@ export const useAdminUsers = () => {
     const fetchUsers = async () => {
       setLoading(true);
 
-      const snap = await getDocs(collection(db, "users"));
+      const q = query(
+        collection(db, "users"),
+        orderBy("name", "asc") // 🔹 이름 오름차순
+      );
+
+      const snap = await getDocs(q);
 
       const result: AdminUser[] = snap.docs.map((doc) => {
         const data = doc.data();
