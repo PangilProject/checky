@@ -58,7 +58,7 @@ const LoginButton = () => {
   };
 
   return (
-    <div className="flex w-full flex-col max-w-[800px] items-center">
+    <div className="flex w-full flex-col max-w-200 items-center">
       <LongBlackButton
         text="Google로 시작하기"
         onClick={handleLogin}
