@@ -17,9 +17,16 @@ const LogoSection = () => {
   return (
     <Link to="/admin">
       <div className="flex items-center my-4">
-        <img src={LogoImage} className="w-8" />
+        <img src={LogoImage} className="w-6 sm:w-8" />
         <Space2 direction="mr" />
-        <Text6 className={wickedMouseClass} text="CHECKY" />
+        <Text4
+          className={`block sm:hidden ${wickedMouseClass}`}
+          text="CHECKY"
+        />
+        <Text6
+          className={`hidden sm:block ${wickedMouseClass}`}
+          text="CHECKY"
+        />
         <Space2 direction="mr" />
         <Text2 text="ADMIN" className="text-blue-500 font-bold" />
       </div>
@@ -53,10 +60,10 @@ const MenuSection = () => {
 };
 
 const MENUS = [
-  { label: "대시보드", path: "/admin" },
-  { label: "사용자", path: "/admin/users" },
-  { label: "공지사항", path: "/admin/notices" },
+  { label: "홈", path: "/admin" },
+  { label: "유저", path: "/admin/users" },
+  { label: "공지", path: "/admin/notices" },
   { label: "문의", path: "/admin/reports" },
-  { label: "돌아가기", path: "/" },
+  { label: "나가기", path: "/" },
 ];
 export default AdminHeader;
