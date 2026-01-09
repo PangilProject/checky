@@ -21,7 +21,7 @@ function UserRow({ user, onClick }: Props) {
   return (
     <tr onClick={onClick} className="hover:bg-gray-50 cursor-pointer">
       <td className="px-4 py-2">{user.name ?? "-"}</td>
-      <td className="px-4 py-2">{user.email ?? "-"}</td>
+      <td className="px-4 py-2 hidden sm:table-cell">{user.email ?? "-"}</td>
       <td className="px-4 py-2">{formatDate(user.createdAt)}</td>
       <td className="px-4 py-2">{formatDate(user.lastLoginAt)}</td>
       <td className="px-4 py-2">

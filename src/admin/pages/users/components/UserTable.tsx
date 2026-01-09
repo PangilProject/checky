@@ -115,14 +115,16 @@ function UserTable({ users }: Props) {
   };
   return (
     <>
-      <div className="bg-white border rounded-lg overflow-hidden">
+      <div className="bg-white border rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600">
             <tr>
               <th className="px-4 py-2 text-left">
                 {renderHeader("이름", "name")}
               </th>
-              <th className="px-4 py-2 text-left">이메일</th>
+              <th className="px-4 py-2 text-left hidden sm:table-cell">
+                이메일
+              </th>
               <th className="px-4 py-2 text-left">
                 {renderHeader("가입일", "createdAt")}
               </th>
