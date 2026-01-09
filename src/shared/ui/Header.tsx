@@ -3,6 +3,9 @@ import LogoImage from "../../assets/images/logo.png";
 import { Text4, Text6 } from "./Text";
 import { Space2 } from "./Space";
 import { Link, useLocation } from "react-router-dom";
+import { LongBlackButton } from "./Button";
+import { useState } from "react";
+import NoticeModal from "../notices/components/NoticeModal";
 
 function Header() {
   return (
@@ -24,28 +27,43 @@ const LogoSection = () => {
     </Link>
   );
 };
-
 const MenuSection = () => {
   const { pathname } = useLocation();
+  const [openNotice, setOpenNotice] = useState(false);
 
   return (
-    <div className="flex gap-3">
-      {MENUS.map((menu) => {
-        const isActive = pathname === menu.path;
+    <>
+      <div className="flex gap-4">
+        <div className="flex gap-3">
+          {MENUS.map((menu) => {
+            const isActive = pathname === menu.path;
 
-        return (
-          <Link
-            key={menu.path}
-            to={menu.path}
-            className={`pressable ${
-              isActive ? "font-bold text-black" : "font-normal text-[#8E8E93]"
-            }`}
-          >
-            <Text4 text={menu.label} />
-          </Link>
-        );
-      })}
-    </div>
+            return (
+              <Link
+                key={menu.path}
+                to={menu.path}
+                className={`pressable ${
+                  isActive
+                    ? "font-bold text-black"
+                    : "font-normal text-[#8E8E93]"
+                }`}
+              >
+                <Text4 text={menu.label} />
+              </Link>
+            );
+          })}
+        </div>
+
+        <LongBlackButton
+          text="공지"
+          width="w-10"
+          height=""
+          onClick={() => setOpenNotice(true)}
+        />
+      </div>
+
+      {openNotice && <NoticeModal onClose={() => setOpenNotice(false)} />}
+    </>
   );
 };
 
