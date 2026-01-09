@@ -1,6 +1,6 @@
 import { wickedMouseClass } from "@/styles/font";
 import LogoImage from "../../assets/images/logo.png";
-import { Text4, Text6 } from "./Text";
+import { Text3, Text4, Text6 } from "./Text";
 import { Space2 } from "./Space";
 import { Link, useLocation } from "react-router-dom";
 import { LongBlackButton } from "./Button";
@@ -48,7 +48,8 @@ const MenuSection = () => {
                     : "font-normal text-[#8E8E93]"
                 }`}
               >
-                <Text4 text={menu.label} />
+                <Text3 text={menu.label} className="block sm:hidden" />
+                <Text4 text={menu.label} className="hidden sm:block" />
               </Link>
             );
           })}
@@ -59,6 +60,7 @@ const MenuSection = () => {
           width="w-10"
           height=""
           onClick={() => setOpenNotice(true)}
+          className="text-xs sm:text-sm"
         />
       </div>
 

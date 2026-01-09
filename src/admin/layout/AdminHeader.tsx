@@ -2,7 +2,7 @@ import { wickedMouseClass } from "@/styles/font";
 import LogoImage from "../../assets/images/logo.png";
 import { Link, useLocation } from "react-router-dom";
 import { Space2 } from "@/shared/ui/Space";
-import { Text2, Text4, Text6 } from "@/shared/ui/Text";
+import { Text2, Text3, Text4, Text6 } from "@/shared/ui/Text";
 
 function AdminHeader() {
   return (
@@ -43,7 +43,8 @@ const MenuSection = () => {
               isActive ? "font-bold text-black" : "font-normal text-[#8E8E93]"
             }`}
           >
-            <Text4 text={menu.label} />
+            <Text3 text={menu.label} className="block sm:hidden" />
+            <Text4 text={menu.label} className="hidden sm:block" />
           </Link>
         );
       })}
