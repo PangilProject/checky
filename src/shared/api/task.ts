@@ -63,7 +63,7 @@ export const createTask = async ({
     categoryId,
     categoryColor,
     date,
-    time,
+    ...(time !== undefined && { time }),
     orderIndex,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -75,7 +75,7 @@ export const createTask = async ({
     categoryId,
     categoryColor,
     date,
-    time,
+    ...(time !== undefined && { time }),
     orderIndex,
   } as Task;
 };
