@@ -36,7 +36,7 @@ export default function TaskModal({
 
   const [taskInput, setTaskInput] = useState(task?.title ?? "");
   const [taskDate, setTaskDate] = useState(task?.date ?? selectedDate);
-  const DEFAULT_TIME = "12:30";
+  const DEFAULT_TIME = "12:00";
 
   const [timeEnabled, setTimeEnabled] = useState<boolean>(Boolean(task?.time));
 
