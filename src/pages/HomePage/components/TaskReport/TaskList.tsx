@@ -172,7 +172,7 @@ const CategoryItem = ({
     };
 
     setTasks((prev) => [...prev, optimisticTask]);
-    setIsAddOpen(false);
+    // setIsAddOpen(false);
 
     try {
       const savedTask = await createTask({
@@ -452,6 +452,8 @@ const AddTaskInput = ({
     });
   };
 
+  const isComposingRef = useRef(false);
+
   return (
     <div className="flex items-end gap-2" ref={containerRef}>
       <LuCircleDashed size={23} color={categoryColor} />
@@ -460,8 +462,18 @@ const AddTaskInput = ({
         className={`outline-none border-b w-full ${borderColor}`}
         value={taskInput}
         onChange={(e) => setTaskInput(e.target.value)}
+        onCompositionStart={() => {
+          isComposingRef.current = true;
+        }}
+        onCompositionEnd={() => {
+          isComposingRef.current = false;
+        }}
         onKeyDown={(e) => {
-          if (e.key === "Enter") handleSubmit();
+          if (e.key === "Enter") {
+            // ⭐ 조합 중이면 Enter 무시
+            if (isComposingRef.current) return;
+            handleSubmit();
+          }
         }}
         onBlur={handleBlur}
       />
