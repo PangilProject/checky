@@ -17,8 +17,12 @@ import {
 
 interface TaskSettingModalProps {
   onClose: () => void;
+  onConfirm: (action: TaskActionType) => void;
 }
-export function TaskSettingModal({ onClose }: TaskSettingModalProps) {
+export function TaskSettingModal({
+  onClose,
+  onConfirm,
+}: TaskSettingModalProps) {
   const [selectedAction, setSelectedAction] = useState<TaskActionType | null>(
     null
   );
@@ -31,7 +35,11 @@ export function TaskSettingModal({ onClose }: TaskSettingModalProps) {
         onSelect={setSelectedAction}
       />
       <Space8 direction="mb" />
-      <ButtonList onClose={onClose} selectedAction={selectedAction} />
+      <ButtonList
+        onClose={onClose}
+        selectedAction={selectedAction}
+        onConfirm={onConfirm}
+      />
     </ModalWrapper>
   );
 }
@@ -114,9 +122,11 @@ const ActionItem = ({ text, icon, isSelected, onClick }: ActionItemProps) => {
 const ButtonList = ({
   onClose,
   selectedAction,
+  onConfirm,
 }: {
   onClose: () => void;
   selectedAction: TaskActionType | null;
+  onConfirm: (action: TaskActionType) => void;
 }) => {
   const isDisabled = !selectedAction;
 
@@ -134,7 +144,7 @@ const ButtonList = ({
         disabled={isDisabled}
         onClick={() => {
           if (isDisabled) return;
-          // 여기서 selectedAction 처리
+          onConfirm(selectedAction);
         }}
       />
     </div>
