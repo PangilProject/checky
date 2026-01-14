@@ -462,11 +462,13 @@ const AddTaskInput = ({
   const isComposingRef = useRef(false);
 
   return (
-    <div className="flex items-end gap-2" ref={containerRef}>
-      <LuCircleDashed size={23} color={categoryColor} />
+    <div className="flex items-end gap-2 min-w-0" ref={containerRef}>
+      <div className="shrink-0">
+        <LuCircleDashed size={20} color={categoryColor} />
+      </div>
       <input
         ref={inputRef}
-        className={`outline-none border-b w-full ${borderColor}`}
+        className={`outline-none border-b flex-1 min-w-0 ${borderColor}`}
         value={taskInput}
         onChange={(e) => setTaskInput(e.target.value)}
         onCompositionStart={() => {
@@ -485,7 +487,7 @@ const AddTaskInput = ({
         onBlur={handleBlur}
       />
       <div
-        className="flex items-center"
+        className="shrink-0 flex items-center"
         onMouseDown={(e) => {
           e.preventDefault();
           handleSubmit();
