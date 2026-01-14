@@ -372,16 +372,23 @@ const SortableTaskItem = ({
           ${isDragging ? "bg-gray-100 shadow-md scale-[1.02]" : ""}
         `}
     >
-      <div className="flex flex-col" onClick={() => onToggle(task.id)}>
-        <div className="flex gap-2 itmes-center">
-          {completed ? (
-            <FaCheckCircle size={20} color={categoryColor} />
-          ) : (
-            <LuCircleDashed size={20} color={categoryColor} />
-          )}
+      <div className="flex flex-col min-w-0" onClick={() => onToggle(task.id)}>
+        <div className="flex gap-2 items-start min-w-0">
+          {/* 아이콘은 고정 */}
+          <div className="shrink-0 mt-0.5">
+            {completed ? (
+              <FaCheckCircle size={20} color={categoryColor} />
+            ) : (
+              <LuCircleDashed size={20} color={categoryColor} />
+            )}
+          </div>
+
+          {/* 텍스트는 여러 줄 허용 */}
           <Text3
             text={task.title}
-            className={completed ? "line-through opacity-60" : ""}
+            className={`min-w-0 wrap-break-words whitespace-normal ${
+              completed ? "line-through opacity-60" : ""
+            }`}
           />
         </div>
         <div className="flex">
