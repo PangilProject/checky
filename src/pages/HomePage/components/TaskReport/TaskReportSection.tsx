@@ -2,7 +2,8 @@ import TitleSection from "../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/DateContext";
 import { moveDay } from "@/shared/hooks/dateNavigation";
 import { TaskListSection } from "./TaskList";
-import { Space24 } from "@/shared/ui/Space";
+import { Space8 } from "@/shared/ui/Space";
+import { TaskSetting } from "./TaskSetting";
 
 function TaskReportSection() {
   const { selectedDate, setSelectedDate } = useSelectedDate();
@@ -21,7 +22,9 @@ function TaskReportSection() {
         onTodayClick={() => setSelectedDate(new Date())}
       />
       <TaskListSection />
-      <Space24 direction="mb" />
+      <Space8 direction="mb" />
+      <TaskSetting />
+      <Space8 direction="mb" />
     </div>
   );
 }

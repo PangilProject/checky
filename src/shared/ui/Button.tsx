@@ -1,25 +1,35 @@
-interface ButtonProps {
+/*
+  =========================
+  Base Button (핵심 책임)
+  =========================
+*/
+interface BaseButtonProps {
+  text: string;
   onClick?: () => void;
   className?: string;
-  text: string;
+  disabled?: boolean;
 }
 
-const FillButton = ({ text, onClick, className }: ButtonProps) => {
+const BaseButton = ({
+  text,
+  onClick,
+  className = "",
+  disabled = false,
+}: BaseButtonProps) => {
   return (
     <button
-      onClick={onClick}
-      className={` box-border font-bold rounded-md hover:opacity-50 pressable ${className}`}
-    >
-      {text}
-    </button>
-  );
-};
-
-export const UnFillButton = ({ text, onClick, className }: ButtonProps) => {
-  return (
-    <button
-      onClick={onClick}
-      className={`box-border border font-bold rounded-md hover:opacity-50 pressable ${className}`}
+      type="button"
+      disabled={disabled}
+      onClick={disabled ? undefined : onClick}
+      className={`
+        box-border rounded-md font-bold transition
+        ${
+          disabled
+            ? "opacity-40 cursor-not-allowed"
+            : "cursor-pointer hover:opacity-80"
+        }
+        ${className}
+      `}
     >
       {text}
     </button>
@@ -27,80 +37,90 @@ export const UnFillButton = ({ text, onClick, className }: ButtonProps) => {
 };
 
 /*
-  Button List
-
+  =========================
+  Filled / Unfilled Buttons
+  =========================
 */
-interface NormalButton {
-  onClick?: () => void;
-  text: string;
-  className?: string;
-}
-export const NormalBlackButton = ({
-  onClick,
-  text,
-  className,
-}: NormalButton) => {
+const FillButton = (props: BaseButtonProps) => {
   return (
-    <FillButton
-      onClick={onClick}
-      text={text}
-      className={`text-white bg-black px-4 py-1 ${className}`}
+    <BaseButton {...props} className={`pressable ${props.className ?? ""}`} />
+  );
+};
+
+const UnFillButton = (props: BaseButtonProps) => {
+  return (
+    <BaseButton
+      {...props}
+      className={`border pressable ${props.className ?? ""}`}
     />
   );
 };
 
-interface LongNormalButton extends NormalButton {
+/*
+  =========================
+  Normal Buttons
+  =========================
+*/
+export const NormalBlackButton = (props: BaseButtonProps) => {
+  return (
+    <FillButton
+      {...props}
+      className={`bg-black text-white px-4 py-1 ${props.className ?? ""}`}
+    />
+  );
+};
+
+export const NormalBlackUnFillButton = (props: BaseButtonProps) => {
+  return (
+    <UnFillButton
+      {...props}
+      className={`border-black text-black px-4 py-1 ${props.className ?? ""}`}
+    />
+  );
+};
+
+export const NormalRedUnFillButton = (props: BaseButtonProps) => {
+  return (
+    <UnFillButton
+      {...props}
+      className={`border-red-500 text-red-500 px-4 py-1 ${
+        props.className ?? ""
+      }`}
+    />
+  );
+};
+
+export const NormalBlueUnFillButton = (props: BaseButtonProps) => {
+  return (
+    <UnFillButton
+      {...props}
+      className={`border-blue-500 text-blue-500 px-4 py-1 ${
+        props.className ?? ""
+      }`}
+    />
+  );
+};
+
+/*
+  =========================
+  Long Button
+  =========================
+*/
+interface LongButtonProps extends BaseButtonProps {
   width: string;
   height: string;
-  className?: string;
 }
 
 export const LongBlackButton = ({
-  onClick,
-  text,
   width,
   height,
   className,
-}: LongNormalButton) => {
+  ...props
+}: LongButtonProps) => {
   return (
     <FillButton
-      onClick={onClick}
-      text={text}
-      className={`text-white bg-black ${width} ${height} ${className}`}
-    />
-  );
-};
-
-/*
-  unfilled
-*/
-
-export const NormalBlackUnFillButton = ({ onClick, text }: NormalButton) => {
-  return (
-    <UnFillButton
-      onClick={onClick}
-      text={text}
-      className="text-black border-black px-4 py-1"
-    />
-  );
-};
-
-export const NormalRedUnFillButton = ({ onClick, text }: NormalButton) => {
-  return (
-    <UnFillButton
-      onClick={onClick}
-      text={text}
-      className="text-red-500 border-red-500 px-4 py-1"
-    />
-  );
-};
-
-export const NormalBlueUnFillButton = ({ onClick, text }: NormalButton) => {
-  return (
-    <UnFillButton
-      onClick={onClick}
-      text={text}
-      className="text-blue-500 border-blue-500 px-4 py-1"
+      {...props}
+      className={`bg-black text-white ${width} ${height} ${className ?? ""}`}
     />
   );
 };
