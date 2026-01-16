@@ -2,9 +2,9 @@ import { wickedMouseClass } from "@/styles/font";
 import LogoImage from "../../../assets/images/logoRound.png";
 import { LongBlackButton } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
-import { signInWithGoogle } from "@/firebase/auth";
 import { Text3 } from "@/shared/ui/Text";
 import { Space10, Space12, Space4 } from "@/shared/ui/Space";
+import { signInWithGoogle } from "@/services/auth/auth.service";
 
 export const LoginSection = () => {
   return (

@@ -8,7 +8,7 @@ import { auth } from "@/firebase/firebase";
 import { toast } from "react-toastify";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { TitleText } from "@/shared/ui/TitleText";
-import { deleteAccount } from "@/firebase/auth";
+import { deleteAccount } from "@/services/auth/auth.service";
 
 function MyPage() {
   return (
