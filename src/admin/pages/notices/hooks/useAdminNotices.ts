@@ -15,8 +15,6 @@ export const useAdminNotices = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-
     const q = query(
       collection(db, "notices"),
       orderBy("pinned", "desc"),
