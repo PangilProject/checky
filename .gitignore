@@ -29,3 +29,4 @@ dist-ssr
 .firebase/*
 
 AGENTS.md
+perf-logs/
