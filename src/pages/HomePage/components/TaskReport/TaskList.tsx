@@ -42,8 +42,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { useRenderCounter } from "@/shared/perf";
 
 export const TaskListSection = () => {
+  useRenderCounter("TaskListSection");
   const [categories, setCategories] = useState<Category[]>([]);
   const { user } = useAuth();
   const status = "ACTIVE";
@@ -83,6 +85,7 @@ const CategoryItem = ({
   categoryName,
   categoryColor,
 }: CategoryItemProps) => {
+  useRenderCounter(`CategoryItem:${categoryId}`);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [taskLogs, setTaskLogs] = useState<TaskLog[]>([]);
@@ -312,6 +315,7 @@ const TaskList = ({
   onToggle: (taskId: string) => void;
   onClickTask: (task: Task) => void;
 }) => {
+  useRenderCounter("TaskList");
   if (tasks.length === 0) return null;
 
   return (
@@ -349,6 +353,7 @@ const SortableTaskItem = ({
   onToggle,
   onClickTask,
 }: SortableTaskItemProps) => {
+  useRenderCounter(`SortableTaskItem:${task.id}`);
   const {
     setNodeRef,
     attributes,
@@ -424,6 +429,7 @@ const AddTaskInput = ({
   onAddTask,
   onBlurClose,
 }: AddTaskInputProps) => {
+  useRenderCounter("AddTaskInput");
   const [taskInput, setTaskInput] = useState("");
   const borderColor = COLOR_CLASS_BORDER_MAP[categoryColor];
   const inputRef = useRef<HTMLInputElement>(null);
