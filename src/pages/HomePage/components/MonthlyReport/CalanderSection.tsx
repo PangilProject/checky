@@ -2,7 +2,7 @@ import {
   useCalendar,
   type MonthlyActivityCount,
 } from "@/shared/hooks/calendar";
-import { useSelectedDate } from "@/shared/contexts/DateContext";
+import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 // import { FaCheckCircle } from "react-icons/fa";
 // import { LuCircleDashed } from "react-icons/lu";
 import { Text1, Text2 } from "@/shared/ui/Text";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import TitleSection from "../TitleSection";
-import { useSelectedDate } from "@/shared/contexts/DateContext";
+import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { moveWeek } from "@/shared/hooks/dateNavigation";
 import { Space24 } from "@/shared/ui/Space";
 import { RoutineTable } from "./RoutineTable";

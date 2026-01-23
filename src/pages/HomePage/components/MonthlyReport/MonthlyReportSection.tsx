@@ -1,5 +1,5 @@
 import TitleSection from "../TitleSection";
-import { useSelectedDate } from "@/shared/contexts/DateContext";
+import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { moveMonth } from "@/shared/hooks/dateNavigation";
 import { CalanderSection } from "./CalanderSection";
 import { useMonthlyActivityCountMap } from "@/shared/hooks/calendar";

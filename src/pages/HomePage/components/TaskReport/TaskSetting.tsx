@@ -4,7 +4,7 @@ import { TaskSettingModal } from "./TaskSettingModal";
 import { useState } from "react";
 import type { TaskActionType } from "@/shared/constants/actionList";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { useSelectedDate } from "@/shared/contexts/DateContext";
+import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { formatDateByDate } from "@/shared/hooks/formatDate";
 
 import {

@@ -1,5 +1,5 @@
 import TitleSection from "../TitleSection";
-import { useSelectedDate } from "@/shared/contexts/DateContext";
+import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { moveDay } from "@/shared/hooks/dateNavigation";
 import { TaskListSection } from "./TaskList";
 import { Space8 } from "@/shared/ui/Space";

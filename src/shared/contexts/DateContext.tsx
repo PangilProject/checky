@@ -1,11 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-
-interface DateContextValue {
-  selectedDate: Date;
-  setSelectedDate: (date: Date) => void;
-}
-
-const DateContext = createContext<DateContextValue | null>(null);
+import { useState, type ReactNode } from "react";
+import { DateContext } from "./dateContext";
 
 export function DateProvider({ children }: { children: ReactNode }) {
   // ✅ HomePage 최초 렌더 시 오늘 날짜
@@ -16,12 +10,4 @@ export function DateProvider({ children }: { children: ReactNode }) {
       {children}
     </DateContext.Provider>
   );
-}
-
-export function useSelectedDate() {
-  const context = useContext(DateContext);
-  if (!context) {
-    throw new Error("useSelectedDate must be used within DateProvider");
-  }
-  return context;
 }

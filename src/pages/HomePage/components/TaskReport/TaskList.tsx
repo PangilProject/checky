@@ -24,7 +24,7 @@ import {
 } from "@/shared/api/taskLog";
 import { HiDotsHorizontal } from "react-icons/hi";
 import TaskModal from "./TaskModal";
-import { useSelectedDate } from "@/shared/contexts/DateContext";
+import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { formatDateByDate } from "@/shared/hooks/formatDate";
 import {
   closestCenter,
