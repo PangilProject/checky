@@ -1,7 +1,7 @@
 import { onSnapshot, query, where } from "firebase/firestore";
 import { taskLogsRef } from "./refs";
-import { mapTaskLog } from "./mappers";
 import type { TaskLog } from "./types";
+import { mapDoc } from "@/shared/api/_common/mappers";
 
 /** 특정 날짜의 taskLogs 구독 */
 export const getTaskLogsByDate = ({
@@ -16,7 +16,7 @@ export const getTaskLogsByDate = ({
   const q = query(taskLogsRef(userId), where("date", "==", date));
 
   return onSnapshot(q, (snapshot) => {
-    const logs = snapshot.docs.map(mapTaskLog);
+    const logs = snapshot.docs.map((doc) => mapDoc<TaskLog>(doc));
     onChange(logs);
   });
 };
@@ -44,7 +44,7 @@ export const getTaskLogsByMonth = ({
   );
 
   return onSnapshot(q, (snapshot) => {
-    const logs = snapshot.docs.map(mapTaskLog);
+    const logs = snapshot.docs.map((doc) => mapDoc<TaskLog>(doc));
 
     onChange(logs);
   });

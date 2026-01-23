@@ -5,9 +5,9 @@ import {
   type QueryDocumentSnapshot,
   where,
 } from "firebase/firestore";
+import { mapDoc } from "@/shared/api/_common/mappers";
 import { formatDateKST } from "@/shared/hooks/formatDate";
 import { categoriesRef, routineLogsRef, routinesRef } from "./refs";
-import { mapRoutine } from "./mappers";
 import type {
   Routine,
   RoutineReport,
@@ -152,7 +152,7 @@ export const getRoutineReportByWeek = async ({
     query(routinesRef(userId), where("startDate", "<=", week.endDate))
   );
 
-  const routines = routinesSnap.docs.map(mapRoutine);
+  const routines = routinesSnap.docs.map((doc) => mapDoc<Routine>(doc));
 
   // 2️⃣ routineLogs 가져오기
   const logsSnap = await getDocs(

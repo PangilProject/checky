@@ -1,6 +1,6 @@
 import { onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { tasksRef } from "./refs";
-import { mapTask } from "./mappers";
+import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Task } from "./types";
 
 /* =========================
@@ -22,7 +22,7 @@ export const getTasksByDate = ({
   );
 
   return onSnapshot(q, (snapshot) => {
-    const tasks = snapshot.docs.map(mapTask);
+    const tasks = snapshot.docs.map((doc) => mapDoc<Task>(doc));
 
     onChange(tasks);
   });
@@ -52,7 +52,7 @@ export const getTasksByMonth = ({
   );
 
   return onSnapshot(q, (snapshot) => {
-    const tasks = snapshot.docs.map(mapTask);
+    const tasks = snapshot.docs.map((doc) => mapDoc<Task>(doc));
 
     onChange(tasks);
   });

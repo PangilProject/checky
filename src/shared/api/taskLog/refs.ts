@@ -1,8 +1,7 @@
-import { collection, doc } from "firebase/firestore";
-import { db } from "@/firebase/firebase";
+import { userCollection, userDoc } from "@/shared/api/_common/refs";
 
 export const taskLogsRef = (userId: string) =>
-  collection(db, "users", userId, "taskLogs");
+  userCollection(userId, "taskLogs");
 
 export const taskLogRef = (userId: string, logId: string) =>
-  doc(db, "users", userId, "taskLogs", logId);
+  userDoc(userId, "taskLogs", logId);

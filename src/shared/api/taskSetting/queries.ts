@@ -1,6 +1,6 @@
 import { getDocs, query, where } from "firebase/firestore";
+import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Task } from "@/shared/api/task";
-import { mapTask } from "@/shared/api/task/mappers";
 import { taskLogsRef, tasksRef } from "./refs";
 
 type TaskLogRecord = {
@@ -19,7 +19,7 @@ export const getTasksByDateOnce = async ({
 
   const snap = await getDocs(q);
 
-  return snap.docs.map(mapTask);
+  return snap.docs.map((doc) => mapDoc<Task>(doc));
 };
 
 export const getCompletedTaskIdsByDate = async ({

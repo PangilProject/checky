@@ -9,7 +9,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { routineRef, routinesRef } from "./refs";
-import { mapRoutine } from "./mappers";
+import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Routine } from "./types";
 
 // 루틴 불러오기
@@ -28,7 +28,7 @@ export const getRoutinesByCategory = async ({
 
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map(mapRoutine);
+  return snapshot.docs.map((doc) => mapDoc<Routine>(doc));
 };
 
 export const createRoutine = async ({

@@ -1,6 +1,6 @@
 import { onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { routinesRef } from "./refs";
-import { mapRoutine } from "./mappers";
+import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Routine } from "./types";
 
 // 실시간 업데이트
@@ -20,7 +20,7 @@ export const subscribeRoutinesByCategory = ({
   );
 
   return onSnapshot(q, (snapshot) => {
-    const routines = snapshot.docs.map(mapRoutine);
+    const routines = snapshot.docs.map((doc) => mapDoc<Routine>(doc));
 
     onChange(routines);
   });

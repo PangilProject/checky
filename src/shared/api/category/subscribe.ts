@@ -1,7 +1,7 @@
 import { onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { mapDoc } from "@/shared/api/_common/mappers";
 import { categoriesRef } from "./refs";
 import type { Category, CategoryStatus } from "./types";
-import { mapCategory } from "./mappers";
 
 interface GetCategoriesParams {
   userId: string;
@@ -30,7 +30,7 @@ export const getCategories = ({
     : query(baseRef, orderBy("orderIndex", "asc"));
 
   const categories = onSnapshot(q, (snapshot) => {
-    const list = snapshot.docs.map(mapCategory);
+    const list = snapshot.docs.map((doc) => mapDoc<Category>(doc));
 
     onChange(list);
   });
