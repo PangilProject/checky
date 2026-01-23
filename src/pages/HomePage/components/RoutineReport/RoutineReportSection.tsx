@@ -48,7 +48,7 @@ function RoutineReportSection() {
     };
 
     fetchReport();
-  }, [user, week.startDate]);
+  }, [user, week.startDate, week.endDate]);
 
   return (
     <div>

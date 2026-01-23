@@ -11,6 +11,9 @@ interface Props {
 }
 
 const STATUS_CONDITION = 3; // 3일 기준
+const NOW_TIME = Date.now();
+const ACTIVE_THRESHOLD_TIME =
+  NOW_TIME - STATUS_CONDITION * 24 * 60 * 60 * 1000;
 
 function UserTable({ users }: Props) {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
@@ -59,15 +62,13 @@ function UserTable({ users }: Props) {
         }
 
         case "status": {
-          const aActive =
-            a.lastLoginAt &&
-            a.lastLoginAt >=
-              new Date(Date.now() - STATUS_CONDITION * 24 * 60 * 60 * 1000);
+          const aActive = Boolean(
+            a.lastLoginAt && a.lastLoginAt.getTime() >= ACTIVE_THRESHOLD_TIME
+          );
 
-          const bActive =
-            b.lastLoginAt &&
-            b.lastLoginAt >=
-              new Date(Date.now() - STATUS_CONDITION * 24 * 60 * 60 * 1000);
+          const bActive = Boolean(
+            b.lastLoginAt && b.lastLoginAt.getTime() >= ACTIVE_THRESHOLD_TIME
+          );
 
           // 🔑 핵심: boolean → number
           aValue = aActive ? 1 : 0;
@@ -141,6 +142,10 @@ function UserTable({ users }: Props) {
               <UserRow
                 key={user.id}
                 user={user}
+                isActive={Boolean(
+                  user.lastLoginAt &&
+                    user.lastLoginAt.getTime() >= ACTIVE_THRESHOLD_TIME
+                )}
                 onClick={() => setSelectedUser(user)}
               />
             ))}

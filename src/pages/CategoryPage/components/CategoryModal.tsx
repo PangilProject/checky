@@ -15,7 +15,7 @@ import {
   updateCategory,
 } from "@/shared/api/category";
 import { useAuth } from "@/shared/hooks/useAuth";
-import type { Category } from "./CategorySection";
+import type { Category } from "@/shared/api/category";
 import { ModalWrapper } from "@/shared/ui/Modal";
 
 interface CategoryModalProps {

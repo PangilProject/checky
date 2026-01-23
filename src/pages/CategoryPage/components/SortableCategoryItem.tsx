@@ -1,5 +1,5 @@
 import { Text1, Text3 } from "@/shared/ui/Text";
-import type { Category } from "./CategorySection";
+import type { Category } from "@/shared/api/category";
 import { COLOR_CLASS_TEXT_MAP } from "@/shared/constants/color";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Space2 } from "@/shared/ui/Space";

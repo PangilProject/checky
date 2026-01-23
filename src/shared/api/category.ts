@@ -10,6 +10,7 @@ import {
   updateDoc,
   getDocs,
   writeBatch,
+  type Timestamp,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
@@ -21,9 +22,9 @@ export interface Category {
   color: string;
   status: CategoryStatus;
   orderIndex: number;
-  createdAt: any;
-  updatedAt: any;
-  endedAt: any;
+  createdAt: Timestamp | null;
+  updatedAt: Timestamp | null;
+  endedAt: Timestamp | null;
 }
 
 interface CreateCategoryParams {

@@ -4,6 +4,7 @@ import UserStatusBadge from "./UserStatusBadge";
 interface Props {
   user: AdminUser;
   onClick: () => void;
+  isActive: boolean;
 }
 
 function formatDate(date?: Date) {
@@ -11,13 +12,7 @@ function formatDate(date?: Date) {
   return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
 }
 
-function UserRow({ user, onClick }: Props) {
-  const STATUS_CONDITION = 3;
-  const isActive =
-    user.lastLoginAt &&
-    user.lastLoginAt >=
-      new Date(Date.now() - STATUS_CONDITION * 24 * 60 * 60 * 1000);
-
+function UserRow({ user, onClick, isActive }: Props) {
   return (
     <tr onClick={onClick} className="hover:bg-gray-50 cursor-pointer">
       <td className="px-4 py-2">{user.name ?? "-"}</td>
@@ -25,7 +20,7 @@ function UserRow({ user, onClick }: Props) {
       <td className="px-4 py-2">{formatDate(user.createdAt)}</td>
       <td className="px-4 py-2">{formatDate(user.lastLoginAt)}</td>
       <td className="px-4 py-2">
-        <UserStatusBadge isActive={Boolean(isActive)} />
+        <UserStatusBadge isActive={isActive} />
       </td>
     </tr>
   );

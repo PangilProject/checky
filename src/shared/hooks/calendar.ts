@@ -35,7 +35,7 @@ export const useCalendar = (selectedDate: Date) => {
   };
 };
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const useMonthlyActivityMap = ({
   tasks,
@@ -44,9 +44,7 @@ export const useMonthlyActivityMap = ({
   tasks: { date: string }[];
   taskLogs: { date: string; completed: boolean }[];
 }) => {
-  const [map, setMap] = useState<Map<string, boolean>>(new Map());
-
-  useEffect(() => {
+  const map = useMemo(() => {
     const next = new Map<string, boolean>();
 
     tasks.forEach((task) => {
@@ -59,7 +57,7 @@ export const useMonthlyActivityMap = ({
       }
     });
 
-    setMap(next);
+    return next;
   }, [tasks, taskLogs]);
 
   return map;
@@ -71,12 +69,17 @@ import { getTaskLogsByMonth } from "../api/taskLog";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
+type MonthlyTask = { date: string };
+type MonthlyTaskLog = { date: string; completed: boolean };
+type MonthlyRoutine = { startDate: string; days: number[] };
+type MonthlyRoutineLog = { date: string; done: boolean };
+
 export const useMonthlyData = (date: Date) => {
   const { user } = useAuth();
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [taskLogs, setTaskLogs] = useState<any[]>([]);
-  const [routines, setRoutines] = useState<any[]>([]);
-  const [routineLogs, setRoutineLogs] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<MonthlyTask[]>([]);
+  const [taskLogs, setTaskLogs] = useState<MonthlyTaskLog[]>([]);
+  const [routines, setRoutines] = useState<MonthlyRoutine[]>([]);
+  const [routineLogs, setRoutineLogs] = useState<MonthlyRoutineLog[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -135,9 +138,7 @@ export const useMonthlyActivityCountMap = ({
   routines: { startDate: string; days: number[] }[];
   routineLogs: { date: string; done: boolean }[];
 }) => {
-  const [map, setMap] = useState<Map<string, MonthlyActivityCount>>(new Map());
-
-  useEffect(() => {
+  const map = useMemo(() => {
     const next = new Map<string, MonthlyActivityCount>();
 
     const ensure = (date: string) => {
@@ -190,7 +191,7 @@ export const useMonthlyActivityCountMap = ({
       value.remaining = Math.max(value.total - value.completed, 0);
     });
 
-    setMap(next);
+    return next;
   }, [date, tasks, taskLogs, routines, routineLogs]);
 
   return map;
@@ -246,7 +247,7 @@ export const getRoutineLogsByMonth = ({
   const q = query(ref, where("date", ">=", start), where("date", "<=", end));
 
   return onSnapshot(q, (snapshot) => {
-    const logs = snapshot.docs.map((doc) => doc.data() as any);
+    const logs = snapshot.docs.map((doc) => doc.data() as MonthlyRoutineLog);
     onChange(logs);
   });
 };

@@ -1,6 +1,6 @@
 import type { Timestamp } from "firebase/firestore";
 
-export const formatDate = (timestamp?: Timestamp) => {
+export const formatDate = (timestamp?: Timestamp | null) => {
   if (!timestamp) return "";
   const date = timestamp.toDate();
   return date.toLocaleDateString("ko-KR", {

@@ -12,6 +12,9 @@ interface Props {
   onClose: () => void;
 }
 
+const ACTIVE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const NOW_TIME = Date.now();
+
 /* ======================
    Utils
 ====================== */
@@ -21,9 +24,8 @@ function formatDate(date?: Date) {
   return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
 }
 
-function diffDays(date?: Date) {
-  if (!date) return "-";
-  const diff = Date.now() - date.getTime();
+function diffDays(date: Date, nowTime: number) {
+  const diff = nowTime - date.getTime();
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
 
@@ -57,7 +59,7 @@ function InfoRow({
 export default function UserDetailModal({ user, onClose }: Props) {
   const isActive =
     user.lastLoginAt &&
-    user.lastLoginAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    user.lastLoginAt.getTime() >= NOW_TIME - ACTIVE_WINDOW_MS;
 
   return (
     <ModalWrapper onClose={onClose}>
@@ -106,7 +108,9 @@ export default function UserDetailModal({ user, onClose }: Props) {
         <InfoRow
           icon={<FiClock />}
           text={`최근 로그인: ${
-            user.lastLoginAt ? `${diffDays(user.lastLoginAt)}일 전` : "-"
+            user.lastLoginAt
+              ? `${diffDays(user.lastLoginAt, NOW_TIME)}일 전`
+              : "-"
           }`}
           muted
         />

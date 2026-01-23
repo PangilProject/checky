@@ -12,6 +12,8 @@ import {
   getDocs,
   deleteDoc,
   deleteField,
+  type DocumentData,
+  type DocumentReference,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
@@ -235,7 +237,10 @@ export const migrateTaskOrderIndex = async (userId: string) => {
   const batch = writeBatch(db);
   let needCommit = false;
 
-  const groupMap = new Map<string, any[]>();
+  const groupMap = new Map<
+    string,
+    Array<{ ref: DocumentReference<DocumentData>; data: DocumentData }>
+  >();
 
   snap.docs.forEach((docSnap) => {
     const data = docSnap.data();

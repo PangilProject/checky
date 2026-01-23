@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { getCategories, updateCategoryOrder } from "@/shared/api/category";
+import {
+  getCategories,
+  updateCategoryOrder,
+  type Category,
+} from "@/shared/api/category";
 import { TitleText } from "@/shared/ui/TitleText";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { Space10, Space4 } from "@/shared/ui/Space";
@@ -8,7 +12,6 @@ import { Text2 } from "@/shared/ui/Text";
 import ImageEmpty from "@/assets/images/empty.png";
 import { SortableCategoryItem } from "./SortableCategoryItem";
 import CategoryModal from "./CategoryModal";
-import type { Timestamp } from "firebase/firestore";
 import type { DragEndEvent } from "@dnd-kit/core";
 import {
   useSensor,
@@ -23,15 +26,6 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-
-export interface Category {
-  id: string;
-  name: string;
-  color: string;
-  status: "ACTIVE" | "ENDED";
-  createdAt?: Timestamp;
-  endedAt?: Timestamp;
-}
 
 interface CategorySectionProps {
   title: string;

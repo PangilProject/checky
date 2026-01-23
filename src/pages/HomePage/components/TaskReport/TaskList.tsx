@@ -88,6 +88,7 @@ const CategoryItem = ({
   const [taskLogs, setTaskLogs] = useState<TaskLog[]>([]);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
+  const tempIdRef = useRef(0);
 
   const handleOpenTaskModal = (task: Task) => {
     setSelectedTask(task);
@@ -122,7 +123,7 @@ const CategoryItem = ({
     });
 
     return () => unsubscribe();
-  }, [user, selectedDate]);
+  }, [user, dateString]);
 
   useEffect(() => {
     if (!user) return;
@@ -134,7 +135,7 @@ const CategoryItem = ({
     });
 
     return () => unsubscribe();
-  }, [user, selectedDate]);
+  }, [user, dateString]);
 
   const taskLogMap = new Map(taskLogs.map((log) => [log.taskId, log]));
 
@@ -160,7 +161,8 @@ const CategoryItem = ({
   const handleAddTask = async (title: string) => {
     if (!title.trim() || !user) return;
 
-    const tempId = `temp-${Date.now()}`;
+    tempIdRef.current += 1;
+    const tempId = `temp-${tempIdRef.current}`;
 
     const optimisticTask: Task = {
       id: tempId,
