@@ -1,4 +1,4 @@
-export type { MoveTasksParams, DateOnlyParams } from "./taskSetting/types";
+export type { MoveTasksParams, DateOnlyParams } from "./types";
 
 export {
   moveUncompletedTasksToToday,
@@ -6,4 +6,4 @@ export {
   deleteUncompletedTasks,
   copyAllTasksToDate,
   deleteAllTasksByDate,
-} from "./taskSetting/actions";
+} from "./actions";
