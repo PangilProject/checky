@@ -1,3 +1,8 @@
+/**
+ * @file task/order.ts
+ * @description API 모듈
+ */
+
 import {
   getDocs,
   orderBy,
@@ -10,7 +15,11 @@ import {
 import { db } from "@/firebase/firebase";
 import { taskRef, tasksRef } from "./refs";
 
-// 태스크 정렬
+/**
+ * @description 태스크 정렬 순서를 업데이트합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const updateTaskOrder = async ({
   userId,
   tasks,
@@ -29,7 +38,11 @@ export const updateTaskOrder = async ({
   await batch.commit();
 };
 
-// 마이그레이션
+/**
+ * @description 태스크 orderIndex를 마이그레이션합니다.
+ * @param userId 사용자 ID
+ * @returns 작업 결과
+ */
 export const migrateTaskOrderIndex = async (userId: string) => {
   const snap = await getDocs(query(tasksRef(userId), orderBy("createdAt", "asc")));
 

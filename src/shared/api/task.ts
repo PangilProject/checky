@@ -1,3 +1,8 @@
+/**
+ * @file task.ts
+ * @description API 모듈
+ */
+
 export type { Task } from "./task/types";
 
 export {

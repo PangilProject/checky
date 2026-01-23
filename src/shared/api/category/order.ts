@@ -1,8 +1,17 @@
+/**
+ * @file category/order.ts
+ * @description API 모듈
+ */
+
 import { writeBatch } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { categoryRef } from "./refs";
 
-// 카테고리 순번 바꾸기
+/**
+ * @description 카테고리 정렬 순서를 업데이트합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const updateCategoryOrder = async ({
   userId,
   categories,

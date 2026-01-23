@@ -1,3 +1,8 @@
+/**
+ * @file category/subscribe.ts
+ * @description API 모듈
+ */
+
 import { onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import { categoriesRef } from "./refs";
@@ -5,14 +10,14 @@ import type { Category, CategoryStatus } from "./types";
 
 interface GetCategoriesParams {
   userId: string;
-  status?: CategoryStatus; // 없으면 전체
+  status?: CategoryStatus;
   onChange: (categories: Category[]) => void;
 }
 
 /**
- * 카테고리 실시간 구독
- * - 전체 / ACTIVE / ENDED 모두 대응
- * - createdAt 기준 최신순 정렬
+ * @description 카테고리를 실시간 구독합니다.
+ * @param params 요청 파라미터
+ * @returns 구독 해제 함수
  */
 export const getCategories = ({
   userId,

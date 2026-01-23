@@ -1,3 +1,8 @@
+/**
+ * @file task/crud.ts
+ * @description API 모듈
+ */
+
 import {
   addDoc,
   deleteDoc,
@@ -14,9 +19,11 @@ import { db } from "@/firebase/firebase";
 import { taskLogsRef, taskRef, tasksRef } from "./refs";
 import type { Task } from "./types";
 
-/* =========================
-   CREATE
-========================= */
+/**
+ * @description 태스크를 생성합니다.
+ * @param params 요청 파라미터
+ * @returns 생성 결과
+ */
 export const createTask = async ({
   userId,
   title,
@@ -66,9 +73,11 @@ export const createTask = async ({
   } as Task;
 };
 
-/* =========================
-   UPDATE 
-========================= */
+/**
+ * @description 태스크 수정과 날짜 이동을 처리합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const updateTaskWithDateMove = async ({
   userId,
   taskId,
@@ -86,7 +95,6 @@ export const updateTaskWithDateMove = async ({
   categoryId: string;
   time?: string;
 }) => {
-  // ✅ 날짜가 바뀐 경우: 새 날짜의 마지막 orderIndex 계산
   let nextOrderIndex: number | undefined;
 
   if (prevDate !== nextDate) {
@@ -108,7 +116,6 @@ export const updateTaskWithDateMove = async ({
     ...(nextOrderIndex !== undefined && { orderIndex: nextOrderIndex }),
     updatedAt: serverTimestamp(),
   });
-  // 2️⃣ 기존 TaskLog 조회
   const prevLogQuery = query(
     taskLogsRef(userId),
     where("taskId", "==", taskId),
@@ -119,14 +126,11 @@ export const updateTaskWithDateMove = async ({
 
   if (snapshot.empty) return;
 
-  // 3️⃣ TaskLog 이동
   const prevLog = snapshot.docs[0];
   const prevLogData = prevLog.data();
 
-  // 기존 로그 삭제
   await deleteDoc(prevLog.ref);
 
-  // 새 날짜로 로그 생성
   await addDoc(taskLogsRef(userId), {
     ...prevLogData,
     date: nextDate,
@@ -134,9 +138,11 @@ export const updateTaskWithDateMove = async ({
   });
 };
 
-/* =========================
-   DELETE
-========================= */
+/**
+ * @description 태스크와 관련 로그를 삭제합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const deleteTaskWithLogs = async ({
   userId,
   taskId,
@@ -146,18 +152,14 @@ export const deleteTaskWithLogs = async ({
 }) => {
   const batch = writeBatch(db);
 
-  // 1️⃣ task 삭제
   batch.delete(taskRef(userId, taskId));
 
-  // 2️⃣ 관련 taskLogs 조회
   const q = query(taskLogsRef(userId), where("taskId", "==", taskId));
   const snapshot = await getDocs(q);
 
-  // 3️⃣ taskLogs 전부 삭제
   snapshot.forEach((docSnap) => {
     batch.delete(docSnap.ref);
   });
 
-  // 4️⃣ 커밋
   await batch.commit();
 };

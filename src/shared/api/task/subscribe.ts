@@ -1,11 +1,18 @@
+/**
+ * @file task/subscribe.ts
+ * @description API 모듈
+ */
+
 import { onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { tasksRef } from "./refs";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Task } from "./types";
 
-/* =========================
-   READ (date 기준)
-========================= */
+/**
+ * @description 날짜별 태스크를 실시간 구독합니다.
+ * @param params 요청 파라미터
+ * @returns 구독 해제 함수
+ */
 export const getTasksByDate = ({
   userId,
   date,
@@ -28,7 +35,11 @@ export const getTasksByDate = ({
   });
 };
 
-// 월 별 모든 내용
+/**
+ * @description 월간 태스크를 실시간 구독합니다.
+ * @param params 요청 파라미터
+ * @returns 구독 해제 함수
+ */
 export const getTasksByMonth = ({
   userId,
   date,
@@ -39,7 +50,7 @@ export const getTasksByMonth = ({
   onChange: (tasks: Task[]) => void;
 }) => {
   const year = date.getFullYear();
-  const month = date.getMonth(); // 0-based
+  const month = date.getMonth();
 
   const start = `${year}-${String(month + 1).padStart(2, "0")}-01`;
   const end = `${year}-${String(month + 1).padStart(2, "0")}-31`;

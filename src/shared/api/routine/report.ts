@@ -1,3 +1,8 @@
+/**
+ * @file routine/report.ts
+ * @description API 모듈
+ */
+
 import {
   getDocs,
   query,
@@ -35,6 +40,12 @@ type CategoryMapValue = {
 
 const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
+/**
+ * @description 주간 범위 데이터를 생성합니다.
+ * @param startDate 시작 날짜
+ * @param endDate 종료 날짜
+ * @returns 반환값
+ */
 const buildWeek = (startDate: string, endDate: string): RoutineReportWeek => {
   const days: RoutineReportWeek["days"] = [];
   const start = new Date(startDate);
@@ -57,6 +68,11 @@ const buildWeek = (startDate: string, endDate: string): RoutineReportWeek => {
   };
 };
 
+/**
+ * @description 루틴 로그를 조회 맵으로 변환합니다.
+ * @param logs 로그 목록
+ * @returns 반환값
+ */
 const buildLogMap = (logs: RoutineLog[]) => {
   const logMap = new Map<string, boolean>();
   logs.forEach((log) => {
@@ -65,6 +81,11 @@ const buildLogMap = (logs: RoutineLog[]) => {
   return logMap;
 };
 
+/**
+ * @description 카테고리 스냅샷을 맵으로 변환합니다.
+ * @param params 요청 파라미터
+ * @returns 반환값
+ */
 const buildCategoriesMap = (
   docs: QueryDocumentSnapshot<DocumentData>[]
 ) => {
@@ -76,6 +97,11 @@ const buildCategoriesMap = (
   ) as Record<string, CategoryMapValue>;
 };
 
+/**
+ * @description 리포트 행 데이터를 생성합니다.
+ * @param params 요청 파라미터
+ * @returns 반환값
+ */
 const buildRows = ({
   routines,
   categoriesMap,
@@ -135,7 +161,11 @@ const buildRows = ({
   }));
 };
 
-// 주 별 루틴 목록 가져오기
+/**
+ * @description 주간 루틴 리포트를 조회합니다.
+ * @param params 요청 파라미터
+ * @returns 조회 결과
+ */
 export const getRoutineReportByWeek = async ({
   userId,
   startDate,
@@ -147,14 +177,12 @@ export const getRoutineReportByWeek = async ({
 }): Promise<RoutineReport> => {
   const week = buildWeek(startDate, endDate);
 
-  // 1️⃣ 루틴 가져오기
   const routinesSnap = await getDocs(
     query(routinesRef(userId), where("startDate", "<=", week.endDate))
   );
 
   const routines = routinesSnap.docs.map((doc) => mapDoc<Routine>(doc));
 
-  // 2️⃣ routineLogs 가져오기
   const logsSnap = await getDocs(
     query(
       routineLogsRef(userId),
@@ -166,11 +194,9 @@ export const getRoutineReportByWeek = async ({
   const logs = logsSnap.docs.map((doc) => doc.data() as RoutineLog);
   const logMap = buildLogMap(logs);
 
-  // 3️⃣ categories 가져오기
   const categoriesSnap = await getDocs(categoriesRef(userId));
   const categoriesMap = buildCategoriesMap(categoriesSnap.docs);
 
-  // 4️⃣ RoutineReportRow 생성 + 정렬
   const rows = buildRows({ routines, categoriesMap, week, logMap });
 
   return {

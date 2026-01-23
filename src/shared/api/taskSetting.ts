@@ -1,3 +1,8 @@
+/**
+ * @file taskSetting.ts
+ * @description API 모듈
+ */
+
 export type { MoveTasksParams, DateOnlyParams } from "./taskSetting/types";
 
 export {

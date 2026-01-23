@@ -1,8 +1,17 @@
+/**
+ * @file routine/order.ts
+ * @description API 모듈
+ */
+
 import { getDocs, orderBy, query, serverTimestamp, writeBatch } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { routineRef, routinesRef } from "./refs";
 
-// 루틴 순서 변경
+/**
+ * @description 루틴 정렬 순서를 업데이트합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const updateRoutineOrder = async ({
   userId,
   routines,
@@ -21,9 +30,12 @@ export const updateRoutineOrder = async ({
   await batch.commit();
 };
 
-// 마이그레이션
+/**
+ * @description 루틴 orderIndex를 마이그레이션합니다.
+ * @param userId 사용자 ID
+ * @returns 작업 결과
+ */
 export const migrateRoutineOrderIndex = async (userId: string) => {
-  // 🔹 기존 루틴 전체를 createdAt 기준으로 가져오기
   const snap = await getDocs(
     query(routinesRef(userId), orderBy("createdAt", "asc"))
   );
@@ -34,7 +46,6 @@ export const migrateRoutineOrderIndex = async (userId: string) => {
   snap.docs.forEach((docSnap, index) => {
     const data = docSnap.data();
 
-    // ✅ 이미 orderIndex 있으면 스킵
     if (typeof data.orderIndex === "number") return;
 
     needCommit = true;

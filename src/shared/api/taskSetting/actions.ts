@@ -1,3 +1,8 @@
+/**
+ * @file taskSetting/actions.ts
+ * @description API 모듈
+ */
+
 import { doc, serverTimestamp, writeBatch } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import type { Task } from "@/shared/api/task";
@@ -6,6 +11,11 @@ import { fetchTasksAndCompleted, getUncompletedTasks } from "./helpers";
 import { getTasksByDateOnce } from "./queries";
 import type { DateOnlyParams, MoveTasksParams } from "./types";
 
+/**
+ * @description 태스크들의 날짜를 일괄 변경합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 const updateTasksDate = async ({
   userId,
   tasks,
@@ -27,10 +37,11 @@ const updateTasksDate = async ({
   await batch.commit();
 };
 
-/* =========================
-   ACTION 1
-   미완료 → 오늘로 이동
-========================= */
+/**
+ * @description 미완료 태스크를 오늘 날짜로 이동합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const moveUncompletedTasksToToday = async ({
   userId,
   fromDate,
@@ -46,10 +57,11 @@ export const moveUncompletedTasksToToday = async ({
   await updateTasksDate({ userId, tasks: targets, toDate });
 };
 
-/* =========================
-   ACTION 2
-   미완료 → 특정 날짜로 이동 (after)
-========================= */
+/**
+ * @description 미완료 태스크를 지정 날짜로 이동합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const moveUncompletedTasksToDate = async ({
   userId,
   fromDate,
@@ -65,10 +77,11 @@ export const moveUncompletedTasksToDate = async ({
   await updateTasksDate({ userId, tasks: targets, toDate });
 };
 
-/* =========================
-   ACTION 3
-   미완료 삭제
-========================= */
+/**
+ * @description 미완료 태스크를 삭제합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const deleteUncompletedTasks = async ({
   userId,
   date,
@@ -89,10 +102,11 @@ export const deleteUncompletedTasks = async ({
   await batch.commit();
 };
 
-/* =========================
-   ACTION 4
-   모든 할 일 복사
-========================= */
+/**
+ * @description 모든 태스크를 다른 날짜로 복사합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const copyAllTasksToDate = async ({
   userId,
   fromDate,
@@ -111,7 +125,7 @@ export const copyAllTasksToDate = async ({
       categoryColor: task.categoryColor,
       date: toDate,
       ...(task.time && { time: task.time }),
-      orderIndex: index, // 👉 새 날짜 기준으로 재정렬
+      orderIndex: index,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -120,10 +134,11 @@ export const copyAllTasksToDate = async ({
   await batch.commit();
 };
 
-/* =========================
-   ACTION 5
-   모든 할 일 삭제
-========================= */
+/**
+ * @description 해당 날짜의 모든 태스크를 삭제합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const deleteAllTasksByDate = async ({
   userId,
   date,

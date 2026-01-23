@@ -1,3 +1,8 @@
+/**
+ * @file task/types.ts
+ * @description API 모듈
+ */
+
 export interface Task {
   id: string;
   title: string;

@@ -1,3 +1,8 @@
+/**
+ * @file category/index.ts
+ * @description API 모듈
+ */
+
 export type { Category, CategoryStatus } from "./types";
 
 export {

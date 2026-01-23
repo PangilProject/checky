@@ -1,3 +1,8 @@
+/**
+ * @file category/crud.ts
+ * @description API 모듈
+ */
+
 import {
   doc,
   getDocs,
@@ -15,7 +20,11 @@ interface CreateCategoryParams {
   color: string;
 }
 
-// 카테고리 생성
+/**
+ * @description 카테고리를 생성합니다.
+ * @param params 요청 파라미터
+ * @returns 생성 결과
+ */
 export const createCategory = async ({
   userId,
   name,
@@ -23,10 +32,9 @@ export const createCategory = async ({
 }: CreateCategoryParams) => {
   const baseRef = categoriesRef(userId);
 
-  // 현재 ACTIVE 카테고리 개수 가져오기
   const snap = await getDocs(query(baseRef, where("status", "==", "ACTIVE")));
 
-  const orderIndex = snap.size; // 마지막에 추가
+  const orderIndex = snap.size;
 
   const nextRef = doc(baseRef);
 
@@ -42,7 +50,11 @@ export const createCategory = async ({
   });
 };
 
-// 카테고리 수정
+/**
+ * @description 카테고리 정보를 수정합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const updateCategory = async ({
   userId,
   categoryId,
@@ -61,12 +73,16 @@ export const updateCategory = async ({
   });
 };
 
-// 카테고리 삭제
 interface EndCategoryParams {
   userId: string;
   categoryId: string;
 }
 
+/**
+ * @description 카테고리를 종료 상태로 변경합니다.
+ * @param params 요청 파라미터
+ * @returns 반환값
+ */
 export const endCategory = async ({
   userId,
   categoryId,
@@ -78,12 +94,16 @@ export const endCategory = async ({
   });
 };
 
-// 카테고리 복구
 interface RestoreCategoryParams {
   userId: string;
   categoryId: string;
 }
 
+/**
+ * @description 카테고리를 활성 상태로 복구합니다.
+ * @param params 요청 파라미터
+ * @returns 반환값
+ */
 export const restoreCategory = async ({
   userId,
   categoryId,

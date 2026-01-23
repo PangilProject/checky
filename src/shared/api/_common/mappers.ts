@@ -1,3 +1,8 @@
+/**
+ * @file _common/mappers.ts
+ * @description API 모듈
+ */
+
 import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 
 export const mapDoc = <T extends { id: string }>(

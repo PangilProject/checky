@@ -1,3 +1,8 @@
+/**
+ * @file routine/crud.ts
+ * @description API 모듈
+ */
+
 import {
   addDoc,
   getDocs,
@@ -12,7 +17,11 @@ import { routineRef, routinesRef } from "./refs";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Routine } from "./types";
 
-// 루틴 불러오기
+/**
+ * @description 카테고리별 루틴을 조회합니다.
+ * @param params 요청 파라미터
+ * @returns 조회 결과
+ */
 export const getRoutinesByCategory = async ({
   userId,
   categoryId,
@@ -31,6 +40,11 @@ export const getRoutinesByCategory = async ({
   return snapshot.docs.map((doc) => mapDoc<Routine>(doc));
 };
 
+/**
+ * @description 루틴을 생성합니다.
+ * @param params 요청 파라미터
+ * @returns 생성 결과
+ */
 export const createRoutine = async ({
   userId,
   title,
@@ -61,7 +75,11 @@ export const createRoutine = async ({
   });
 };
 
-// 루틴 수정
+/**
+ * @description 루틴 정보를 수정합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const updateRoutine = async ({
   userId,
   routineId,
@@ -78,12 +96,16 @@ export const updateRoutine = async ({
   await updateDoc(routineRef(userId, routineId), {
     title,
     days,
-    startDate, // ✅ 추가
+    startDate,
     updatedAt: serverTimestamp(),
   });
 };
 
-// 루틴 삭제
+/**
+ * @description 루틴을 삭제합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const deleteRoutine = async ({
   userId,
   routineId,

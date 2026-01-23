@@ -1,8 +1,17 @@
+/**
+ * @file taskLog/crud.ts
+ * @description API 모듈
+ */
+
 import { addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { taskLogRef, taskLogsRef } from "./refs";
 import type { TaskLog } from "./types";
 
-/** 체크 토글 */
+/**
+ * @description 태스크 로그를 생성/토글합니다.
+ * @param params 요청 파라미터
+ * @returns 작업 결과
+ */
 export const toggleTaskLog = async ({
   userId,
   taskId,
@@ -17,7 +26,6 @@ export const toggleTaskLog = async ({
   const logsRef = taskLogsRef(userId);
 
   if (!currentLog) {
-    // 최초 체크
     await addDoc(logsRef, {
       taskId,
       date,
@@ -28,7 +36,6 @@ export const toggleTaskLog = async ({
     return;
   }
 
-  // 기존 로그 토글
   await updateDoc(taskLogRef(userId, currentLog.id), {
     completed: !currentLog.completed,
     updatedAt: serverTimestamp(),

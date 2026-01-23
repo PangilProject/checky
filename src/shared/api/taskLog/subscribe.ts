@@ -1,9 +1,18 @@
+/**
+ * @file taskLog/subscribe.ts
+ * @description API 모듈
+ */
+
 import { onSnapshot, query, where } from "firebase/firestore";
 import { taskLogsRef } from "./refs";
 import type { TaskLog } from "./types";
 import { mapDoc } from "@/shared/api/_common/mappers";
 
-/** 특정 날짜의 taskLogs 구독 */
+/**
+ * @description 날짜별 태스크 로그를 실시간 구독합니다.
+ * @param params 요청 파라미터
+ * @returns 구독 해제 함수
+ */
 export const getTaskLogsByDate = ({
   userId,
   date,
@@ -21,7 +30,11 @@ export const getTaskLogsByDate = ({
   });
 };
 
-// 태스크 로그
+/**
+ * @description 월간 태스크 로그를 실시간 구독합니다.
+ * @param params 요청 파라미터
+ * @returns 구독 해제 함수
+ */
 export const getTaskLogsByMonth = ({
   userId,
   date,
