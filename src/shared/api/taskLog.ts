@@ -6,5 +6,6 @@
 export type { TaskLog } from "./taskLog/types";
 
 export { getTaskLogsByDate, getTaskLogsByMonth } from "./taskLog/subscribe";
+export { getTaskLogsByDateOnce, getTaskLogsByMonthOnce } from "./taskLog/queries";
 
 export { toggleTaskLog } from "./taskLog/crud";

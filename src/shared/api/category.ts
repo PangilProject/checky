@@ -13,5 +13,6 @@ export {
 } from "./category/crud";
 
 export { getCategories } from "./category/subscribe";
+export { getCategoriesOnce } from "./category/queries";
 
 export { updateCategoryOrder } from "./category/order";

@@ -23,3 +23,8 @@ export { subscribeRoutinesByCategory } from "./routine/subscribe";
 export { getRoutineReportByWeek } from "./routine/report";
 
 export { updateRoutineOrder, migrateRoutineOrderIndex } from "./routine/order";
+
+export {
+  getRoutinesByMonthOnce,
+  getRoutineLogsByMonthOnce,
+} from "./routine/queries";
