@@ -40,10 +40,9 @@ import { RoutineListSkeleton } from "./RoutineListSkeleton";
 
 export const RoutineList = () => {
   const { user } = useAuth();
-  const [routineCategories, setRoutineCategories] = useState<RoutineCategory[]>(
-    []
-  );
-  const [isLoading, setIsLoading] = useState(true);
+  const [routineCategories, setRoutineCategories] = useState<
+    RoutineCategory[] | null
+  >(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -77,7 +76,6 @@ export const RoutineList = () => {
 
   useEffect(() => {
     if (!user) return;
-    setIsLoading(true);
     migrateRoutineOrderIndex(user.uid);
 
     const unsubscribeCategories = getCategories({
@@ -128,7 +126,7 @@ export const RoutineList = () => {
       routineUnsubscribes.current = {};
     };
   }, [user]);
-  if (isLoading) {
+  if (routineCategories === null) {
     return (
       <div>
         <Text4 text="루틴 페이지" className="font-bold mb-5" />

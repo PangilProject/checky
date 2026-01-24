@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { createTask, deleteTaskWithLogs, updateTaskWithDateMove } from "@/shared/api/task";
 import type { Task } from "@/shared/api/task";
 import type { Category } from "@/shared/api/category";
@@ -39,22 +39,21 @@ export const useTaskModalHandlers = ({
     () => categories.find((c) => c.id === selectedCategoryId),
     [categories, selectedCategoryId]
   );
-  const selectedCategoryColor = selectedCategory?.color ?? categoryColor;
-
-  useEffect(() => {
-    if (selectedCategoryId && selectedCategory) return;
-    if (categories.length === 0) return;
-    setSelectedCategoryId(categories[0].id);
-  }, [categories, selectedCategory, selectedCategoryId]);
+  const effectiveCategoryId =
+    selectedCategoryId ?? categories[0]?.id ?? "";
+  const selectedCategoryColor =
+    selectedCategory?.color ??
+    categories.find((c) => c.id === effectiveCategoryId)?.color ??
+    categoryColor;
 
   const handleCreateTask = async () => {
-    if (!taskInput.trim() || !userId || !selectedCategoryId) return;
+    if (!taskInput.trim() || !userId || !effectiveCategoryId) return;
 
     try {
       await createTask({
         userId,
         title: taskInput,
-        categoryId: selectedCategoryId,
+        categoryId: effectiveCategoryId,
         categoryColor: selectedCategoryColor,
         date: taskDate,
         ...(timeEnabled && { time: taskTime }),
@@ -66,7 +65,7 @@ export const useTaskModalHandlers = ({
   };
 
   const handleUpdateTask = async () => {
-    if (!task || !taskInput.trim() || !userId || !selectedCategoryId) return;
+    if (!task || !taskInput.trim() || !userId || !effectiveCategoryId) return;
 
     try {
       await updateTaskWithDateMove({
@@ -77,7 +76,7 @@ export const useTaskModalHandlers = ({
         prevDate: task.date,
         nextDate: taskDate,
         prevCategoryId: task.categoryId,
-        categoryId: selectedCategoryId,
+        categoryId: effectiveCategoryId,
         categoryColor: selectedCategoryColor,
       });
 
@@ -108,7 +107,7 @@ export const useTaskModalHandlers = ({
     setTaskInput,
     taskDate,
     setTaskDate,
-    selectedCategoryId,
+    selectedCategoryId: effectiveCategoryId,
     setSelectedCategoryId,
     timeEnabled,
     setTimeEnabled,

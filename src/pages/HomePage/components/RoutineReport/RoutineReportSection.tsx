@@ -80,7 +80,7 @@ function RoutineReportSection() {
     });
 
     return () => unsubscribe();
-  }, [queryClient, user, week.endDate, week.startDate]);
+  }, [queryClient, routineReportKey, user, week.endDate, week.startDate]);
 
   const handleToggle = async (
     routineId: string,

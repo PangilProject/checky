@@ -7,7 +7,7 @@ const nowMs = () => Math.round(performance.now());
 export const baselineSubscribe = (label: string, meta?: BaselineMeta) => {
   if (!isBaselineEnabled()) {
     return {
-      onSnapshot: (_count: number) => {},
+      onSnapshot: () => {},
       onUnsubscribe: () => {},
     };
   }
@@ -44,7 +44,7 @@ export const baselineSubscribe = (label: string, meta?: BaselineMeta) => {
 export const baselineFetch = (label: string, meta?: BaselineMeta) => {
   if (!isBaselineEnabled()) {
     return {
-      end: (_extra?: BaselineMeta) => {},
+      end: () => {},
     };
   }
 

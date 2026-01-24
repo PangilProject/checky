@@ -44,9 +44,8 @@ export const CategorySection = ({
   showAddButton = false,
 }: CategorySectionProps) => {
   const { user } = useAuth();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[] | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -59,14 +58,12 @@ export const CategorySection = ({
 
   useEffect(() => {
     if (!user) return;
-    setIsLoading(true);
 
     const unsubscribe = getCategories({
       userId: user.uid,
       status,
       onChange: (list) => {
         setCategories(list);
-        setIsLoading(false);
       },
     });
 
@@ -123,7 +120,7 @@ export const CategorySection = ({
 
       {/* 내용 영역 */}
       <div className="w-full flex flex-col items-center">
-        {isLoading ? (
+        {categories === null ? (
           <CategoryListSkeleton />
         ) : categories.length === 0 ? (
           <div className="flex flex-col items-center">

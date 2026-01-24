@@ -144,9 +144,7 @@ export const CategoryField = ({
     };
   }, []);
 
-  useEffect(() => {
-    if (isDisabled) setOpen(false);
-  }, [isDisabled]);
+  const isOpen = open && !isDisabled;
 
   return (
     <div className="flex justify-between items-center">
@@ -170,7 +168,7 @@ export const CategoryField = ({
               ▼
             </span>
           </button>
-          {open && (
+          {isOpen && (
             <div className="absolute right-0 mt-2 z-10 min-w-30 bg-white border border-gray-200 rounded-md shadow-sm">
               {categories.map((category) => (
                 <button

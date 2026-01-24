@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCategoriesOnce } from "@/shared/api/category";
+import { getCategoriesOnce, type Category } from "@/shared/api/category";
 import {
   createTask,
   getTasksByDateOnce,
@@ -11,9 +11,14 @@ import {
   getTaskLogsByDate,
   getTaskLogsByDateOnce,
   toggleTaskLog,
+  type TaskLog,
 } from "@/shared/api/taskLog";
 import { categoryKeys, taskKeys, taskLogKeys } from "@/shared/query/keys";
 import { baselineCacheCheck } from "@/shared/utils/perfBaseline";
+
+const EMPTY_CATEGORIES: Category[] = [];
+const EMPTY_TASKS: Task[] = [];
+const EMPTY_TASK_LOGS: TaskLog[] = [];
 
 export const useTaskList = ({
   userId,
@@ -74,9 +79,9 @@ export const useTaskList = ({
     placeholderData: (previous) => previous,
   });
 
-  const categories = categoriesQuery.data ?? [];
-  const tasks = tasksQuery.data ?? [];
-  const taskLogs = taskLogsQuery.data ?? [];
+  const categories = categoriesQuery.data ?? EMPTY_CATEGORIES;
+  const tasks = tasksQuery.data ?? EMPTY_TASKS;
+  const taskLogs = taskLogsQuery.data ?? EMPTY_TASK_LOGS;
 
   useEffect(() => {
     if (!userId || !dateString) return;
@@ -110,7 +115,7 @@ export const useTaskList = ({
       status,
       updatedAt: taskState?.dataUpdatedAt,
     });
-  }, [dateString, taskState?.status, userId]);
+  }, [dateString, taskState?.dataUpdatedAt, taskState?.status, userId]);
 
   useEffect(() => {
     if (!userId || !dateString) return;
@@ -127,7 +132,7 @@ export const useTaskList = ({
       status,
       updatedAt: logState?.dataUpdatedAt,
     });
-  }, [dateString, logState?.status, userId]);
+  }, [dateString, logState?.dataUpdatedAt, logState?.status, userId]);
 
   const taskLogMap = useMemo(
     () => new Map(taskLogs.map((log) => [log.taskId, log])),
