@@ -20,7 +20,17 @@ interface AdminStats {
   activeByDate: ChartItem[];
 }
 
-const formatDate = (date: Date) => `${date.getMonth() + 1}/${date.getDate()}`;
+const toDateKey = (date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
+const labelFromKey = (dateKey: string) => {
+  const [, m, d] = dateKey.split("-");
+  return `${Number(m)}/${Number(d)}`;
+};
 
 export const useAdminStats = () => {
   const [stats, setStats] = useState<AdminStats>({
@@ -68,7 +78,7 @@ export const useAdminStats = () => {
           if (createdAt >= startOfToday) todayUsers++;
           if (createdAt >= startOfWeek) weeklyUsers++;
 
-          const key = formatDate(createdAt);
+          const key = toDateKey(createdAt);
           signupMap.set(key, (signupMap.get(key) ?? 0) + 1);
         }
 
@@ -76,18 +86,18 @@ export const useAdminStats = () => {
           if (lastLoginAt >= startOfWeek) activeUsers++;
           if (lastLoginAt >= startOfToday) todayActiveUsers++;
 
-          const key = formatDate(lastLoginAt);
+          const key = toDateKey(lastLoginAt);
           activeMap.set(key, (activeMap.get(key) ?? 0) + 1);
         }
       });
 
-      const signupByDate = Array.from(signupMap.entries()).map(
-        ([date, count]) => ({ date, count })
-      );
+      const signupByDate = Array.from(signupMap.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, count]) => ({ date: labelFromKey(date), count }));
 
-      const activeByDate = Array.from(activeMap.entries()).map(
-        ([date, count]) => ({ date, count })
-      );
+      const activeByDate = Array.from(activeMap.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, count]) => ({ date: labelFromKey(date), count }));
 
       setStats({
         totalUsers: users.length,

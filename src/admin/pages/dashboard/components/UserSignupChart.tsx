@@ -17,7 +17,16 @@ function UserSignupChart({ data }: Props) {
       <p className="font-semibold mb-3">가입자 추이</p>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
-          <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: 12 }}
+            interval={0}
+            minTickGap={0}
+            angle={0}
+            textAnchor="end"
+            height={36}
+            tickMargin={8}
+          />
 
           <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
 
