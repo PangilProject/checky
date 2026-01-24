@@ -21,6 +21,7 @@ export const TaskListSection = () => {
         <TaskCategorySection
           key={category.id}
           category={category}
+          categories={categories}
           tasks={tasks}
           taskLogMap={taskLogMap}
           dateString={dateString}

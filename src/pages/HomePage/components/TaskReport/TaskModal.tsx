@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Text3, Text5 } from "@/shared/ui/Text";
 import {
   NormalBlackButton,
@@ -14,6 +14,7 @@ import {
   updateTaskWithDateMove,
 } from "@/shared/api/task";
 import { ModalWrapper } from "@/shared/ui/Modal";
+import type { Category } from "@/shared/api/category";
 
 interface TaskModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -21,6 +22,7 @@ interface TaskModalProps {
   selectedDate: string;
   categoryId: string;
   categoryColor: string;
+  categories: Category[];
   onClose: () => void;
 }
 
@@ -30,12 +32,16 @@ export default function TaskModal({
   selectedDate,
   categoryId,
   categoryColor,
+  categories,
   onClose,
 }: TaskModalProps) {
   const { user } = useAuth();
 
   const [taskInput, setTaskInput] = useState(task?.title ?? "");
   const [taskDate, setTaskDate] = useState(task?.date ?? selectedDate);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(
+    task?.categoryId ?? categoryId,
+  );
   const DEFAULT_TIME = "12:00";
 
   const [timeEnabled, setTimeEnabled] = useState<boolean>(Boolean(task?.time));
@@ -44,6 +50,11 @@ export default function TaskModal({
   const [currentMode, setCurrentMode] = useState(mode);
 
   const isReadOnly = currentMode === "VIEW";
+  const selectedCategory = useMemo(
+    () => categories.find((c) => c.id === selectedCategoryId),
+    [categories, selectedCategoryId],
+  );
+  const selectedCategoryColor = selectedCategory?.color ?? categoryColor;
 
   /* ======================
      CREATE
@@ -55,8 +66,8 @@ export default function TaskModal({
       await createTask({
         userId: user.uid,
         title: taskInput,
-        categoryId,
-        categoryColor,
+        categoryId: selectedCategoryId,
+        categoryColor: selectedCategoryColor,
         date: taskDate,
         ...(timeEnabled && { time: taskTime }),
       });
@@ -80,7 +91,9 @@ export default function TaskModal({
         ...(timeEnabled ? { time: taskTime } : { time: undefined }),
         prevDate: task.date,
         nextDate: taskDate,
-        categoryId,
+        prevCategoryId: task.categoryId,
+        categoryId: selectedCategoryId,
+        categoryColor: selectedCategoryColor,
       });
 
       onClose();
@@ -122,6 +135,14 @@ export default function TaskModal({
       <DateField
         value={taskDate}
         onChange={setTaskDate}
+        disabled={isReadOnly}
+      />
+      <Space10 direction="mb" />
+
+      <CategoryField
+        value={selectedCategoryId}
+        categories={categories}
+        onChange={setSelectedCategoryId}
         disabled={isReadOnly}
       />
       <Space10 direction="mb" />
@@ -257,6 +278,82 @@ const TimeField = ({
             className={`border-b outline-none text-[14px]
               ${!enabled && "opacity-40"}`}
           />
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CategoryField = ({
+  value,
+  categories,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  categories: Category[];
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) => {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const selected = categories.find((c) => c.id === value);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!containerRef.current) return;
+      if (!containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="flex justify-between items-center">
+      <Text3 text="카테고리" />
+      {disabled ? (
+        <Text3
+          text={selected?.name ?? "-"}
+          className={
+            selected?.color ? `text-[${selected.color}]` : "opacity-60"
+          }
+        />
+      ) : (
+        <div ref={containerRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setOpen((prev) => !prev)}
+            className="w-20 border-b border-gray-300 text-[14px] text-left pr-6 relative"
+          >
+            <span className={`text-[${selected?.color}]`}>
+              {selected?.name ?? "-"}
+            </span>
+            <span className="absolute right-1 top-1/2 -translate-y-1/2 text-xs">
+              ▼
+            </span>
+          </button>
+          {open && (
+            <div className="absolute right-0 mt-2 z-10 w-20 bg-white border border-gray-200 rounded-md shadow-sm">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(category.id);
+                    setOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 text-[14px] hover:bg-gray-50 text-[${category.color}] ${
+                    category.id === value ? "font-bold" : ""
+                  }`}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

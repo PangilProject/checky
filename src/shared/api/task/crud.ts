@@ -83,21 +83,25 @@ export const updateTaskWithDateMove = async ({
   taskId,
   prevDate,
   nextDate,
+  prevCategoryId,
   title,
   categoryId,
+  categoryColor,
   time,
 }: {
   userId: string;
   taskId: string;
   prevDate: string;
   nextDate: string;
+  prevCategoryId?: string;
   title?: string;
   categoryId: string;
+  categoryColor?: string;
   time?: string;
 }) => {
   let nextOrderIndex: number | undefined;
 
-  if (prevDate !== nextDate) {
+  if (prevDate !== nextDate || (prevCategoryId && prevCategoryId !== categoryId)) {
     const q = query(
       tasksRef(userId),
       where("date", "==", nextDate),
@@ -113,6 +117,8 @@ export const updateTaskWithDateMove = async ({
     ...(title !== undefined && { title }),
     ...(time !== undefined ? { time } : { time: deleteField() }),
     date: nextDate,
+    ...(categoryId && { categoryId }),
+    ...(categoryColor && { categoryColor }),
     ...(nextOrderIndex !== undefined && { orderIndex: nextOrderIndex }),
     updatedAt: serverTimestamp(),
   });

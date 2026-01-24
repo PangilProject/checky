@@ -20,6 +20,7 @@ import { TaskItemsList } from "./TaskItemsList";
 
 interface TaskCategorySectionProps {
   category: Category;
+  categories: Category[];
   tasks: Task[];
   taskLogMap: Map<string, TaskLog>;
   dateString: string;
@@ -34,6 +35,7 @@ interface TaskCategorySectionProps {
 
 export const TaskCategorySection = ({
   category,
+  categories,
   tasks,
   taskLogMap,
   dateString,
@@ -131,6 +133,7 @@ export const TaskCategorySection = ({
           selectedDate={dateString}
           categoryId={category.id}
           categoryColor={category.color}
+          categories={categories}
           onClose={handleCloseTaskModal}
         />
       )}
