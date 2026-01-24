@@ -82,10 +82,10 @@ export const RoutineList = () => {
       userId: user.uid,
       status: "ACTIVE",
       onChange: (categories) => {
-        setIsLoading(false);
         setRoutineCategories((prev) => {
+          const safePrev = prev ?? [];
           return categories.map((category) => {
-            const existing = prev.find(
+            const existing = safePrev.find(
               (item) => item.category.id === category.id
             );
 
@@ -105,13 +105,14 @@ export const RoutineList = () => {
             userId: user.uid,
             categoryId: category.id,
             onChange: (routines) => {
-              setRoutineCategories((prev) =>
-                prev.map((item) =>
+              setRoutineCategories((prev) => {
+                const safePrev = prev ?? [];
+                return safePrev.map((item) =>
                   item.category.id === category.id
                     ? { ...item, routines }
                     : item
-                )
-              );
+                );
+              });
             },
           });
 
@@ -172,13 +173,14 @@ export const RoutineList = () => {
 
           const newList = arrayMove(routines, oldIndex, newIndex);
 
-          setRoutineCategories((prev) =>
-            prev.map((item) =>
+          setRoutineCategories((prev) => {
+            const safePrev = prev ?? [];
+            return safePrev.map((item) =>
               item.category.id === category.id
                 ? { ...item, routines: newList }
                 : item
-            )
-          );
+            );
+          });
 
           updateRoutineOrder({
             userId: user!.uid,

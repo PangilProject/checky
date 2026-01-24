@@ -89,6 +89,8 @@ export const CategorySection = ({
     if (!over || active.id === over.id) return;
 
     setCategories((prev) => {
+      if (!prev) return prev;
+
       const oldIndex = prev.findIndex((c) => c.id === active.id);
       const newIndex = prev.findIndex((c) => c.id === over.id);
 
