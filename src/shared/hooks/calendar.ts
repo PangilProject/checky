@@ -77,7 +77,6 @@ import {
   taskKeys,
   taskLogKeys,
 } from "@/shared/query/keys";
-import { baselineSubscribe } from "@/shared/utils/perfBaseline";
 
 type MonthlyTask = { date: string };
 type MonthlyTaskLog = { date: string; completed: boolean };

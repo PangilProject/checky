@@ -6,6 +6,7 @@ import { RoutineTable } from "./RoutineTable";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { formatDateKST } from "@/shared/hooks/formatDate";
 import { useRoutineReportQuery } from "@/shared/query/useRoutineReportQuery";
+import type { RoutineReport, RoutineReportRow } from "@/shared/api/routine";
 import { toggleRoutineLog } from "@/shared/api/routineLog";
 import { useQueryClient } from "@tanstack/react-query";
 import { routineReportKeys } from "@/shared/query/keys";
@@ -39,6 +40,11 @@ function RoutineReportSection() {
     startDate: week.startDate,
     endDate: week.endDate,
   });
+  const routineReportKey = routineReportKeys.byWeek(
+    user?.uid ?? "",
+    week.startDate,
+    week.endDate
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -53,13 +59,11 @@ function RoutineReportSection() {
           logs.map((log) => [`${log.routineId}_${log.date}`, log.done])
         );
 
-        queryClient.setQueryData(
-          routineReportKeys.byWeek(user.uid, week.startDate, week.endDate),
-          (prev) => {
+        queryClient.setQueryData<RoutineReport>(routineReportKey, (prev) => {
             if (!prev) return prev;
             return {
               ...prev,
-              rows: prev.rows.map((row) => {
+              rows: prev.rows.map((row: RoutineReportRow) => {
                 const nextChecks = { ...row.checks };
                 Object.keys(nextChecks).forEach((date) => {
                   const key = `${row.routineId}_${date}`;
@@ -70,8 +74,7 @@ function RoutineReportSection() {
                 return { ...row, checks: nextChecks };
               }),
             };
-          }
-        );
+          });
       },
     });
 
@@ -85,18 +88,12 @@ function RoutineReportSection() {
   ) => {
     if (!user) return;
 
-    const queryKey = routineReportKeys.byWeek(
-      user.uid,
-      week.startDate,
-      week.endDate
-    );
-
-    queryClient.setQueryData(queryKey, (prev) => {
+    queryClient.setQueryData<RoutineReport>(routineReportKey, (prev) => {
       if (!prev) return prev;
 
       return {
         ...prev,
-        rows: prev.rows.map((row) =>
+        rows: prev.rows.map((row: RoutineReportRow) =>
           row.routineId !== routineId
             ? row
             : {

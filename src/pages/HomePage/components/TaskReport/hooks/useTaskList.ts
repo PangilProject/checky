@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCategoriesOnce, type Category } from "@/shared/api/category";
+import { getCategoriesOnce } from "@/shared/api/category";
 import {
   createTask,
   getTasksByDateOnce,
@@ -11,7 +11,6 @@ import {
   getTaskLogsByDate,
   getTaskLogsByDateOnce,
   toggleTaskLog,
-  type TaskLog,
 } from "@/shared/api/taskLog";
 import { categoryKeys, taskKeys, taskLogKeys } from "@/shared/query/keys";
 import { baselineCacheCheck } from "@/shared/utils/perfBaseline";
