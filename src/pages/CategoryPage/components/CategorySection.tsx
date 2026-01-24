@@ -12,6 +12,7 @@ import { Text2 } from "@/shared/ui/Text";
 import ImageEmpty from "@/assets/images/empty.png";
 import { SortableCategoryItem } from "./SortableCategoryItem";
 import CategoryModal from "./CategoryModal";
+import { CategoryListSkeleton } from "./CategoryListSkeleton";
 import type { DragEndEvent } from "@dnd-kit/core";
 import {
   useSensor,
@@ -45,6 +46,7 @@ export const CategorySection = ({
   const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -57,11 +59,15 @@ export const CategorySection = ({
 
   useEffect(() => {
     if (!user) return;
+    setIsLoading(true);
 
     const unsubscribe = getCategories({
       userId: user.uid,
       status,
-      onChange: setCategories,
+      onChange: (list) => {
+        setCategories(list);
+        setIsLoading(false);
+      },
     });
 
     return () => unsubscribe();
@@ -117,7 +123,9 @@ export const CategorySection = ({
 
       {/* 내용 영역 */}
       <div className="w-full flex flex-col items-center">
-        {categories.length === 0 ? (
+        {isLoading ? (
+          <CategoryListSkeleton />
+        ) : categories.length === 0 ? (
           <div className="flex flex-col items-center">
             <img src={ImageEmpty} className="h-15" />
             <Space4 direction="mb" />
