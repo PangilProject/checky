@@ -56,11 +56,17 @@ export default function TaskModal({
   );
   const selectedCategoryColor = selectedCategory?.color ?? categoryColor;
 
+  useEffect(() => {
+    if (selectedCategoryId && selectedCategory) return;
+    if (categories.length === 0) return;
+    setSelectedCategoryId(categories[0].id);
+  }, [categories, selectedCategory, selectedCategoryId]);
+
   /* ======================
      CREATE
   ====================== */
   const handleCreateTask = async () => {
-    if (!taskInput.trim() || !user) return;
+    if (!taskInput.trim() || !user || !selectedCategoryId) return;
 
     try {
       await createTask({
@@ -81,7 +87,7 @@ export default function TaskModal({
      UPDATE
   ====================== */
   const handleUpdateTask = async () => {
-    if (!task || !taskInput.trim() || !user) return;
+    if (!task || !taskInput.trim() || !user || !selectedCategoryId) return;
 
     try {
       await updateTaskWithDateMove({
@@ -297,7 +303,11 @@ const CategoryField = ({
 }) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isDisabled = Boolean(disabled) || categories.length === 0;
   const selected = categories.find((c) => c.id === value);
+  const selectedTextClass = selected?.color
+    ? `text-[${selected.color}]`
+    : "text-gray-400";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -307,14 +317,28 @@ const CategoryField = ({
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
+
+  useEffect(() => {
+    if (isDisabled) setOpen(false);
+  }, [isDisabled]);
 
   return (
     <div className="flex justify-between items-center">
       <Text3 text="카테고리" />
-      {disabled ? (
+      {isDisabled ? (
         <Text3
           text={selected?.name ?? "-"}
           className={
@@ -326,17 +350,15 @@ const CategoryField = ({
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="w-20 border-b border-gray-300 text-[14px] text-left pr-6 relative"
+            className="min-w-[120px] border-b border-gray-300 text-[14px] text-left pr-6 relative"
           >
-            <span className={`text-[${selected?.color}]`}>
-              {selected?.name ?? "-"}
-            </span>
+            <span className={selectedTextClass}>{selected?.name ?? "-"}</span>
             <span className="absolute right-1 top-1/2 -translate-y-1/2 text-xs">
               ▼
             </span>
           </button>
           {open && (
-            <div className="absolute right-0 mt-2 z-10 w-20 bg-white border border-gray-200 rounded-md shadow-sm">
+            <div className="absolute right-0 mt-2 z-10 min-w-[120px] bg-white border border-gray-200 rounded-md shadow-sm">
               {categories.map((category) => (
                 <button
                   key={category.id}
