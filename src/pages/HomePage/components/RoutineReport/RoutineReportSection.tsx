@@ -12,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { routineReportKeys } from "@/shared/query/keys";
 import { useEffect } from "react";
 import { getRoutineLogsByWeek } from "@/shared/api/routineLog";
+import { RoutineReportSkeleton } from "./RoutineReportSkeleton";
 
 function RoutineReportSection() {
   const { user } = useAuth();
@@ -35,7 +36,7 @@ function RoutineReportSection() {
     endDate: formatDateKST(end),
   };
 
-  const { data: report } = useRoutineReportQuery({
+  const { data: report, isLoading } = useRoutineReportQuery({
     userId: user?.uid,
     startDate: week.startDate,
     endDate: week.endDate,
@@ -125,12 +126,10 @@ function RoutineReportSection() {
         onTodayClick={() => setSelectedDate(new Date())}
       />
 
-      {/* ✅ 데이터 준비되었을 때만 렌더 */}
-      {report && (
-        <RoutineTable
-          report={report}
-          onToggle={handleToggle}
-        />
+      {isLoading ? (
+        <RoutineReportSkeleton />
+      ) : (
+        report && <RoutineTable report={report} onToggle={handleToggle} />
       )}
 
       <Space24 direction="mb" />

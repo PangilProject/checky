@@ -5,6 +5,7 @@ import { CalanderSection } from "./CalanderSection";
 import { useMonthlyActivityCountMap } from "@/shared/hooks/calendar";
 
 import { useMonthlyData } from "@/shared/hooks/calendar";
+import { MonthlyReportSkeleton } from "./MonthlyReportSkeleton";
 
 function MonthlyReportSection() {
   const { selectedDate, setSelectedDate } = useSelectedDate();
@@ -13,7 +14,7 @@ function MonthlyReportSection() {
     selectedDate.getMonth() + 1
   }월`;
 
-  const { tasks, taskLogs, routines, routineLogs } =
+  const { tasks, taskLogs, routines, routineLogs, isLoading } =
     useMonthlyData(selectedDate);
 
   const activityMap = useMonthlyActivityCountMap({
@@ -33,7 +34,11 @@ function MonthlyReportSection() {
         rightOnClick={() => setSelectedDate(moveMonth(selectedDate, 1))}
         onTodayClick={() => setSelectedDate(new Date())}
       />
-      <CalanderSection activityMap={activityMap} />
+      {isLoading ? (
+        <MonthlyReportSkeleton />
+      ) : (
+        <CalanderSection activityMap={activityMap} />
+      )}
     </div>
   );
 }

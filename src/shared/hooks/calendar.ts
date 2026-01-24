@@ -90,7 +90,7 @@ export const useMonthlyData = (date: Date) => {
   const monthKey = `${year}-${month}`;
   const userId = user?.uid ?? "";
 
-  const { data: tasks = [] } = useQuery<MonthlyTask[]>({
+  const tasksQuery = useQuery<MonthlyTask[]>({
     queryKey: taskKeys.byMonth(userId, monthKey),
     queryFn: () => getTasksByMonthOnce({ userId, month: monthKey }),
     enabled: Boolean(user?.uid),
@@ -100,7 +100,7 @@ export const useMonthlyData = (date: Date) => {
     placeholderData: (previous) => previous,
   });
 
-  const { data: taskLogs = [] } = useQuery<MonthlyTaskLog[]>({
+  const taskLogsQuery = useQuery<MonthlyTaskLog[]>({
     queryKey: taskLogKeys.byMonth(userId, monthKey),
     queryFn: () => getTaskLogsByMonthOnce({ userId, month: monthKey }),
     enabled: Boolean(user?.uid),
@@ -110,7 +110,7 @@ export const useMonthlyData = (date: Date) => {
     placeholderData: (previous) => previous,
   });
 
-  const { data: routines = [] } = useQuery<MonthlyRoutine[]>({
+  const routinesQuery = useQuery<MonthlyRoutine[]>({
     queryKey: routineKeys.byMonth(userId, monthKey),
     queryFn: () => getRoutinesByMonthOnce({ userId, month: monthKey }),
     enabled: Boolean(user?.uid),
@@ -120,7 +120,7 @@ export const useMonthlyData = (date: Date) => {
     placeholderData: (previous) => previous,
   });
 
-  const { data: routineLogs = [] } = useQuery<MonthlyRoutineLog[]>({
+  const routineLogsQuery = useQuery<MonthlyRoutineLog[]>({
     queryKey: routineLogKeys.byMonth(userId, monthKey),
     queryFn: () => getRoutineLogsByMonthOnce({ userId, month: monthKey }),
     enabled: Boolean(user?.uid),
@@ -130,7 +130,17 @@ export const useMonthlyData = (date: Date) => {
     placeholderData: (previous) => previous,
   });
 
-  return { tasks, taskLogs, routines, routineLogs };
+  return {
+    tasks: tasksQuery.data ?? [],
+    taskLogs: taskLogsQuery.data ?? [],
+    routines: routinesQuery.data ?? [],
+    routineLogs: routineLogsQuery.data ?? [],
+    isLoading:
+      tasksQuery.isLoading ||
+      taskLogsQuery.isLoading ||
+      routinesQuery.isLoading ||
+      routineLogsQuery.isLoading,
+  };
 };
 
 //

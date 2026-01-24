@@ -3,13 +3,22 @@ import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { formatDateByDate } from "@/shared/hooks/formatDate";
 import { useTaskList } from "./hooks/useTaskList";
 import { TaskCategorySection } from "./components/TaskCategorySection";
+import { TaskListSkeleton } from "./components/TaskListSkeleton";
 
 export const TaskListSection = () => {
   const { user } = useAuth();
   const { selectedDate } = useSelectedDate();
   const dateString = formatDateByDate(selectedDate);
 
-  const { categories, tasks, taskLogMap, addTask, toggleTask, reorderTasks } =
+  const {
+    categories,
+    tasks,
+    taskLogMap,
+    isLoading,
+    addTask,
+    toggleTask,
+    reorderTasks,
+  } =
     useTaskList({
       userId: user?.uid,
       dateString,
@@ -17,21 +26,27 @@ export const TaskListSection = () => {
 
   return (
     <div className="flex flex-col w-full">
-      {categories.map((category) => (
-        <TaskCategorySection
-          key={category.id}
-          category={category}
-          categories={categories}
-          tasks={tasks}
-          taskLogMap={taskLogMap}
-          dateString={dateString}
-          onAddTask={addTask}
-          onToggleTask={toggleTask}
-          onReorder={(categoryId, nextTasks) =>
-            reorderTasks({ categoryId, nextTasks })
-          }
-        />
-      ))}
+      {isLoading ? (
+        <TaskListSkeleton />
+      ) : (
+        <>
+          {categories.map((category) => (
+            <TaskCategorySection
+              key={category.id}
+              category={category}
+              categories={categories}
+              tasks={tasks}
+              taskLogMap={taskLogMap}
+              dateString={dateString}
+              onAddTask={addTask}
+              onToggleTask={toggleTask}
+              onReorder={(categoryId, nextTasks) =>
+                reorderTasks({ categoryId, nextTasks })
+              }
+            />
+          ))}
+        </>
+      )}
     </div>
   );
 };

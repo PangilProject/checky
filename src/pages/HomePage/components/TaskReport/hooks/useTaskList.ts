@@ -46,7 +46,7 @@ export const useTaskList = ({
     [safeUserId],
   );
 
-  const { data: categories = [] } = useQuery({
+  const categoriesQuery = useQuery({
     queryKey: categoryQueryKey,
     queryFn: () => getCategoriesOnce({ userId: safeUserId, status: "ACTIVE" }),
     enabled: Boolean(userId),
@@ -55,7 +55,7 @@ export const useTaskList = ({
     refetchOnWindowFocus: false,
   });
 
-  const { data: tasks = [] } = useQuery({
+  const tasksQuery = useQuery({
     queryKey: taskQueryKey,
     queryFn: () => getTasksByDateOnce({ userId: safeUserId, date: dateString }),
     enabled: Boolean(userId && dateString),
@@ -66,13 +66,17 @@ export const useTaskList = ({
     placeholderData: (previous) => previous,
   });
 
-  const { data: taskLogs = [] } = useQuery({
+  const taskLogsQuery = useQuery({
     queryKey: taskLogQueryKey,
     queryFn: () =>
       getTaskLogsByDateOnce({ userId: safeUserId, date: dateString }),
     enabled: false,
     placeholderData: (previous) => previous,
   });
+
+  const categories = categoriesQuery.data ?? [];
+  const tasks = tasksQuery.data ?? [];
+  const taskLogs = taskLogsQuery.data ?? [];
 
   useEffect(() => {
     if (!userId || !dateString) return;
@@ -232,6 +236,7 @@ export const useTaskList = ({
     categories,
     tasks,
     taskLogMap,
+    isLoading: categoriesQuery.isLoading || tasksQuery.isLoading,
     addTask,
     toggleTask,
     reorderTasks,
