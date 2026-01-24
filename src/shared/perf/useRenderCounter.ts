@@ -3,9 +3,9 @@ import { logPerf } from "./logger";
 
 export const useRenderCounter = (id: string) => {
   const countRef = useRef(0);
-  countRef.current += 1;
 
   useEffect(() => {
+    countRef.current += 1;
     logPerf({
       type: "render",
       id,
