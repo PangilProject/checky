@@ -36,12 +36,14 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import ImageEmpty from "@/assets/images/empty.png";
 import { Link } from "react-router-dom";
 import { RiCheckboxBlankFill } from "react-icons/ri";
+import { RoutineListSkeleton } from "./RoutineListSkeleton";
 
 export const RoutineList = () => {
   const { user } = useAuth();
   const [routineCategories, setRoutineCategories] = useState<RoutineCategory[]>(
     []
   );
+  const [isLoading, setIsLoading] = useState(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -75,12 +77,14 @@ export const RoutineList = () => {
 
   useEffect(() => {
     if (!user) return;
+    setIsLoading(true);
     migrateRoutineOrderIndex(user.uid);
 
     const unsubscribeCategories = getCategories({
       userId: user.uid,
       status: "ACTIVE",
       onChange: (categories) => {
+        setIsLoading(false);
         setRoutineCategories((prev) => {
           return categories.map((category) => {
             const existing = prev.find(
@@ -124,6 +128,15 @@ export const RoutineList = () => {
       routineUnsubscribes.current = {};
     };
   }, [user]);
+  if (isLoading) {
+    return (
+      <div>
+        <Text4 text="루틴 페이지" className="font-bold mb-5" />
+        <Space4 direction="mb" />
+        <RoutineListSkeleton />
+      </div>
+    );
+  }
   if (routineCategories.length === 0) {
     return (
       <div>
