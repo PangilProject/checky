@@ -1,4 +1,3 @@
-import { useRenderCounter } from "@/shared/perf";
 import { Space6 } from "@/shared/ui/Space";
 import { Text1, Text3 } from "@/shared/ui/Text";
 import { FaCheckCircle } from "react-icons/fa";
@@ -24,7 +23,6 @@ export const TaskItemsList = ({
   onToggle,
   onClickTask,
 }: TaskListProps) => {
-  useRenderCounter("TaskList");
   if (tasks.length === 0) return null;
 
   return (
@@ -62,7 +60,6 @@ const SortableTaskItem = ({
   onToggle,
   onClickTask,
 }: SortableTaskItemProps) => {
-  useRenderCounter(`SortableTaskItem:${task.id}`);
   const {
     setNodeRef,
     attributes,

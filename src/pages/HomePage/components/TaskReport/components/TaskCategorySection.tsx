@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useRenderCounter } from "@/shared/perf";
 import { Space8 } from "@/shared/ui/Space";
 import TaskModal from "../TaskModal";
 import type { Category } from "@/shared/api/category";
@@ -42,7 +41,6 @@ export const TaskCategorySection = ({
   onToggleTask,
   onReorder,
 }: TaskCategorySectionProps) => {
-  useRenderCounter(`CategoryItem:${category.id}`);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);

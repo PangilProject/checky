@@ -4,7 +4,6 @@ import { moveDay } from "@/shared/hooks/dateNavigation";
 import { TaskListSection } from "./TaskList";
 import { Space8 } from "@/shared/ui/Space";
 import { TaskSetting } from "./TaskSetting";
-import { PerfProfiler, isPerfEnabled } from "@/shared/perf";
 
 function TaskReportSection() {
   const { selectedDate, setSelectedDate } = useSelectedDate();
@@ -22,13 +21,7 @@ function TaskReportSection() {
         rightOnClick={() => setSelectedDate(moveDay(selectedDate, 1))}
         onTodayClick={() => setSelectedDate(new Date())}
       />
-      {isPerfEnabled() ? (
-        <PerfProfiler id="TaskListSection">
-          <TaskListSection />
-        </PerfProfiler>
-      ) : (
-        <TaskListSection />
-      )}
+      <TaskListSection />
       <Space8 direction="mb" />
       <TaskSetting />
       <Space8 direction="mb" />

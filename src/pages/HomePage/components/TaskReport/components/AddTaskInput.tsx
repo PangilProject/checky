@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useRenderCounter } from "@/shared/perf";
 import { COLOR_CLASS_BORDER_MAP } from "@/shared/constants/color";
 import { LongBlackButton } from "@/shared/ui/Button";
 import { LuCircleDashed } from "react-icons/lu";
@@ -15,7 +14,6 @@ export const AddTaskInput = ({
   onAddTask,
   onBlurClose,
 }: AddTaskInputProps) => {
-  useRenderCounter("AddTaskInput");
   const [taskInput, setTaskInput] = useState("");
   const borderColor = COLOR_CLASS_BORDER_MAP[categoryColor];
   const inputRef = useRef<HTMLInputElement>(null);
