@@ -178,12 +178,16 @@ export const useMonthlyActivityCountMap = ({
     });
     // 3️⃣ Task 완료
     taskLogs.forEach(({ date, completed }) => {
-      if (completed) ensure(date).completed += 1;
+      if (!completed) return;
+      if (!next.has(date)) return;
+      ensure(date).completed += 1;
     });
 
     // 4️⃣ Routine 완료
     routineLogs.forEach(({ date, done }) => {
-      if (done) ensure(date).completed += 1;
+      if (!done) return;
+      if (!next.has(date)) return;
+      ensure(date).completed += 1;
     });
 
     // 5️⃣ remaining 계산
