@@ -19,6 +19,7 @@ import type {
   RoutineReportRow,
   RoutineReportWeek,
 } from "./types";
+import { baselineFetch } from "@/shared/utils/perfBaseline";
 
 type RoutineReportRowInternal = RoutineReportRow & {
   routineOrderIndex: number;
@@ -175,6 +176,11 @@ export const getRoutineReportByWeek = async ({
   startDate: string;
   endDate: string;
 }): Promise<RoutineReport> => {
+  const perf = baselineFetch("routineReport/fetchByWeek", {
+    userId,
+    startDate,
+    endDate,
+  });
   const week = buildWeek(startDate, endDate);
 
   const routinesSnap = await getDocs(
@@ -198,6 +204,13 @@ export const getRoutineReportByWeek = async ({
   const categoriesMap = buildCategoriesMap(categoriesSnap.docs);
 
   const rows = buildRows({ routines, categoriesMap, week, logMap });
+
+  perf.end({
+    routineCount: routines.length,
+    logCount: logs.length,
+    categoryCount: categoriesSnap.docs.length,
+    rowCount: rows.length,
+  });
 
   return {
     week,

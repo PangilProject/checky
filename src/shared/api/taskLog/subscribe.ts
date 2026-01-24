@@ -7,6 +7,7 @@ import { onSnapshot, query, where } from "firebase/firestore";
 import { taskLogsRef } from "./refs";
 import type { TaskLog } from "./types";
 import { mapDoc } from "@/shared/api/_common/mappers";
+import { baselineSubscribe } from "@/shared/utils/perfBaseline";
 
 /**
  * @description 날짜별 태스크 로그를 실시간 구독합니다.
@@ -22,12 +23,22 @@ export const getTaskLogsByDate = ({
   date: string;
   onChange: (logs: TaskLog[]) => void;
 }) => {
+  const perf = baselineSubscribe("taskLogs/subscribe/byDate", {
+    userId,
+    date,
+  });
   const q = query(taskLogsRef(userId), where("date", "==", date));
 
-  return onSnapshot(q, (snapshot) => {
+  const unsubscribe = onSnapshot(q, (snapshot) => {
     const logs = snapshot.docs.map((doc) => mapDoc<TaskLog>(doc));
+    perf.onSnapshot(logs.length);
     onChange(logs);
   });
+
+  return () => {
+    perf.onUnsubscribe();
+    unsubscribe();
+  };
 };
 
 /**
@@ -46,6 +57,11 @@ export const getTaskLogsByMonth = ({
 }) => {
   const year = date.getFullYear();
   const month = date.getMonth();
+  const monthKey = `${year}-${String(month + 1).padStart(2, "0")}`;
+  const perf = baselineSubscribe("taskLogs/subscribe/byMonth", {
+    userId,
+    month: monthKey,
+  });
 
   const start = `${year}-${String(month + 1).padStart(2, "0")}-01`;
   const end = `${year}-${String(month + 1).padStart(2, "0")}-31`;
@@ -56,9 +72,15 @@ export const getTaskLogsByMonth = ({
     where("date", "<=", end)
   );
 
-  return onSnapshot(q, (snapshot) => {
+  const unsubscribe = onSnapshot(q, (snapshot) => {
     const logs = snapshot.docs.map((doc) => mapDoc<TaskLog>(doc));
 
+    perf.onSnapshot(logs.length);
     onChange(logs);
   });
+
+  return () => {
+    perf.onUnsubscribe();
+    unsubscribe();
+  };
 };
