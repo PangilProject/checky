@@ -2,11 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Text3, Text5 } from "@/shared/ui/Text";
 import type { Category } from "@/shared/api/category";
 
-export const ModalTitle = ({
-  mode,
-}: {
-  mode: "CREATE" | "VIEW" | "EDIT";
-}) => {
+export const ModalTitle = ({ mode }: { mode: "CREATE" | "VIEW" | "EDIT" }) => {
   if (mode === "CREATE")
     return <Text5 text="태스크 추가" className="font-bold" />;
   if (mode === "EDIT")
@@ -167,7 +163,7 @@ export const CategoryField = ({
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="min-w-[120px] border-b border-gray-300 text-[14px] text-left pr-6 relative"
+            className="min-w-30 border-b border-gray-300 text-[14px] text-left pr-6 relative"
           >
             <span className={selectedTextClass}>{selected?.name ?? "-"}</span>
             <span className="absolute right-1 top-1/2 -translate-y-1/2 text-xs">
@@ -175,7 +171,7 @@ export const CategoryField = ({
             </span>
           </button>
           {open && (
-            <div className="absolute right-0 mt-2 z-10 min-w-[120px] bg-white border border-gray-200 rounded-md shadow-sm">
+            <div className="absolute right-0 mt-2 z-10 min-w-30 bg-white border border-gray-200 rounded-md shadow-sm">
               {categories.map((category) => (
                 <button
                   key={category.id}
