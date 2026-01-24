@@ -35,7 +35,8 @@ export const useCalendar = (selectedDate: Date) => {
   };
 };
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export const useMonthlyActivityMap = ({
   tasks,
@@ -64,10 +65,19 @@ export const useMonthlyActivityMap = ({
 };
 
 import { useAuth } from "@/shared/hooks/useAuth";
-import { getTasksByMonth } from "../api/task";
-import { getTaskLogsByMonth } from "../api/taskLog";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { db } from "@/firebase/firebase";
+import { getTasksByMonthOnce } from "../api/task";
+import { getTaskLogsByMonthOnce } from "../api/taskLog";
+import {
+  getRoutineLogsByMonthOnce,
+  getRoutinesByMonthOnce,
+} from "../api/routine";
+import {
+  routineKeys,
+  routineLogKeys,
+  taskKeys,
+  taskLogKeys,
+} from "@/shared/query/keys";
+import { baselineSubscribe } from "@/shared/utils/perfBaseline";
 
 type MonthlyTask = { date: string };
 type MonthlyTaskLog = { date: string; completed: boolean };
@@ -76,45 +86,50 @@ type MonthlyRoutineLog = { date: string; done: boolean };
 
 export const useMonthlyData = (date: Date) => {
   const { user } = useAuth();
-  const [tasks, setTasks] = useState<MonthlyTask[]>([]);
-  const [taskLogs, setTaskLogs] = useState<MonthlyTaskLog[]>([]);
-  const [routines, setRoutines] = useState<MonthlyRoutine[]>([]);
-  const [routineLogs, setRoutineLogs] = useState<MonthlyRoutineLog[]>([]);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const monthKey = `${year}-${month}`;
+  const userId = user?.uid ?? "";
 
-  useEffect(() => {
-    if (!user) return;
+  const { data: tasks = [] } = useQuery<MonthlyTask[]>({
+    queryKey: taskKeys.byMonth(userId, monthKey),
+    queryFn: () => getTasksByMonthOnce({ userId, month: monthKey }),
+    enabled: Boolean(user?.uid),
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+    placeholderData: (previous) => previous,
+  });
 
-    const unsubscribeTasks = getTasksByMonth({
-      userId: user.uid,
-      date,
-      onChange: setTasks,
-    });
+  const { data: taskLogs = [] } = useQuery<MonthlyTaskLog[]>({
+    queryKey: taskLogKeys.byMonth(userId, monthKey),
+    queryFn: () => getTaskLogsByMonthOnce({ userId, month: monthKey }),
+    enabled: Boolean(user?.uid),
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+    placeholderData: (previous) => previous,
+  });
 
-    const unsubscribeLogs = getTaskLogsByMonth({
-      userId: user.uid,
-      date,
-      onChange: setTaskLogs,
-    });
+  const { data: routines = [] } = useQuery<MonthlyRoutine[]>({
+    queryKey: routineKeys.byMonth(userId, monthKey),
+    queryFn: () => getRoutinesByMonthOnce({ userId, month: monthKey }),
+    enabled: Boolean(user?.uid),
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+    placeholderData: (previous) => previous,
+  });
 
-    const unsubscribeRoutines = getRoutinesByMonth({
-      userId: user.uid,
-      date,
-      onChange: setRoutines,
-    });
-
-    const unsubscribeRoutineLogs = getRoutineLogsByMonth({
-      userId: user.uid,
-      date,
-      onChange: setRoutineLogs,
-    });
-
-    return () => {
-      unsubscribeTasks();
-      unsubscribeLogs();
-      unsubscribeRoutines();
-      unsubscribeRoutineLogs();
-    };
-  }, [user, date]);
+  const { data: routineLogs = [] } = useQuery<MonthlyRoutineLog[]>({
+    queryKey: routineLogKeys.byMonth(userId, monthKey),
+    queryFn: () => getRoutineLogsByMonthOnce({ userId, month: monthKey }),
+    enabled: Boolean(user?.uid),
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+    placeholderData: (previous) => previous,
+  });
 
   return { tasks, taskLogs, routines, routineLogs };
 };
@@ -199,59 +214,4 @@ export const useMonthlyActivityCountMap = ({
   }, [date, tasks, taskLogs, routines, routineLogs]);
 
   return map;
-};
-
-export const getRoutinesByMonth = ({
-  userId,
-  date,
-  onChange,
-}: {
-  userId: string;
-  date: Date;
-  onChange: (routines: { startDate: string; days: number[] }[]) => void;
-}) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-
-  const end = `${year}-${month}-31`;
-
-  const ref = collection(db, "users", userId, "routines");
-  const q = query(ref, where("startDate", "<=", end));
-
-  return onSnapshot(q, (snapshot) => {
-    const routines = snapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        startDate: data.startDate,
-        days: data.days, // ⭐ 반드시 필요
-      };
-    });
-
-    onChange(routines);
-  });
-};
-
-export const getRoutineLogsByMonth = ({
-  userId,
-  date,
-  onChange,
-}: {
-  userId: string;
-  date: Date;
-  onChange: (logs: { date: string; done: boolean }[]) => void;
-}) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-
-  const start = `${year}-${month}-01`;
-  const end = `${year}-${month}-31`;
-
-  const ref = collection(db, "users", userId, "routineLogs");
-
-  const q = query(ref, where("date", ">=", start), where("date", "<=", end));
-
-  return onSnapshot(q, (snapshot) => {
-    const logs = snapshot.docs.map((doc) => doc.data() as MonthlyRoutineLog);
-    onChange(logs);
-  });
 };

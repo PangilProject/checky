@@ -1,7 +1,20 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { getCategories, type Category } from "@/shared/api/category";
-import { createTask, getTasksByDate, updateTaskOrder, type Task } from "@/shared/api/task";
-import { getTaskLogsByDate, toggleTaskLog, type TaskLog } from "@/shared/api/taskLog";
+import { useEffect, useMemo, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCategoriesOnce, type Category } from "@/shared/api/category";
+import {
+  createTask,
+  getTasksByDateOnce,
+  updateTaskOrder,
+  type Task,
+} from "@/shared/api/task";
+import {
+  getTaskLogsByDate,
+  getTaskLogsByDateOnce,
+  toggleTaskLog,
+  type TaskLog,
+} from "@/shared/api/taskLog";
+import { categoryKeys, taskKeys, taskLogKeys } from "@/shared/query/keys";
+import { baselineCacheCheck } from "@/shared/utils/perfBaseline";
 
 export const useTaskList = ({
   userId,
@@ -10,46 +23,108 @@ export const useTaskList = ({
   userId: string | undefined;
   dateString: string;
 }) => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [taskLogs, setTaskLogs] = useState<TaskLog[]>([]);
+  const queryClient = useQueryClient();
   const tempIdRef = useRef(0);
+  const lastTaskCacheLogRef = useRef<{ date: string; status?: string }>({
+    date: "",
+    status: undefined,
+  });
+  const lastTaskLogCacheLogRef = useRef<{ date: string; status?: string }>({
+    date: "",
+    status: undefined,
+  });
+  const safeUserId = userId ?? "";
+  const taskQueryKey = useMemo(
+    () => taskKeys.byDate(safeUserId, dateString),
+    [safeUserId, dateString],
+  );
+  const taskLogQueryKey = useMemo(
+    () => taskLogKeys.byDate(safeUserId, dateString),
+    [safeUserId, dateString],
+  );
+  const categoryQueryKey = useMemo(
+    () => categoryKeys.list(safeUserId, "ACTIVE"),
+    [safeUserId],
+  );
+
+  const { data: categories = [] } = useQuery({
+    queryKey: categoryQueryKey,
+    queryFn: () => getCategoriesOnce({ userId: safeUserId, status: "ACTIVE" }),
+    enabled: Boolean(userId),
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: tasks = [] } = useQuery({
+    queryKey: taskQueryKey,
+    queryFn: () => getTasksByDateOnce({ userId: safeUserId, date: dateString }),
+    enabled: Boolean(userId && dateString),
+    staleTime: 2 * 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    placeholderData: (previous) => previous,
+  });
+
+  const { data: taskLogs = [] } = useQuery({
+    queryKey: taskLogQueryKey,
+    queryFn: () =>
+      getTaskLogsByDateOnce({ userId: safeUserId, date: dateString }),
+    enabled: false,
+    placeholderData: (previous) => previous,
+  });
 
   useEffect(() => {
-    if (!userId) return;
-
-    const unsubscribe = getCategories({
-      userId,
-      status: "ACTIVE",
-      onChange: setCategories,
-    });
-
-    return () => unsubscribe();
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    const unsubscribe = getTasksByDate({
-      userId,
-      date: dateString,
-      onChange: setTasks,
-    });
-
-    return () => unsubscribe();
-  }, [userId, dateString]);
-
-  useEffect(() => {
-    if (!userId) return;
+    if (!userId || !dateString) return;
 
     const unsubscribe = getTaskLogsByDate({
       userId,
       date: dateString,
-      onChange: setTaskLogs,
+      onChange: (logs) => {
+        queryClient.setQueryData(taskLogQueryKey, logs);
+      },
     });
 
     return () => unsubscribe();
-  }, [userId, dateString]);
+  }, [dateString, queryClient, taskLogQueryKey, userId]);
+
+  const taskState = queryClient.getQueryState(taskQueryKey);
+  const logState = queryClient.getQueryState(taskLogQueryKey);
+
+  useEffect(() => {
+    if (!userId || !dateString) return;
+    const last = lastTaskCacheLogRef.current;
+    const status = taskState?.status;
+    const shouldLog =
+      status === "success" &&
+      (last.date !== dateString || last.status !== status);
+    if (!shouldLog) return;
+
+    lastTaskCacheLogRef.current = { date: dateString, status };
+    baselineCacheCheck("tasks/byDate", {
+      date: dateString,
+      status,
+      updatedAt: taskState?.dataUpdatedAt,
+    });
+  }, [dateString, taskState?.status, userId]);
+
+  useEffect(() => {
+    if (!userId || !dateString) return;
+    const last = lastTaskLogCacheLogRef.current;
+    const status = logState?.status;
+    const shouldLog =
+      status === "success" &&
+      (last.date !== dateString || last.status !== status);
+    if (!shouldLog) return;
+
+    lastTaskLogCacheLogRef.current = { date: dateString, status };
+    baselineCacheCheck("taskLogs/byDate", {
+      date: dateString,
+      status,
+      updatedAt: logState?.dataUpdatedAt,
+    });
+  }, [dateString, logState?.status, userId]);
 
   const taskLogMap = useMemo(
     () => new Map(taskLogs.map((log) => [log.taskId, log])),
@@ -83,7 +158,10 @@ export const useTaskList = ({
       orderIndex: currentTasks.length,
     };
 
-    setTasks((prev) => [...prev, optimisticTask]);
+    queryClient.setQueryData<Task[]>(taskQueryKey, (prev = []) => [
+      ...prev,
+      optimisticTask,
+    ]);
 
     try {
       const savedTask = await createTask({
@@ -94,11 +172,13 @@ export const useTaskList = ({
         date: dateString,
       });
 
-      setTasks((prev) =>
+      queryClient.setQueryData<Task[]>(taskQueryKey, (prev = []) =>
         prev.map((task) => (task.id === tempId ? savedTask : task))
       );
     } catch (error) {
-      setTasks((prev) => prev.filter((task) => task.id !== tempId));
+      queryClient.setQueryData<Task[]>(taskQueryKey, (prev = []) =>
+        prev.filter((task) => task.id !== tempId)
+      );
       console.error("Failed to create task", error);
     }
   };
@@ -114,6 +194,7 @@ export const useTaskList = ({
       date: dateString,
       currentLog,
     });
+    await queryClient.invalidateQueries({ queryKey: taskLogQueryKey });
   };
 
   const reorderTasks = ({
@@ -125,7 +206,7 @@ export const useTaskList = ({
   }) => {
     if (!userId) return;
 
-    setTasks((prev) => {
+    queryClient.setQueryData<Task[]>(taskQueryKey, (prev = []) => {
       const others = prev.filter(
         (task) => task.categoryId !== categoryId || task.date !== dateString
       );
