@@ -1,12 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
 import { Space10, Space8 } from "@/shared/ui/Space";
 import { useAuth } from "@/shared/hooks/useAuth";
-import {
-  createTask,
-  deleteTaskWithLogs,
-  type Task,
-  updateTaskWithDateMove,
-} from "@/shared/api/task";
+import type { Task } from "@/shared/api/task";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import type { Category } from "@/shared/api/category";
 import {
@@ -17,6 +11,7 @@ import {
   TimeField,
 } from "./components/TaskModalFields";
 import { ButtonSection } from "./components/TaskModalButtons";
+import { useTaskModalHandlers } from "./hooks/useTaskModalHandlers";
 
 interface TaskModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -38,95 +33,35 @@ export default function TaskModal({
   onClose,
 }: TaskModalProps) {
   const { user } = useAuth();
-
-  const [taskInput, setTaskInput] = useState(task?.title ?? "");
-  const [taskDate, setTaskDate] = useState(task?.date ?? selectedDate);
-  const [selectedCategoryId, setSelectedCategoryId] = useState(
-    task?.categoryId ?? categoryId,
-  );
-  const DEFAULT_TIME = "12:00";
-
-  const [timeEnabled, setTimeEnabled] = useState<boolean>(Boolean(task?.time));
-
-  const [taskTime, setTaskTime] = useState<string>(task?.time ?? DEFAULT_TIME);
-  const [currentMode, setCurrentMode] = useState(mode);
-
-  const isReadOnly = currentMode === "VIEW";
-  const selectedCategory = useMemo(
-    () => categories.find((c) => c.id === selectedCategoryId),
-    [categories, selectedCategoryId],
-  );
-  const selectedCategoryColor = selectedCategory?.color ?? categoryColor;
-
-  useEffect(() => {
-    if (selectedCategoryId && selectedCategory) return;
-    if (categories.length === 0) return;
-    setSelectedCategoryId(categories[0].id);
-  }, [categories, selectedCategory, selectedCategoryId]);
-
-  /* ======================
-     CREATE
-  ====================== */
-  const handleCreateTask = async () => {
-    if (!taskInput.trim() || !user || !selectedCategoryId) return;
-
-    try {
-      await createTask({
-        userId: user.uid,
-        title: taskInput,
-        categoryId: selectedCategoryId,
-        categoryColor: selectedCategoryColor,
-        date: taskDate,
-        ...(timeEnabled && { time: taskTime }),
-      });
-      onClose();
-    } catch (e) {
-      console.error("태스크 생성 실패", e);
-    }
-  };
-
-  /* ======================
-     UPDATE
-  ====================== */
-  const handleUpdateTask = async () => {
-    if (!task || !taskInput.trim() || !user || !selectedCategoryId) return;
-
-    try {
-      await updateTaskWithDateMove({
-        userId: user.uid,
-        taskId: task.id,
-        title: taskInput,
-        ...(timeEnabled ? { time: taskTime } : { time: undefined }),
-        prevDate: task.date,
-        nextDate: taskDate,
-        prevCategoryId: task.categoryId,
-        categoryId: selectedCategoryId,
-        categoryColor: selectedCategoryColor,
-      });
-
-      onClose();
-    } catch (e) {
-      console.error("태스크 수정 실패", e);
-    }
-  };
-  /* ======================
-     DELETE
-  ====================== */
-  const handleDeleteTask = async () => {
-    if (!task || !user) return;
-
-    try {
-      await deleteTaskWithLogs({
-        userId: user.uid,
-        taskId: task.id,
-      });
-      onClose();
-    } catch (e) {
-      console.error("태스크 삭제 실패", e);
-    }
-  };
-
-  const shouldShowTimeField = !isReadOnly || Boolean(task?.time);
+  const {
+    taskInput,
+    setTaskInput,
+    taskDate,
+    setTaskDate,
+    selectedCategoryId,
+    setSelectedCategoryId,
+    timeEnabled,
+    setTimeEnabled,
+    taskTime,
+    setTaskTime,
+    currentMode,
+    setCurrentMode,
+    isReadOnly,
+    shouldShowTimeField,
+    defaultTime,
+    handleCreateTask,
+    handleUpdateTask,
+    handleDeleteTask,
+  } = useTaskModalHandlers({
+    mode,
+    task,
+    selectedDate,
+    categoryId,
+    categoryColor,
+    categories,
+    onClose,
+    userId: user?.uid,
+  });
 
   return (
     <ModalWrapper onClose={onClose}>
@@ -163,7 +98,7 @@ export default function TaskModal({
             onToggle={(v) => {
               setTimeEnabled(v);
               if (v && !taskTime) {
-                setTaskTime(DEFAULT_TIME);
+                setTaskTime(defaultTime);
               }
             }}
             onChange={setTaskTime}
