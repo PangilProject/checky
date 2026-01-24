@@ -5,18 +5,15 @@ import type { ReactNode } from "react";
 import type { RoutineReport } from "@/shared/api/routine";
 import { GoDash } from "react-icons/go";
 
-import { toggleRoutineLog } from "@/shared/api/routineLog";
-import { useAuth } from "@/shared/hooks/useAuth";
 import { Space20 } from "@/shared/ui/Space";
 
 export const RoutineTable = ({
   report,
-  setReport,
+  onToggle,
 }: {
   report: RoutineReport;
-  setReport: React.Dispatch<React.SetStateAction<RoutineReport | null>>;
+  onToggle: (routineId: string, date: string, current: boolean) => void;
 }) => {
-  const { user } = useAuth();
   const { week, rows } = report;
 
   if (rows.length === 0) {
@@ -27,42 +24,6 @@ export const RoutineTable = ({
       </div>
     );
   }
-
-  const handleToggle = async (
-    routineId: string,
-    date: string,
-    current: boolean
-  ) => {
-    if (!user) return;
-
-    // ✅ 1. UI 먼저 업데이트 (Optimistic)
-    setReport((prev) => {
-      if (!prev) return prev;
-
-      return {
-        ...prev,
-        rows: prev.rows.map((row) =>
-          row.routineId !== routineId
-            ? row
-            : {
-                ...row,
-                checks: {
-                  ...row.checks,
-                  [date]: !current,
-                },
-              }
-        ),
-      };
-    });
-
-    // ✅ 2. Firestore 반영
-    await toggleRoutineLog({
-      userId: user.uid,
-      routineId,
-      date,
-      done: !current,
-    });
-  };
 
   function getDay(dateString: string): string {
     return dateString.split("-")[2];
@@ -127,7 +88,7 @@ export const RoutineTable = ({
                   <TD key={day.date}>
                     <button
                       onClick={() =>
-                        handleToggle(row.routineId, day.date, checked)
+                        onToggle(row.routineId, day.date, checked)
                       }
                       className="pressable"
                     >

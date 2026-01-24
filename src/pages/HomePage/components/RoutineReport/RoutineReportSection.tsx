@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
 import TitleSection from "../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { moveWeek } from "@/shared/hooks/dateNavigation";
 import { Space24 } from "@/shared/ui/Space";
 import { RoutineTable } from "./RoutineTable";
 import { useAuth } from "@/shared/hooks/useAuth";
-import {
-  getRoutineReportByWeek,
-  type RoutineReport,
-} from "@/shared/api/routine";
 import { formatDateKST } from "@/shared/hooks/formatDate";
+import { useRoutineReportQuery } from "@/shared/query/useRoutineReportQuery";
+import { toggleRoutineLog } from "@/shared/api/routineLog";
+import { useQueryClient } from "@tanstack/react-query";
+import { routineReportKeys } from "@/shared/query/keys";
+import { useEffect } from "react";
+import { getRoutineLogsByWeek } from "@/shared/api/routineLog";
 
 function RoutineReportSection() {
   const { user } = useAuth();
   const { selectedDate, setSelectedDate } = useSelectedDate();
-
-  const [report, setReport] = useState<RoutineReport | null>(null);
+  const queryClient = useQueryClient();
 
   // ✅ 주 시작 / 끝 계산 (일요일 기준)
   const start = new Date(selectedDate);
@@ -34,21 +34,89 @@ function RoutineReportSection() {
     endDate: formatDateKST(end),
   };
 
+  const { data: report } = useRoutineReportQuery({
+    userId: user?.uid,
+    startDate: week.startDate,
+    endDate: week.endDate,
+  });
+
   useEffect(() => {
     if (!user) return;
 
-    const fetchReport = async () => {
-      const result = await getRoutineReportByWeek({
-        userId: user.uid,
-        startDate: week.startDate,
-        endDate: week.endDate,
-      });
+    const unsubscribe = getRoutineLogsByWeek({
+      userId: user.uid,
+      startDate: week.startDate,
+      endDate: week.endDate,
+      onChange: (logs, hasChanges) => {
+        if (!hasChanges) return;
+        const logMap = new Map(
+          logs.map((log) => [`${log.routineId}_${log.date}`, log.done])
+        );
 
-      setReport(result);
-    };
+        queryClient.setQueryData(
+          routineReportKeys.byWeek(user.uid, week.startDate, week.endDate),
+          (prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              rows: prev.rows.map((row) => {
+                const nextChecks = { ...row.checks };
+                Object.keys(nextChecks).forEach((date) => {
+                  const key = `${row.routineId}_${date}`;
+                  if (logMap.has(key)) {
+                    nextChecks[date] = Boolean(logMap.get(key));
+                  }
+                });
+                return { ...row, checks: nextChecks };
+              }),
+            };
+          }
+        );
+      },
+    });
 
-    fetchReport();
-  }, [user, week.startDate, week.endDate]);
+    return () => unsubscribe();
+  }, [queryClient, user, week.endDate, week.startDate]);
+
+  const handleToggle = async (
+    routineId: string,
+    date: string,
+    current: boolean
+  ) => {
+    if (!user) return;
+
+    const queryKey = routineReportKeys.byWeek(
+      user.uid,
+      week.startDate,
+      week.endDate
+    );
+
+    queryClient.setQueryData(queryKey, (prev) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        rows: prev.rows.map((row) =>
+          row.routineId !== routineId
+            ? row
+            : {
+                ...row,
+                checks: {
+                  ...row.checks,
+                  [date]: !current,
+                },
+              }
+        ),
+      };
+    });
+
+    await toggleRoutineLog({
+      userId: user.uid,
+      routineId,
+      date,
+      done: !current,
+    });
+  };
 
   return (
     <div>
@@ -64,7 +132,7 @@ function RoutineReportSection() {
       {report && (
         <RoutineTable
           report={report}
-          setReport={setReport} // ✅ 추가
+          onToggle={handleToggle}
         />
       )}
 

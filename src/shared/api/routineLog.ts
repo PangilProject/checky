@@ -6,3 +6,4 @@
 export type { RoutineLog } from "./routineLog/types";
 
 export { toggleRoutineLog } from "./routineLog/crud";
+export { getRoutineLogsByWeek } from "./routineLog/subscribe";
