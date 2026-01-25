@@ -14,7 +14,9 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
           if (id.includes("firebase")) return "firebase";
-          if (id.includes("react")) return "react-vendor";
+          if (id.includes("recharts")) return "charts";
+          if (id.includes("react-router")) return "router";
+          if (id.includes("@tanstack")) return "react-query";
           return "vendor";
         },
       },
