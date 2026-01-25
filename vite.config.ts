@@ -8,6 +8,18 @@ export default defineConfig({
   server: {
     host: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("firebase")) return "firebase";
+          if (id.includes("react")) return "react-vendor";
+          return "vendor";
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
