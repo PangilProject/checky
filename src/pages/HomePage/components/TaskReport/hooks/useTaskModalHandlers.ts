@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createTask, deleteTaskWithLogs, updateTaskWithDateMove } from "@/shared/api/task";
 import type { Task } from "@/shared/api/task";
 import type { Category } from "@/shared/api/category";
+import { taskKeys } from "@/shared/query/keys";
 
 interface UseTaskModalHandlersParams {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -24,6 +26,7 @@ export const useTaskModalHandlers = ({
   onClose,
   userId,
 }: UseTaskModalHandlersParams) => {
+  const queryClient = useQueryClient();
   const DEFAULT_TIME = "12:00";
   const [taskInput, setTaskInput] = useState(task?.title ?? "");
   const [taskDate, setTaskDate] = useState(task?.date ?? selectedDate);
@@ -46,6 +49,16 @@ export const useTaskModalHandlers = ({
     categories.find((c) => c.id === effectiveCategoryId)?.color ??
     categoryColor;
 
+  const invalidateTaskDates = (dates: string[]) => {
+    if (!userId) return;
+    const uniqueDates = Array.from(new Set(dates.filter(Boolean)));
+    uniqueDates.forEach((date) => {
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.byDate(userId, date),
+      });
+    });
+  };
+
   const handleCreateTask = async () => {
     if (!taskInput.trim() || !userId || !effectiveCategoryId) return;
 
@@ -58,6 +71,7 @@ export const useTaskModalHandlers = ({
         date: taskDate,
         ...(timeEnabled && { time: taskTime }),
       });
+      invalidateTaskDates([taskDate]);
       onClose();
     } catch (e) {
       console.error("태스크 생성 실패", e);
@@ -80,6 +94,7 @@ export const useTaskModalHandlers = ({
         categoryColor: selectedCategoryColor,
       });
 
+      invalidateTaskDates([task.date, taskDate]);
       onClose();
     } catch (e) {
       console.error("태스크 수정 실패", e);
@@ -94,6 +109,7 @@ export const useTaskModalHandlers = ({
         userId,
         taskId: task.id,
       });
+      invalidateTaskDates([task.date]);
       onClose();
     } catch (e) {
       console.error("태스크 삭제 실패", e);
