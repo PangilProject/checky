@@ -12,6 +12,7 @@ export interface Routine {
   days: number[];
   orderIndex: number;
   startDate: string;
+  endDate?: string;
   createdAt?: Date;
 }
 

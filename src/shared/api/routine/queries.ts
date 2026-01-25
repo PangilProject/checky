@@ -8,7 +8,7 @@ import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { routineLogsRef, routinesRef } from "./refs";
 import type { Routine } from "./types";
 
-export type RoutineMonthly = { startDate: string; days: number[] };
+export type RoutineMonthly = { startDate: string; endDate?: string; days: number[] };
 export type RoutineLogMonthly = { date: string; done: boolean };
 
 /**
@@ -24,15 +24,22 @@ export const getRoutinesByMonthOnce = async ({
   month: string;
 }): Promise<RoutineMonthly[]> => {
   const perf = baselineFetch("routines/fetch/byMonth", { userId, month });
+  const start = `${month}-01`;
   const end = `${month}-31`;
 
   const q = query(routinesRef(userId), where("startDate", "<=", end));
   const snap = await getDocs(q);
 
-  const routines = snap.docs.map((doc) => {
+  const routines = snap.docs
+    .map((doc) => {
     const data = doc.data() as Routine;
-    return { startDate: data.startDate, days: data.days };
-  });
+    return {
+      startDate: data.startDate,
+      endDate: data.endDate,
+      days: data.days,
+    };
+  })
+    .filter((routine) => !routine.endDate || routine.endDate >= start);
 
   perf.end({ count: routines.length });
   return routines;

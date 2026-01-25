@@ -80,7 +80,7 @@ import {
 
 type MonthlyTask = { date: string };
 type MonthlyTaskLog = { date: string; completed: boolean };
-type MonthlyRoutine = { startDate: string; days: number[] };
+type MonthlyRoutine = { startDate: string; endDate?: string; days: number[] };
 type MonthlyRoutineLog = { date: string; done: boolean };
 
 export const useMonthlyData = (date: Date) => {
@@ -159,7 +159,7 @@ export const useMonthlyActivityCountMap = ({
   date: Date;
   tasks: { date: string }[];
   taskLogs: { date: string; completed: boolean }[];
-  routines: { startDate: string; days: number[] }[];
+  routines: { startDate: string; endDate?: string; days: number[] }[];
   routineLogs: { date: string; done: boolean }[];
 }) => {
   const map = useMemo(() => {
@@ -179,7 +179,7 @@ export const useMonthlyActivityCountMap = ({
 
     // 2️⃣ Routine 전체 개수
     routines.forEach((routine) => {
-      const { startDate, days } = routine;
+      const { startDate, endDate, days } = routine;
 
       days.forEach((dayOfWeek: number) => {
         const year = date.getFullYear(); // ✅ 여기
@@ -194,7 +194,9 @@ export const useMonthlyActivityCountMap = ({
             "0"
           )}-${String(d).padStart(2, "0")}`;
 
-          if (dateStr >= startDate && dateObj.getDay() === dayOfWeek) {
+          const isAfterStart = dateStr >= startDate;
+          const isBeforeEnd = !endDate || dateStr <= endDate;
+          if (isAfterStart && isBeforeEnd && dateObj.getDay() === dayOfWeek) {
             ensure(dateStr).total += 1;
           }
         }

@@ -116,13 +116,17 @@ const buildRows = ({
 }): RoutineReportRow[] => {
   const rowsInternal: RoutineReportRowInternal[] = routines
     .map((routine) => {
+      if (routine.endDate && routine.endDate < week.startDate) {
+        return null;
+      }
       const checks: Record<string, boolean> = {};
 
       week.days.forEach((day) => {
         const isRepeatDay = routine.days.includes(day.day);
         const isAfterStart = day.date >= routine.startDate;
+        const isBeforeEnd = !routine.endDate || day.date <= routine.endDate;
 
-        if (isRepeatDay && isAfterStart) {
+        if (isRepeatDay && isAfterStart && isBeforeEnd) {
           checks[day.date] = logMap.get(`${routine.id}_${day.date}`) ?? false;
         }
       });

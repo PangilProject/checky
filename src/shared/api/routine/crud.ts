@@ -5,6 +5,7 @@
 
 import {
   addDoc,
+  deleteField,
   getDocs,
   orderBy,
   query,
@@ -51,12 +52,14 @@ export const createRoutine = async ({
   categoryId,
   days,
   startDate,
+  endDate,
 }: {
   userId: string;
   title: string;
   categoryId: string;
   days: number[];
   startDate: string;
+  endDate?: string;
 }) => {
   const routinesCollection = routinesRef(userId);
 
@@ -69,6 +72,7 @@ export const createRoutine = async ({
     categoryId,
     days,
     startDate,
+    ...(endDate !== undefined && endDate !== "" && { endDate }),
     orderIndex: snap.size,
     status: "ACTIVE",
     createdAt: serverTimestamp(),
@@ -86,17 +90,24 @@ export const updateRoutine = async ({
   title,
   days,
   startDate,
+  endDate,
 }: {
   userId: string;
   routineId: string;
   title: string;
   days: number[];
   startDate: string;
+  endDate?: string | null;
 }) => {
   await updateDoc(routineRef(userId, routineId), {
     title,
     days,
     startDate,
+    ...(endDate === undefined
+      ? {}
+      : endDate
+        ? { endDate }
+        : { endDate: deleteField() }),
     updatedAt: serverTimestamp(),
   });
 };

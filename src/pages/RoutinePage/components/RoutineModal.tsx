@@ -59,9 +59,15 @@ export default function RoutineModal({
   const [startDate, setStartDate] = useState(
     routine?.startDate ?? new Date().toISOString().slice(0, 10)
   );
+  const [endDateEnabled, setEndDateEnabled] = useState(
+    Boolean(routine?.endDate)
+  );
+  const [endDate, setEndDate] = useState(routine?.endDate ?? "");
 
   const handleSubmit = async () => {
     if (!title.trim() || selectedDays.length === 0 || !user) return;
+    if (endDateEnabled && !endDate) return;
+    if (endDateEnabled && endDate < startDate) return;
 
     try {
       if (currentMode === "CREATE") {
@@ -71,6 +77,7 @@ export default function RoutineModal({
           categoryId,
           days: selectedDays,
           startDate, // ✅ 필수
+          endDate: endDateEnabled ? endDate : undefined,
         });
       }
 
@@ -81,6 +88,7 @@ export default function RoutineModal({
           title,
           days: selectedDays,
           startDate, // (선택) 수정 가능
+          endDate: endDateEnabled ? endDate : null,
         });
       }
 
@@ -193,8 +201,57 @@ export default function RoutineModal({
           <input
             type="date"
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value;
+              setStartDate(next);
+              if (endDateEnabled && endDate && endDate < next) {
+                setEndDate(next);
+              }
+            }}
           />
+        )}
+      </div>
+
+      <Space8 direction="mb" />
+
+      <div>
+        <div className="flex items-center justify-between">
+          <Text3 text="종료 날짜" className="font-bold" />
+          {!isReadOnly && (
+            <button
+              className="flex items-center gap-1"
+              onClick={() => {
+                setEndDateEnabled((prev) => {
+                  const next = !prev;
+                  if (!next) setEndDate("");
+                  return next;
+                });
+              }}
+            >
+              <Text2 text={endDateEnabled ? "삭제" : "추가"} />
+              {endDateEnabled ? (
+                <IoIosCheckbox size={15} />
+              ) : (
+                <IoIosCheckboxOutline size={15} />
+              )}
+            </button>
+          )}
+        </div>
+        <Space2 direction="mb" />
+        {isReadOnly ? (
+          <Text2
+            text={routine?.endDate ? routine.endDate : "없음"}
+            className="text-gray-700"
+          />
+        ) : endDateEnabled ? (
+          <input
+            type="date"
+            value={endDate}
+            min={startDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        ) : (
+          <Text2 text="없음" className="text-gray-500" />
         )}
       </div>
 
