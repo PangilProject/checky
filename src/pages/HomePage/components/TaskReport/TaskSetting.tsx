@@ -6,6 +6,8 @@ import type { TaskActionType } from "@/shared/constants/actionList";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { formatDateByDate } from "@/shared/hooks/formatDate";
+import { useQueryClient } from "@tanstack/react-query";
+import { taskKeys } from "@/shared/query/keys";
 
 import {
   moveUncompletedTasksToDate,
@@ -23,11 +25,31 @@ export function TaskSetting() {
     null
   );
 
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const { selectedDate } = useSelectedDate();
 
   const dateString = formatDateByDate(selectedDate);
   const todayString = formatDateByDate(new Date());
+
+  const getMonthKey = (date: string) => date.slice(0, 7);
+
+  const invalidateTaskCaches = async (dates: string[]) => {
+    const uniqueDates = Array.from(new Set(dates));
+    const months = Array.from(new Set(uniqueDates.map(getMonthKey)));
+    await Promise.all([
+      ...uniqueDates.map((date) =>
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.byDate(user?.uid ?? "", date),
+        })
+      ),
+      ...months.map((month) =>
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.byMonth(user?.uid ?? "", month),
+        })
+      ),
+    ]);
+  };
 
   const handleConfirmAction = async (action: TaskActionType) => {
     if (!user) return;
@@ -49,6 +71,7 @@ export function TaskSetting() {
         fromDate: dateString,
         toDate: todayString,
       });
+      await invalidateTaskCaches([dateString, todayString]);
     }
 
     setIsOpenModal(false);
@@ -84,6 +107,7 @@ export function TaskSetting() {
               fromDate: dateString,
               toDate: formatDateByDate(date),
             });
+            await invalidateTaskCaches([dateString, formatDateByDate(date)]);
             setPendingAction(null);
           }}
         />
@@ -102,6 +126,7 @@ export function TaskSetting() {
               fromDate: dateString,
               toDate: formatDateByDate(date),
             });
+            await invalidateTaskCaches([formatDateByDate(date)]);
             setPendingAction(null);
           }}
         />
@@ -119,6 +144,7 @@ export function TaskSetting() {
               userId: user.uid,
               date: dateString,
             });
+            await invalidateTaskCaches([dateString]);
             setPendingAction(null);
           }}
         />
@@ -138,6 +164,7 @@ export function TaskSetting() {
               userId: user.uid,
               date: dateString,
             });
+            await invalidateTaskCaches([dateString]);
             setPendingAction(null);
           }}
         />
