@@ -9,7 +9,7 @@ import { useRoutineReportQuery } from "@/shared/query/useRoutineReportQuery";
 import type { RoutineReport, RoutineReportRow } from "@/shared/api/routine";
 import { toggleRoutineLog } from "@/shared/api/routineLog";
 import { useQueryClient } from "@tanstack/react-query";
-import { routineReportKeys } from "@/shared/query/keys";
+import { routineLogKeys, routineReportKeys } from "@/shared/query/keys";
 import { useEffect } from "react";
 import { getRoutineLogsByWeek } from "@/shared/api/routineLog";
 import { RoutineReportSkeleton } from "./RoutineReportSkeleton";
@@ -88,6 +88,8 @@ function RoutineReportSection() {
     current: boolean
   ) => {
     if (!user) return;
+    const monthKey = date.slice(0, 7);
+    const done = !current;
 
     queryClient.setQueryData<RoutineReport>(routineReportKey, (prev) => {
       if (!prev) return prev;
@@ -101,18 +103,37 @@ function RoutineReportSection() {
                 ...row,
                 checks: {
                   ...row.checks,
-                  [date]: !current,
+                  [date]: done,
                 },
               }
         ),
       };
     });
 
+    queryClient.setQueryData(
+      routineLogKeys.byMonth(user.uid, monthKey),
+      (prev: { routineId: string; date: string; done: boolean }[] | undefined) => {
+        if (!prev) return prev;
+        const index = prev.findIndex(
+          (log) => log.routineId === routineId && log.date === date
+        );
+
+        if (index === -1) {
+          if (!done) return prev;
+          return [...prev, { routineId, date, done }];
+        }
+
+        const next = [...prev];
+        next[index] = { ...next[index], done };
+        return next;
+      }
+    );
+
     await toggleRoutineLog({
       userId: user.uid,
       routineId,
       date,
-      done: !current,
+      done,
     });
   };
 

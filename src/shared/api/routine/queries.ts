@@ -9,7 +9,7 @@ import { routineLogsRef, routinesRef } from "./refs";
 import type { Routine } from "./types";
 
 export type RoutineMonthly = { startDate: string; endDate?: string; days: number[] };
-export type RoutineLogMonthly = { date: string; done: boolean };
+export type RoutineLogMonthly = { routineId: string; date: string; done: boolean };
 
 /**
  * @description 월 기준 루틴을 1회 조회합니다.

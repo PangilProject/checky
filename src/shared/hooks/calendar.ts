@@ -81,7 +81,7 @@ import {
 type MonthlyTask = { date: string };
 type MonthlyTaskLog = { date: string; completed: boolean };
 type MonthlyRoutine = { startDate: string; endDate?: string; days: number[] };
-type MonthlyRoutineLog = { date: string; done: boolean };
+type MonthlyRoutineLog = { routineId: string; date: string; done: boolean };
 
 export const useMonthlyData = (date: Date) => {
   const { user } = useAuth();
@@ -160,7 +160,7 @@ export const useMonthlyActivityCountMap = ({
   tasks: { date: string }[];
   taskLogs: { date: string; completed: boolean }[];
   routines: { startDate: string; endDate?: string; days: number[] }[];
-  routineLogs: { date: string; done: boolean }[];
+  routineLogs: { routineId: string; date: string; done: boolean }[];
 }) => {
   const map = useMemo(() => {
     const next = new Map<string, MonthlyActivityCount>();
