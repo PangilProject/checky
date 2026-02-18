@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 
 export interface AdminUser {

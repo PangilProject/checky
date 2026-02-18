@@ -3,7 +3,7 @@
  * @description API 모듈
  */
 
-import { collection, doc } from "firebase/firestore";
+import { collection, doc } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 
 /**

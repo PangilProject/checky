@@ -3,7 +3,7 @@
  * @description API 모듈
  */
 
-import { serverTimestamp, setDoc } from "firebase/firestore";
+import { serverTimestamp, setDoc } from "firebase/firestore/lite";
 import { routineLogRef } from "./refs";
 
 /**

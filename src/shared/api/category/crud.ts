@@ -11,7 +11,7 @@ import {
   setDoc,
   updateDoc,
   where,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import { categoriesRef, categoryRef } from "./refs";
 
 interface CreateCategoryParams {

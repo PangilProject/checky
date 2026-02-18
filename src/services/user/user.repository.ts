@@ -7,7 +7,7 @@ import {
   serverTimestamp,
   setDoc,
   updateDoc,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 
 /** 사용자 문서 조회 */
 export const getUserDoc = async (uid: string) => {

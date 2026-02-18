@@ -3,7 +3,7 @@
  * @description API 모듈
  */
 
-import { doc, serverTimestamp, writeBatch } from "firebase/firestore";
+import { doc, serverTimestamp, writeBatch } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import type { Task } from "@/shared/api/task";
 import { taskRef, tasksRef } from "./refs";

@@ -3,7 +3,7 @@
  * @description API 모듈
  */
 
-import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
+import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore/lite";
 
 export const mapDoc = <T extends { id: string }>(
   docSnap: QueryDocumentSnapshot<DocumentData>,

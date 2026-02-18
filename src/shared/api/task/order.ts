@@ -11,7 +11,7 @@ import {
   writeBatch,
   type DocumentData,
   type DocumentReference,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { taskRef, tasksRef } from "./refs";
 

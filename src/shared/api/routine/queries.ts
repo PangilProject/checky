@@ -3,7 +3,7 @@
  * @description API 모듈
  */
 
-import { getDocs, query, where } from "firebase/firestore";
+import { getDocs, query, where } from "firebase/firestore/lite";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { routineLogsRef, routinesRef } from "./refs";
 import type { Routine } from "./types";

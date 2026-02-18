@@ -3,7 +3,7 @@
  * @description API 모듈
  */
 
-import { writeBatch } from "firebase/firestore";
+import { writeBatch } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { categoryRef } from "./refs";
 

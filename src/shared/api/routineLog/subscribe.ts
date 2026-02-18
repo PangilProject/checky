@@ -3,7 +3,8 @@
  * @description API 모듈
  */
 
-import { onSnapshot, query, where } from "firebase/firestore";
+import { query, where } from "firebase/firestore/lite";
+import { subscribeWithSafariFallback } from "@/shared/api/_common/subscribeWithSafariFallback";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import { routineLogsRef } from "./refs";
 import type { RoutineLog } from "./types";
@@ -38,7 +39,7 @@ export const getRoutineLogsByWeek = ({
     where("date", "<=", endDate),
   );
 
-  const unsubscribe = onSnapshot(q, (snapshot) => {
+  const unsubscribe = subscribeWithSafariFallback(q, (snapshot) => {
     const logs = snapshot.docs.map((doc) => mapDoc<RoutineLog>(doc));
     perf.onSnapshot(logs.length);
 

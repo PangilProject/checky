@@ -15,7 +15,7 @@ import {
   doc,
   updateDoc,
   serverTimestamp,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import type { AdminNotice } from "../hooks/useAdminNotices";
 
 interface Props {

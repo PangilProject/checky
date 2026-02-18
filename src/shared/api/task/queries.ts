@@ -3,7 +3,7 @@
  * @description API 모듈
  */
 
-import { getDocs, query, where } from "firebase/firestore";
+import { getDocs, query, where } from "firebase/firestore/lite";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import { tasksRef } from "./refs";
 import type { Task } from "./types";

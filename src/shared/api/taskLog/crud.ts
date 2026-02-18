@@ -3,7 +3,7 @@
  * @description API 모듈
  */
 
-import { addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { addDoc, serverTimestamp, updateDoc } from "firebase/firestore/lite";
 import { taskLogRef, taskLogsRef } from "./refs";
 import type { TaskLog } from "./types";
 

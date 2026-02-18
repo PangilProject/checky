@@ -3,7 +3,8 @@
  * @description API 모듈
  */
 
-import { onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { orderBy, query, where } from "firebase/firestore/lite";
+import { subscribeWithSafariFallback } from "@/shared/api/_common/subscribeWithSafariFallback";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import { categoriesRef } from "./refs";
 import type { Category, CategoryStatus } from "./types";
@@ -37,7 +38,7 @@ export const getCategories = ({
 
   const perf = baselineSubscribe("categories/subscribe", { userId, status });
 
-  const categories = onSnapshot(q, (snapshot) => {
+  const categories = subscribeWithSafariFallback(q, (snapshot) => {
     const list = snapshot.docs.map((doc) => mapDoc<Category>(doc));
 
     perf.onSnapshot(list.length);

@@ -3,7 +3,7 @@
  * @description API 모듈
  */
 
-import { getDocs, orderBy, query, where } from "firebase/firestore";
+import { getDocs, orderBy, query, where } from "firebase/firestore/lite";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import { categoriesRef } from "./refs";
 import type { Category, CategoryStatus } from "./types";

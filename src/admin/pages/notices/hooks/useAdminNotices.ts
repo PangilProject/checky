@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, orderBy, query } from "firebase/firestore/lite";
+import { subscribeWithSafariFallback } from "@/shared/api/_common/subscribeWithSafariFallback";
 import { db } from "@/firebase/firebase";
 
 export interface AdminNotice {
@@ -22,7 +23,7 @@ export const useAdminNotices = () => {
     );
 
     // 🔥 실시간 구독
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = subscribeWithSafariFallback(q, (snapshot) => {
       const result: AdminNotice[] = snapshot.docs.map((doc) => {
         const data = doc.data();
         return {

@@ -1,5 +1,5 @@
 import { db } from "@/firebase/firebase";
-import { collection, deleteDoc, getDocs } from "firebase/firestore";
+import { collection, deleteDoc, getDocs } from "firebase/firestore/lite";
 import { deleteUserDoc } from "./user.repository";
 
 const deleteSubCollection = async (uid: string, subCollection: string) => {

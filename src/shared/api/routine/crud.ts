@@ -13,7 +13,7 @@ import {
   updateDoc,
   where,
   deleteDoc,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import { routineRef, routinesRef } from "./refs";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Routine } from "./types";

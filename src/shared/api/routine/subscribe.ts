@@ -3,7 +3,8 @@
  * @description API 모듈
  */
 
-import { onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { orderBy, query, where } from "firebase/firestore/lite";
+import { subscribeWithSafariFallback } from "@/shared/api/_common/subscribeWithSafariFallback";
 import { routinesRef } from "./refs";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Routine } from "./types";
@@ -28,7 +29,7 @@ export const subscribeRoutinesByCategory = ({
     orderBy("orderIndex", "asc")
   );
 
-  return onSnapshot(q, (snapshot) => {
+  return subscribeWithSafariFallback(q, (snapshot) => {
     const routines = snapshot.docs.map((doc) => mapDoc<Routine>(doc));
 
     onChange(routines);

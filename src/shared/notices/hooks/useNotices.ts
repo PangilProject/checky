@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, orderBy, query } from "firebase/firestore/lite";
+import { subscribeWithSafariFallback } from "@/shared/api/_common/subscribeWithSafariFallback";
 import { db } from "@/firebase/firebase";
 
 export interface Notice {
@@ -21,7 +22,7 @@ export const useNotices = () => {
       orderBy("createdAt", "desc")
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = subscribeWithSafariFallback(q, (snapshot) => {
       const result = snapshot.docs.map((doc) => {
         const data = doc.data();
         return {

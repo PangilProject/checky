@@ -9,7 +9,7 @@ import {
   type DocumentData,
   type QueryDocumentSnapshot,
   where,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import { formatDateKST } from "@/shared/hooks/formatDate";
 import { categoriesRef, routineLogsRef, routinesRef } from "./refs";

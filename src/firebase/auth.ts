@@ -12,7 +12,7 @@
 //   collection,
 //   getDocs,
 //   deleteDoc,
-// } from "firebase/firestore";
+// } from "firebase/firestore/lite";
 // import { auth, googleProvider, db } from "@/firebase/firebase";
 
 // /**

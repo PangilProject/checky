@@ -3,7 +3,7 @@
  * @description API 모듈
  */
 
-import { getDocs, orderBy, query, serverTimestamp, writeBatch } from "firebase/firestore";
+import { getDocs, orderBy, query, serverTimestamp, writeBatch } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { routineRef, routinesRef } from "./refs";
 

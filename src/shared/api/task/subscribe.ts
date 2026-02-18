@@ -3,7 +3,8 @@
  * @description API 모듈
  */
 
-import { onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { orderBy, query, where } from "firebase/firestore/lite";
+import { subscribeWithSafariFallback } from "@/shared/api/_common/subscribeWithSafariFallback";
 import { tasksRef } from "./refs";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Task } from "./types";
@@ -30,7 +31,7 @@ export const getTasksByDate = ({
     orderBy("orderIndex", "asc")
   );
 
-  const unsubscribe = onSnapshot(q, (snapshot) => {
+  const unsubscribe = subscribeWithSafariFallback(q, (snapshot) => {
     const tasks = snapshot.docs.map((doc) => mapDoc<Task>(doc));
 
     perf.onSnapshot(tasks.length);
@@ -75,7 +76,7 @@ export const getTasksByMonth = ({
     orderBy("date", "asc")
   );
 
-  const unsubscribe = onSnapshot(q, (snapshot) => {
+  const unsubscribe = subscribeWithSafariFallback(q, (snapshot) => {
     const tasks = snapshot.docs.map((doc) => mapDoc<Task>(doc));
 
     perf.onSnapshot(tasks.length);
