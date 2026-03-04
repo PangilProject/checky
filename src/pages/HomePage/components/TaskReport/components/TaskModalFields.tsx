@@ -19,13 +19,19 @@ export const TaskInput = ({
   onChange: (v: string) => void;
   disabled?: boolean;
 }) => {
+  const [isComposing, setIsComposing] = useState(false);
+
   return (
     <input
-      className="w-full border-0 border-b border-gray-300 text-[16px] outline-none"
+      className={`w-full border-0 border-b border-gray-300 text-[16px] outline-none ${
+        isComposing ? "ime-fallback" : "font-paperlogy"
+      }`}
       placeholder="할 일을 입력하세요"
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
+      onCompositionStart={() => setIsComposing(true)}
+      onCompositionEnd={() => setIsComposing(false)}
     />
   );
 };

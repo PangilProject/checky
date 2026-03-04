@@ -17,6 +17,19 @@
   font-family: "Paperlogy", system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
+.ime-fallback {
+  font-family:
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    "Noto Sans KR",
+    "Paperlogy",
+    system-ui,
+    Avenir,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
 .font-wicked {
   font-family: "WickedMouse", cursive;
 }

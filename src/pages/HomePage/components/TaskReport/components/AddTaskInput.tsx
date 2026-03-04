@@ -20,6 +20,7 @@ export const AddTaskInput = ({
   const isSubmittingRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const isComposingRef = useRef(false);
+  const [isComposing, setIsComposing] = useState(false);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -57,14 +58,18 @@ export const AddTaskInput = ({
       </div>
       <input
         ref={inputRef}
-        className={`outline-none border-b flex-1 min-w-0 ${borderColor}`}
+        className={`outline-none border-b flex-1 min-w-0 ${borderColor} ${
+          isComposing ? "ime-fallback" : "font-paperlogy"
+        }`}
         value={taskInput}
         onChange={(e) => setTaskInput(e.target.value)}
         onCompositionStart={() => {
           isComposingRef.current = true;
+          setIsComposing(true);
         }}
         onCompositionEnd={() => {
           isComposingRef.current = false;
+          setIsComposing(false);
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
