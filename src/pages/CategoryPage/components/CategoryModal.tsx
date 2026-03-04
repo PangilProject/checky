@@ -160,13 +160,19 @@ interface InputProps {
 }
 
 const Input = ({ categoryInput, setCategoryInput, disabled }: InputProps) => {
+  const [isComposing, setIsComposing] = useState(false);
+
   return (
     <input
-      className="w-full border-0 border-b border-gray-300 text-[16px] outline-none"
+      className={`w-full border-0 border-b border-gray-300 text-[16px] outline-none ${
+        isComposing ? "ime-fallback" : "font-paperlogy"
+      }`}
       placeholder="카테고리 입력"
       value={categoryInput}
       disabled={disabled}
       onChange={(e) => setCategoryInput(e.target.value)}
+      onCompositionStart={() => setIsComposing(true)}
+      onCompositionEnd={() => setIsComposing(false)}
     />
   );
 };

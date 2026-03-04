@@ -43,6 +43,7 @@ export default function RoutineModal({
   const { user } = useAuth();
 
   const [title, setTitle] = useState(routine?.title ?? "");
+  const [isComposing, setIsComposing] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>(
     routine?.days ?? []
   );
@@ -136,11 +137,15 @@ export default function RoutineModal({
         <Text3 text="루틴명" className="font-bold" />
         <Space2 direction="mb" />
         <input
-          className="w-full border-0 border-b border-gray-300 text-sm outline-none"
+          className={`w-full border-0 border-b border-gray-300 text-sm outline-none ${
+            isComposing ? "ime-fallback" : "font-paperlogy"
+          }`}
           placeholder="루틴 입력"
           value={title}
           disabled={isReadOnly}
           onChange={(e) => setTitle(e.target.value)}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={() => setIsComposing(false)}
         />
       </div>
 
