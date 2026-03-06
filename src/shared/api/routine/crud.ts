@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore/lite";
 import { routineRef, routinesRef } from "./refs";
 import { mapDoc } from "@/shared/api/_common/mappers";
-import type { Routine } from "./types";
+import type { Routine, RoutineScheduleHistoryItem } from "./types";
 
 /**
  * @description 카테고리별 루틴을 조회합니다.
@@ -71,6 +71,7 @@ export const createRoutine = async ({
     title,
     categoryId,
     days,
+    scheduleHistory: [{ effectiveFrom: startDate, days }],
     startDate,
     ...(endDate !== undefined && endDate !== "" && { endDate }),
     orderIndex: snap.size,
@@ -89,20 +90,20 @@ export const updateRoutine = async ({
   routineId,
   title,
   days,
-  startDate,
+  scheduleHistory,
   endDate,
 }: {
   userId: string;
   routineId: string;
   title: string;
   days: number[];
-  startDate: string;
+  scheduleHistory: RoutineScheduleHistoryItem[];
   endDate?: string | null;
 }) => {
   await updateDoc(routineRef(userId, routineId), {
     title,
     days,
-    startDate,
+    scheduleHistory,
     ...(endDate === undefined
       ? {}
       : endDate

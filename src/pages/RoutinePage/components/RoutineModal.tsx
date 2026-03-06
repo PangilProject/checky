@@ -13,6 +13,7 @@ import {
   deleteRoutine,
   updateRoutine,
   type Routine,
+  type RoutineScheduleHistoryItem,
 } from "@/shared/api/routine";
 import { IoIosCheckbox } from "react-icons/io";
 import { IoIosCheckboxOutline } from "react-icons/io";
@@ -33,6 +34,47 @@ const DAYS = [
   { label: "금", value: 5 },
   { label: "토", value: 6 },
 ];
+
+const hasSameDays = (a: number[], b: number[]) => {
+  if (a.length !== b.length) return false;
+  const sa = [...a].sort((x, y) => x - y);
+  const sb = [...b].sort((x, y) => x - y);
+  return sa.every((value, index) => value === sb[index]);
+};
+
+const buildNextScheduleHistory = ({
+  routine,
+  effectiveFrom,
+  days,
+  shouldAppend,
+}: {
+  routine: Routine;
+  effectiveFrom: string;
+  days: number[];
+  shouldAppend: boolean;
+}): RoutineScheduleHistoryItem[] => {
+  const baseHistory =
+    routine.scheduleHistory && routine.scheduleHistory.length > 0
+      ? routine.scheduleHistory
+      : [{ effectiveFrom: routine.startDate, days: routine.days }];
+
+  if (!shouldAppend) {
+    return [...baseHistory].sort((a, b) =>
+      a.effectiveFrom.localeCompare(b.effectiveFrom)
+    );
+  }
+
+  const next = [...baseHistory];
+  const index = next.findIndex((item) => item.effectiveFrom === effectiveFrom);
+
+  if (index >= 0) {
+    next[index] = { effectiveFrom, days };
+  } else {
+    next.push({ effectiveFrom, days });
+  }
+
+  return next.sort((a, b) => a.effectiveFrom.localeCompare(b.effectiveFrom));
+};
 
 export default function RoutineModal({
   mode = "CREATE",
@@ -60,13 +102,21 @@ export default function RoutineModal({
   const [startDate, setStartDate] = useState(
     routine?.startDate ?? new Date().toISOString().slice(0, 10)
   );
+  const [effectiveFrom, setEffectiveFrom] = useState(
+    new Date().toISOString().slice(0, 10)
+  );
   const [endDateEnabled, setEndDateEnabled] = useState(
     Boolean(routine?.endDate)
   );
   const [endDate, setEndDate] = useState(routine?.endDate ?? "");
+  const isEditMode = currentMode === "EDIT";
+  const isRepeatChanged = routine
+    ? !hasSameDays(selectedDays, routine.days)
+    : false;
 
   const handleSubmit = async () => {
     if (!title.trim() || selectedDays.length === 0 || !user) return;
+    if (isEditMode && isRepeatChanged && !effectiveFrom) return;
     if (endDateEnabled && !endDate) return;
     if (endDateEnabled && endDate < startDate) return;
 
@@ -88,7 +138,12 @@ export default function RoutineModal({
           routineId: routine.id,
           title,
           days: selectedDays,
-          startDate, // (선택) 수정 가능
+          scheduleHistory: buildNextScheduleHistory({
+            routine,
+            effectiveFrom,
+            days: selectedDays,
+            shouldAppend: isRepeatChanged,
+          }),
           endDate: endDateEnabled ? endDate : null,
         });
       }
@@ -198,10 +253,28 @@ export default function RoutineModal({
       <Space8 direction="mb" />
 
       <div>
-        <Text3 text="시작 날짜" className="font-bold" />
+        <Text3
+          text={
+            currentMode === "CREATE"
+              ? "시작 날짜"
+              : isRepeatChanged
+                ? "변경 적용 날짜"
+                : "시작 날짜"
+          }
+          className="font-bold"
+        />
         <Space2 direction="mb" />
         {isReadOnly ? (
           <Text2 text={startDate} className="text-gray-700" />
+        ) : currentMode === "EDIT" && !isRepeatChanged ? (
+          <Text2 text={routine?.startDate ?? startDate} className="text-gray-700" />
+        ) : currentMode === "EDIT" && isRepeatChanged ? (
+          <input
+            type="date"
+            value={effectiveFrom}
+            min={routine?.startDate}
+            onChange={(e) => setEffectiveFrom(e.target.value)}
+          />
         ) : (
           <input
             type="date"

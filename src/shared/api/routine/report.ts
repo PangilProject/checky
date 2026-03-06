@@ -18,6 +18,7 @@ import type {
   RoutineReport,
   RoutineReportRow,
   RoutineReportWeek,
+  RoutineScheduleHistoryItem,
 } from "./types";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 
@@ -37,6 +38,10 @@ type CategoryMapValue = {
   name: string;
   color: string;
   orderIndex: number;
+};
+
+type FirestoreTimestampLike = {
+  toDate?: () => Date;
 };
 
 const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
@@ -83,6 +88,60 @@ const buildLogMap = (logs: RoutineLog[]) => {
 };
 
 /**
+ * @description Firestore Timestamp/Date 값을 YYYY-MM-DD로 변환합니다.
+ * @param value 날짜 원본 값
+ * @returns 반환값
+ */
+const toDateString = (value: unknown): string | null => {
+  if (!value) return null;
+
+  if (value instanceof Date) {
+    return formatDateKST(value);
+  }
+
+  const maybeTimestamp = value as FirestoreTimestampLike;
+  if (typeof maybeTimestamp.toDate === "function") {
+    return formatDateKST(maybeTimestamp.toDate());
+  }
+
+  return null;
+};
+
+const normalizeScheduleHistory = (
+  routine: Routine
+): RoutineScheduleHistoryItem[] => {
+  const history =
+    routine.scheduleHistory && routine.scheduleHistory.length > 0
+      ? routine.scheduleHistory
+      : [];
+
+  if (history.length > 0) {
+    return [...history].sort((a, b) =>
+      a.effectiveFrom.localeCompare(b.effectiveFrom)
+    );
+  }
+
+  return [{ effectiveFrom: routine.startDate, days: routine.days }];
+};
+
+const getRepeatDaysByDate = ({
+  history,
+  date,
+}: {
+  history: RoutineScheduleHistoryItem[];
+  date: string;
+}): number[] => {
+  for (let i = history.length - 1; i >= 0; i--) {
+    const item = history[i];
+    if (item.effectiveFrom <= date) {
+      return item.days;
+    }
+  }
+
+  return [];
+};
+
+/**
  * @description 카테고리 스냅샷을 맵으로 변환합니다.
  * @param params 요청 파라미터
  * @returns 반환값
@@ -120,14 +179,31 @@ const buildRows = ({
         return null;
       }
       const checks: Record<string, boolean> = {};
+      const updatedAt = toDateString(routine.updatedAt);
+      const scheduleHistory = normalizeScheduleHistory(routine);
+      const hasExplicitHistory = Boolean(
+        routine.scheduleHistory && routine.scheduleHistory.length > 0
+      );
 
       week.days.forEach((day) => {
-        const isRepeatDay = routine.days.includes(day.day);
+        const logKey = `${routine.id}_${day.date}`;
+        const hasLog = logMap.has(logKey);
         const isAfterStart = day.date >= routine.startDate;
         const isBeforeEnd = !routine.endDate || day.date <= routine.endDate;
+        const repeatDays = getRepeatDaysByDate({
+          history: scheduleHistory,
+          date: day.date,
+        });
+        const isRepeatDay = repeatDays.includes(day.day);
+        const isAfterUpdatedAt = !updatedAt || day.date >= updatedAt;
+        const isLegacyVisible = !hasExplicitHistory && hasLog;
+        const isVisible =
+          hasExplicitHistory || !updatedAt
+            ? isRepeatDay
+            : isLegacyVisible || (isAfterUpdatedAt && isRepeatDay);
 
-        if (isRepeatDay && isAfterStart && isBeforeEnd) {
-          checks[day.date] = logMap.get(`${routine.id}_${day.date}`) ?? false;
+        if (isVisible && isAfterStart && isBeforeEnd) {
+          checks[day.date] = logMap.get(logKey) ?? false;
         }
       });
 

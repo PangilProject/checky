@@ -5,15 +5,22 @@
 
 import type { Category } from "@/shared/api/category";
 
+export interface RoutineScheduleHistoryItem {
+  effectiveFrom: string;
+  days: number[];
+}
+
 export interface Routine {
   id: string;
   title: string;
   categoryId: string;
   days: number[];
+  scheduleHistory?: RoutineScheduleHistoryItem[];
   orderIndex: number;
   startDate: string;
   endDate?: string;
   createdAt?: Date;
+  updatedAt?: Date | { toDate: () => Date };
 }
 
 export interface RoutineCategory {

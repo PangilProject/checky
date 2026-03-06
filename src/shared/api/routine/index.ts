@@ -6,6 +6,7 @@
 export type {
   Routine,
   RoutineCategory,
+  RoutineScheduleHistoryItem,
   RoutineReport,
   RoutineReportRow,
   RoutineReportWeek,
