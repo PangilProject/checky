@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Text2, Text3, Text5 } from "@/shared/ui/Text";
 import {
   NormalBlackButton,
@@ -15,6 +16,7 @@ import {
   type Routine,
   type RoutineScheduleHistoryItem,
 } from "@/shared/api/routine";
+import { routineKeys, routineReportKeys } from "@/shared/query/keys";
 import { IoIosCheckbox } from "react-icons/io";
 import { IoIosCheckboxOutline } from "react-icons/io";
 
@@ -83,6 +85,7 @@ export default function RoutineModal({
   onClose,
 }: RoutineModalProps) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const [title, setTitle] = useState(routine?.title ?? "");
   const [isComposing, setIsComposing] = useState(false);
@@ -148,6 +151,15 @@ export default function RoutineModal({
         });
       }
 
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: routineKeys.all,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: routineReportKeys.all,
+        }),
+      ]);
+
       onClose();
     } catch (e) {
       console.error("루틴 저장 실패", e);
@@ -165,6 +177,15 @@ export default function RoutineModal({
         userId: user.uid,
         routineId: routine.id,
       });
+
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: routineKeys.all,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: routineReportKeys.all,
+        }),
+      ]);
 
       onClose();
     } catch (e) {
