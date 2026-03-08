@@ -13,10 +13,12 @@ export const ModalTitle = ({ mode }: { mode: "CREATE" | "VIEW" | "EDIT" }) => {
 export const TaskInput = ({
   value,
   onChange,
+  onEnter,
   disabled,
 }: {
   value: string;
   onChange: (v: string) => void;
+  onEnter?: () => void;
   disabled?: boolean;
 }) => {
   const [isComposing, setIsComposing] = useState(false);
@@ -30,6 +32,11 @@ export const TaskInput = ({
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key !== "Enter" || isComposing || disabled) return;
+        e.preventDefault();
+        onEnter?.();
+      }}
       onCompositionStart={() => setIsComposing(true)}
       onCompositionEnd={() => setIsComposing(false)}
     />

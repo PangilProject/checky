@@ -71,6 +71,15 @@ export default function TaskModal({
       <TaskInput
         value={taskInput}
         onChange={setTaskInput}
+        onEnter={() => {
+          if (currentMode === "CREATE") {
+            handleCreateTask();
+            return;
+          }
+          if (currentMode === "EDIT") {
+            handleUpdateTask();
+          }
+        }}
         disabled={isReadOnly}
       />
       <Space8 direction="mb" />

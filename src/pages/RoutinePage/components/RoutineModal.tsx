@@ -220,6 +220,11 @@ export default function RoutineModal({
           value={title}
           disabled={isReadOnly}
           onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter" || isComposing || isReadOnly) return;
+            e.preventDefault();
+            handleSubmit();
+          }}
           onCompositionStart={() => setIsComposing(true)}
           onCompositionEnd={() => setIsComposing(false)}
         />

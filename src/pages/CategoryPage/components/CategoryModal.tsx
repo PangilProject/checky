@@ -115,6 +115,15 @@ export default function CategoryModal({
       <Input
         categoryInput={categoryInput}
         setCategoryInput={setCategoryInput}
+        onEnter={() => {
+          if (currentMode === "CREATE") {
+            handleCreateCategory();
+            return;
+          }
+          if (currentMode === "EDIT") {
+            handleUpdateCategory();
+          }
+        }}
         disabled={isReadOnly}
       />
       <Space8 direction="mb" />
@@ -156,10 +165,16 @@ const ModalTitle = ({ mode }: ModalTitleProps) => {
 interface InputProps {
   categoryInput: string;
   setCategoryInput: Dispatch<SetStateAction<string>>;
+  onEnter?: () => void;
   disabled?: boolean;
 }
 
-const Input = ({ categoryInput, setCategoryInput, disabled }: InputProps) => {
+const Input = ({
+  categoryInput,
+  setCategoryInput,
+  onEnter,
+  disabled,
+}: InputProps) => {
   const [isComposing, setIsComposing] = useState(false);
 
   return (
@@ -171,6 +186,11 @@ const Input = ({ categoryInput, setCategoryInput, disabled }: InputProps) => {
       value={categoryInput}
       disabled={disabled}
       onChange={(e) => setCategoryInput(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key !== "Enter" || isComposing || disabled) return;
+        e.preventDefault();
+        onEnter?.();
+      }}
       onCompositionStart={() => setIsComposing(true)}
       onCompositionEnd={() => setIsComposing(false)}
     />
