@@ -14,6 +14,7 @@ import {
 } from "@/shared/api/taskLog";
 import {
   patchMonthlyStatsCompletionByDay,
+  patchMonthlyStatsByDayDeltas,
   type MonthlyStats,
 } from "@/shared/api/monthlyStats";
 import {
@@ -164,11 +165,37 @@ export const useTaskList = ({
       date: dateString,
       orderIndex: currentTasks.length,
     };
+    const monthKey = dateString.slice(0, 7);
+    const dayKey = dateString.slice(8, 10);
 
     queryClient.setQueryData<Task[]>(taskQueryKey, (prev = []) => [
       ...prev,
       optimisticTask,
     ]);
+    queryClient.setQueryData<MonthlyStats | null>(
+      monthlyStatsKeys.byMonth(userId, monthKey),
+      (prev) => {
+        if (!prev) return prev;
+
+        const currentDay = prev.days?.[dayKey];
+        const total = Math.max((currentDay?.total ?? 0) + 1, 0);
+        const completed = Math.max(currentDay?.completed ?? 0, 0);
+        const remaining = Math.max((currentDay?.remaining ?? 0) + 1, 0);
+
+        return {
+          ...prev,
+          days: {
+            ...prev.days,
+            [dayKey]: {
+              total,
+              completed: Math.min(completed, total),
+              remaining: Math.min(remaining, total),
+              hasActivity: total > 0,
+            },
+          },
+        };
+      }
+    );
 
     try {
       const savedTask = await createTask({
@@ -182,9 +209,50 @@ export const useTaskList = ({
       queryClient.setQueryData<Task[]>(taskQueryKey, (prev = []) =>
         prev.map((task) => (task.id === tempId ? savedTask : task))
       );
+      await patchMonthlyStatsByDayDeltas({
+        userId,
+        month: monthKey,
+        day: dayKey,
+        totalDelta: 1,
+        completedDelta: 0,
+        remainingDelta: 1,
+      });
     } catch (error) {
       queryClient.setQueryData<Task[]>(taskQueryKey, (prev = []) =>
         prev.filter((task) => task.id !== tempId)
+      );
+      queryClient.setQueryData<MonthlyStats | null>(
+        monthlyStatsKeys.byMonth(userId, monthKey),
+        (prev) => {
+          if (!prev) return prev;
+
+          const currentDay = prev.days?.[dayKey];
+          if (!currentDay) return prev;
+
+          const total = Math.max((currentDay.total ?? 0) - 1, 0);
+          const completed = Math.min(
+            Math.max(currentDay.completed ?? 0, 0),
+            total
+          );
+          const remaining = Math.max(
+            Math.min(currentDay.remaining ?? 0, total),
+            0
+          );
+
+          return {
+            ...prev,
+            days: {
+              ...prev.days,
+              [dayKey]: {
+                ...currentDay,
+                total,
+                completed,
+                remaining,
+                hasActivity: total > 0,
+              },
+            },
+          };
+        }
       );
       console.error("Failed to create task", error);
     }
@@ -256,10 +324,14 @@ export const useTaskList = ({
   };
 
   const refresh = async () => {
+    const monthKey = dateString.slice(0, 7);
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: categoryQueryKey }),
       queryClient.invalidateQueries({ queryKey: taskQueryKey }),
       queryClient.invalidateQueries({ queryKey: taskLogQueryKey }),
+      queryClient.invalidateQueries({
+        queryKey: monthlyStatsKeys.byMonth(userId ?? "", monthKey),
+      }),
     ]);
   };
 
