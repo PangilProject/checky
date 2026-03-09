@@ -3,6 +3,7 @@ import { MonthlyReportTitleSection } from "./components/MonthlyReportTitleSectio
 
 /**
  * 월간 리포트 섹션
+ * 설명 : 
  * @returns {JSX.Element}
  */
 function MonthlyReportSection() {

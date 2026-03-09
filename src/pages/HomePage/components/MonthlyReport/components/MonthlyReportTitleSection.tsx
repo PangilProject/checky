@@ -4,13 +4,15 @@ import { getMonthLabel } from "../utils/getMonthLabel";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { useMonthlyData } from "@/shared/hooks/calendar";
 
+/**
+
+ * @returns 
+ */
 export function MonthlyReportTitleSection() {
   // 캘린더 헤더에 표시할 월 정보 생성
   const label = getMonthLabel();
-
   const { selectedDate, setSelectedDate } = useSelectedDate();
   const { refresh } = useMonthlyData(selectedDate);
-
   return (
     <TitleSection
       title="캘린더"

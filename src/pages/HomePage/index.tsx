@@ -12,15 +12,15 @@ function HomePage() {
   return (
     <DateProvider>
       <div>
-        {/* 월간 리포트 */}
+        {/* 1. 월간 리포트 */}
         <MonthlyReportSection /> 
         <Space20 direction="mb" />
 
-        {/* 루틴 리포트 */}
+        {/* 2. 루틴 리포트 */}
         <RoutineReportSection />
         <Space20 direction="mb" />
         
-        {/* 할 일 리포트 */}
+        {/* 3. 할 일 리포트 */}
         <TaskReportSection />
       </div>
     </DateProvider>
