@@ -1,11 +1,14 @@
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { formatDateByDate } from "@/shared/hooks/formatDate";
-import { useTaskList } from "./hooks/useTaskList";
-import { TaskCategorySection } from "./components/TaskCategorySection";
-import { TaskListSkeleton } from "./components/TaskListSkeleton";
+import { useTaskList } from "../hooks/useTaskList";
+import { TaskCategorySection } from "../components/TaskCategorySection";
+import { TaskListSkeleton } from "../components/TaskListSkeleton";
 import { useEffect } from "react";
 
+/**
+ * 선택 날짜 기준으로 카테고리별 할 일 목록을 렌더링합니다.
+ */
 export const TaskListSection = ({
   onReadyRefresh,
 }: {

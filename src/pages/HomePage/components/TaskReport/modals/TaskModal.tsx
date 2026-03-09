@@ -9,9 +9,9 @@ import {
   ModalTitle,
   TaskInput,
   TimeField,
-} from "./components/TaskModalFields";
-import { ButtonSection } from "./components/TaskModalButtons";
-import { useTaskModalHandlers } from "./hooks/useTaskModalHandlers";
+} from "../components/TaskModalFields";
+import { ButtonSection } from "../components/TaskModalButtons";
+import { useTaskModalHandlers } from "../hooks/useTaskModalHandlers";
 
 interface TaskModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -23,6 +23,9 @@ interface TaskModalProps {
   onClose: () => void;
 }
 
+/**
+ * 할 일 생성/조회/수정을 공통으로 처리하는 모달입니다.
+ */
 export default function TaskModal({
   mode,
   task,

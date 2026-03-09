@@ -1,7 +1,7 @@
 import { Space20 } from "@/shared/ui/Space.tsx";
 import MonthlyReportSection from "./components/MonthlyReport/index.tsx";
 import RoutineReportSection from "./components/RoutineReport/index.tsx";
-import TaskReportSection from "./components/TaskReport/TaskReportSection.tsx";
+import TaskReportSection from "./components/TaskReport/sections/TaskReportSection.tsx";
 import { DateProvider } from "@/shared/contexts/DateContext.tsx";
 
 /**

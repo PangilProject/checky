@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Space8 } from "@/shared/ui/Space";
-import TaskModal from "../TaskModal";
+import TaskModal from "../modals/TaskModal";
 import type { Category } from "@/shared/api/category";
 import type { Task } from "@/shared/api/task";
 import type { TaskLog } from "@/shared/api/taskLog";

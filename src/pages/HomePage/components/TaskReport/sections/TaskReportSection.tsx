@@ -1,4 +1,4 @@
-import TitleSection from "../TitleSection";
+import TitleSection from "../../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { moveDay } from "@/shared/hooks/dateNavigation";
 import { TaskListSection } from "./TaskList";
@@ -6,6 +6,10 @@ import { Space8 } from "@/shared/ui/Space";
 import { TaskSetting } from "./TaskSetting";
 import { useRef } from "react";
 
+/**
+ * 홈 화면의 일간 할 일 리포트 섹션 컨테이너입니다.
+ * 헤더 네비게이션, 목록 섹션, 설정 섹션을 조합합니다.
+ */
 function TaskReportSection() {
   const { selectedDate, setSelectedDate } = useSelectedDate();
   const refreshRef = useRef<(() => Promise<void>) | null>(null);

@@ -1,6 +1,6 @@
 import { Text2 } from "@/shared/ui/Text";
 import { BiListCheck } from "react-icons/bi";
-import { TaskSettingModal } from "./TaskSettingModal";
+import { TaskSettingModal } from "../modals/TaskSettingModal";
 import { useState } from "react";
 import type { TaskActionType } from "@/shared/constants/actionList";
 import { useAuth } from "@/shared/hooks/useAuth";
@@ -16,9 +16,12 @@ import {
   copyAllTasksToDate,
 } from "@/shared/api/taskSetting";
 
-import { DateSelectModal } from "./DateSelectModal";
-import { ConfirmModal } from "./ConfirmModal";
+import { DateSelectModal } from "../modals/DateSelectModal";
+import { ConfirmModal } from "../modals/ConfirmModal";
 
+/**
+ * 할 일 목록 일괄 작업(이동/복사/삭제) 설정 메뉴를 처리합니다.
+ */
 export function TaskSetting() {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<TaskActionType | null>(
