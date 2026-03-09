@@ -6,9 +6,15 @@
 import { getDocs, query, where } from "firebase/firestore/lite";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { routineLogsRef, routinesRef } from "./refs";
-import type { Routine } from "./types";
+import type { Routine, RoutineScheduleHistoryItem } from "./types";
 
-export type RoutineMonthly = { startDate: string; endDate?: string; days: number[] };
+export type RoutineMonthly = {
+  id: string;
+  startDate: string;
+  endDate?: string;
+  days: number[];
+  scheduleHistory?: RoutineScheduleHistoryItem[];
+};
 export type RoutineLogMonthly = { routineId: string; date: string; done: boolean };
 
 /**
@@ -34,9 +40,11 @@ export const getRoutinesByMonthOnce = async ({
     .map((doc) => {
     const data = doc.data() as Routine;
     return {
+      id: doc.id,
       startDate: data.startDate,
       endDate: data.endDate,
       days: data.days,
+      scheduleHistory: data.scheduleHistory,
     };
   })
     .filter((routine) => !routine.endDate || routine.endDate >= start);

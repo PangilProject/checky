@@ -37,6 +37,7 @@ export const useCalendar = (selectedDate: Date) => {
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import type { RoutineScheduleHistoryItem } from "@/shared/api/routine";
 
 export const useMonthlyActivityMap = ({
   tasks,
@@ -78,9 +79,15 @@ import {
   taskLogKeys,
 } from "@/shared/query/keys";
 
-type MonthlyTask = { date: string };
-type MonthlyTaskLog = { date: string; completed: boolean };
-type MonthlyRoutine = { startDate: string; endDate?: string; days: number[] };
+type MonthlyTask = { id: string; date: string };
+type MonthlyTaskLog = { taskId: string; date: string; completed: boolean };
+type MonthlyRoutine = {
+  id: string;
+  startDate: string;
+  endDate?: string;
+  days: number[];
+  scheduleHistory?: RoutineScheduleHistoryItem[];
+};
 type MonthlyRoutineLog = { routineId: string; date: string; done: boolean };
 
 export const useMonthlyData = (date: Date) => {
@@ -94,9 +101,10 @@ export const useMonthlyData = (date: Date) => {
     queryKey: taskKeys.byMonth(userId, monthKey),
     queryFn: () => getTasksByMonthOnce({ userId, month: monthKey }),
     enabled: Boolean(user?.uid),
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 
@@ -104,9 +112,10 @@ export const useMonthlyData = (date: Date) => {
     queryKey: taskLogKeys.byMonth(userId, monthKey),
     queryFn: () => getTaskLogsByMonthOnce({ userId, month: monthKey }),
     enabled: Boolean(user?.uid),
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 
@@ -114,9 +123,10 @@ export const useMonthlyData = (date: Date) => {
     queryKey: routineKeys.byMonth(userId, monthKey),
     queryFn: () => getRoutinesByMonthOnce({ userId, month: monthKey }),
     enabled: Boolean(user?.uid),
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 
@@ -124,9 +134,10 @@ export const useMonthlyData = (date: Date) => {
     queryKey: routineLogKeys.byMonth(userId, monthKey),
     queryFn: () => getRoutineLogsByMonthOnce({ userId, month: monthKey }),
     enabled: Boolean(user?.uid),
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 
@@ -140,6 +151,14 @@ export const useMonthlyData = (date: Date) => {
       taskLogsQuery.isLoading ||
       routinesQuery.isLoading ||
       routineLogsQuery.isLoading,
+    refresh: async () => {
+      await Promise.all([
+        tasksQuery.refetch(),
+        taskLogsQuery.refetch(),
+        routinesQuery.refetch(),
+        routineLogsQuery.refetch(),
+      ]);
+    },
   };
 };
 
@@ -157,13 +176,15 @@ export const useMonthlyActivityCountMap = ({
   routineLogs,
 }: {
   date: Date;
-  tasks: { date: string }[];
-  taskLogs: { date: string; completed: boolean }[];
-  routines: { startDate: string; endDate?: string; days: number[] }[];
+  tasks: MonthlyTask[];
+  taskLogs: MonthlyTaskLog[];
+  routines: MonthlyRoutine[];
   routineLogs: { routineId: string; date: string; done: boolean }[];
 }) => {
   const map = useMemo(() => {
     const next = new Map<string, MonthlyActivityCount>();
+    const validTaskKeySet = new Set<string>();
+    const validRoutineKeySet = new Set<string>();
 
     const ensure = (date: string) => {
       if (!next.has(date)) {
@@ -172,47 +193,73 @@ export const useMonthlyActivityCountMap = ({
       return next.get(date)!;
     };
 
+    const getRepeatDaysByDate = ({
+      history,
+      date,
+    }: {
+      history: RoutineScheduleHistoryItem[];
+      date: string;
+    }) => {
+      for (let i = history.length - 1; i >= 0; i--) {
+        const item = history[i];
+        if (item.effectiveFrom <= date) {
+          return item.days;
+        }
+      }
+
+      return [];
+    };
+
     // 1️⃣ Task 전체 개수
-    tasks.forEach(({ date }) => {
+    tasks.forEach(({ id, date }) => {
       ensure(date).total += 1;
+      validTaskKeySet.add(`${id}_${date}`);
     });
 
     // 2️⃣ Routine 전체 개수
     routines.forEach((routine) => {
-      const { startDate, endDate, days } = routine;
+      const { id, startDate, endDate } = routine;
+      const history =
+        routine.scheduleHistory && routine.scheduleHistory.length > 0
+          ? [...routine.scheduleHistory].sort((a, b) =>
+              a.effectiveFrom.localeCompare(b.effectiveFrom)
+            )
+          : [{ effectiveFrom: startDate, days: routine.days }];
 
-      days.forEach((dayOfWeek: number) => {
-        const year = date.getFullYear(); // ✅ 여기
-        const month = date.getMonth(); // ✅ 여기
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const lastDay = new Date(year, month + 1, 0).getDate();
 
-        const lastDay = new Date(year, month + 1, 0).getDate();
+      for (let d = 1; d <= lastDay; d++) {
+        const dateObj = new Date(year, month, d);
+        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+          d
+        ).padStart(2, "0")}`;
 
-        for (let d = 1; d <= lastDay; d++) {
-          const dateObj = new Date(year, month, d);
-          const dateStr = `${year}-${String(month + 1).padStart(
-            2,
-            "0"
-          )}-${String(d).padStart(2, "0")}`;
+        const isAfterStart = dateStr >= startDate;
+        const isBeforeEnd = !endDate || dateStr <= endDate;
+        if (!isAfterStart || !isBeforeEnd) continue;
 
-          const isAfterStart = dateStr >= startDate;
-          const isBeforeEnd = !endDate || dateStr <= endDate;
-          if (isAfterStart && isBeforeEnd && dateObj.getDay() === dayOfWeek) {
-            ensure(dateStr).total += 1;
-          }
+        const repeatDays = getRepeatDaysByDate({ history, date: dateStr });
+        if (repeatDays.includes(dateObj.getDay())) {
+          ensure(dateStr).total += 1;
+          validRoutineKeySet.add(`${id}_${dateStr}`);
         }
-      });
+      }
     });
     // 3️⃣ Task 완료
-    taskLogs.forEach(({ date, completed }) => {
+    taskLogs.forEach(({ taskId, date, completed }) => {
       if (!completed) return;
       if (!next.has(date)) return;
+      if (!validTaskKeySet.has(`${taskId}_${date}`)) return;
       ensure(date).completed += 1;
     });
 
     // 4️⃣ Routine 완료
-    routineLogs.forEach(({ date, done }) => {
+    routineLogs.forEach(({ routineId, date, done }) => {
       if (!done) return;
       if (!next.has(date)) return;
+      if (!validRoutineKeySet.has(`${routineId}_${date}`)) return;
       ensure(date).completed += 1;
     });
 
