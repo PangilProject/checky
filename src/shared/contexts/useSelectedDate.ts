@@ -1,10 +1,21 @@
 import { useContext } from "react";
 import { DateContext } from "./dateContext";
 
+/**
+ * DateContext에서 selectedDate와 setSelectedDate를 편리하게 사용하기 위한 훅
+ * @returns {DateContextValue} selectedDate와 setSelectedDate
+ * @throws {Error} DateProvider로 감싸지지 않은 곳에서 호출 시 에러 발생
+ */
 export function useSelectedDate() {
+
+  // 1. DateContext에서 selectedDate와 setSelectedDate를 가져옴
   const context = useContext(DateContext);
+  
+  // 2. DateProvider로 감싸지지 않은 곳에서 호출 시 에러 발생
   if (!context) {
     throw new Error("useSelectedDate must be used within DateProvider");
   }
+
+  // 3. selectedDate와 setSelectedDate를 반환
   return context;
 }
