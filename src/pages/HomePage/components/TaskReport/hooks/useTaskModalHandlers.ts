@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createTask, deleteTaskWithLogs, updateTaskWithDateMove } from "@/shared/api/task";
 import type { Task } from "@/shared/api/task";
 import type { Category } from "@/shared/api/category";
-import { taskKeys } from "@/shared/query/keys";
+import { taskKeys } from "@/shared/api/keys";
 
 interface UseTaskModalHandlersParams {
   mode: "CREATE" | "VIEW" | "EDIT";

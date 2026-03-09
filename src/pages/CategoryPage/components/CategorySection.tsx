@@ -6,7 +6,7 @@ import {
   type Category,
 } from "@/shared/api/category";
 import { useQuery } from "@tanstack/react-query";
-import { categoryKeys } from "@/shared/query/keys";
+import { categoryKeys } from "@/shared/api/keys";
 import { TitleText } from "@/shared/ui/TitleText";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { Space10, Space4 } from "@/shared/ui/Space";

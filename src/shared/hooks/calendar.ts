@@ -83,7 +83,7 @@ import {
   routineLogKeys,
   taskKeys,
   taskLogKeys,
-} from "@/shared/query/keys";
+} from "@/shared/api/keys";
 
 type MonthlyTask = { id: string; date: string };
 type MonthlyTaskLog = { taskId: string; date: string; completed: boolean };

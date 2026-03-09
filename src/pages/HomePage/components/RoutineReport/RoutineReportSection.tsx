@@ -5,7 +5,7 @@ import { Space24 } from "@/shared/ui/Space";
 import { RoutineTable } from "./RoutineTable";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { formatDateKST } from "@/shared/hooks/formatDate";
-import { useRoutineReportQuery } from "@/shared/query/useRoutineReportQuery";
+import { useRoutineReportQuery } from "@/shared/hooks/useRoutineReportQuery";
 import type { RoutineReport, RoutineReportRow } from "@/shared/api/routine";
 import { toggleRoutineLog } from "@/shared/api/routineLog";
 import {
@@ -17,7 +17,7 @@ import {
   monthlyStatsKeys,
   routineLogKeys,
   routineReportKeys,
-} from "@/shared/query/keys";
+} from "@/shared/api/keys";
 import { RoutineReportSkeleton } from "./RoutineReportSkeleton";
 
 function RoutineReportSection() {

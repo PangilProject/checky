@@ -16,7 +16,7 @@ import {
   type Routine,
   type RoutineScheduleHistoryItem,
 } from "@/shared/api/routine";
-import { routineKeys, routineReportKeys } from "@/shared/query/keys";
+import { routineKeys, routineReportKeys } from "@/shared/api/keys";
 import { IoIosCheckbox } from "react-icons/io";
 import { IoIosCheckboxOutline } from "react-icons/io";
 

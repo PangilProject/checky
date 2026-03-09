@@ -21,7 +21,7 @@ import {
   monthlyStatsKeys,
   taskKeys,
   taskLogKeys,
-} from "@/shared/query/keys";
+} from "@/shared/api/keys";
 import { baselineCacheCheck } from "@/shared/utils/perfBaseline";
 
 const EMPTY_CATEGORIES: Category[] = [];
