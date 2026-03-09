@@ -39,3 +39,6 @@ export const COLOR_CLASS_BORDER_MAP: Record<string, string> = {
   "#AC7F5E": "border-[#AC7F5E]",
   "#000000": "border-[#000000]",
 };
+
+export const SUNDAY_COLOR = "#FF393C";
+export const SATURDAY_COLOR = "#0088FF";
