@@ -1,34 +1,45 @@
 import {
   useCalendar,
-  type MonthlyActivityCount,
+  useMonthlyActivityCountMap,
+  useMonthlyData,
 } from "@/shared/hooks/calendar";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
-// import { FaCheckCircle } from "react-icons/fa";
-// import { LuCircleDashed } from "react-icons/lu";
 import { Text1, Text2 } from "@/shared/ui/Text";
+import { WEEK_LABELS } from "@/shared/constants/da";
 
 const SUNDAY_COLOR = "#FF393C";
 const SATURDAY_COLOR = "#0088FF";
 
-export const CalanderSection = ({
-  activityMap,
-}: {
-  activityMap: Map<string, MonthlyActivityCount>;
-}) => {
+export const CalanderSection = () => {
   const { selectedDate, setSelectedDate } = useSelectedDate();
   const { year, month, cells } = useCalendar(selectedDate);
 
+  // 월간 데이터 가져오기
+  const { monthKey, monthlyStatsDays, tasks, taskLogs, routines, routineLogs } =
+    useMonthlyData(selectedDate);
+
+  // 활동 맵 생성
+  const activityMap = useMonthlyActivityCountMap({
+    date: selectedDate,
+    monthKey,
+    monthlyStatsDays,
+    tasks,
+    taskLogs,
+    routines,
+    routineLogs,
+  });
+
   return (
     <div className="w-full">
-      {/* 요일 헤더 */}
+      {/* 1. 요일 헤더 */}
       <div className="flex w-full border-b border-[#8E8E93]">
-        {["일", "월", "화", "수", "목", "금", "토"].map((d, index) => {
+        {WEEK_LABELS.map((d, index) => {
           const color =
             index === 0
               ? SUNDAY_COLOR
               : index === 6
-              ? SATURDAY_COLOR
-              : undefined;
+                ? SATURDAY_COLOR
+                : undefined;
 
           return (
             <div
@@ -42,7 +53,7 @@ export const CalanderSection = ({
         })}
       </div>
 
-      {/* 날짜 영역 */}
+      {/* 2. 날짜 영역 */}
       <div className="flex flex-wrap w-full">
         {cells.map((day, index) => {
           if (day === null) {
@@ -55,12 +66,12 @@ export const CalanderSection = ({
             dayOfWeek === 0
               ? SUNDAY_COLOR
               : dayOfWeek === 6
-              ? SATURDAY_COLOR
-              : undefined;
+                ? SATURDAY_COLOR
+                : undefined;
 
           const dateKey = `${year}-${String(month + 1).padStart(
             2,
-            "0"
+            "0",
           )}-${String(day).padStart(2, "0")}`;
 
           const isSelected =
