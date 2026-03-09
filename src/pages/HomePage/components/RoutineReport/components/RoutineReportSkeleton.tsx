@@ -1,5 +1,8 @@
 import { SkeletonBlock } from "@/shared/ui/Skeleton";
 
+/**
+ * 루틴 리포트 로딩 중 표시되는 테이블 형태 스켈레톤입니다.
+ */
 export const RoutineReportSkeleton = () => {
   return (
     <div className="w-full">
