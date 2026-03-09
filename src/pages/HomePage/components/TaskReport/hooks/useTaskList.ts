@@ -12,7 +12,16 @@ import {
   toggleTaskLog,
   type TaskLog,
 } from "@/shared/api/taskLog";
-import { categoryKeys, taskKeys, taskLogKeys } from "@/shared/query/keys";
+import {
+  patchMonthlyStatsCompletionByDay,
+  type MonthlyStats,
+} from "@/shared/api/monthlyStats";
+import {
+  categoryKeys,
+  monthlyStatsKeys,
+  taskKeys,
+  taskLogKeys,
+} from "@/shared/query/keys";
 import { baselineCacheCheck } from "@/shared/utils/perfBaseline";
 
 const EMPTY_CATEGORIES: Category[] = [];
@@ -186,6 +195,9 @@ export const useTaskList = ({
 
     const currentLog = taskLogMap.get(taskId);
     const nextCompleted = currentLog ? !currentLog.completed : true;
+    const monthKey = dateString.slice(0, 7);
+    const dayKey = dateString.slice(8, 10);
+    const completedDelta = nextCompleted ? 1 : -1;
 
     queryClient.setQueryData<TaskLog[]>(taskLogQueryKey, (prev = []) => {
       const index = prev.findIndex((log) => log.taskId === taskId);
@@ -199,11 +211,47 @@ export const useTaskList = ({
       return next;
     });
 
+    queryClient.setQueryData<MonthlyStats | null>(
+      monthlyStatsKeys.byMonth(userId, monthKey),
+      (prev) => {
+        if (!prev) return prev;
+        const currentDay = prev.days?.[dayKey];
+        if (!currentDay) return prev;
+
+        const completed = Math.max(
+          (currentDay.completed ?? 0) + completedDelta,
+          0
+        );
+        const total = Math.max(currentDay.total ?? 0, 0);
+        const remaining = Math.max(total - completed, 0);
+
+        return {
+          ...prev,
+          days: {
+            ...prev.days,
+            [dayKey]: {
+              ...currentDay,
+              completed,
+              remaining,
+              hasActivity: total > 0,
+            },
+          },
+        };
+      }
+    );
+
     await toggleTaskLog({
       userId,
       taskId,
       date: dateString,
       currentLog,
+    });
+
+    await patchMonthlyStatsCompletionByDay({
+      userId,
+      month: monthKey,
+      day: dayKey,
+      completedDelta,
     });
   };
 

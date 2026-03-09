@@ -3,8 +3,8 @@
  * @description API 모듈
  */
 
-import { addDoc, serverTimestamp, updateDoc } from "firebase/firestore/lite";
-import { taskLogRef, taskLogsRef } from "./refs";
+import { serverTimestamp, setDoc, updateDoc } from "firebase/firestore/lite";
+import { taskLogRef } from "./refs";
 import type { TaskLog } from "./types";
 
 /**
@@ -23,21 +23,40 @@ export const toggleTaskLog = async ({
   date: string;
   currentLog?: TaskLog;
 }) => {
-  const logsRef = taskLogsRef(userId);
+  const canonicalLogRef = taskLogRef(userId, `${taskId}_${date}`);
+  const nextCompleted = currentLog ? !currentLog.completed : true;
 
-  if (!currentLog) {
-    await addDoc(logsRef, {
-      taskId,
-      date,
-      completed: true,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
+  if (!currentLog || currentLog.id.startsWith("temp-")) {
+    await setDoc(
+      canonicalLogRef,
+      {
+        taskId,
+        date,
+        completed: nextCompleted,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
     return;
   }
 
-  await updateDoc(taskLogRef(userId, currentLog.id), {
-    completed: !currentLog.completed,
-    updatedAt: serverTimestamp(),
-  });
+  try {
+    await updateDoc(taskLogRef(userId, currentLog.id), {
+      completed: nextCompleted,
+      updatedAt: serverTimestamp(),
+    });
+  } catch {
+    await setDoc(
+      canonicalLogRef,
+      {
+        taskId,
+        date,
+        completed: nextCompleted,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }
 };

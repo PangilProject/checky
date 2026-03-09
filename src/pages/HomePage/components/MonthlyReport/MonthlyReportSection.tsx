@@ -14,11 +14,22 @@ function MonthlyReportSection() {
     selectedDate.getMonth() + 1
   }월`;
 
-  const { tasks, taskLogs, routines, routineLogs, isLoading, refresh } =
+  const {
+    monthKey,
+    monthlyStatsDays,
+    tasks,
+    taskLogs,
+    routines,
+    routineLogs,
+    isLoading,
+    refresh,
+  } =
     useMonthlyData(selectedDate);
 
   const activityMap = useMonthlyActivityCountMap({
-    date: selectedDate, // ⭐ 반드시 전달
+    date: selectedDate,
+    monthKey,
+    monthlyStatsDays,
     tasks,
     taskLogs,
     routines,

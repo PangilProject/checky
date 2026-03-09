@@ -37,3 +37,9 @@ export const routineReportKeys = {
   byWeek: (userId: string, startDate: string, endDate: string) =>
     [...routineReportKeys.all, userId, startDate, endDate] as const,
 };
+
+export const monthlyStatsKeys = {
+  all: ["monthlyStats"] as const,
+  byMonth: (userId: string, month: string) =>
+    [...monthlyStatsKeys.all, userId, month] as const,
+};

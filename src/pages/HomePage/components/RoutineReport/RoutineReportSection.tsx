@@ -8,8 +8,16 @@ import { formatDateKST } from "@/shared/hooks/formatDate";
 import { useRoutineReportQuery } from "@/shared/query/useRoutineReportQuery";
 import type { RoutineReport, RoutineReportRow } from "@/shared/api/routine";
 import { toggleRoutineLog } from "@/shared/api/routineLog";
+import {
+  patchMonthlyStatsCompletionByDay,
+  type MonthlyStats,
+} from "@/shared/api/monthlyStats";
 import { useQueryClient } from "@tanstack/react-query";
-import { routineLogKeys, routineReportKeys } from "@/shared/query/keys";
+import {
+  monthlyStatsKeys,
+  routineLogKeys,
+  routineReportKeys,
+} from "@/shared/query/keys";
 import { RoutineReportSkeleton } from "./RoutineReportSkeleton";
 
 function RoutineReportSection() {
@@ -52,7 +60,9 @@ function RoutineReportSection() {
   ) => {
     if (!user) return;
     const monthKey = date.slice(0, 7);
+    const dayKey = date.slice(8, 10);
     const done = !current;
+    const completedDelta = done ? 1 : -1;
 
     queryClient.setQueryData<RoutineReport>(routineReportKey, (prev) => {
       if (!prev) return prev;
@@ -92,11 +102,47 @@ function RoutineReportSection() {
       }
     );
 
+    queryClient.setQueryData<MonthlyStats | null>(
+      monthlyStatsKeys.byMonth(user.uid, monthKey),
+      (prev) => {
+        if (!prev) return prev;
+        const currentDay = prev.days?.[dayKey];
+        if (!currentDay) return prev;
+
+        const completed = Math.max(
+          (currentDay.completed ?? 0) + completedDelta,
+          0
+        );
+        const total = Math.max(currentDay.total ?? 0, 0);
+        const remaining = Math.max(total - completed, 0);
+
+        return {
+          ...prev,
+          days: {
+            ...prev.days,
+            [dayKey]: {
+              ...currentDay,
+              completed,
+              remaining,
+              hasActivity: total > 0,
+            },
+          },
+        };
+      }
+    );
+
     await toggleRoutineLog({
       userId: user.uid,
       routineId,
       date,
       done,
+    });
+
+    await patchMonthlyStatsCompletionByDay({
+      userId: user.uid,
+      month: monthKey,
+      day: dayKey,
+      completedDelta,
     });
   };
 
