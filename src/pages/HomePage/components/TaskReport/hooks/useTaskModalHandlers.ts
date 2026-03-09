@@ -3,7 +3,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createTask, deleteTaskWithLogs, updateTaskWithDateMove } from "@/shared/api/task";
 import type { Task } from "@/shared/api/task";
 import type { Category } from "@/shared/api/category";
-import { taskKeys } from "@/shared/api/keys";
+import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
+import { patchMonthlyStatsByDayDeltas } from "@/shared/api/monthlyStats";
 
 interface UseTaskModalHandlersParams {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -56,6 +57,9 @@ export const useTaskModalHandlers = ({
       queryClient.invalidateQueries({
         queryKey: taskKeys.byDate(userId, date),
       });
+      queryClient.invalidateQueries({
+        queryKey: monthlyStatsKeys.byMonth(userId, date.slice(0, 7)),
+      });
     });
   };
 
@@ -105,9 +109,17 @@ export const useTaskModalHandlers = ({
     if (!task || !userId) return;
 
     try {
-      await deleteTaskWithLogs({
+      const { wasCompleted } = await deleteTaskWithLogs({
         userId,
         taskId: task.id,
+      });
+      await patchMonthlyStatsByDayDeltas({
+        userId,
+        month: task.date.slice(0, 7),
+        day: task.date.slice(8, 10),
+        totalDelta: -1,
+        completedDelta: wasCompleted ? -1 : 0,
+        remainingDelta: wasCompleted ? 0 : -1,
       });
       invalidateTaskDates([task.date]);
       onClose();

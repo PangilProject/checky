@@ -162,10 +162,15 @@ export const deleteTaskWithLogs = async ({
 
   const q = query(taskLogsRef(userId), where("taskId", "==", taskId));
   const snapshot = await getDocs(q);
+  const wasCompleted = snapshot.docs.some(
+    (docSnap) => docSnap.data().completed === true
+  );
 
   snapshot.forEach((docSnap) => {
     batch.delete(docSnap.ref);
   });
 
   await batch.commit();
+
+  return { wasCompleted };
 };
