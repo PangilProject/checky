@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/shared/hooks/useAuth";
 import {
-  getCategories,
+  getCategoriesOnce,
   updateCategoryOrder,
   type Category,
 } from "@/shared/api/category";
+import { useQuery } from "@tanstack/react-query";
+import { categoryKeys } from "@/shared/query/keys";
 import { TitleText } from "@/shared/ui/TitleText";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { Space10, Space4 } from "@/shared/ui/Space";
@@ -46,6 +48,18 @@ export const CategorySection = ({
   const { user } = useAuth();
   const [categories, setCategories] = useState<Category[] | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const safeUserId = user?.uid ?? "";
+
+  const categoriesQuery = useQuery({
+    queryKey: categoryKeys.list(safeUserId, status),
+    queryFn: () => getCategoriesOnce({ userId: safeUserId, status }),
+    enabled: Boolean(user?.uid),
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    placeholderData: (previous) => previous,
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -57,18 +71,9 @@ export const CategorySection = ({
   );
 
   useEffect(() => {
-    if (!user) return;
-
-    const unsubscribe = getCategories({
-      userId: user.uid,
-      status,
-      onChange: (list) => {
-        setCategories(list);
-      },
-    });
-
-    return () => unsubscribe();
-  }, [user, status]);
+    if (!categoriesQuery.data) return;
+    setCategories(categoriesQuery.data);
+  }, [categoriesQuery.data]);
 
   if (!user) return null;
 

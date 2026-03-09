@@ -7,6 +7,8 @@ import { getDocs, orderBy, query, serverTimestamp, writeBatch } from "firebase/f
 import { db } from "@/firebase/firebase";
 import { routineRef, routinesRef } from "./refs";
 
+const migratedUsers = new Set<string>();
+
 /**
  * @description 루틴 정렬 순서를 업데이트합니다.
  * @param params 요청 파라미터
@@ -36,6 +38,8 @@ export const updateRoutineOrder = async ({
  * @returns 작업 결과
  */
 export const migrateRoutineOrderIndex = async (userId: string) => {
+  if (migratedUsers.has(userId)) return;
+
   const snap = await getDocs(
     query(routinesRef(userId), orderBy("createdAt", "asc"))
   );
@@ -60,4 +64,6 @@ export const migrateRoutineOrderIndex = async (userId: string) => {
     await batch.commit();
     console.log("[Routine] orderIndex migration done");
   }
+
+  migratedUsers.add(userId);
 };

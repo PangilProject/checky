@@ -1,8 +1,8 @@
-import { getCategories } from "@/shared/api/category";
+import { getCategoriesOnce } from "@/shared/api/category";
 import {
-  subscribeRoutinesByCategory,
   type RoutineCategory,
   type Routine,
+  getRoutinesByCategory,
   updateRoutineOrder,
   migrateRoutineOrderIndex,
 } from "@/shared/api/routine";
@@ -10,7 +10,8 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { Space10, Space2, Space4 } from "@/shared/ui/Space";
 import { TitleText } from "@/shared/ui/TitleText";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import RoutineModal from "./RoutineModal";
 import { Text2, Text3, Text4 } from "@/shared/ui/Text";
 import { HiDotsHorizontal } from "react-icons/hi";
@@ -59,7 +60,35 @@ export const RoutineList = () => {
     null
   );
 
-  const routineUnsubscribes = useRef<Record<string, () => void>>({});
+  const safeUserId = user?.uid ?? "";
+
+  const routineDataQuery = useQuery({
+    queryKey: ["routinePageData", safeUserId],
+    queryFn: async () => {
+      const categories = await getCategoriesOnce({
+        userId: safeUserId,
+        status: "ACTIVE",
+      });
+
+      const routinesByCategory = await Promise.all(
+        categories.map(async (category) => ({
+          category,
+          routines: await getRoutinesByCategory({
+            userId: safeUserId,
+            categoryId: category.id,
+          }),
+        }))
+      );
+
+      return routinesByCategory;
+    },
+    enabled: Boolean(user?.uid),
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    placeholderData: (previous) => previous,
+  });
 
   const handleOpenModal = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
@@ -77,56 +106,12 @@ export const RoutineList = () => {
   useEffect(() => {
     if (!user) return;
     migrateRoutineOrderIndex(user.uid);
-
-    const unsubscribeCategories = getCategories({
-      userId: user.uid,
-      status: "ACTIVE",
-      onChange: (categories) => {
-        setRoutineCategories((prev) => {
-          const safePrev = prev ?? [];
-          return categories.map((category) => {
-            const existing = safePrev.find(
-              (item) => item.category.id === category.id
-            );
-
-            return (
-              existing ?? {
-                category,
-                routines: [],
-              }
-            );
-          });
-        });
-
-        categories.forEach((category) => {
-          if (routineUnsubscribes.current[category.id]) return;
-
-          const unsubscribeRoutine = subscribeRoutinesByCategory({
-            userId: user.uid,
-            categoryId: category.id,
-            onChange: (routines) => {
-              setRoutineCategories((prev) => {
-                const safePrev = prev ?? [];
-                return safePrev.map((item) =>
-                  item.category.id === category.id
-                    ? { ...item, routines }
-                    : item
-                );
-              });
-            },
-          });
-
-          routineUnsubscribes.current[category.id] = unsubscribeRoutine;
-        });
-      },
-    });
-
-    return () => {
-      unsubscribeCategories();
-      Object.values(routineUnsubscribes.current).forEach((unsub) => unsub());
-      routineUnsubscribes.current = {};
-    };
   }, [user]);
+
+  useEffect(() => {
+    if (!routineDataQuery.data) return;
+    setRoutineCategories(routineDataQuery.data);
+  }, [routineDataQuery.data]);
   if (routineCategories === null) {
     return (
       <div>
