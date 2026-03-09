@@ -8,7 +8,6 @@ import {
   type Task,
 } from "@/shared/api/task";
 import {
-  getTaskLogsByDate,
   getTaskLogsByDateOnce,
   toggleTaskLog,
   type TaskLog,
@@ -55,17 +54,18 @@ export const useTaskList = ({
     queryKey: categoryQueryKey,
     queryFn: () => getCategoriesOnce({ userId: safeUserId, status: "ACTIVE" }),
     enabled: Boolean(userId),
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const tasksQuery = useQuery({
     queryKey: taskQueryKey,
     queryFn: () => getTasksByDateOnce({ userId: safeUserId, date: dateString }),
     enabled: Boolean(userId && dateString),
-    staleTime: 2 * 60_000,
-    gcTime: 5 * 60_000,
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     placeholderData: (previous) => previous,
@@ -75,27 +75,17 @@ export const useTaskList = ({
     queryKey: taskLogQueryKey,
     queryFn: () =>
       getTaskLogsByDateOnce({ userId: safeUserId, date: dateString }),
-    enabled: false,
+    enabled: Boolean(userId && dateString),
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 
   const categories = categoriesQuery.data ?? EMPTY_CATEGORIES;
   const tasks = tasksQuery.data ?? EMPTY_TASKS;
   const taskLogs = taskLogsQuery.data ?? EMPTY_TASK_LOGS;
-
-  useEffect(() => {
-    if (!userId || !dateString) return;
-
-    const unsubscribe = getTaskLogsByDate({
-      userId,
-      date: dateString,
-      onChange: (logs) => {
-        queryClient.setQueryData(taskLogQueryKey, logs);
-      },
-    });
-
-    return () => unsubscribe();
-  }, [dateString, queryClient, taskLogQueryKey, userId]);
 
   const taskState = queryClient.getQueryState(taskQueryKey);
   const logState = queryClient.getQueryState(taskLogQueryKey);
@@ -195,6 +185,19 @@ export const useTaskList = ({
     if (!userId) return;
 
     const currentLog = taskLogMap.get(taskId);
+    const nextCompleted = currentLog ? !currentLog.completed : true;
+
+    queryClient.setQueryData<TaskLog[]>(taskLogQueryKey, (prev = []) => {
+      const index = prev.findIndex((log) => log.taskId === taskId);
+      if (index === -1) {
+        if (!nextCompleted) return prev;
+        return [...prev, { id: `temp-${taskId}`, taskId, date: dateString, completed: true }];
+      }
+
+      const next = [...prev];
+      next[index] = { ...next[index], completed: nextCompleted };
+      return next;
+    });
 
     await toggleTaskLog({
       userId,
@@ -202,7 +205,14 @@ export const useTaskList = ({
       date: dateString,
       currentLog,
     });
-    await queryClient.invalidateQueries({ queryKey: taskLogQueryKey });
+  };
+
+  const refresh = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: categoryQueryKey }),
+      queryClient.invalidateQueries({ queryKey: taskQueryKey }),
+      queryClient.invalidateQueries({ queryKey: taskLogQueryKey }),
+    ]);
   };
 
   const reorderTasks = ({
@@ -245,5 +255,6 @@ export const useTaskList = ({
     addTask,
     toggleTask,
     reorderTasks,
+    refresh,
   };
 };

@@ -14,7 +14,7 @@ function MonthlyReportSection() {
     selectedDate.getMonth() + 1
   }월`;
 
-  const { tasks, taskLogs, routines, routineLogs, isLoading } =
+  const { tasks, taskLogs, routines, routineLogs, isLoading, refresh } =
     useMonthlyData(selectedDate);
 
   const activityMap = useMonthlyActivityCountMap({
@@ -33,6 +33,9 @@ function MonthlyReportSection() {
         leftOnClick={() => setSelectedDate(moveMonth(selectedDate, -1))}
         rightOnClick={() => setSelectedDate(moveMonth(selectedDate, 1))}
         onTodayClick={() => setSelectedDate(new Date())}
+        onRefreshClick={() => {
+          void refresh();
+        }}
       />
       {isLoading ? (
         <MonthlyReportSkeleton />

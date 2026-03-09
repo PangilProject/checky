@@ -4,8 +4,13 @@ import { formatDateByDate } from "@/shared/hooks/formatDate";
 import { useTaskList } from "./hooks/useTaskList";
 import { TaskCategorySection } from "./components/TaskCategorySection";
 import { TaskListSkeleton } from "./components/TaskListSkeleton";
+import { useEffect } from "react";
 
-export const TaskListSection = () => {
+export const TaskListSection = ({
+  onReadyRefresh,
+}: {
+  onReadyRefresh?: (refresh: () => Promise<void>) => void;
+}) => {
   const { user } = useAuth();
   const { selectedDate } = useSelectedDate();
   const dateString = formatDateByDate(selectedDate);
@@ -18,11 +23,16 @@ export const TaskListSection = () => {
     addTask,
     toggleTask,
     reorderTasks,
+    refresh,
   } =
     useTaskList({
       userId: user?.uid,
       dateString,
     });
+
+  useEffect(() => {
+    onReadyRefresh?.(refresh);
+  }, [onReadyRefresh, refresh]);
 
   return (
     <div className="flex flex-col w-full">

@@ -10,8 +10,6 @@ import type { RoutineReport, RoutineReportRow } from "@/shared/api/routine";
 import { toggleRoutineLog } from "@/shared/api/routineLog";
 import { useQueryClient } from "@tanstack/react-query";
 import { routineLogKeys, routineReportKeys } from "@/shared/query/keys";
-import { useEffect } from "react";
-import { getRoutineLogsByWeek } from "@/shared/api/routineLog";
 import { RoutineReportSkeleton } from "./RoutineReportSkeleton";
 
 function RoutineReportSection() {
@@ -36,7 +34,7 @@ function RoutineReportSection() {
     endDate: formatDateKST(end),
   };
 
-  const { data: report, isLoading } = useRoutineReportQuery({
+  const { data: report, isLoading, refetch } = useRoutineReportQuery({
     userId: user?.uid,
     startDate: week.startDate,
     endDate: week.endDate,
@@ -46,41 +44,6 @@ function RoutineReportSection() {
     week.startDate,
     week.endDate
   );
-
-  useEffect(() => {
-    if (!user) return;
-
-    const unsubscribe = getRoutineLogsByWeek({
-      userId: user.uid,
-      startDate: week.startDate,
-      endDate: week.endDate,
-      onChange: (logs, hasChanges) => {
-        if (!hasChanges) return;
-        const logMap = new Map(
-          logs.map((log) => [`${log.routineId}_${log.date}`, log.done])
-        );
-
-        queryClient.setQueryData<RoutineReport>(routineReportKey, (prev) => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              rows: prev.rows.map((row: RoutineReportRow) => {
-                const nextChecks = { ...row.checks };
-                Object.keys(nextChecks).forEach((date) => {
-                  const key = `${row.routineId}_${date}`;
-                  if (logMap.has(key)) {
-                    nextChecks[date] = Boolean(logMap.get(key));
-                  }
-                });
-                return { ...row, checks: nextChecks };
-              }),
-            };
-          });
-      },
-    });
-
-    return () => unsubscribe();
-  }, [queryClient, routineReportKey, user, week.endDate, week.startDate]);
 
   const handleToggle = async (
     routineId: string,
@@ -145,6 +108,9 @@ function RoutineReportSection() {
         leftOnClick={() => setSelectedDate(moveWeek(selectedDate, -1))}
         rightOnClick={() => setSelectedDate(moveWeek(selectedDate, 1))}
         onTodayClick={() => setSelectedDate(new Date())}
+        onRefreshClick={() => {
+          void refetch();
+        }}
       />
 
       {isLoading ? (

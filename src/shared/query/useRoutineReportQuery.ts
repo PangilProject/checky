@@ -22,9 +22,10 @@ export const useRoutineReportQuery = ({
       return getRoutineReportByWeek({ userId, startDate, endDate });
     },
     enabled: Boolean(userId && startDate && endDate),
-    staleTime: 30_000,
-    gcTime: 5 * 60_000,
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 };
