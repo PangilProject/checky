@@ -7,7 +7,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { formatDateByDate } from "@/shared/hooks/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
-import { taskKeys } from "@/shared/api/keys";
+import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
 
 import {
   moveUncompletedTasksToDate,
@@ -49,6 +49,11 @@ export function TaskSetting() {
       ...months.map((month) =>
         queryClient.invalidateQueries({
           queryKey: taskKeys.byMonth(user?.uid ?? "", month),
+        })
+      ),
+      ...months.map((month) =>
+        queryClient.invalidateQueries({
+          queryKey: monthlyStatsKeys.byMonth(user?.uid ?? "", month),
         })
       ),
     ]);

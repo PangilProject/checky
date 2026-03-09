@@ -88,3 +88,54 @@ export const patchMonthlyStatsCompletionByDay = async ({
     { merge: true }
   );
 };
+
+export const patchMonthlyStatsByDayDeltas = async ({
+  userId,
+  month,
+  day,
+  totalDelta,
+  completedDelta,
+  remainingDelta,
+}: {
+  userId: string;
+  month: string;
+  day: string;
+  totalDelta: number;
+  completedDelta: number;
+  remainingDelta: number;
+}) => {
+  if (!totalDelta && !completedDelta && !remainingDelta) return;
+
+  const ref = monthlyStatsDocRef(userId, month);
+  const snap = await getDoc(ref);
+  const data = (snap.exists() ? snap.data() : null) as MonthlyStats | null;
+  const current = data?.days?.[day];
+
+  const nextTotal = Math.max((current?.total ?? 0) + totalDelta, 0);
+  const nextCompleted = Math.max(
+    (current?.completed ?? 0) + completedDelta,
+    0
+  );
+  const nextRemaining = Math.max(
+    (current?.remaining ?? 0) + remainingDelta,
+    0
+  );
+
+  await setDoc(
+    ref,
+    {
+      month,
+      days: {
+        [day]: {
+          total: nextTotal,
+          completed: Math.min(nextCompleted, nextTotal),
+          remaining: Math.min(nextRemaining, nextTotal),
+          hasActivity: nextTotal > 0,
+        },
+      },
+      version: 1,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+};

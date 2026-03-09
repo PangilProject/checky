@@ -6,6 +6,7 @@
 import { doc, serverTimestamp, writeBatch } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import type { Task } from "@/shared/api/task";
+import { patchMonthlyStatsByDayDeltas } from "@/shared/api/monthlyStats";
 import { taskRef, tasksRef } from "./refs";
 import { fetchTasksAndCompleted, getUncompletedTasks } from "./helpers";
 import { getTasksByDateOnce } from "./queries";
@@ -37,6 +38,29 @@ const updateTasksDate = async ({
   await batch.commit();
 };
 
+const patchDayStats = async ({
+  userId,
+  date,
+  totalDelta,
+  completedDelta,
+  remainingDelta,
+}: {
+  userId: string;
+  date: string;
+  totalDelta: number;
+  completedDelta: number;
+  remainingDelta: number;
+}) => {
+  await patchMonthlyStatsByDayDeltas({
+    userId,
+    month: date.slice(0, 7),
+    day: date.slice(8, 10),
+    totalDelta,
+    completedDelta,
+    remainingDelta,
+  });
+};
+
 /**
  * @description 미완료 태스크를 오늘 날짜로 이동합니다.
  * @param params 요청 파라미터
@@ -55,6 +79,26 @@ export const moveUncompletedTasksToToday = async ({
   const targets = getUncompletedTasks(tasks, completedTaskIds);
 
   await updateTasksDate({ userId, tasks: targets, toDate });
+
+  const movedCount = targets.length;
+  if (movedCount === 0 || fromDate === toDate) return;
+
+  await Promise.all([
+    patchDayStats({
+      userId,
+      date: fromDate,
+      totalDelta: -movedCount,
+      completedDelta: 0,
+      remainingDelta: -movedCount,
+    }),
+    patchDayStats({
+      userId,
+      date: toDate,
+      totalDelta: movedCount,
+      completedDelta: 0,
+      remainingDelta: movedCount,
+    }),
+  ]);
 };
 
 /**
@@ -75,6 +119,26 @@ export const moveUncompletedTasksToDate = async ({
   const targets = getUncompletedTasks(tasks, completedTaskIds);
 
   await updateTasksDate({ userId, tasks: targets, toDate });
+
+  const movedCount = targets.length;
+  if (movedCount === 0 || fromDate === toDate) return;
+
+  await Promise.all([
+    patchDayStats({
+      userId,
+      date: fromDate,
+      totalDelta: -movedCount,
+      completedDelta: 0,
+      remainingDelta: -movedCount,
+    }),
+    patchDayStats({
+      userId,
+      date: toDate,
+      totalDelta: movedCount,
+      completedDelta: 0,
+      remainingDelta: movedCount,
+    }),
+  ]);
 };
 
 /**
@@ -100,6 +164,17 @@ export const deleteUncompletedTasks = async ({
   });
 
   await batch.commit();
+
+  const removedCount = targets.length;
+  if (!removedCount) return;
+
+  await patchDayStats({
+    userId,
+    date,
+    totalDelta: -removedCount,
+    completedDelta: 0,
+    remainingDelta: -removedCount,
+  });
 };
 
 /**
@@ -132,6 +207,17 @@ export const copyAllTasksToDate = async ({
   });
 
   await batch.commit();
+
+  const copiedCount = tasks.length;
+  if (!copiedCount) return;
+
+  await patchDayStats({
+    userId,
+    date: toDate,
+    totalDelta: copiedCount,
+    completedDelta: 0,
+    remainingDelta: copiedCount,
+  });
 };
 
 /**
@@ -143,7 +229,10 @@ export const deleteAllTasksByDate = async ({
   userId,
   date,
 }: DateOnlyParams) => {
-  const tasks = await getTasksByDateOnce({ userId, date });
+  const { tasks, completedTaskIds } = await fetchTasksAndCompleted({
+    userId,
+    date,
+  });
 
   const batch = writeBatch(db);
 
@@ -152,4 +241,19 @@ export const deleteAllTasksByDate = async ({
   });
 
   await batch.commit();
+
+  if (!tasks.length) return;
+
+  const completedCount = tasks.filter((task) =>
+    completedTaskIds.has(task.id)
+  ).length;
+  const uncompletedCount = tasks.length - completedCount;
+
+  await patchDayStats({
+    userId,
+    date,
+    totalDelta: -tasks.length,
+    completedDelta: -completedCount,
+    remainingDelta: -uncompletedCount,
+  });
 };

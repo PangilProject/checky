@@ -9,4 +9,5 @@ export {
   getMonthlyStatsByMonthOnce,
   upsertMonthlyStatsByMonth,
   patchMonthlyStatsCompletionByDay,
+  patchMonthlyStatsByDayDeltas,
 } from "./queries";
