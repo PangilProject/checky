@@ -33,7 +33,7 @@ export const getRoutinesByCategory = async ({
   const q = query(
     routinesRef(userId),
     where("categoryId", "==", categoryId),
-    orderBy("createdAt", "asc")
+    orderBy("orderIndex", "asc")
   );
 
   const snapshot = await getDocs(q);
