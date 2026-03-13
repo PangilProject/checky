@@ -383,14 +383,19 @@ export const useMonthlyActivityCountMap = ({
   const map = useMemo(() => {
     if (monthlyStatsDays) {
       return new Map<string, MonthlyActivityCount>(
-        Object.entries(monthlyStatsDays).map(([day, summary]) => [
-          `${monthKey}-${day.padStart(2, "0")}`,
-          {
-            total: summary.total ?? 0,
-            completed: summary.completed ?? 0,
-            remaining: summary.remaining ?? 0,
-          },
-        ])
+        Object.entries(monthlyStatsDays)
+          .filter(([, summary]) => {
+            if (summary.hasActivity === true) return true;
+            return (summary.total ?? 0) > 0;
+          })
+          .map(([day, summary]) => [
+            `${monthKey}-${day.padStart(2, "0")}`,
+            {
+              total: summary.total ?? 0,
+              completed: summary.completed ?? 0,
+              remaining: summary.remaining ?? 0,
+            },
+          ])
       );
     }
 

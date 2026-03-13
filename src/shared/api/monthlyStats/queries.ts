@@ -49,6 +49,23 @@ export const upsertMonthlyStatsByMonth = async ({
   );
 };
 
+export const replaceMonthlyStatsByMonth = async ({
+  userId,
+  month,
+  days,
+}: {
+  userId: string;
+  month: string;
+  days: Record<string, MonthlyActivitySummary>;
+}) => {
+  await setDoc(monthlyStatsDocRef(userId, month), {
+    month,
+    days,
+    version: 1,
+    updatedAt: serverTimestamp(),
+  });
+};
+
 export const patchMonthlyStatsCompletionByDay = async ({
   userId,
   month,
