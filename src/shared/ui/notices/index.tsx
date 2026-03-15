@@ -3,9 +3,9 @@ import { ModalWrapper } from "@/shared/ui/Modal";
 import { Text5 } from "@/shared/ui/Text";
 import { Space10 } from "@/shared/ui/Space";
 import { NormalBlackUnFillButton } from "@/shared/ui/Button";
-import { useNotices, type Notice } from "../hooks/useNotices";
-import NoticeList from "./NoticeList";
-import NoticeDetail from "./NoticeDetail";
+import { useNotices, type Notice } from "./hooks/useNotices";
+import NoticeList from "./components/NoticeList";
+import NoticeDetail from "./components/NoticeDetail";
 
 interface Props {
   onClose: () => void;
