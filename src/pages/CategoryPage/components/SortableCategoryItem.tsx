@@ -5,7 +5,7 @@ import { HiDotsHorizontal } from "react-icons/hi";
 import { Space2 } from "@/shared/ui/Space";
 import { useState } from "react";
 import CategoryModal from "./CategoryModal";
-import { formatDate } from "@/shared/hooks/formatDate";
+import { formatTimestampToKoreanDate } from "@/shared/hooks/formatDate";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -54,8 +54,8 @@ export const SortableCategoryItem = ({
           />
           {category.status === "ENDED" && (
             <Text1
-              text={`${formatDate(category.createdAt)} ~ ${formatDate(
-                category.endedAt
+              text={`${formatTimestampToKoreanDate(category.createdAt)} ~ ${formatTimestampToKoreanDate(
+                category.endedAt,
               )}`}
               className="flex-3 text-[#8E8E93]"
             />

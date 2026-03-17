@@ -1,6 +1,6 @@
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
-import { formatDateByDate } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/hooks/formatDate";
 import { useTaskList } from "../hooks/useTaskList";
 import { TaskCategorySection } from "../components/TaskCategorySection";
 import { TaskListSkeleton } from "../components/TaskListSkeleton";
@@ -16,7 +16,7 @@ export const TaskListSection = ({
 }) => {
   const { user } = useAuth();
   const { selectedDate } = useSelectedDate();
-  const dateString = formatDateByDate(selectedDate);
+  const dateString = formatDateToYmd(selectedDate);
 
   const {
     categories,

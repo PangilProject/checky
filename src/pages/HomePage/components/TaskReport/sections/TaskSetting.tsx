@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { TaskActionType } from "@/shared/constants/actionList";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
-import { formatDateByDate } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/hooks/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
 
@@ -32,8 +32,8 @@ export function TaskSetting() {
   const { user } = useAuth();
   const { selectedDate } = useSelectedDate();
 
-  const dateString = formatDateByDate(selectedDate);
-  const todayString = formatDateByDate(new Date());
+  const dateString = formatDateToYmd(selectedDate);
+  const todayString = formatDateToYmd(new Date());
 
   const getMonthKey = (date: string) => date.slice(0, 7);
 
@@ -113,9 +113,9 @@ export function TaskSetting() {
             await moveUncompletedTasksToDate({
               userId: user.uid,
               fromDate: dateString,
-              toDate: formatDateByDate(date),
+              toDate: formatDateToYmd(date),
             });
-            await invalidateTaskCaches([dateString, formatDateByDate(date)]);
+            await invalidateTaskCaches([dateString, formatDateToYmd(date)]);
             setPendingAction(null);
           }}
         />
@@ -132,9 +132,9 @@ export function TaskSetting() {
             await copyAllTasksToDate({
               userId: user.uid,
               fromDate: dateString,
-              toDate: formatDateByDate(date),
+              toDate: formatDateToYmd(date),
             });
-            await invalidateTaskCaches([formatDateByDate(date)]);
+            await invalidateTaskCaches([formatDateToYmd(date)]);
             setPendingAction(null);
           }}
         />

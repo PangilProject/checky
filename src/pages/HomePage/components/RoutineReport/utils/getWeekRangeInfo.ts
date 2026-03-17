@@ -1,4 +1,4 @@
-import { formatDateKST } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/hooks/formatDate";
 
 interface WeekRangeInfo {
   start: Date;
@@ -27,8 +27,8 @@ export function getWeekRangeInfo(selectedDate: Date): WeekRangeInfo {
       end.getMonth() + 1
     }월 ${end.getDate()}일`,
     week: {
-      startDate: formatDateKST(start),
-      endDate: formatDateKST(end),
+      startDate: formatDateToYmd(start),
+      endDate: formatDateToYmd(end),
     },
   };
 }

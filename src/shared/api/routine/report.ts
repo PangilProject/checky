@@ -11,7 +11,7 @@ import {
   where,
 } from "firebase/firestore/lite";
 import { mapDoc } from "@/shared/api/_common/mappers";
-import { formatDateKST } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/hooks/formatDate";
 import { categoriesRef, routineLogsRef, routinesRef } from "./refs";
 import type {
   Routine,
@@ -61,7 +61,7 @@ const buildWeek = (startDate: string, endDate: string): RoutineReportWeek => {
     d.setDate(start.getDate() + i);
 
     days.push({
-      date: formatDateKST(d),
+      date: formatDateToYmd(d),
       day: d.getDay(),
       label: DAY_LABELS[d.getDay()],
     });
@@ -96,12 +96,12 @@ const toDateString = (value: unknown): string | null => {
   if (!value) return null;
 
   if (value instanceof Date) {
-    return formatDateKST(value);
+    return formatDateToYmd(value);
   }
 
   const maybeTimestamp = value as FirestoreTimestampLike;
   if (typeof maybeTimestamp.toDate === "function") {
-    return formatDateKST(maybeTimestamp.toDate());
+    return formatDateToYmd(maybeTimestamp.toDate());
   }
 
   return null;
