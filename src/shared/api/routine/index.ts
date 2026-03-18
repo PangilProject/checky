@@ -16,3 +16,4 @@ export { getRoutinesByCategory, createRoutine, updateRoutine, deleteRoutine } fr
 export { subscribeRoutinesByCategory } from "./subscribe";
 export { getRoutineReportByWeek } from "./report";
 export { updateRoutineOrder, migrateRoutineOrderIndex } from "./order";
+export { getRoutinesByMonthOnce, getRoutineLogsByMonthOnce } from "./queries";
