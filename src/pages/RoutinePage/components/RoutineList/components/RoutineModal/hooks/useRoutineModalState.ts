@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { Routine } from "@/shared/api/routine";
 import type { RoutineModalMode } from "../types";
 import { hasSameDays } from "../utils";
-import { DAYS } from "@/shared/constants/da";
+import { DAYS } from "@/shared/constants/dateLabels";
 
 export const useRoutineModalState = ({
   mode,

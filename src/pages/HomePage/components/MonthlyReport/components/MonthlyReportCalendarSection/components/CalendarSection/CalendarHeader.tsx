@@ -1,5 +1,5 @@
-import { SATURDAY_COLOR, SUNDAY_COLOR } from "@/shared/constants/color";
-import { WEEK_LABELS } from "@/shared/constants/da";
+import { SATURDAY_COLOR, SUNDAY_COLOR } from "@/shared/constants/colors";
+import { WEEK_LABELS } from "@/shared/constants/dateLabels";
 import { Text2 } from "@/shared/ui/Text";
 
 /**

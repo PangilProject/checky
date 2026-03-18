@@ -7,7 +7,7 @@ import {
 } from "@/shared/ui/Button";
 import { Space10, Space8 } from "@/shared/ui/Space";
 import { RxTriangleDown, RxTriangleUp } from "react-icons/rx";
-import { COLORS } from "@/shared/constants/color";
+import { COLORS } from "@/shared/constants/colors";
 import {
   createCategory,
   endCategory,
@@ -34,8 +34,8 @@ export default function CategoryModal({
   const [categoryInput, setCategoryInput] = useState(category?.name ?? "");
   const [selectedColor, setSelectedColor] = useState(
     category
-      ? COLORS.find((c) => c.value === category.color) ?? COLORS[0]
-      : COLORS[0]
+      ? (COLORS.find((c) => c.value === category.color) ?? COLORS[0])
+      : COLORS[0],
   );
   const [currentMode, setCurrentMode] = useState(mode);
 

@@ -1,4 +1,4 @@
-import { WEEK_LABELS } from "@/shared/constants/da";
+import { WEEK_LABELS } from "@/shared/constants/dateLabels";
 import { SkeletonBlock } from "@/shared/ui/Skeleton";
 
 /**

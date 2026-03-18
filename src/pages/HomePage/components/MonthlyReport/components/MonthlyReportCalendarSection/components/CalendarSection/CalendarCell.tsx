@@ -1,5 +1,5 @@
 import { Text1 } from "@/shared/ui/Text";
-import { SATURDAY_COLOR, SUNDAY_COLOR } from "@/shared/constants/color";
+import { SATURDAY_COLOR, SUNDAY_COLOR } from "@/shared/constants/colors";
 
 interface CalendarCellProps {
   day: number | null;

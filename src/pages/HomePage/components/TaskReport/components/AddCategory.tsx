@@ -1,5 +1,5 @@
 import { FaCirclePlus } from "react-icons/fa6";
-import { COLOR_CLASS_TEXT_MAP } from "@/shared/constants/color";
+import { COLOR_CLASS_TEXT_MAP } from "@/shared/constants/colors";
 import { Space10 } from "@/shared/ui/Space";
 import { Text4 } from "@/shared/ui/Text";
 

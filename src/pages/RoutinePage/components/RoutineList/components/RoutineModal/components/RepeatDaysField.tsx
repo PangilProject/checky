@@ -1,7 +1,7 @@
 import { Text2, Text3 } from "@/shared/ui/Text";
 import { Space2 } from "@/shared/ui/Space";
 import { IoIosCheckbox, IoIosCheckboxOutline } from "react-icons/io";
-import { DAYS } from "@/shared/constants/da";
+import { DAYS } from "@/shared/constants/dateLabels";
 
 interface RepeatDaysFieldProps {
   isReadOnly: boolean;

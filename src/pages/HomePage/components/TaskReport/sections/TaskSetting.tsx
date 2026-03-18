@@ -2,7 +2,7 @@ import { Text2 } from "@/shared/ui/Text";
 import { BiListCheck } from "react-icons/bi";
 import { TaskSettingModal } from "../modals/TaskSettingModal";
 import { useState } from "react";
-import type { TaskActionType } from "@/shared/constants/actionList";
+import type { TaskActionType } from "@/shared/constants/taskActions";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { formatDateToYmd } from "@/shared/hooks/formatDate";

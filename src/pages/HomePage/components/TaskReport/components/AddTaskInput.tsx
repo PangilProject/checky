@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { COLOR_CLASS_BORDER_MAP } from "@/shared/constants/color";
+import { COLOR_CLASS_BORDER_MAP } from "@/shared/constants/colors";
 import { LongBlackButton } from "@/shared/ui/Button";
 import { LuCircleDashed } from "react-icons/lu";
 
@@ -86,7 +86,12 @@ export const AddTaskInput = ({
           handleSubmit();
         }}
       >
-        <LongBlackButton text="추가" className="text-[12px]" width="w-15" height="h-7" />
+        <LongBlackButton
+          text="추가"
+          className="text-[12px]"
+          width="w-15"
+          height="h-7"
+        />
       </div>
     </div>
   );

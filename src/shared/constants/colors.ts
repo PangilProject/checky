@@ -21,7 +21,7 @@ export const COLOR_CLASS_TEXT_MAP: Record<string, string> = {
   "#0088FF": "text-[#0088FF]",
   "#6155F5": "text-[#6155F5]",
   "#CB30E0": "text-[#CB30E0]",
-  "#F2C55": "text-[#F2C55]",
+  "#F2C555": "text-[#F2C555]",
   "#AC7F5E": "text-[#AC7F5E]",
   "#000000": "text-[#000000]",
 };
@@ -35,7 +35,7 @@ export const COLOR_CLASS_BORDER_MAP: Record<string, string> = {
   "#0088FF": "border-[#0088FF]",
   "#6155F5": "border-[#6155F5]",
   "#CB30E0": "border-[#CB30E0]",
-  "#F2C55": "border-[#F2C55]",
+  "#F2C555": "border-[#F2C555]",
   "#AC7F5E": "border-[#AC7F5E]",
   "#000000": "border-[#000000]",
 };

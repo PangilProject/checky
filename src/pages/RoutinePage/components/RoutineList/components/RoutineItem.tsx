@@ -1,5 +1,5 @@
 import type { Routine } from "@/shared/api/routine";
-import { getDayLabel } from "@/shared/constants/da";
+import { getDayLabel } from "@/shared/constants/dateLabels";
 import { Space2 } from "@/shared/ui/Space";
 import { Text2, Text3 } from "@/shared/ui/Text";
 import { useSortable } from "@dnd-kit/sortable";

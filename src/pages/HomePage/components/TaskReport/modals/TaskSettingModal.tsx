@@ -1,7 +1,7 @@
 import {
   TASK_ACTION_LIST,
   type TaskActionType,
-} from "@/shared/constants/actionList";
+} from "@/shared/constants/taskActions";
 import { NormalBlackUnFillButton } from "@/shared/ui/Button";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { Space4, Space8 } from "@/shared/ui/Space";
