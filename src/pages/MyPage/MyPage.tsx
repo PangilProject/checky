@@ -8,7 +8,7 @@ import { auth } from "@/firebase/firebase";
 import { toast } from "react-toastify";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { TitleText } from "@/shared/ui/TitleText";
-import { deleteAccount } from "@/services/auth/auth.service";
+import { deleteAccount } from "@/shared/api/auth/auth";
 
 function MyPage() {
   return (
@@ -55,7 +55,7 @@ const ButtonSection = () => {
 
   const handleWithdraw = async () => {
     const confirmed = confirm(
-      "정말로 탈퇴하시겠습니까?\n모든 데이터가 삭제됩니다."
+      "정말로 탈퇴하시겠습니까?\n모든 데이터가 삭제됩니다.",
     );
     if (!confirmed) return;
 

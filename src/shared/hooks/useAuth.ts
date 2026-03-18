@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
-import { getIsAdminCached } from "../api/auth";
+import { getIsAdminCached } from "@/shared/api/auth/adminAccess";
 
 /**
  * Firebase 인증 상태를 구독하고, 사용자 정보 및 관리자 여부를 제공하는 커스텀 훅

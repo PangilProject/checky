@@ -4,14 +4,19 @@ import {
   reauthenticateWithPopup,
   signInWithPopup,
 } from "firebase/auth";
-import {
-  createUser,
-  getUserDoc,
-  updateLastLogin,
-} from "../user/user.repository";
-import { deleteAllUserData } from "../user/user-cleanup.service";
+import { createUser, getUserDoc, updateLastLogin } from "./user";
+import { deleteAllUserData } from "./userCleanup";
 
-/** Google 로그인 + 사용자 동기화 */
+/**
+ * @file auth.ts
+ * @description Google 인증 및 계정 삭제 액션
+ */
+
+/**
+ * Google 로그인 + 사용자 문서 동기화
+ * - 최초 로그인: users 문서 생성
+ * - 재로그인: lastLoginAt 갱신
+ */
 export const signInWithGoogle = async () => {
   const { user } = await signInWithPopup(auth, googleProvider);
 
@@ -26,7 +31,11 @@ export const signInWithGoogle = async () => {
   return user;
 };
 
-/** 계정 완전 삭제 */
+/**
+ * 계정 완전 삭제
+ * - 재인증 후 사용자 하위 데이터 삭제
+ * - Firebase Auth 계정 삭제
+ */
 export const deleteAccount = async () => {
   const user = auth.currentUser;
   if (!user) throw new Error("로그인된 유저가 없습니다.");

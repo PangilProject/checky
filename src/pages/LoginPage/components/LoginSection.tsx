@@ -4,7 +4,7 @@ import { LongBlackButton } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { Text3 } from "@/shared/ui/Text";
 import { Space10, Space12, Space4 } from "@/shared/ui/Space";
-import { signInWithGoogle } from "@/services/auth/auth.service";
+import { signInWithGoogle } from "@/shared/api/auth/auth";
 
 export const LoginSection = () => {
   return (
