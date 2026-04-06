@@ -175,24 +175,18 @@ const Input = ({
   onEnter,
   disabled,
 }: InputProps) => {
-  const [isComposing, setIsComposing] = useState(false);
-
   return (
     <input
-      className={`w-full border-0 border-b border-gray-300 text-[16px] outline-none ${
-        isComposing ? "ime-fallback" : "font-paperlogy"
-      }`}
+      className="w-full border-0 border-b border-gray-300 text-[16px] outline-none ime-fallback"
       placeholder="카테고리 입력"
       value={categoryInput}
       disabled={disabled}
       onChange={(e) => setCategoryInput(e.target.value)}
       onKeyDown={(e) => {
-        if (e.key !== "Enter" || isComposing || disabled) return;
+        if (e.key !== "Enter" || e.nativeEvent.isComposing || disabled) return;
         e.preventDefault();
         onEnter?.();
       }}
-      onCompositionStart={() => setIsComposing(true)}
-      onCompositionEnd={() => setIsComposing(false)}
     />
   );
 };

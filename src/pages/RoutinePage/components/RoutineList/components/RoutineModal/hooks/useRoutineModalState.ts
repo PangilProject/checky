@@ -12,7 +12,6 @@ export const useRoutineModalState = ({
   routine?: Routine;
 }) => {
   const [title, setTitle] = useState(routine?.title ?? "");
-  const [isComposing, setIsComposing] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>(
     routine?.days ?? [],
   );
@@ -62,8 +61,6 @@ export const useRoutineModalState = ({
   return {
     title,
     setTitle,
-    isComposing,
-    setIsComposing,
     selectedDays,
     currentMode,
     setCurrentMode,

@@ -20,9 +20,25 @@
 .ime-fallback {
   font-family:
     "Apple SD Gothic Neo",
+    -apple-system,
     "Malgun Gothic",
     "Noto Sans KR",
     "Paperlogy",
+    system-ui,
+    Avenir,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+input,
+textarea,
+select {
+  font-family:
+    "Apple SD Gothic Neo",
+    -apple-system,
+    "Malgun Gothic",
+    "Noto Sans KR",
     system-ui,
     Avenir,
     Helvetica,

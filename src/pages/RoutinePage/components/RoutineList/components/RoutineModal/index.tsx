@@ -45,9 +45,7 @@ export default function RoutineModal({
       <TitleField
         title={state.title}
         isReadOnly={state.isReadOnly}
-        isComposing={state.isComposing}
         setTitle={state.setTitle}
-        setIsComposing={state.setIsComposing}
         onSubmit={onSubmit}
       />
       <Space8 direction="mb" />
