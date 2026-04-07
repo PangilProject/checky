@@ -8,6 +8,7 @@ import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { formatDateToYmd } from "@/shared/hooks/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
+import { moveDay } from "@/shared/hooks/dateNavigation";
 
 import {
   moveUncompletedTasksToDate,
@@ -34,6 +35,7 @@ export function TaskSetting() {
 
   const dateString = formatDateToYmd(selectedDate);
   const todayString = formatDateToYmd(new Date());
+  const tomorrowDate = moveDay(new Date(), 1);
 
   const getMonthKey = (date: string) => date.slice(0, 7);
 
@@ -106,7 +108,7 @@ export function TaskSetting() {
       {pendingAction === "after" && (
         <DateSelectModal
           action={pendingAction}
-          initialDate={selectedDate}
+          initialDate={tomorrowDate}
           onClose={() => setPendingAction(null)}
           onConfirm={async (date) => {
             if (!user) return;
@@ -125,7 +127,7 @@ export function TaskSetting() {
       {pendingAction === "copy" && (
         <DateSelectModal
           action={pendingAction}
-          initialDate={selectedDate}
+          initialDate={tomorrowDate}
           onClose={() => setPendingAction(null)}
           onConfirm={async (date) => {
             if (!user) return;
