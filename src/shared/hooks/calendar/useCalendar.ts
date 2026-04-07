@@ -19,27 +19,42 @@ export const getMonthInfo = (date: Date) => {
 };
 
 /**
- * 달력 렌더링용 셀 배열(null + day)을 생성합니다.
+ * 달력 렌더링용 셀 배열(월별 필요 주 수 x 7일)을 생성합니다.
  */
+export interface CalendarDateCell {
+  date: Date;
+  isCurrentMonth: boolean;
+}
+
 export const useCalendar = (selectedDate: Date) => {
   const { year, month, daysInMonth, startDay } = useMemo(
     () => getMonthInfo(selectedDate),
     [selectedDate],
   );
 
-  const cells: (number | null)[] = [];
+  const cells: CalendarDateCell[] = [];
+  const firstDateOfMonth = new Date(year, month, 1);
+  const startDate = new Date(firstDateOfMonth);
+  startDate.setDate(firstDateOfMonth.getDate() - startDay);
+  const totalCells = startDay + daysInMonth;
+  const weekCount = Math.ceil(totalCells / 7);
+  const cellCount = weekCount * 7;
 
-  for (let i = 0; i < startDay; i++) {
-    cells.push(null);
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    cells.push(day);
+  for (let i = 0; i < cellCount; i++) {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    cells.push({
+      date,
+      isCurrentMonth: date.getMonth() === month,
+    });
   }
 
   return {
-    year,
-    month,
+    year, // keep compatibility for current callers
+    month, // keep compatibility for current callers
+    daysInMonth,
+    startDay,
+    weekCount,
     cells,
   };
 };

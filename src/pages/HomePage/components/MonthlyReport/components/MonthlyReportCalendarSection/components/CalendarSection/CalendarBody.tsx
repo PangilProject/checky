@@ -4,6 +4,7 @@ import {
   useMonthlyActivityCountMap,
   useMonthlyData,
 } from "@/shared/hooks/calendar";
+import { formatDateToYmd } from "@/shared/hooks/formatDate";
 import { CalendarCell } from "./CalendarCell";
 
 /**
@@ -16,7 +17,7 @@ export function CalendarBody() {
   const { selectedDate, setSelectedDate } = useSelectedDate();
 
   // 선택 날짜를 기준으로 년/월/달력 셀 배열을 계산하기
-  const { year, month, cells } = useCalendar(selectedDate);
+  const { cells } = useCalendar(selectedDate);
 
   // 월간 리포트 집계에 필요한 원본 데이터를 가져오기
   const { monthKey, monthlyStatsDays, tasks, taskLogs, routines, routineLogs } =
@@ -38,12 +39,8 @@ export function CalendarBody() {
     // 셀들을 줄바꿈 가능한 가로 배치로 출력
     <div className="flex flex-wrap w-full">
       {/* 계산된 셀 배열을 순회하며 날짜 셀 컴포넌트를 렌더링 */}
-      {cells.map((day, index) => {
-        // YYYY-MM-DD 형식의 날짜 키를 생성
-        const dateKey = `${year}-${String(month + 1).padStart(
-          2,
-          "0",
-        )}-${String(day).padStart(2, "0")}`;
+      {cells.map((cell, index) => {
+        const dateKey = formatDateToYmd(cell.date);
 
         // 해당 날짜의 활동 수 정보를 조회
         const activity = activityMap.get(dateKey);
@@ -52,10 +49,8 @@ export function CalendarBody() {
         return (
           <CalendarCell
             key={index}
-            day={day}
+            cell={cell}
             index={index}
-            year={year}
-            month={month}
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
             activity={activity}

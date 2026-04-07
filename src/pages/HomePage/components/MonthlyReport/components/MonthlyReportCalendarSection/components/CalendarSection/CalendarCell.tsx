@@ -1,59 +1,60 @@
 import { Text1 } from "@/shared/ui/Text";
 import { SATURDAY_COLOR, SUNDAY_COLOR } from "@/shared/constants/colors";
+import type { CalendarDateCell } from "@/shared/hooks/calendar/useCalendar";
+import type { CSSProperties } from "react";
 
 interface CalendarCellProps {
-  day: number | null;
+  cell: CalendarDateCell;
   index: number;
-  year: number;
-  month: number;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
   activity: { remaining: number } | undefined;
 }
 
 export function CalendarCell({
-  day,
+  cell,
   index,
-  year,
-  month,
   selectedDate,
   setSelectedDate,
   activity,
 }: CalendarCellProps) {
-  // 현재 달에 속하지 않는 날짜
-  if (day === null) {
-    return <div className="w-[14.285%] h-15" />;
-  }
+  const { date, isCurrentMonth } = cell;
+  const day = date.getDate();
 
   // 요일 계산
   const dayOfWeek = index % 7;
 
-  // 요일 색상
-  const dateColor =
-    dayOfWeek === 0
-      ? SUNDAY_COLOR
-      : dayOfWeek === 6
-        ? SATURDAY_COLOR
-        : undefined;
-
-  const textColor = `text-[${dateColor}]`;
+  const textColor =
+    !isCurrentMonth
+      ? "text-gray-400"
+      : dayOfWeek === 0
+        ? "text-[var(--sun-color)]"
+        : dayOfWeek === 6
+          ? "text-[var(--sat-color)]"
+          : "";
 
   // 선택된 날짜 여부
   const isSelected =
-    selectedDate.getFullYear() === year &&
-    selectedDate.getMonth() === month &&
+    selectedDate.getFullYear() === date.getFullYear() &&
+    selectedDate.getMonth() === date.getMonth() &&
     selectedDate.getDate() === day;
 
   return (
     <button
-      onClick={() => setSelectedDate(new Date(year, month, day))}
+      onClick={() => setSelectedDate(new Date(date))}
+      style={
+        {
+          "--sun-color": SUNDAY_COLOR,
+          "--sat-color": SATURDAY_COLOR,
+        } as CSSProperties
+      }
       className={`
         w-[14.285%] h-15 flex flex-col items-center justify-center gap-1
-        ${isSelected ? "bg-gray-100" : "hover:bg-gray-100"}
+        ${isSelected ? "bg-gray-100" : isCurrentMonth ? "hover:bg-gray-100" : "hover:bg-gray-50"}
       `}
     >
       {/* 태스크 개수 */}
-      {activity ? (
+      {activity && isCurrentMonth ? (
         <div
           className={`
             w-6 h-6 flex items-center justify-center rounded-full
@@ -68,7 +69,9 @@ export function CalendarCell({
           {activity.remaining}
         </div>
       ) : (
-        <div className="w-6 h-6 bg-gray-200 rounded-full" />
+        <div
+          className={`w-6 h-6 rounded-full ${isCurrentMonth ? "bg-gray-200" : "bg-gray-100"}`}
+        />
       )}
 
       {/* 날짜 */}
