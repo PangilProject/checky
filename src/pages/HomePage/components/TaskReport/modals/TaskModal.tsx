@@ -12,6 +12,7 @@ import {
 } from "../components/TaskModalFields";
 import { ButtonSection } from "../components/TaskModalButtons";
 import { useTaskModalHandlers } from "../hooks/useTaskModalHandlers";
+import { Text3 } from "@/shared/ui/Text";
 
 interface TaskModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -71,20 +72,24 @@ export default function TaskModal({
       <ModalTitle mode={currentMode} />
       <Space10 direction="mb" />
 
-      <TaskInput
-        value={taskInput}
-        onChange={setTaskInput}
-        onEnter={() => {
-          if (currentMode === "CREATE") {
-            handleCreateTask();
-            return;
-          }
-          if (currentMode === "EDIT") {
-            handleUpdateTask();
-          }
-        }}
-        disabled={isReadOnly}
-      />
+      {isReadOnly ? (
+        <Text3 text={taskInput} className="font-semibold" />
+      ) : (
+        <TaskInput
+          value={taskInput}
+          onChange={setTaskInput}
+          onEnter={() => {
+            if (currentMode === "CREATE") {
+              handleCreateTask();
+              return;
+            }
+            if (currentMode === "EDIT") {
+              handleUpdateTask();
+            }
+          }}
+          disabled={isReadOnly}
+        />
+      )}
       <Space8 direction="mb" />
 
       <DateField
