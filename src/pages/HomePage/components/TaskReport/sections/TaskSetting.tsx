@@ -9,6 +9,7 @@ import { formatDateToYmd } from "@/shared/hooks/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
 import { moveDay } from "@/shared/hooks/dateNavigation";
+import { rebuildMonthlyStatsByMonth } from "@/shared/api/monthlyStats";
 
 import {
   moveUncompletedTasksToDate,
@@ -82,6 +83,17 @@ export function TaskSetting() {
         toDate: todayString,
       });
       await invalidateTaskCaches([dateString, todayString]);
+    }
+
+    if (action === "rebuild-monthly-stats") {
+      const monthKey = getMonthKey(dateString);
+      await rebuildMonthlyStatsByMonth({
+        userId: user.uid,
+        month: monthKey,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: monthlyStatsKeys.byMonth(user.uid, monthKey),
+      });
     }
 
     setIsOpenModal(false);
