@@ -22,9 +22,10 @@ interface Props {
   mode: "CREATE" | "VIEW" | "EDIT";
   notice?: AdminNotice;
   onClose: () => void;
+  onSaved?: () => Promise<void>;
 }
 
-export default function NoticeModal({ mode, notice, onClose }: Props) {
+export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
   const [title, setTitle] = useState(notice?.title ?? "");
   const [content, setContent] = useState(notice?.content ?? "");
   const [pinned, setPinned] = useState(notice?.pinned ?? false);
@@ -54,12 +55,14 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
       });
     }
 
+    await onSaved?.();
     onClose();
   };
 
   const handleDelete = async () => {
     if (!notice) return;
     await deleteDoc(doc(db, "notices", notice.id));
+    await onSaved?.();
     onClose();
   };
 
