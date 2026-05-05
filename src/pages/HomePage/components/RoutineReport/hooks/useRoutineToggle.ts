@@ -7,7 +7,9 @@ import {
 import type { RoutineReport, RoutineReportRow } from "@/shared/api/routine";
 import { toggleRoutineLog } from "@/shared/api/routineLog";
 import {
+  collectAffectedMonths,
   patchMonthlyStatsCompletionByDay,
+  rebuildMonthlyStatsByMonth,
   type MonthlyStats,
 } from "@/shared/api/monthlyStats";
 
@@ -43,6 +45,14 @@ export function useRoutineToggle({
     const completedDelta = done ? 1 : -1;
 
     // 루틴 주간 리포트 체크 상태를 먼저 갱신합니다.
+    const prevReport = queryClient.getQueryData<RoutineReport>(routineReportKey);
+    const prevLogs = queryClient.getQueryData<{ routineId: string; date: string; done: boolean }[]>(
+      routineLogKeys.byMonth(userId, monthKey),
+    );
+    const prevMonthly = queryClient.getQueryData<MonthlyStats | null>(
+      monthlyStatsKeys.byMonth(userId, monthKey),
+    );
+
     queryClient.setQueryData<RoutineReport>(routineReportKey, (prev) => {
       if (!prev) return prev;
 
@@ -90,7 +100,20 @@ export function useRoutineToggle({
         if (!prev) return prev;
 
         const currentDay = prev.days?.[dayKey];
-        if (!currentDay) return prev;
+        if (!currentDay) {
+          return {
+            ...prev,
+            days: {
+              ...prev.days,
+              [dayKey]: {
+                total: 0,
+                completed: Math.max(completedDelta, 0),
+                remaining: 0,
+                hasActivity: false,
+              },
+            },
+          };
+        }
 
         const completed = Math.max(
           (currentDay.completed ?? 0) + completedDelta,
@@ -115,12 +138,31 @@ export function useRoutineToggle({
     );
 
     // 실제 서버 데이터도 반영합니다.
-    await toggleRoutineLog({ userId, routineId, date, done });
-    await patchMonthlyStatsCompletionByDay({
-      userId,
-      month: monthKey,
-      day: dayKey,
-      completedDelta,
-    });
+    try {
+      await toggleRoutineLog({ userId, routineId, date, done });
+      await patchMonthlyStatsCompletionByDay({
+        userId,
+        month: monthKey,
+        day: dayKey,
+        completedDelta,
+      });
+    } catch (error) {
+      queryClient.setQueryData(routineReportKey, prevReport);
+      queryClient.setQueryData(routineLogKeys.byMonth(userId, monthKey), prevLogs);
+      queryClient.setQueryData(monthlyStatsKeys.byMonth(userId, monthKey), prevMonthly);
+      const affectedMonths = collectAffectedMonths({ dates: [date] });
+      await Promise.all(
+        affectedMonths.map((month) =>
+          rebuildMonthlyStatsByMonth({
+            userId,
+            month,
+          }),
+        ),
+      );
+      await queryClient.invalidateQueries({
+        queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
+      });
+      console.error("Failed to toggle routine", error);
+    }
   };
 }

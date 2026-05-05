@@ -9,7 +9,11 @@ import { formatDateToYmd } from "@/shared/hooks/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
 import { moveDay } from "@/shared/hooks/dateNavigation";
-import { rebuildMonthlyStatsByMonth } from "@/shared/api/monthlyStats";
+import {
+  collectAffectedMonths,
+  rebuildMonthlyStatsByMonth,
+  refreshCalendarConsistency,
+} from "@/shared/api/monthlyStats";
 
 import {
   moveUncompletedTasksToDate,
@@ -42,7 +46,7 @@ export function TaskSetting() {
 
   const invalidateTaskCaches = async (dates: string[]) => {
     const uniqueDates = Array.from(new Set(dates));
-    const months = Array.from(new Set(uniqueDates.map(getMonthKey)));
+    const months = collectAffectedMonths({ dates: uniqueDates });
     await Promise.all([
       ...uniqueDates.map((date) =>
         queryClient.invalidateQueries({
@@ -57,9 +61,19 @@ export function TaskSetting() {
       ...months.map((month) =>
         queryClient.invalidateQueries({
           queryKey: monthlyStatsKeys.byMonth(user?.uid ?? "", month),
-        })
+        }),
       ),
     ]);
+
+    if (user?.uid) {
+      await refreshCalendarConsistency({
+        queryClient,
+        userId: user.uid,
+        affectedMonths: months,
+        rebuild: true,
+        invalidateTasksByMonth: true,
+      });
+    }
   };
 
   const handleConfirmAction = async (action: TaskActionType) => {

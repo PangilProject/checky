@@ -14,3 +14,5 @@ export {
 } from "./queries";
 
 export { rebuildMonthlyStatsByMonth, buildMonthKeysBetween } from "./rebuild";
+export { collectAffectedMonths } from "./helpers/collectAffectedMonths";
+export { refreshCalendarConsistency } from "./helpers/refreshCalendarConsistency";

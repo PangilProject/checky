@@ -8,12 +8,10 @@ import {
 } from "@/shared/api/routine";
 import {
   monthlyStatsKeys,
-  routineKeys,
-  routineReportKeys,
 } from "@/shared/api/keys";
 import {
-  buildMonthKeysBetween,
-  rebuildMonthlyStatsByMonth,
+  collectAffectedMonths,
+  refreshCalendarConsistency,
 } from "@/shared/api/monthlyStats";
 import { buildNextScheduleHistory, getTodayLocalDate } from "../utils";
 import type { RoutineModalMode } from "../types";
@@ -44,56 +42,15 @@ const getCachedMonthlyStatsMonths = ({
   return [...months];
 };
 
-const refreshAffectedData = async ({
-  userId,
-  affectedMonths,
-  queryClient,
-}: {
-  userId: string;
-  affectedMonths: string[];
-  queryClient: ReturnType<typeof useQueryClient>;
-}) => {
-  const months = Array.from(
-    new Set([
-      ...affectedMonths,
-      ...getCachedMonthlyStatsMonths({
-        queryClient,
-        userId,
-      }),
-    ]),
-  );
-
-  if (months.length > 0) {
-    await Promise.all(
-      months.map((month) =>
-        rebuildMonthlyStatsByMonth({
-          userId,
-          month,
-        }),
-      ),
-    );
-
-    months.forEach((month) => {
-      queryClient.removeQueries({
-        queryKey: monthlyStatsKeys.byMonth(userId, month),
-      });
-    });
-  }
-
-  await Promise.all([
-    queryClient.invalidateQueries({
-      queryKey: routineKeys.all,
-    }),
-    queryClient.invalidateQueries({
-      queryKey: monthlyStatsKeys.all,
-    }),
-    queryClient.invalidateQueries({
-      queryKey: routineReportKeys.all,
-    }),
-    queryClient.invalidateQueries({
-      queryKey: ["routinePageData", userId],
-    }),
-  ]);
+const refreshAffectedData = async ({ userId, affectedMonths, queryClient }: { userId: string; affectedMonths: string[]; queryClient: ReturnType<typeof useQueryClient> }) => {
+  const months = Array.from(new Set([...affectedMonths, ...getCachedMonthlyStatsMonths({ queryClient, userId })]));
+  await refreshCalendarConsistency({
+    queryClient,
+    userId,
+    affectedMonths: months,
+    rebuild: true,
+  });
+  await queryClient.invalidateQueries({ queryKey: ["routinePageData", userId] });
 };
 
 export const useRoutineModalActions = ({
@@ -147,7 +104,9 @@ export const useRoutineModalActions = ({
 
         const today = getTodayLocalDate();
         const end = endDateEnabled && endDate ? endDate : today;
-        affectedMonths = buildMonthKeysBetween(startDate, end);
+        affectedMonths = collectAffectedMonths({
+          ranges: [{ startDate, endDate: end }],
+        });
       }
 
       if (mode === "EDIT" && routine) {
@@ -155,7 +114,9 @@ export const useRoutineModalActions = ({
         const prevEnd = routine.endDate ?? today;
         const nextEnd = endDateEnabled && endDate ? endDate : today;
         const spanEnd = prevEnd > nextEnd ? prevEnd : nextEnd;
-        affectedMonths = buildMonthKeysBetween(routine.startDate, spanEnd);
+        affectedMonths = collectAffectedMonths({
+          ranges: [{ startDate: routine.startDate, endDate: spanEnd }],
+        });
 
         await updateRoutine({
           userId: user.uid,
@@ -190,7 +151,9 @@ export const useRoutineModalActions = ({
     try {
       const today = getTodayLocalDate();
       const end = routine.endDate ?? today;
-      const affectedMonths = buildMonthKeysBetween(routine.startDate, end);
+      const affectedMonths = collectAffectedMonths({
+        ranges: [{ startDate: routine.startDate, endDate: end }],
+      });
 
       await deleteRoutine({
         userId: user.uid,

@@ -8,7 +8,9 @@ import {
   getRoutinesByMonthOnce,
 } from "@/shared/api/routine";
 import {
+  collectAffectedMonths,
   getMonthlyStatsByMonthOnce,
+  rebuildMonthlyStatsByMonth,
   upsertMonthlyStatsByMonth,
 } from "@/shared/api/monthlyStats";
 import {
@@ -172,6 +174,7 @@ export const useMonthlyData = (date: Date) => {
           routinesQuery.isLoading ||
           routineLogsQuery.isLoading)),
     refresh: async () => {
+      if (!userId) return;
       // monthlyStats 우선 재조회 후 없으면 fallback 원천 쿼리를 강제 갱신합니다.
       const monthlyStatsResult = await monthlyStatsQuery.refetch();
       if (monthlyStatsResult.data) {
@@ -184,6 +187,17 @@ export const useMonthlyData = (date: Date) => {
         routinesQuery.refetch(),
         routineLogsQuery.refetch(),
       ]);
+
+      const months = collectAffectedMonths({ dates: [`${monthKey}-01`] });
+      await Promise.all(
+        months.map((month) =>
+          rebuildMonthlyStatsByMonth({
+            userId,
+            month,
+          }),
+        ),
+      );
+      await monthlyStatsQuery.refetch();
     },
   };
 };

@@ -13,8 +13,10 @@ import {
   type TaskLog,
 } from "@/shared/api/taskLog";
 import {
+  collectAffectedMonths,
   patchMonthlyStatsCompletionByDay,
   patchMonthlyStatsByDayDeltas,
+  rebuildMonthlyStatsByMonth,
   type MonthlyStats,
 } from "@/shared/api/monthlyStats";
 import {
@@ -267,6 +269,11 @@ export const useTaskList = ({
     const dayKey = dateString.slice(8, 10);
     const completedDelta = nextCompleted ? 1 : -1;
 
+    const prevLogs = queryClient.getQueryData<TaskLog[]>(taskLogQueryKey);
+    const prevMonthly = queryClient.getQueryData<MonthlyStats | null>(
+      monthlyStatsKeys.byMonth(userId, monthKey)
+    );
+
     queryClient.setQueryData<TaskLog[]>(taskLogQueryKey, (prev = []) => {
       const index = prev.findIndex((log) => log.taskId === taskId);
       if (index === -1) {
@@ -284,7 +291,20 @@ export const useTaskList = ({
       (prev) => {
         if (!prev) return prev;
         const currentDay = prev.days?.[dayKey];
-        if (!currentDay) return prev;
+        if (!currentDay) {
+          return {
+            ...prev,
+            days: {
+              ...prev.days,
+              [dayKey]: {
+                total: 0,
+                completed: Math.max(completedDelta, 0),
+                remaining: 0,
+                hasActivity: false,
+              },
+            },
+          };
+        }
 
         const completed = Math.max(
           (currentDay.completed ?? 0) + completedDelta,
@@ -308,19 +328,37 @@ export const useTaskList = ({
       }
     );
 
-    await toggleTaskLog({
-      userId,
-      taskId,
-      date: dateString,
-      currentLog,
-    });
+    try {
+      await toggleTaskLog({
+        userId,
+        taskId,
+        date: dateString,
+        currentLog,
+      });
 
-    await patchMonthlyStatsCompletionByDay({
-      userId,
-      month: monthKey,
-      day: dayKey,
-      completedDelta,
-    });
+      await patchMonthlyStatsCompletionByDay({
+        userId,
+        month: monthKey,
+        day: dayKey,
+        completedDelta,
+      });
+    } catch (error) {
+      queryClient.setQueryData(taskLogQueryKey, prevLogs);
+      queryClient.setQueryData(monthlyStatsKeys.byMonth(userId, monthKey), prevMonthly);
+      const affectedMonths = collectAffectedMonths({ dates: [dateString] });
+      await Promise.all(
+        affectedMonths.map((month) =>
+          rebuildMonthlyStatsByMonth({
+            userId,
+            month,
+          }),
+        ),
+      );
+      await queryClient.invalidateQueries({
+        queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
+      });
+      console.error("Failed to toggle task", error);
+    }
   };
 
   const refresh = async () => {
