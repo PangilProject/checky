@@ -130,6 +130,8 @@ export const TaskCategorySection = ({
         <TaskModal
           mode="VIEW"
           task={selectedTask}
+          isCompleted={taskLogMap.get(selectedTask.id)?.completed ?? false}
+          onToggleCompleted={onToggleTask}
           selectedDate={dateString}
           categoryId={category.id}
           categoryColor={category.color}

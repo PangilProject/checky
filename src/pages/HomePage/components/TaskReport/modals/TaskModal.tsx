@@ -13,10 +13,14 @@ import {
 import { ButtonSection } from "../components/TaskModalButtons";
 import { useTaskModalHandlers } from "../hooks/useTaskModalHandlers";
 import { Text3 } from "@/shared/ui/Text";
+import { FaCheckCircle } from "react-icons/fa";
+import { LuCircleDashed } from "react-icons/lu";
 
 interface TaskModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
   task?: Task;
+  isCompleted?: boolean;
+  onToggleCompleted?: (taskId: string) => void;
   selectedDate: string;
   categoryId: string;
   categoryColor: string;
@@ -30,6 +34,8 @@ interface TaskModalProps {
 export default function TaskModal({
   mode,
   task,
+  isCompleted,
+  onToggleCompleted,
   selectedDate,
   categoryId,
   categoryColor,
@@ -73,7 +79,24 @@ export default function TaskModal({
       <Space10 direction="mb" />
 
       {isReadOnly ? (
-        <Text3 text={taskInput} className="font-semibold" />
+        <div className="flex items-center justify-between gap-3">
+          <Text3 text={taskInput} className="font-semibold" />
+          <button
+            type="button"
+            className="shrink-0"
+            onClick={() => {
+              if (!task || !onToggleCompleted) return;
+              onToggleCompleted(task.id);
+            }}
+            aria-label={isCompleted ? "완료 해제" : "완료 처리"}
+          >
+            {isCompleted ? (
+              <FaCheckCircle size={20} color={categoryColor} />
+            ) : (
+              <LuCircleDashed size={20} color={categoryColor} />
+            )}
+          </button>
+        </div>
       ) : (
         <TaskInput
           value={taskInput}
