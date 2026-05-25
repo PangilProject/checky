@@ -4,10 +4,10 @@
  */
 
 import { getDocs, query, where } from "firebase/firestore/lite";
-import { mapDoc } from "@/shared/api/_common/mappers";
 import { tasksRef } from "./refs";
 import type { Task } from "./types";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
+import { mapTaskDoc } from "./mappers";
 
 /**
  * @description 날짜 기준 태스크를 1회 조회합니다.
@@ -24,7 +24,7 @@ export const getTasksByDateOnce = async ({
   const perf = baselineFetch("tasks/fetch/byDate", { userId, date });
   const q = query(tasksRef(userId), where("date", "==", date));
   const snap = await getDocs(q);
-  const tasks = snap.docs.map((doc) => mapDoc<Task>(doc));
+  const tasks = snap.docs.map(mapTaskDoc);
   perf.end({ count: tasks.length });
   return tasks;
 };
@@ -52,7 +52,7 @@ export const getTasksByMonthOnce = async ({
   );
 
   const snap = await getDocs(q);
-  const tasks = snap.docs.map((doc) => mapDoc<Task>(doc));
+  const tasks = snap.docs.map(mapTaskDoc);
   perf.end({ count: tasks.length });
   return tasks;
 };

@@ -8,6 +8,24 @@ import type { TaskLog } from "@/shared/api/taskLog";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const getElapsedDaysLabel = (createdAt?: Date) => {
+  if (!createdAt) return null;
+
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const createdStart = new Date(
+    createdAt.getFullYear(),
+    createdAt.getMonth(),
+    createdAt.getDate()
+  );
+  const diffDays = Math.max(0, Math.floor((todayStart.getTime() - createdStart.getTime()) / DAY_MS));
+
+  if (diffDays === 0) return "D-Day";
+  return `D+${diffDays}`;
+};
+
 interface TaskListProps {
   tasks: Task[];
   categoryColor: string;
@@ -73,6 +91,7 @@ const SortableTaskItem = ({
     transform: CSS.Transform.toString(transform),
     transition,
   };
+  const elapsedDays = getElapsedDaysLabel(task.createdAt);
 
   return (
     <div
@@ -110,15 +129,20 @@ const SortableTaskItem = ({
         </div>
       </div>
 
-      <button
-        className="pressable"
-        onClick={(e) => {
-          e.stopPropagation();
-          onClickTask(task);
-        }}
-      >
-        <HiDotsHorizontal color="#8E8E93" size={20} />
-      </button>
+      <div className="flex items-center gap-2">
+        <div className="w-12 text-left">
+          {elapsedDays && <Text1 text={elapsedDays} className="text-[#8E8E93]" />}
+        </div>
+        <button
+          className="pressable"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClickTask(task);
+          }}
+        >
+          <HiDotsHorizontal color="#8E8E93" size={20} />
+        </button>
+      </div>
     </div>
   );
 };

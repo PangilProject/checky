@@ -6,9 +6,9 @@
 import { orderBy, query, where } from "firebase/firestore/lite";
 import { subscribeWithSafariFallback } from "@/shared/api/_common/subscribeWithSafariFallback";
 import { tasksRef } from "./refs";
-import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Task } from "./types";
 import { baselineSubscribe } from "@/shared/utils/perfBaseline";
+import { mapTaskDoc } from "./mappers";
 
 /**
  * @description 날짜별 태스크를 실시간 구독합니다.
@@ -32,7 +32,7 @@ export const getTasksByDate = ({
   );
 
   const unsubscribe = subscribeWithSafariFallback(q, (snapshot) => {
-    const tasks = snapshot.docs.map((doc) => mapDoc<Task>(doc));
+    const tasks = snapshot.docs.map(mapTaskDoc);
 
     perf.onSnapshot(tasks.length);
     onChange(tasks);
@@ -77,7 +77,7 @@ export const getTasksByMonth = ({
   );
 
   const unsubscribe = subscribeWithSafariFallback(q, (snapshot) => {
-    const tasks = snapshot.docs.map((doc) => mapDoc<Task>(doc));
+    const tasks = snapshot.docs.map(mapTaskDoc);
 
     perf.onSnapshot(tasks.length);
     onChange(tasks);

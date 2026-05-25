@@ -9,6 +9,7 @@ export interface Task {
   categoryId: string;
   categoryColor: string;
   date: string;
+  createdAt?: Date;
   time?: string;
   orderIndex: number;
 }
