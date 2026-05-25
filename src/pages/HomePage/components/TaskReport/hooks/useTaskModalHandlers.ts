@@ -128,6 +128,28 @@ export const useTaskModalHandlers = ({
     }
   };
 
+  const handleMoveTask = async (nextDate: string) => {
+    if (!task || !userId || !nextDate || nextDate === task.date) return;
+
+    try {
+      await updateTaskWithDateMove({
+        userId,
+        taskId: task.id,
+        title: task.title,
+        ...(task.time ? { time: task.time } : { time: undefined }),
+        prevDate: task.date,
+        nextDate,
+        prevCategoryId: task.categoryId,
+        categoryId: task.categoryId,
+        categoryColor: task.categoryColor,
+      });
+      invalidateTaskDates([task.date, nextDate]);
+      onClose();
+    } catch (e) {
+      console.error("태스크 이동 실패", e);
+    }
+  };
+
   const shouldShowTimeField = !isReadOnly || Boolean(task?.time);
 
   return {
@@ -150,5 +172,6 @@ export const useTaskModalHandlers = ({
     handleCreateTask,
     handleUpdateTask,
     handleDeleteTask,
+    handleMoveTask,
   };
 };

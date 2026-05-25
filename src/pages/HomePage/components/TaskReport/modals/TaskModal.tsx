@@ -15,6 +15,8 @@ import { useTaskModalHandlers } from "../hooks/useTaskModalHandlers";
 import { Text3 } from "@/shared/ui/Text";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
+import { useState } from "react";
+import { DateSelectModal } from "./DateSelectModal";
 
 interface TaskModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -42,6 +44,7 @@ export default function TaskModal({
   categories,
   onClose,
 }: TaskModalProps) {
+  const [isMoveDateModalOpen, setIsMoveDateModalOpen] = useState(false);
   const { user } = useAuth();
   const {
     taskInput,
@@ -62,6 +65,7 @@ export default function TaskModal({
     handleCreateTask,
     handleUpdateTask,
     handleDeleteTask,
+    handleMoveTask,
   } = useTaskModalHandlers({
     mode,
     task,
@@ -151,11 +155,26 @@ export default function TaskModal({
         mode={currentMode}
         onClose={onClose}
         onEdit={() => setCurrentMode("EDIT")}
+        onMove={() => setIsMoveDateModalOpen(true)}
         onSubmit={
           currentMode === "CREATE" ? handleCreateTask : handleUpdateTask
         }
         onDelete={handleDeleteTask}
       />
+
+      {isMoveDateModalOpen && (
+        <DateSelectModal
+          action="after"
+          initialDate={new Date()}
+          onClose={() => setIsMoveDateModalOpen(false)}
+          onConfirm={(date) => {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, "0");
+            const dd = String(date.getDate()).padStart(2, "0");
+            handleMoveTask(`${yyyy}-${mm}-${dd}`);
+          }}
+        />
+      )}
     </ModalWrapper>
   );
 }
