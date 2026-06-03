@@ -54,9 +54,9 @@ export const RoutineCategorySection = ({
   );
 
   return (
-    <div>
+    <div className="mb-5">
       {/* 카테고리 헤더 */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-2">
         <TitleText
           text={category.name}
           className={getCategoryTextColor(category.color)}
@@ -76,13 +76,15 @@ export const RoutineCategorySection = ({
           strategy={verticalListSortingStrategy}
         >
           {/* 루틴 리스트 렌더링 */}
-          {routines.map((routine) => (
-            <RoutineItem
-              key={routine.id}
-              routine={routine}
-              onClickMore={() => onSelect(routine)}
-            />
-          ))}
+          <div className="flex flex-col gap-2">
+            {routines.map((routine) => (
+              <RoutineItem
+                key={routine.id}
+                routine={routine}
+                onClickMore={() => onSelect(routine)}
+              />
+            ))}
+          </div>
         </SortableContext>
       </DndContext>
     </div>
