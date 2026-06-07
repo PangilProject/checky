@@ -1,5 +1,6 @@
 import type { Routine } from "@/shared/api/routine";
 import { getDayLabel } from "@/shared/constants/dateLabels";
+import { formatDateToYmd } from "@/shared/hooks/formatDate";
 import { Space2 } from "@/shared/ui/Space";
 import { Text2, Text3 } from "@/shared/ui/Text";
 import { useSortable } from "@dnd-kit/sortable";
@@ -16,6 +17,9 @@ interface RoutineItemProps {
  * 개별 루틴 아이템 컴포넌트
  */
 export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
+  const today = formatDateToYmd(new Date());
+  const isEnded = Boolean(routine.endDate && routine.endDate < today);
+
   // dnd-kit sortable hook
   // → 드래그 대상 등록 및 상태/이벤트 제공
   const {
@@ -51,7 +55,12 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
           <Space2 direction="mr" />
           <div className="flex flex-col">
             {/* 루틴 제목 */}
-            <Text3 text={routine.title} className="font-bold" />
+            <div className="flex items-center gap-2">
+              {isEnded && (
+                <Text2 text="[종료]" className="text-gray-400 font-bold" />
+              )}
+              <Text3 text={routine.title} className="font-bold" />
+            </div>
 
             {/* 반복 요일 표시 */}
             <div className="flex gap-2">
