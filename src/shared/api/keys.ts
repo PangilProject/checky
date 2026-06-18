@@ -18,6 +18,17 @@ export const categoryKeys = {
 };
 
 /**
+ * 루틴 페이지 복합 데이터 쿼리 키
+ * 카테고리 + 카테고리별 루틴을 한 번에 조회하는 쿼리에 사용됩니다.
+ * 활성 카테고리를 내부에 포함하므로, 카테고리 변경 시에도 함께 무효화해야 합니다.
+ * detail: 사용자별 루틴 페이지 데이터 (userId)
+ */
+export const routinePageKeys = {
+  all: ["routinePageData"] as const,
+  detail: (userId: string) => [...routinePageKeys.all, userId] as const,
+};
+
+/**
  * 할 일 관련 쿼리 키
  * all: 모든 할 일
  * byDate: 특정 날짜의 할 일 목록 (userId, date)

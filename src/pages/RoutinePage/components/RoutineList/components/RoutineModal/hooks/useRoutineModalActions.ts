@@ -8,6 +8,7 @@ import {
 } from "@/shared/api/routine";
 import {
   monthlyStatsKeys,
+  routinePageKeys,
 } from "@/shared/api/keys";
 import {
   collectAffectedMonths,
@@ -50,7 +51,9 @@ const refreshAffectedData = async ({ userId, affectedMonths, queryClient }: { us
     affectedMonths: months,
     rebuild: true,
   });
-  await queryClient.invalidateQueries({ queryKey: ["routinePageData", userId] });
+  await queryClient.invalidateQueries({
+    queryKey: routinePageKeys.detail(userId),
+  });
 };
 
 export const useRoutineModalActions = ({

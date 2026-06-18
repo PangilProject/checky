@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getCategoriesOnce } from "@/shared/api/category";
 import { getRoutinesByCategory } from "@/shared/api/routine";
+import { routinePageKeys } from "@/shared/api/keys";
 
 /**
  * hook: 루틴 페이지 데이터 조회
@@ -9,7 +10,7 @@ import { getRoutinesByCategory } from "@/shared/api/routine";
 export const useRoutineData = (userId: string, enabled: boolean) => {
   return useQuery({
     // 사용자별 캐싱을 위한 queryKey (userId 기준으로 캐시 분리)
-    queryKey: ["routinePageData", userId],
+    queryKey: routinePageKeys.detail(userId),
 
     // 카테고리 + 루틴 데이터를 함께 가져오는 비동기 함수
     queryFn: async () => {

@@ -11,12 +11,14 @@ import { COLORS } from "@/shared/constants/colors";
 import {
   createCategory,
   endCategory,
+  invalidateCategoryQueries,
   restoreCategory,
   updateCategory,
 } from "@/shared/api/category";
 import { useAuth } from "@/shared/hooks/useAuth";
 import type { Category } from "@/shared/api/category";
 import { ModalWrapper } from "@/shared/ui/Modal";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CategoryModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -30,6 +32,7 @@ export default function CategoryModal({
   onClose,
 }: CategoryModalProps) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const [categoryInput, setCategoryInput] = useState(category?.name ?? "");
   const [selectedColor, setSelectedColor] = useState(
@@ -46,12 +49,14 @@ export default function CategoryModal({
 
     const userId = user?.uid;
     try {
-      if (userId)
+      if (userId) {
         await createCategory({
           userId,
           name: categoryInput,
           color: selectedColor.value,
         });
+        await invalidateCategoryQueries(queryClient, userId);
+      }
 
       onClose();
     } catch (error) {
@@ -63,13 +68,15 @@ export default function CategoryModal({
 
     const userId = user?.uid;
     try {
-      if (userId)
+      if (userId) {
         await updateCategory({
           userId,
           categoryId: category.id,
           name: categoryInput,
           color: selectedColor.value,
         });
+        await invalidateCategoryQueries(queryClient, userId);
+      }
 
       onClose();
     } catch (error) {
@@ -85,6 +92,7 @@ export default function CategoryModal({
         userId: user.uid,
         categoryId: category.id,
       });
+      await invalidateCategoryQueries(queryClient, user.uid);
 
       onClose();
     } catch (error) {
@@ -100,6 +108,7 @@ export default function CategoryModal({
         userId: user.uid,
         categoryId: category.id,
       });
+      await invalidateCategoryQueries(queryClient, user.uid);
 
       onClose();
     } catch (error) {
