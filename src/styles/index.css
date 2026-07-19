@@ -50,6 +50,29 @@ select {
   font-family: "WickedMouse", cursive;
 }
 
+@keyframes checky-loading {
+  0% {
+    left: -42%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@layer utilities {
+  .animate-checky-loading {
+    animation: checky-loading 1.5s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-checky-loading {
+    animation: none;
+    left: 0;
+    width: 66%;
+  }
+}
+
 @layer utilities {
   .pressable {
     @apply transition-transform duration-500 ease-out active:scale-50 cursor-pointer;
