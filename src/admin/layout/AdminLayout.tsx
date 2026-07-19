@@ -2,11 +2,13 @@ import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import AdminHeader from "./AdminHeader";
 import LoadingPage from "@/pages/LoadingPage/LoadingPage";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { useMinimumLoading } from "@/shared/hooks/useMinimumLoading";
 import { Space10 } from "@/shared/ui/Space";
 import { useEffect } from "react";
 
 function AdminLayout() {
   const { user, isAdmin, isLoading } = useAuth();
+  const showLoading = useMinimumLoading(isLoading);
   const navigate = useNavigate();
 
   // 🔹 관리자 권한 없음 처리
@@ -17,8 +19,8 @@ function AdminLayout() {
     }
   }, [isLoading, user, isAdmin, navigate]);
 
-  // 🔹 로딩 중
-  if (isLoading) {
+  // 🔹 로딩 중 (실제 로딩이 끝나도 최소 표시 시간 동안 유지)
+  if (showLoading) {
     return <LoadingPage />;
   }
 

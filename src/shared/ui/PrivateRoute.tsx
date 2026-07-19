@@ -1,13 +1,15 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { useMinimumLoading } from "@/shared/hooks/useMinimumLoading";
 import LoadingPage from "../../pages/LoadingPage/LoadingPage";
 import Header from "./Header";
 import { Space10 } from "./Space";
 
 function PrivateRoute() {
   const { user, isLoading } = useAuth();
+  const showLoading = useMinimumLoading(isLoading);
 
-  if (isLoading) {
+  if (showLoading) {
     return <LoadingPage />;
   }
 
