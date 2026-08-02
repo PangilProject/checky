@@ -9,6 +9,8 @@ import { toast } from "react-toastify";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { TitleText } from "@/shared/ui/TitleText";
 import { deleteAccount } from "@/shared/api/auth/auth";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
+import { useState } from "react";
 
 function MyPage() {
   return (
@@ -42,6 +44,8 @@ const UserInfoSection = () => {
 
 const ButtonSection = () => {
   const navigate = useNavigate();
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -49,30 +53,41 @@ const ButtonSection = () => {
       toast.success("로그아웃 되었습니다.");
     } catch (error) {
       console.error("로그아웃 실패:", error);
-      alert("로그아웃에 실패했습니다.");
+      toast.error("로그아웃에 실패했습니다.");
     }
   };
 
   const handleWithdraw = async () => {
-    const confirmed = confirm(
-      "정말로 탈퇴하시겠습니까?\n모든 데이터가 삭제됩니다.",
-    );
-    if (!confirmed) return;
-
     try {
       await deleteAccount();
-      alert("회원탈퇴가 완료되었습니다.");
+      setWithdrawOpen(false);
       navigate("/");
+      toast.success("회원탈퇴가 완료되었습니다.");
     } catch (e) {
       console.error(e);
-      alert("회원탈퇴에 실패했습니다.");
+      setWithdrawOpen(false);
+      toast.error("회원탈퇴에 실패했습니다.");
     }
   };
 
   return (
     <div className="flex gap-3">
       <NormalBlackButton text="로그아웃" onClick={handleLogout} />
-      <NormalBlackButton text="회원탈퇴" onClick={handleWithdraw} />
+      <NormalBlackButton
+        text="회원탈퇴"
+        onClick={() => setWithdrawOpen(true)}
+      />
+
+      {withdrawOpen && (
+        <ConfirmModal
+          title="정말로 탈퇴하시겠습니까?"
+          description="모든 데이터가 삭제되며, 이 작업은 되돌릴 수 없습니다."
+          confirmText="탈퇴"
+          danger
+          onClose={() => setWithdrawOpen(false)}
+          onConfirm={handleWithdraw}
+        />
+      )}
     </div>
   );
 };
