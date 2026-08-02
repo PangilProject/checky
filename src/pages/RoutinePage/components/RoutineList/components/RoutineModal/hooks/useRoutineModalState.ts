@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { Routine } from "@/shared/api/routine";
 import type { RoutineModalMode } from "../types";
-import { hasSameDays, isRoutineFormDirty } from "../utils";
+import { getTodayLocalDate, hasSameDays, isRoutineFormDirty } from "../utils";
 import { DAYS } from "@/shared/constants/dateLabels";
 
 export const useRoutineModalState = ({
@@ -17,12 +17,11 @@ export const useRoutineModalState = ({
   );
   const [currentMode, setCurrentMode] = useState<RoutineModalMode>(mode);
 
+  // toISOString은 UTC 기준이라 KST 오전 9시 이전에는 어제 날짜가 되므로 로컬 기준을 쓴다.
   const [startDate, setStartDate] = useState(
-    routine?.startDate ?? new Date().toISOString().slice(0, 10),
+    routine?.startDate ?? getTodayLocalDate(),
   );
-  const [effectiveFrom, setEffectiveFrom] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [effectiveFrom, setEffectiveFrom] = useState(getTodayLocalDate());
   const [endDateEnabled, setEndDateEnabled] = useState(
     Boolean(routine?.endDate),
   );
