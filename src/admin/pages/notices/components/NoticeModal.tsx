@@ -37,26 +37,33 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
   const isReadOnly = currentMode === "VIEW";
   const { isSubmitting, runExclusive } = useSubmitLock();
 
+  // 변경 감지와 저장에 같은 값을 써야 제출 방식에 따라 결과가 달라지지 않는다.
+  const trimmedTitle = title.trim();
+
   // 변경 사항이 없으면 저장 버튼을 비활성화하기 위한 판단값
   const isDirty = notice
-    ? title.trim() !== notice.title ||
+    ? trimmedTitle !== notice.title ||
       content !== notice.content ||
       pinned !== notice.pinned
     : true;
 
   const handleSave = async () => {
-    if (!title.trim()) {
+    if (!trimmedTitle) {
       toast.error("제목을 입력해주세요.", {
         toastId: "notice-form-validation",
       });
       return;
     }
+    if (!isDirty) return;
+
+    // 저장 후 목록 갱신에서 실패하면 재저장을 유도하지 않도록 구분한다.
+    let persisted = false;
 
     await runExclusive(async () => {
       try {
         if (currentMode === "CREATE") {
           await addDoc(collection(db, "notices"), {
-            title,
+            title: trimmedTitle,
             content,
             pinned,
             createdAt: serverTimestamp(),
@@ -66,17 +73,29 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
 
         if (currentMode === "EDIT" && notice) {
           await updateDoc(doc(db, "notices", notice.id), {
-            title,
+            title: trimmedTitle,
             content,
             pinned,
             updatedAt: serverTimestamp(),
           });
         }
 
+        persisted = true;
+
         await onSaved?.();
         onClose();
       } catch (e) {
         console.error("공지 저장 실패", e);
+
+        if (persisted) {
+          // 저장은 끝났으므로 모달을 닫아 중복 저장을 유발하지 않는다.
+          onClose();
+          toast.warning(
+            "저장은 완료됐지만 목록 갱신에 실패했습니다. 새로고침해주세요.",
+          );
+          return;
+        }
+
         toast.error("공지 저장에 실패했습니다.");
       }
     });
