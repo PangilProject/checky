@@ -19,6 +19,8 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import type { Category } from "@/shared/api/category";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { useSubmitLock } from "@/shared/hooks/useSubmitLock";
 
 interface CategoryModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -33,6 +35,7 @@ export default function CategoryModal({
 }: CategoryModalProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { isSubmitting, runExclusive } = useSubmitLock();
 
   const [categoryInput, setCategoryInput] = useState(category?.name ?? "");
   const [selectedColor, setSelectedColor] = useState(
@@ -44,31 +47,51 @@ export default function CategoryModal({
 
   const isReadOnly = currentMode === "VIEW";
 
+  // 변경 사항이 없으면 저장 버튼을 비활성화하기 위한 판단값
+  const isDirty = category
+    ? categoryInput.trim() !== category.name ||
+      selectedColor.value !== category.color
+    : true;
+
+  /** 검증 실패 시 사유를 알리고 true를 반환한다. */
+  const notifyIfInvalid = () => {
+    if (categoryInput.trim()) return false;
+    toast.error("카테고리명을 입력해주세요.", {
+      toastId: "category-form-validation",
+    });
+    return true;
+  };
+
   const handleCreateCategory = async () => {
-    if (!categoryInput.trim()) return;
+    if (notifyIfInvalid()) return;
 
     const userId = user?.uid;
-    try {
-      if (userId) {
+    if (!userId) return;
+
+    await runExclusive(async () => {
+      try {
         await createCategory({
           userId,
           name: categoryInput,
           color: selectedColor.value,
         });
         await invalidateCategoryQueries(queryClient, userId);
-      }
 
-      onClose();
-    } catch (error) {
-      console.error("카테고리 생성 실패", error);
-    }
+        onClose();
+      } catch (error) {
+        console.error("카테고리 생성 실패", error);
+        toast.error("카테고리 저장에 실패했습니다.");
+      }
+    });
   };
   const handleUpdateCategory = async () => {
-    if (!categoryInput.trim() || !category) return;
+    if (notifyIfInvalid()) return;
 
     const userId = user?.uid;
-    try {
-      if (userId) {
+    if (!userId || !category) return;
+
+    await runExclusive(async () => {
+      try {
         await updateCategory({
           userId,
           categoryId: category.id,
@@ -76,12 +99,13 @@ export default function CategoryModal({
           color: selectedColor.value,
         });
         await invalidateCategoryQueries(queryClient, userId);
-      }
 
-      onClose();
-    } catch (error) {
-      console.error("카테고리 수정 실패", error);
-    }
+        onClose();
+      } catch (error) {
+        console.error("카테고리 수정 실패", error);
+        toast.error("카테고리 수정에 실패했습니다.");
+      }
+    });
   };
 
   const handleEndCategory = async () => {
@@ -154,6 +178,7 @@ export default function CategoryModal({
         }
         onEnd={handleEndCategory}
         onRestore={handleRestoreCategory}
+        submitDisabled={isSubmitting || !isDirty}
       />
     </ModalWrapper>
   );
@@ -282,6 +307,8 @@ interface ButtonSectionProps {
   onSubmit?: () => void;
   onEnd?: () => void;
   onRestore?: () => void;
+  /** 변경 사항이 없거나 제출 진행 중이면 저장/완료 버튼을 비활성화한다. */
+  submitDisabled?: boolean;
 }
 const ButtonSection = ({
   mode,
@@ -291,6 +318,7 @@ const ButtonSection = ({
   onSubmit,
   onEnd,
   onRestore,
+  submitDisabled = false,
 }: ButtonSectionProps) => {
   // VIEW 모드
   if (mode === "VIEW") {
@@ -319,7 +347,11 @@ const ButtonSection = ({
     return (
       <div className="flex justify-between">
         <NormalBlackUnFillButton text="취소" onClick={onClose} />
-        <NormalBlackButton text="저장" onClick={onSubmit} />
+        <NormalBlackButton
+          text="저장"
+          onClick={onSubmit}
+          disabled={submitDisabled}
+        />
       </div>
     );
   }
@@ -328,7 +360,11 @@ const ButtonSection = ({
   return (
     <div className="flex justify-between">
       <NormalBlackUnFillButton text="닫기" onClick={onClose} />
-      <NormalBlackButton text="완료" onClick={onSubmit} />
+      <NormalBlackButton
+        text="완료"
+        onClick={onSubmit}
+        disabled={submitDisabled}
+      />
     </div>
   );
 };
