@@ -3,6 +3,8 @@ import { Text5 } from "@/shared/ui/Text";
 import { NormalBlackButton, NormalBlackUnFillButton } from "@/shared/ui/Button";
 import { Space10 } from "@/shared/ui/Space";
 import { useState } from "react";
+import { DatePicker } from "@/shared/ui/DatePicker";
+import { formatDateToYmd, parseYmd } from "@/shared/hooks/formatDate";
 
 interface DateSelectModalProps {
   action: string;
@@ -17,19 +19,14 @@ export function DateSelectModal({
   onConfirm,
   onClose,
 }: DateSelectModalProps) {
-  const [value, setValue] = useState(initialDate.toISOString().slice(0, 10));
+  const [value, setValue] = useState(() => formatDateToYmd(initialDate));
 
   return (
     <ModalWrapper onClose={onClose}>
       <Text5 text="날짜 선택" className="font-bold" />
       <Space10 direction="mb" />
 
-      <input
-        type="date"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        className="w-full border-b outline-none"
-      />
+      <DatePicker value={value} onChange={setValue} />
 
       <Space10 direction="mb" />
 
@@ -38,7 +35,9 @@ export function DateSelectModal({
         <NormalBlackButton
           text={action === "after" ? "이동" : "복사"}
           onClick={() => {
-            onConfirm(new Date(value));
+            const selected = parseYmd(value);
+            if (!selected) return;
+            onConfirm(selected);
             onClose();
           }}
         />
