@@ -37,7 +37,10 @@ export default function CategoryModal({
   const queryClient = useQueryClient();
   const { isSubmitting, runExclusive } = useSubmitLock();
 
-  const [categoryInput, setCategoryInput] = useState(category?.name ?? "");
+  // 저장된 값에 앞뒤 공백이 있어도 사용자에게는 정규화된 이름만 보이도록 한다.
+  const [categoryInput, setCategoryInput] = useState(
+    category?.name.trim() ?? "",
+  );
   const [selectedColor, setSelectedColor] = useState(
     category
       ? (COLORS.find((c) => c.value === category.color) ?? COLORS[0])
@@ -47,15 +50,18 @@ export default function CategoryModal({
 
   const isReadOnly = currentMode === "VIEW";
 
+  // 변경 감지와 저장에 같은 값을 써야 제출 방식에 따라 결과가 달라지지 않는다.
+  const trimmedName = categoryInput.trim();
+
   // 변경 사항이 없으면 저장 버튼을 비활성화하기 위한 판단값
   const isDirty = category
-    ? categoryInput.trim() !== category.name ||
+    ? trimmedName !== category.name.trim() ||
       selectedColor.value !== category.color
     : true;
 
   /** 검증 실패 시 사유를 알리고 true를 반환한다. */
   const notifyIfInvalid = () => {
-    if (categoryInput.trim()) return false;
+    if (trimmedName) return false;
     toast.error("카테고리명을 입력해주세요.", {
       toastId: "category-form-validation",
     });
@@ -72,7 +78,7 @@ export default function CategoryModal({
       try {
         await createCategory({
           userId,
-          name: categoryInput,
+          name: trimmedName,
           color: selectedColor.value,
         });
         await invalidateCategoryQueries(queryClient, userId);
@@ -86,6 +92,8 @@ export default function CategoryModal({
   };
   const handleUpdateCategory = async () => {
     if (notifyIfInvalid()) return;
+    // 저장 버튼과 달리 Enter는 비활성화로 막을 수 없어 여기서도 확인한다.
+    if (!isDirty) return;
 
     const userId = user?.uid;
     if (!userId || !category) return;
@@ -95,7 +103,7 @@ export default function CategoryModal({
         await updateCategory({
           userId,
           categoryId: category.id,
-          name: categoryInput,
+          name: trimmedName,
           color: selectedColor.value,
         });
         await invalidateCategoryQueries(queryClient, userId);

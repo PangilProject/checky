@@ -71,8 +71,9 @@ export const isRoutineFormDirty = ({
   endDateEnabled: boolean;
   endDate: string;
 }) => {
+  // 저장 시 trim된 값이 들어가므로 양쪽 모두 같은 기준으로 비교한다.
   if (!routine) return true;
-  if (title.trim() !== routine.title) return true;
+  if (title.trim() !== routine.title.trim()) return true;
   if (!hasSameDays(selectedDays, routine.days)) return true;
 
   return (endDateEnabled ? endDate : "") !== (routine.endDate ?? "");

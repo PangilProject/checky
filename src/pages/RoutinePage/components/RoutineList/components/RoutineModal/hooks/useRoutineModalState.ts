@@ -11,7 +11,8 @@ export const useRoutineModalState = ({
   mode: RoutineModalMode;
   routine?: Routine;
 }) => {
-  const [title, setTitle] = useState(routine?.title ?? "");
+  // 저장된 값에 앞뒤 공백이 있어도 사용자에게는 정규화된 제목만 보이도록 한다.
+  const [title, setTitle] = useState(routine?.title.trim() ?? "");
   const [selectedDays, setSelectedDays] = useState<number[]>(
     routine?.days ?? [],
   );

@@ -33,6 +33,7 @@ export default function RoutineModal({
       endDateEnabled: state.endDateEnabled,
       endDate: state.endDate,
       isRepeatChanged: state.isRepeatChanged,
+      isDirty: state.isDirty,
     });
 
   return (

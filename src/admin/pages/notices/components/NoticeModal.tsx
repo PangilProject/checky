@@ -29,7 +29,8 @@ interface Props {
 }
 
 export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
-  const [title, setTitle] = useState(notice?.title ?? "");
+  // 저장된 값에 앞뒤 공백이 있어도 사용자에게는 정규화된 제목만 보이도록 한다.
+  const [title, setTitle] = useState(notice?.title.trim() ?? "");
   const [content, setContent] = useState(notice?.content ?? "");
   const [pinned, setPinned] = useState(notice?.pinned ?? false);
   const [currentMode, setCurrentMode] = useState(mode);
@@ -42,7 +43,7 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
 
   // 변경 사항이 없으면 저장 버튼을 비활성화하기 위한 판단값
   const isDirty = notice
-    ? trimmedTitle !== notice.title ||
+    ? trimmedTitle !== notice.title.trim() ||
       content !== notice.content ||
       pinned !== notice.pinned
     : true;

@@ -36,7 +36,8 @@ export const useTaskModalHandlers = ({
   const queryClient = useQueryClient();
   const { isSubmitting, runExclusive } = useSubmitLock();
   const DEFAULT_TIME = "12:00";
-  const [taskInput, setTaskInput] = useState(task?.title ?? "");
+  // 저장된 값에 앞뒤 공백이 있어도 사용자에게는 정규화된 제목만 보이도록 한다.
+  const [taskInput, setTaskInput] = useState(task?.title.trim() ?? "");
   const [taskDate, setTaskDate] = useState(task?.date ?? selectedDate);
   const [selectedCategoryId, setSelectedCategoryId] = useState(
     task?.categoryId ?? categoryId,
@@ -69,16 +70,19 @@ export const useTaskModalHandlers = ({
     });
   };
 
+  // 변경 감지와 저장에 같은 값을 써야 제출 방식에 따라 결과가 달라지지 않는다.
+  const trimmedTitle = taskInput.trim();
+
   /** 첫 번째 검증 실패 사유. 통과하면 null. */
   const getValidationMessage = () => {
-    if (!taskInput.trim()) return "할 일을 입력해주세요.";
+    if (!trimmedTitle) return "할 일을 입력해주세요.";
     if (!effectiveCategoryId) return "카테고리를 먼저 추가해주세요.";
     return null;
   };
 
   // 변경 사항이 없으면 저장 버튼을 비활성화하기 위한 판단값
   const isDirty = task
-    ? taskInput.trim() !== task.title ||
+    ? trimmedTitle !== task.title.trim() ||
       taskDate !== task.date ||
       effectiveCategoryId !== task.categoryId ||
       (timeEnabled ? taskTime : "") !== (task.time ?? "")
@@ -96,7 +100,7 @@ export const useTaskModalHandlers = ({
       try {
         await createTask({
           userId,
-          title: taskInput,
+          title: trimmedTitle,
           categoryId: effectiveCategoryId,
           categoryColor: selectedCategoryColor,
           date: taskDate,
@@ -117,6 +121,8 @@ export const useTaskModalHandlers = ({
       toast.error(validationMessage, { toastId: "task-form-validation" });
       return;
     }
+    // 저장 버튼과 달리 Enter는 비활성화로 막을 수 없어 여기서도 확인한다.
+    if (!isDirty) return;
     if (!task || !userId) return;
 
     await runExclusive(async () => {
@@ -124,7 +130,7 @@ export const useTaskModalHandlers = ({
         await updateTaskWithDateMove({
           userId,
           taskId: task.id,
-          title: taskInput,
+          title: trimmedTitle,
           ...(timeEnabled ? { time: taskTime } : { time: undefined }),
           prevDate: task.date,
           nextDate: taskDate,
