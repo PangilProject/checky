@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Text3, Text5 } from "@/shared/ui/Text";
+import { DatePicker } from "@/shared/ui/DatePicker";
 import type { Category } from "@/shared/api/category";
 
 export const ModalTitle = ({ mode }: { mode: "CREATE" | "VIEW" | "EDIT" }) => {
@@ -52,12 +53,7 @@ export const DateField = ({
       {disabled ? (
         <Text3 text={value} className="opacity-60" />
       ) : (
-        <input
-          type="date"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="border-b border-gray-300 outline-none text-[14px]"
-        />
+        <DatePicker value={value} onChange={onChange} align="right" />
       )}
     </div>
   );
