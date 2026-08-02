@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Text3 } from "@/shared/ui/Text";
 import { Space10, Space12, Space4 } from "@/shared/ui/Space";
 import { signInWithGoogle } from "@/shared/api/auth/auth";
+import { toast } from "react-toastify";
 
 export const LoginSection = () => {
   return (
@@ -53,7 +54,7 @@ const LoginButton = () => {
       navigate("/home");
     } catch (error) {
       console.error("Google Login Error:", error);
-      alert("로그인에 실패했어요. 다시 시도해 주세요.");
+      toast.error("로그인에 실패했어요. 다시 시도해 주세요.");
     }
   };
 

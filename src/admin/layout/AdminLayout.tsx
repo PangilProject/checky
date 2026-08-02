@@ -5,6 +5,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useMinimumLoading } from "@/shared/hooks/useMinimumLoading";
 import { Space10 } from "@/shared/ui/Space";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 function AdminLayout() {
   const { user, isAdmin, isLoading } = useAuth();
@@ -14,7 +15,7 @@ function AdminLayout() {
   // 🔹 관리자 권한 없음 처리
   useEffect(() => {
     if (!isLoading && user && !isAdmin) {
-      alert("관리자 권한이 없습니다.");
+      toast.error("관리자 권한이 없습니다.");
       navigate("/", { replace: true });
     }
   }, [isLoading, user, isAdmin, navigate]);
