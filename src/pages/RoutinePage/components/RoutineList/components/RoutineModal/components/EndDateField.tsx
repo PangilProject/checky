@@ -1,6 +1,7 @@
 import { Text2, Text3 } from "@/shared/ui/Text";
 import { Space2 } from "@/shared/ui/Space";
 import { IoIosCheckbox, IoIosCheckboxOutline } from "react-icons/io";
+import { DatePicker } from "@/shared/ui/DatePicker";
 
 interface EndDateFieldProps {
   isReadOnly: boolean;
@@ -46,12 +47,7 @@ export const EndDateField = ({
           className="text-gray-700"
         />
       ) : endDateEnabled ? (
-        <input
-          type="date"
-          value={endDate}
-          min={startDate}
-          onChange={(e) => setEndDate(e.target.value)}
-        />
+        <DatePicker value={endDate} min={startDate} onChange={setEndDate} />
       ) : (
         <Text2 text="없음" className="text-gray-500" />
       )}

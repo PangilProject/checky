@@ -1,5 +1,6 @@
 import { Text2, Text3 } from "@/shared/ui/Text";
 import { Space2 } from "@/shared/ui/Space";
+import { DatePicker } from "@/shared/ui/DatePicker";
 import type { Routine } from "@/shared/api/routine";
 import type { RoutineModalMode } from "../types";
 
@@ -51,18 +52,15 @@ export const StartDateField = ({
           className="text-gray-700"
         />
       ) : mode === "EDIT" && isRepeatChanged ? (
-        <input
-          type="date"
+        <DatePicker
           value={effectiveFrom}
           min={routine?.startDate}
-          onChange={(e) => setEffectiveFrom(e.target.value)}
+          onChange={setEffectiveFrom}
         />
       ) : (
-        <input
-          type="date"
+        <DatePicker
           value={startDate}
-          onChange={(e) => {
-            const next = e.target.value;
+          onChange={(next) => {
             setStartDate(next);
             if (endDateEnabled && endDate && endDate < next) {
               setEndDate(next);
