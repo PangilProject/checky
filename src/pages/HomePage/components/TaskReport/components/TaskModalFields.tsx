@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Text3, Text5 } from "@/shared/ui/Text";
 import { DatePicker } from "@/shared/ui/DatePicker";
+import { TimePicker } from "@/shared/ui/TimePicker";
+import { formatHmLabel, formatYmdLabel } from "@/shared/hooks/formatDate";
 import type { Category } from "@/shared/api/category";
 
 export const ModalTitle = ({ mode }: { mode: "CREATE" | "VIEW" | "EDIT" }) => {
@@ -51,7 +53,7 @@ export const DateField = ({
     <div className="flex justify-between items-center">
       <Text3 text="날짜" />
       {disabled ? (
-        <Text3 text={value} className="opacity-60" />
+        <Text3 text={formatYmdLabel(value)} className="opacity-60" />
       ) : (
         <DatePicker value={value} onChange={onChange} align="right" />
       )}
@@ -76,7 +78,7 @@ export const TimeField = ({
     <div className="flex justify-between items-center">
       <Text3 text="시간" />
       {disabled ? (
-        enabled && <Text3 text={value} className="opacity-60" />
+        enabled && <Text3 text={formatHmLabel(value)} className="opacity-60" />
       ) : (
         <div className="flex items-center gap-3">
           <button
@@ -92,13 +94,11 @@ export const TimeField = ({
             {enabled ? "삭제" : "선택"}
           </button>
 
-          <input
-            type="time"
+          <TimePicker
             value={value}
             disabled={!enabled}
-            onChange={(e) => onChange(e.target.value)}
-            className={`border-b outline-none text-[14px]
-              ${!enabled && "opacity-40"}`}
+            onChange={onChange}
+            align="right"
           />
         </div>
       )}
