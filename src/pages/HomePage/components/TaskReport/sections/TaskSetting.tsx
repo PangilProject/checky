@@ -23,7 +23,7 @@ import {
 } from "@/shared/api/taskSetting";
 
 import { DateSelectModal } from "../modals/DateSelectModal";
-import { ConfirmModal } from "../modals/ConfirmModal";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 
 /**
  * 할 일 목록 일괄 작업(이동/복사/삭제) 설정 메뉴를 처리합니다.
