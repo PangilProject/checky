@@ -3,6 +3,8 @@ import { Text3, Text5 } from "@/shared/ui/Text";
 import { Space10, Space2 } from "@/shared/ui/Space";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { IoIosCheckbox, IoIosCheckboxOutline } from "react-icons/io";
+import { toast } from "react-toastify";
+import { useSubmitLock } from "@/shared/hooks/useSubmitLock";
 import {
   NormalBlackButton,
   NormalBlackUnFillButton,
@@ -33,31 +35,51 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
   const [currentMode, setCurrentMode] = useState(mode);
 
   const isReadOnly = currentMode === "VIEW";
+  const { isSubmitting, runExclusive } = useSubmitLock();
+
+  // 변경 사항이 없으면 저장 버튼을 비활성화하기 위한 판단값
+  const isDirty = notice
+    ? title.trim() !== notice.title ||
+      content !== notice.content ||
+      pinned !== notice.pinned
+    : true;
 
   const handleSave = async () => {
-    if (!title.trim()) return;
-
-    if (currentMode === "CREATE") {
-      await addDoc(collection(db, "notices"), {
-        title,
-        content,
-        pinned,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+    if (!title.trim()) {
+      toast.error("제목을 입력해주세요.", {
+        toastId: "notice-form-validation",
       });
+      return;
     }
 
-    if (currentMode === "EDIT" && notice) {
-      await updateDoc(doc(db, "notices", notice.id), {
-        title,
-        content,
-        pinned,
-        updatedAt: serverTimestamp(),
-      });
-    }
+    await runExclusive(async () => {
+      try {
+        if (currentMode === "CREATE") {
+          await addDoc(collection(db, "notices"), {
+            title,
+            content,
+            pinned,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+        }
 
-    await onSaved?.();
-    onClose();
+        if (currentMode === "EDIT" && notice) {
+          await updateDoc(doc(db, "notices", notice.id), {
+            title,
+            content,
+            pinned,
+            updatedAt: serverTimestamp(),
+          });
+        }
+
+        await onSaved?.();
+        onClose();
+      } catch (e) {
+        console.error("공지 저장 실패", e);
+        toast.error("공지 저장에 실패했습니다.");
+      }
+    });
   };
 
   const handleDelete = async () => {
@@ -74,8 +96,8 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
           currentMode === "CREATE"
             ? "공지 추가"
             : currentMode === "EDIT"
-            ? "공지 수정"
-            : "공지 상세"
+              ? "공지 수정"
+              : "공지 상세"
         }
         className="font-bold"
       />
@@ -133,7 +155,11 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
       ) : (
         <div className="flex justify-between">
           <NormalBlackUnFillButton text="취소" onClick={onClose} />
-          <NormalBlackButton text="저장" onClick={handleSave} />
+          <NormalBlackButton
+            text="저장"
+            onClick={handleSave}
+            disabled={isSubmitting || !isDirty}
+          />
         </div>
       )}
     </ModalWrapper>
