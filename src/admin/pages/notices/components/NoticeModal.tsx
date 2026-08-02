@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Text3, Text5 } from "@/shared/ui/Text";
 import { Space10, Space2 } from "@/shared/ui/Space";
 import { ModalWrapper } from "@/shared/ui/Modal";
+import { IoIosCheckbox, IoIosCheckboxOutline } from "react-icons/io";
 import {
   NormalBlackButton,
   NormalBlackUnFillButton,
@@ -97,20 +98,24 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
         value={content}
         disabled={isReadOnly}
         onChange={(e) => setContent(e.target.value)}
-        className="w-full h-32 border rounded p-2 text-sm"
+        className="w-full h-32 resize-none border rounded p-2 text-sm outline-none"
       />
 
       <Space10 direction="mb" />
 
       {!isReadOnly && (
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={pinned}
-            onChange={(e) => setPinned(e.target.checked)}
-          />
+        <button
+          type="button"
+          onClick={() => setPinned(!pinned)}
+          className="flex items-center gap-2 text-sm"
+        >
+          {pinned ? (
+            <IoIosCheckbox size={18} />
+          ) : (
+            <IoIosCheckboxOutline size={18} />
+          )}
           상단 고정
-        </label>
+        </button>
       )}
 
       <Space10 direction="mb" />
