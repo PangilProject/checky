@@ -17,7 +17,7 @@ export default function RoutineModal({
   onClose,
 }: RoutineModalProps) {
   const state = useRoutineModalState({ mode, routine });
-  const { handleSubmit, handleDelete } = useRoutineModalActions({
+  const { handleSubmit, handleDelete, isSubmitting } = useRoutineModalActions({
     routine,
     categoryId,
     onClose,
@@ -95,6 +95,7 @@ export default function RoutineModal({
         onEdit={() => state.setCurrentMode("EDIT")}
         onSubmit={onSubmit}
         onDelete={handleDelete}
+        submitDisabled={isSubmitting || !state.isDirty}
       />
     </ModalWrapper>
   );

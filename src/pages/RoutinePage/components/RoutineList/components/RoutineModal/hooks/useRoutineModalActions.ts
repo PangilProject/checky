@@ -6,16 +6,19 @@ import {
   updateRoutine,
   type Routine,
 } from "@/shared/api/routine";
-import {
-  monthlyStatsKeys,
-  routinePageKeys,
-} from "@/shared/api/keys";
+import { monthlyStatsKeys, routinePageKeys } from "@/shared/api/keys";
 import {
   collectAffectedMonths,
   refreshCalendarConsistency,
 } from "@/shared/api/monthlyStats";
-import { buildNextScheduleHistory, getTodayLocalDate } from "../utils";
+import {
+  buildNextScheduleHistory,
+  getRoutineValidationMessage,
+  getTodayLocalDate,
+} from "../utils";
 import type { RoutineModalMode } from "../types";
+import { toast } from "react-toastify";
+import { useSubmitLock } from "@/shared/hooks/useSubmitLock";
 
 const getCachedMonthlyStatsMonths = ({
   queryClient,
@@ -43,8 +46,21 @@ const getCachedMonthlyStatsMonths = ({
   return [...months];
 };
 
-const refreshAffectedData = async ({ userId, affectedMonths, queryClient }: { userId: string; affectedMonths: string[]; queryClient: ReturnType<typeof useQueryClient> }) => {
-  const months = Array.from(new Set([...affectedMonths, ...getCachedMonthlyStatsMonths({ queryClient, userId })]));
+const refreshAffectedData = async ({
+  userId,
+  affectedMonths,
+  queryClient,
+}: {
+  userId: string;
+  affectedMonths: string[];
+  queryClient: ReturnType<typeof useQueryClient>;
+}) => {
+  const months = Array.from(
+    new Set([
+      ...affectedMonths,
+      ...getCachedMonthlyStatsMonths({ queryClient, userId }),
+    ]),
+  );
   await refreshCalendarConsistency({
     queryClient,
     userId,
@@ -67,6 +83,7 @@ export const useRoutineModalActions = ({
 }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { isSubmitting, runExclusive } = useSubmitLock();
 
   const handleSubmit = async ({
     mode,
@@ -87,65 +104,80 @@ export const useRoutineModalActions = ({
     endDate: string;
     isRepeatChanged: boolean;
   }) => {
-    if (!title.trim() || selectedDays.length === 0 || !user) return;
-    if (mode === "EDIT" && isRepeatChanged && !effectiveFrom) return;
-    if (endDateEnabled && !endDate) return;
-    if (endDateEnabled && endDate < startDate) return;
-
-    try {
-      let affectedMonths: string[] = [];
-
-      if (mode === "CREATE") {
-        await createRoutine({
-          userId: user.uid,
-          title,
-          categoryId,
-          days: selectedDays,
-          startDate,
-          endDate: endDateEnabled ? endDate : undefined,
-        });
-
-        const today = getTodayLocalDate();
-        const end = endDateEnabled && endDate ? endDate : today;
-        affectedMonths = collectAffectedMonths({
-          ranges: [{ startDate, endDate: end }],
-        });
-      }
-
-      if (mode === "EDIT" && routine) {
-        const today = getTodayLocalDate();
-        const prevEnd = routine.endDate ?? today;
-        const nextEnd = endDateEnabled && endDate ? endDate : today;
-        const spanEnd = prevEnd > nextEnd ? prevEnd : nextEnd;
-        affectedMonths = collectAffectedMonths({
-          ranges: [{ startDate: routine.startDate, endDate: spanEnd }],
-        });
-
-        await updateRoutine({
-          userId: user.uid,
-          routineId: routine.id,
-          title,
-          days: selectedDays,
-          scheduleHistory: buildNextScheduleHistory({
-            routine,
-            effectiveFrom,
-            days: selectedDays,
-            shouldAppend: isRepeatChanged,
-          }),
-          endDate: endDateEnabled ? endDate : null,
-        });
-      }
-
-      await refreshAffectedData({
-        userId: user.uid,
-        affectedMonths,
-        queryClient,
-      });
-
-      onClose();
-    } catch (e) {
-      console.error("루틴 저장 실패", e);
+    // 검증 실패는 조용히 무시하지 않고 사유를 하나만 알린다.
+    const validationMessage = getRoutineValidationMessage({
+      mode,
+      title,
+      selectedDays,
+      startDate,
+      effectiveFrom,
+      endDateEnabled,
+      endDate,
+      isRepeatChanged,
+    });
+    if (validationMessage) {
+      toast.error(validationMessage, { toastId: "routine-form-validation" });
+      return;
     }
+    if (!user) return;
+
+    await runExclusive(async () => {
+      try {
+        let affectedMonths: string[] = [];
+
+        if (mode === "CREATE") {
+          await createRoutine({
+            userId: user.uid,
+            title,
+            categoryId,
+            days: selectedDays,
+            startDate,
+            endDate: endDateEnabled ? endDate : undefined,
+          });
+
+          const today = getTodayLocalDate();
+          const end = endDateEnabled && endDate ? endDate : today;
+          affectedMonths = collectAffectedMonths({
+            ranges: [{ startDate, endDate: end }],
+          });
+        }
+
+        if (mode === "EDIT" && routine) {
+          const today = getTodayLocalDate();
+          const prevEnd = routine.endDate ?? today;
+          const nextEnd = endDateEnabled && endDate ? endDate : today;
+          const spanEnd = prevEnd > nextEnd ? prevEnd : nextEnd;
+          affectedMonths = collectAffectedMonths({
+            ranges: [{ startDate: routine.startDate, endDate: spanEnd }],
+          });
+
+          await updateRoutine({
+            userId: user.uid,
+            routineId: routine.id,
+            title,
+            days: selectedDays,
+            scheduleHistory: buildNextScheduleHistory({
+              routine,
+              effectiveFrom,
+              days: selectedDays,
+              shouldAppend: isRepeatChanged,
+            }),
+            endDate: endDateEnabled ? endDate : null,
+          });
+        }
+
+        await refreshAffectedData({
+          userId: user.uid,
+          affectedMonths,
+          queryClient,
+        });
+
+        onClose();
+      } catch (e) {
+        console.error("루틴 저장 실패", e);
+        toast.error("루틴 저장에 실패했습니다.");
+      }
+    });
   };
 
   const handleDelete = async () => {
@@ -175,5 +207,5 @@ export const useRoutineModalActions = ({
     }
   };
 
-  return { handleSubmit, handleDelete };
+  return { handleSubmit, handleDelete, isSubmitting };
 };

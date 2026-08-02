@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { Routine } from "@/shared/api/routine";
 import type { RoutineModalMode } from "../types";
-import { hasSameDays } from "../utils";
+import { hasSameDays, isRoutineFormDirty } from "../utils";
 import { DAYS } from "@/shared/constants/dateLabels";
 
 export const useRoutineModalState = ({
@@ -33,6 +33,15 @@ export const useRoutineModalState = ({
   const isRepeatChanged = routine
     ? !hasSameDays(selectedDays, routine.days)
     : false;
+
+  // 변경 사항이 없으면 저장 버튼을 비활성화하기 위한 판단값
+  const isDirty = isRoutineFormDirty({
+    routine,
+    title,
+    selectedDays,
+    endDateEnabled,
+    endDate,
+  });
 
   const selectAllDays = useMemo(
     () => selectedDays.length === DAYS.length,
@@ -74,6 +83,7 @@ export const useRoutineModalState = ({
     isReadOnly,
     isEditMode,
     isRepeatChanged,
+    isDirty,
     selectAllDays,
     toggleDay,
     toggleSelectAllDays,
