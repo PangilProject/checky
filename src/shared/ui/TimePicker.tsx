@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatHmLabel } from "@/shared/hooks/formatDate";
+import { usePopoverPosition } from "@/shared/hooks/usePopoverPosition";
 
 const MERIDIEMS = [
   { key: "AM", label: "오전" },
@@ -70,7 +72,8 @@ export const TimePicker = ({
   className = "",
 }: TimePickerProps) => {
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const hourListRef = useRef<HTMLDivElement>(null);
   const minuteListRef = useRef<HTMLDivElement>(null);
 
@@ -92,8 +95,10 @@ export const TimePicker = ({
     if (!open) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (!containerRef.current) return;
-      if (!containerRef.current.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (triggerRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
+      setOpen(false);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -125,9 +130,12 @@ export const TimePicker = ({
     `w-full rounded-md py-1 text-center text-[13px]
      ${selected ? "bg-black font-bold text-white" : "hover:bg-gray-100"}`;
 
+  usePopoverPosition(open && !disabled, triggerRef, panelRef, align);
+
   return (
-    <div ref={containerRef} className={`relative ${className}`}>
+    <div className={`relative ${className}`}>
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
@@ -138,63 +146,68 @@ export const TimePicker = ({
         {formatHmLabel(value) || "시간 선택"}
       </button>
 
-      {open && !disabled && (
-        <div
-          className={`absolute z-1100 mt-2 flex w-48 gap-1 rounded-xl border border-gray-200 bg-white p-2
-            shadow-[0_8px_24px_rgba(0,0,0,0.14)]
-            ${align === "right" ? "right-0" : "left-0"}`}
-        >
-          {/* 오전 / 오후 */}
-          <div className="flex w-14 flex-col gap-1">
-            {MERIDIEMS.map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => update({ meridiem: item.key })}
-                className={columnItemClass(current.meridiem === item.key)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
-          {/* 시 */}
+      {open &&
+        !disabled &&
+        createPortal(
           <div
-            ref={hourListRef}
-            className="flex max-h-44 flex-1 flex-col gap-0.5 overflow-y-auto"
+            ref={panelRef}
+            // 위치는 usePopoverPosition이 뷰포트 기준으로 잡아준다.
+            style={{ top: 0, left: 0 }}
+            className="fixed z-1100 flex max-h-[calc(100vh-16px)] w-48 gap-1 rounded-xl
+              border border-gray-200 bg-white p-2 shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
           >
-            {HOURS.map((hour) => (
-              <button
-                key={hour}
-                type="button"
-                data-selected={current.hour12 === hour}
-                onClick={() => update({ hour12: hour })}
-                className={columnItemClass(current.hour12 === hour)}
-              >
-                {hour}
-              </button>
-            ))}
-          </div>
+            {/* 오전 / 오후 */}
+            <div className="flex w-14 flex-col gap-1">
+              {MERIDIEMS.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => update({ meridiem: item.key })}
+                  className={columnItemClass(current.meridiem === item.key)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
 
-          {/* 분 */}
-          <div
-            ref={minuteListRef}
-            className="flex max-h-44 flex-1 flex-col gap-0.5 overflow-y-auto"
-          >
-            {minuteOptions.map((minute) => (
-              <button
-                key={minute}
-                type="button"
-                data-selected={current.minute === minute}
-                onClick={() => update({ minute })}
-                className={columnItemClass(current.minute === minute)}
-              >
-                {String(minute).padStart(2, "0")}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+            {/* 시 */}
+            <div
+              ref={hourListRef}
+              className="flex max-h-44 flex-1 flex-col gap-0.5 overflow-y-auto"
+            >
+              {HOURS.map((hour) => (
+                <button
+                  key={hour}
+                  type="button"
+                  data-selected={current.hour12 === hour}
+                  onClick={() => update({ hour12: hour })}
+                  className={columnItemClass(current.hour12 === hour)}
+                >
+                  {hour}
+                </button>
+              ))}
+            </div>
+
+            {/* 분 */}
+            <div
+              ref={minuteListRef}
+              className="flex max-h-44 flex-1 flex-col gap-0.5 overflow-y-auto"
+            >
+              {minuteOptions.map((minute) => (
+                <button
+                  key={minute}
+                  type="button"
+                  data-selected={current.minute === minute}
+                  onClick={() => update({ minute })}
+                  className={columnItemClass(current.minute === minute)}
+                >
+                  {String(minute).padStart(2, "0")}
+                </button>
+              ))}
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };
