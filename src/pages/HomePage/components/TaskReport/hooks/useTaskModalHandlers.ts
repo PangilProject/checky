@@ -1,10 +1,16 @@
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { createTask, deleteTaskWithLogs, updateTaskWithDateMove } from "@/shared/api/task";
+import {
+  createTask,
+  deleteTaskWithLogs,
+  updateTaskWithDateMove,
+} from "@/shared/api/task";
 import type { Task } from "@/shared/api/task";
 import type { Category } from "@/shared/api/category";
 import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
 import { patchMonthlyStatsByDayDeltas } from "@/shared/api/monthlyStats";
+import { toast } from "react-toastify";
+import { useSubmitLock } from "@/shared/hooks/useSubmitLock";
 
 interface UseTaskModalHandlersParams {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -28,11 +34,12 @@ export const useTaskModalHandlers = ({
   userId,
 }: UseTaskModalHandlersParams) => {
   const queryClient = useQueryClient();
+  const { isSubmitting, runExclusive } = useSubmitLock();
   const DEFAULT_TIME = "12:00";
   const [taskInput, setTaskInput] = useState(task?.title ?? "");
   const [taskDate, setTaskDate] = useState(task?.date ?? selectedDate);
   const [selectedCategoryId, setSelectedCategoryId] = useState(
-    task?.categoryId ?? categoryId
+    task?.categoryId ?? categoryId,
   );
   const [timeEnabled, setTimeEnabled] = useState<boolean>(Boolean(task?.time));
   const [taskTime, setTaskTime] = useState<string>(task?.time ?? DEFAULT_TIME);
@@ -41,10 +48,9 @@ export const useTaskModalHandlers = ({
   const isReadOnly = currentMode === "VIEW";
   const selectedCategory = useMemo(
     () => categories.find((c) => c.id === selectedCategoryId),
-    [categories, selectedCategoryId]
+    [categories, selectedCategoryId],
   );
-  const effectiveCategoryId =
-    selectedCategoryId ?? categories[0]?.id ?? "";
+  const effectiveCategoryId = selectedCategoryId ?? categories[0]?.id ?? "";
   const selectedCategoryColor =
     selectedCategory?.color ??
     categories.find((c) => c.id === effectiveCategoryId)?.color ??
@@ -63,46 +69,77 @@ export const useTaskModalHandlers = ({
     });
   };
 
-  const handleCreateTask = async () => {
-    if (!taskInput.trim() || !userId || !effectiveCategoryId) return;
+  /** 첫 번째 검증 실패 사유. 통과하면 null. */
+  const getValidationMessage = () => {
+    if (!taskInput.trim()) return "할 일을 입력해주세요.";
+    if (!effectiveCategoryId) return "카테고리를 먼저 추가해주세요.";
+    return null;
+  };
 
-    try {
-      await createTask({
-        userId,
-        title: taskInput,
-        categoryId: effectiveCategoryId,
-        categoryColor: selectedCategoryColor,
-        date: taskDate,
-        ...(timeEnabled && { time: taskTime }),
-      });
-      invalidateTaskDates([taskDate]);
-      onClose();
-    } catch (e) {
-      console.error("태스크 생성 실패", e);
+  // 변경 사항이 없으면 저장 버튼을 비활성화하기 위한 판단값
+  const isDirty = task
+    ? taskInput.trim() !== task.title ||
+      taskDate !== task.date ||
+      effectiveCategoryId !== task.categoryId ||
+      (timeEnabled ? taskTime : "") !== (task.time ?? "")
+    : true;
+
+  const handleCreateTask = async () => {
+    const validationMessage = getValidationMessage();
+    if (validationMessage) {
+      toast.error(validationMessage, { toastId: "task-form-validation" });
+      return;
     }
+    if (!userId) return;
+
+    await runExclusive(async () => {
+      try {
+        await createTask({
+          userId,
+          title: taskInput,
+          categoryId: effectiveCategoryId,
+          categoryColor: selectedCategoryColor,
+          date: taskDate,
+          ...(timeEnabled && { time: taskTime }),
+        });
+        invalidateTaskDates([taskDate]);
+        onClose();
+      } catch (e) {
+        console.error("태스크 생성 실패", e);
+        toast.error("할 일 저장에 실패했습니다.");
+      }
+    });
   };
 
   const handleUpdateTask = async () => {
-    if (!task || !taskInput.trim() || !userId || !effectiveCategoryId) return;
-
-    try {
-      await updateTaskWithDateMove({
-        userId,
-        taskId: task.id,
-        title: taskInput,
-        ...(timeEnabled ? { time: taskTime } : { time: undefined }),
-        prevDate: task.date,
-        nextDate: taskDate,
-        prevCategoryId: task.categoryId,
-        categoryId: effectiveCategoryId,
-        categoryColor: selectedCategoryColor,
-      });
-
-      invalidateTaskDates([task.date, taskDate]);
-      onClose();
-    } catch (e) {
-      console.error("태스크 수정 실패", e);
+    const validationMessage = getValidationMessage();
+    if (validationMessage) {
+      toast.error(validationMessage, { toastId: "task-form-validation" });
+      return;
     }
+    if (!task || !userId) return;
+
+    await runExclusive(async () => {
+      try {
+        await updateTaskWithDateMove({
+          userId,
+          taskId: task.id,
+          title: taskInput,
+          ...(timeEnabled ? { time: taskTime } : { time: undefined }),
+          prevDate: task.date,
+          nextDate: taskDate,
+          prevCategoryId: task.categoryId,
+          categoryId: effectiveCategoryId,
+          categoryColor: selectedCategoryColor,
+        });
+
+        invalidateTaskDates([task.date, taskDate]);
+        onClose();
+      } catch (e) {
+        console.error("태스크 수정 실패", e);
+        toast.error("할 일 수정에 실패했습니다.");
+      }
+    });
   };
 
   const handleDeleteTask = async () => {
@@ -167,6 +204,8 @@ export const useTaskModalHandlers = ({
     setCurrentMode,
     isReadOnly,
     shouldShowTimeField,
+    isDirty,
+    isSubmitting,
     defaultTime: DEFAULT_TIME,
     selectedCategoryColor,
     handleCreateTask,

@@ -61,6 +61,8 @@ export default function TaskModal({
     setCurrentMode,
     isReadOnly,
     shouldShowTimeField,
+    isDirty,
+    isSubmitting,
     defaultTime,
     handleCreateTask,
     handleUpdateTask,
@@ -160,6 +162,7 @@ export default function TaskModal({
           currentMode === "CREATE" ? handleCreateTask : handleUpdateTask
         }
         onDelete={handleDeleteTask}
+        submitDisabled={isSubmitting || !isDirty}
       />
 
       {isMoveDateModalOpen && (
