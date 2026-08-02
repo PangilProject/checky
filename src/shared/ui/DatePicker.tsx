@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useCalendar } from "@/shared/hooks/calendar";
+import { usePopoverPosition } from "@/shared/hooks/usePopoverPosition";
 import {
   formatDateToYmd,
   formatYmdLabel,
@@ -43,7 +45,8 @@ export const DatePicker = ({
   className = "",
 }: DatePickerProps) => {
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const selectedDate = useMemo(() => parseYmd(value), [value]);
   const todayYmd = useMemo(() => formatDateToYmd(new Date()), []);
@@ -61,8 +64,10 @@ export const DatePicker = ({
     if (!open) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (!containerRef.current) return;
-      if (!containerRef.current.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (triggerRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
+      setOpen(false);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -93,9 +98,12 @@ export const DatePicker = ({
     setOpen(false);
   };
 
+  usePopoverPosition(open && !disabled, triggerRef, panelRef, align);
+
   return (
-    <div ref={containerRef} className={`relative ${className}`}>
+    <div className={`relative ${className}`}>
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         onClick={toggleOpen}
@@ -106,93 +114,98 @@ export const DatePicker = ({
         {formatYmdLabel(value) || "날짜 선택"}
       </button>
 
-      {open && !disabled && (
-        <div
-          className={`absolute z-1100 mt-2 w-70 rounded-xl border border-gray-200 bg-white p-3
-            shadow-[0_8px_24px_rgba(0,0,0,0.14)]
-            ${align === "right" ? "right-0" : "left-0"}`}
-        >
-          {/* 월 이동 헤더 */}
-          <div className="flex items-center justify-between px-1">
-            <button
-              type="button"
-              onClick={() => moveMonth(-1)}
-              className="h-7 w-7 rounded-md text-sm text-gray-500 hover:bg-gray-100"
-              aria-label="이전 달"
-            >
-              ‹
-            </button>
-            <span className="text-[14px] font-bold">
-              {viewDate.getFullYear()}년 {viewDate.getMonth() + 1}월
-            </span>
-            <button
-              type="button"
-              onClick={() => moveMonth(1)}
-              className="h-7 w-7 rounded-md text-sm text-gray-500 hover:bg-gray-100"
-              aria-label="다음 달"
-            >
-              ›
-            </button>
-          </div>
-
-          {/* 요일 헤더 */}
-          <div className="mt-2 grid grid-cols-7">
-            {WEEK_LABELS.map((label, index) => (
-              <span
-                key={label}
-                className="py-1 text-center text-[11px]"
-                style={{ color: getWeekdayColor(index) ?? "#9CA3AF" }}
+      {open &&
+        !disabled &&
+        createPortal(
+          <div
+            ref={panelRef}
+            // 위치는 usePopoverPosition이 뷰포트 기준으로 잡아준다.
+            style={{ top: 0, left: 0 }}
+            className="fixed z-1100 max-h-[calc(100vh-16px)] w-70 overflow-y-auto rounded-xl
+              border border-gray-200 bg-white p-3 shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+          >
+            {/* 월 이동 헤더 */}
+            <div className="flex items-center justify-between px-1">
+              <button
+                type="button"
+                onClick={() => moveMonth(-1)}
+                className="h-7 w-7 rounded-md text-sm text-gray-500 hover:bg-gray-100"
+                aria-label="이전 달"
               >
-                {label}
+                ‹
+              </button>
+              <span className="text-[14px] font-bold">
+                {viewDate.getFullYear()}년 {viewDate.getMonth() + 1}월
               </span>
-            ))}
-          </div>
+              <button
+                type="button"
+                onClick={() => moveMonth(1)}
+                className="h-7 w-7 rounded-md text-sm text-gray-500 hover:bg-gray-100"
+                aria-label="다음 달"
+              >
+                ›
+              </button>
+            </div>
 
-          {/* 날짜 그리드 */}
-          <div className="grid grid-cols-7 gap-y-0.5">
-            {cells.map((cell, index) => {
-              const ymd = formatDateToYmd(cell.date);
-              const isSelected = ymd === value;
-              const isToday = ymd === todayYmd;
-              const outOfRange = isOutOfRange(ymd);
+            {/* 요일 헤더 */}
+            <div className="mt-2 grid grid-cols-7">
+              {WEEK_LABELS.map((label, index) => (
+                <span
+                  key={label}
+                  className="py-1 text-center text-[11px]"
+                  style={{ color: getWeekdayColor(index) ?? "#9CA3AF" }}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
 
-              const textColor = isSelected
-                ? "#FFFFFF"
-                : !cell.isCurrentMonth || outOfRange
-                  ? "#C4C4C4"
-                  : getWeekdayColor(index);
+            {/* 날짜 그리드 */}
+            <div className="grid grid-cols-7 gap-y-0.5">
+              {cells.map((cell, index) => {
+                const ymd = formatDateToYmd(cell.date);
+                const isSelected = ymd === value;
+                const isToday = ymd === todayYmd;
+                const outOfRange = isOutOfRange(ymd);
 
-              return (
-                <button
-                  key={ymd}
-                  type="button"
-                  disabled={outOfRange}
-                  onClick={() => selectDate(ymd)}
-                  className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-[13px]
+                const textColor = isSelected
+                  ? "#FFFFFF"
+                  : !cell.isCurrentMonth || outOfRange
+                    ? "#C4C4C4"
+                    : getWeekdayColor(index);
+
+                return (
+                  <button
+                    key={ymd}
+                    type="button"
+                    disabled={outOfRange}
+                    onClick={() => selectDate(ymd)}
+                    className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-[13px]
                     ${isSelected ? "bg-black font-bold" : ""}
                     ${!isSelected && isToday ? "border border-black font-bold" : ""}
                     ${outOfRange ? "cursor-not-allowed" : "hover:bg-gray-100"}`}
-                  style={{ color: textColor }}
-                >
-                  {cell.date.getDate()}
-                </button>
-              );
-            })}
-          </div>
+                    style={{ color: textColor }}
+                  >
+                    {cell.date.getDate()}
+                  </button>
+                );
+              })}
+            </div>
 
-          {/* 오늘로 이동 */}
-          <div className="mt-2 flex justify-end border-t border-gray-100 pt-2">
-            <button
-              type="button"
-              disabled={isOutOfRange(todayYmd)}
-              onClick={() => selectDate(todayYmd)}
-              className="rounded-md px-2 py-1 text-[12px] text-gray-600 hover:bg-gray-100 disabled:opacity-40"
-            >
-              오늘
-            </button>
-          </div>
-        </div>
-      )}
+            {/* 오늘로 이동 */}
+            <div className="mt-2 flex justify-end border-t border-gray-100 pt-2">
+              <button
+                type="button"
+                disabled={isOutOfRange(todayYmd)}
+                onClick={() => selectDate(todayYmd)}
+                className="rounded-md px-2 py-1 text-[12px] text-gray-600 hover:bg-gray-100 disabled:opacity-40"
+              >
+                오늘
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };
