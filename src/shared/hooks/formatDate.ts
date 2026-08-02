@@ -34,6 +34,42 @@ export const parseYmd = (value: string): Date | null => {
 };
 
 /**
+ * "YYYY-MM-DD" -> "YYYY. MM. DD."
+ *
+ * @example
+ * "2026-03-19" -> "2026. 03. 19."
+ * "" -> ""
+ */
+export const formatYmdLabel = (value: string) => {
+  const matched = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? "");
+  if (!matched) return "";
+
+  const [, year, month, day] = matched;
+  return `${year}. ${month}. ${day}.`;
+};
+
+/**
+ * "HH:MM"(24시간) -> "오전/오후 h:mm"
+ *
+ * @example
+ * "15:30" -> "오후 3:30"
+ * "" -> ""
+ */
+export const formatHmLabel = (value: string) => {
+  const matched = /^(\d{2}):(\d{2})$/.exec(value ?? "");
+  if (!matched) return "";
+
+  const hour24 = Number(matched[1]);
+  const minute = Number(matched[2]);
+  if (hour24 > 23 || minute > 59) return "";
+
+  const meridiem = hour24 < 12 ? "오전" : "오후";
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+
+  return `${meridiem} ${hour12}:${String(minute).padStart(2, "0")}`;
+};
+
+/**
  * Timestamp -> ko-KR 날짜 문자열
  *
  * @example

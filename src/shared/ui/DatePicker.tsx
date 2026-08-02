@@ -1,20 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useCalendar } from "@/shared/hooks/calendar";
-import { formatDateToYmd, parseYmd } from "@/shared/hooks/formatDate";
+import {
+  formatDateToYmd,
+  formatYmdLabel,
+  parseYmd,
+} from "@/shared/hooks/formatDate";
 import { SATURDAY_COLOR, SUNDAY_COLOR } from "@/shared/constants/colors";
 
 const WEEK_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
-
-/**
- * "YYYY-MM-DD" -> "YYYY. MM. DD."
- */
-const formatYmdLabel = (value: string) => {
-  const matched = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? "");
-  if (!matched) return "날짜 선택";
-
-  const [, year, month, day] = matched;
-  return `${year}. ${month}. ${day}.`;
-};
 
 const getWeekdayColor = (index: number) => {
   if (index % 7 === 0) return SUNDAY_COLOR;
@@ -110,7 +103,7 @@ export const DatePicker = ({
           ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
           ${value ? "" : "text-gray-400"}`}
       >
-        {formatYmdLabel(value)}
+        {formatYmdLabel(value) || "날짜 선택"}
       </button>
 
       {open && !disabled && (
