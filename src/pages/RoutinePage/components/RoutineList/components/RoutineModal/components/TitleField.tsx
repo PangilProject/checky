@@ -22,6 +22,7 @@ export const TitleField = ({
         className="w-full border-0 border-b border-gray-300 text-sm outline-none ime-fallback"
         placeholder="루틴 입력"
         value={title}
+        maxLength={50}
         disabled={isReadOnly}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={(e) => {

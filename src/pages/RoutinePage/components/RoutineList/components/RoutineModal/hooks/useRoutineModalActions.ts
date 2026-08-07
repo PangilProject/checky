@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { useAuth } from "@/shared/hooks/useAuth";
 import {
   createRoutine,
@@ -67,6 +69,8 @@ export const useRoutineModalActions = ({
 }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  // 저장/삭제 처리 중 중복 실행 방지 (이중 클릭 시 루틴 중복 생성 차단)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async ({
     mode,
@@ -87,11 +91,32 @@ export const useRoutineModalActions = ({
     endDate: string;
     isRepeatChanged: boolean;
   }) => {
-    if (!title.trim() || selectedDays.length === 0 || !user) return;
-    if (mode === "EDIT" && isRepeatChanged && !effectiveFrom) return;
-    if (endDateEnabled && !endDate) return;
-    if (endDateEnabled && endDate < startDate) return;
+    if (!user) return;
+    // 입력값이 잘못된 경우 아무 반응 없이 끝나지 않도록 이유를 알린다
+    if (!title.trim()) {
+      toast.error("루틴 이름을 입력해 주세요.");
+      return;
+    }
+    if (selectedDays.length === 0) {
+      toast.error("반복할 요일을 하나 이상 선택해 주세요.");
+      return;
+    }
+    if (mode === "EDIT" && isRepeatChanged && !effectiveFrom) {
+      toast.error("변경 적용 시작일을 선택해 주세요.");
+      return;
+    }
+    if (endDateEnabled && !endDate) {
+      toast.error("종료 날짜를 선택해 주세요.");
+      return;
+    }
+    if (endDateEnabled && endDate < startDate) {
+      toast.error("종료 날짜는 시작 날짜보다 빠를 수 없습니다.");
+      return;
+    }
 
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     try {
       let affectedMonths: string[] = [];
 
@@ -143,14 +168,18 @@ export const useRoutineModalActions = ({
       });
 
       onClose();
-    } catch (e) {
-      console.error("루틴 저장 실패", e);
+    } catch {
+      toast.error("루틴 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
     if (!user || !routine) return;
+    if (isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       const today = getTodayLocalDate();
       const end = routine.endDate ?? today;
@@ -170,10 +199,12 @@ export const useRoutineModalActions = ({
       });
 
       onClose();
-    } catch (e) {
-      console.error("루틴 삭제 실패", e);
+    } catch {
+      toast.error("루틴 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  return { handleSubmit, handleDelete };
+  return { handleSubmit, handleDelete, isSubmitting };
 };

@@ -7,6 +7,7 @@ import type { RoutineModalMode } from "../types";
 
 interface ButtonSectionProps {
   mode: RoutineModalMode;
+  isSubmitting?: boolean;
   onClose: () => void;
   onEdit?: () => void;
   onSubmit?: () => void;
@@ -15,6 +16,7 @@ interface ButtonSectionProps {
 
 export const ButtonSection = ({
   mode,
+  isSubmitting = false,
   onClose,
   onEdit,
   onSubmit,
@@ -23,17 +25,37 @@ export const ButtonSection = ({
   if (mode === "VIEW") {
     return (
       <div className="flex justify-between">
-        <NormalBlackUnFillButton text="닫기" onClick={onClose} />
-        <NormalRedUnFillButton text="삭제" onClick={onDelete} />
-        <NormalBlackButton text="수정" onClick={onEdit} />
+        <NormalBlackUnFillButton
+          text="닫기"
+          onClick={onClose}
+          disabled={isSubmitting}
+        />
+        <NormalRedUnFillButton
+          text="삭제"
+          onClick={onDelete}
+          disabled={isSubmitting}
+        />
+        <NormalBlackButton
+          text="수정"
+          onClick={onEdit}
+          disabled={isSubmitting}
+        />
       </div>
     );
   }
 
   return (
     <div className="flex justify-between">
-      <NormalBlackUnFillButton text="취소" onClick={onClose} />
-      <NormalBlackButton text="저장" onClick={onSubmit} />
+      <NormalBlackUnFillButton
+        text="취소"
+        onClick={onClose}
+        disabled={isSubmitting}
+      />
+      <NormalBlackButton
+        text={isSubmitting ? "저장 중..." : "저장"}
+        onClick={onSubmit}
+        disabled={isSubmitting}
+      />
     </div>
   );
 };

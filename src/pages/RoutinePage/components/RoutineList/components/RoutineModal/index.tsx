@@ -17,14 +17,14 @@ export default function RoutineModal({
   onClose,
 }: RoutineModalProps) {
   const state = useRoutineModalState({ mode, routine });
-  const { handleSubmit, handleDelete } = useRoutineModalActions({
+  const { handleSubmit, handleDelete, isSubmitting } = useRoutineModalActions({
     routine,
     categoryId,
     onClose,
   });
 
   const onSubmit = () =>
-    handleSubmit({
+    void handleSubmit({
       mode: state.currentMode,
       title: state.title,
       selectedDays: state.selectedDays,
@@ -36,7 +36,7 @@ export default function RoutineModal({
     });
 
   return (
-    <ModalWrapper onClose={onClose}>
+    <ModalWrapper onClose={isSubmitting ? () => {} : onClose}>
       {/* 모달 타이틀 */}
       <ModalTitle mode={state.currentMode} />
       <Space10 direction="mb" />
@@ -44,7 +44,7 @@ export default function RoutineModal({
       {/* 루틴명 */}
       <TitleField
         title={state.title}
-        isReadOnly={state.isReadOnly}
+        isReadOnly={state.isReadOnly || isSubmitting}
         setTitle={state.setTitle}
         onSubmit={onSubmit}
       />
@@ -91,10 +91,11 @@ export default function RoutineModal({
       {/* 버튼 영역 */}
       <ButtonSection
         mode={state.currentMode}
+        isSubmitting={isSubmitting}
         onClose={onClose}
         onEdit={() => state.setCurrentMode("EDIT")}
         onSubmit={onSubmit}
-        onDelete={handleDelete}
+        onDelete={() => void handleDelete()}
       />
     </ModalWrapper>
   );
