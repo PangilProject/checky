@@ -12,7 +12,7 @@ function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      navigate("/home");
+      navigate("/home", { replace: true });
     }
   }, [user, isLoading, navigate]);
 
