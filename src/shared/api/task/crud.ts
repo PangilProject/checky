@@ -5,8 +5,8 @@
 
 import {
   addDoc,
-  deleteDoc,
   deleteField,
+  doc,
   getDocs,
   orderBy,
   query,
@@ -135,13 +135,15 @@ export const updateTaskWithDateMove = async ({
   const prevLog = snapshot.docs[0];
   const prevLogData = prevLog.data();
 
-  await deleteDoc(prevLog.ref);
-
-  await addDoc(taskLogsRef(userId), {
+  // 삭제와 생성을 하나의 배치로 처리해 중간에 실패해도 완료 기록이 사라지지 않게 한다
+  const batch = writeBatch(db);
+  batch.delete(prevLog.ref);
+  batch.set(doc(taskLogsRef(userId)), {
     ...prevLogData,
     date: nextDate,
     updatedAt: serverTimestamp(),
   });
+  await batch.commit();
 };
 
 /**
