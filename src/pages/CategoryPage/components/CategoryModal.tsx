@@ -19,6 +19,9 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import type { Category } from "@/shared/api/category";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+
+const CATEGORY_NAME_MAX_LENGTH = 20;
 
 interface CategoryModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -41,83 +44,80 @@ export default function CategoryModal({
       : COLORS[0],
   );
   const [currentMode, setCurrentMode] = useState(mode);
+  // 저장/종료/복구 처리 중 중복 실행 방지 (이중 클릭 시 문서 중복 생성 차단)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isReadOnly = currentMode === "VIEW";
 
-  const handleCreateCategory = async () => {
-    if (!categoryInput.trim()) return;
-
-    const userId = user?.uid;
+  /** 제출 핸들러 공통 래퍼: 중복 실행 차단 + 실패 시 사용자 알림 */
+  const runSubmit = async (action: () => Promise<void>, failMessage: string) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
-      if (userId) {
-        await createCategory({
-          userId,
-          name: categoryInput,
-          color: selectedColor.value,
-        });
-        await invalidateCategoryQueries(queryClient, userId);
-      }
-
+      await action();
       onClose();
-    } catch (error) {
-      console.error("카테고리 생성 실패", error);
+    } catch {
+      toast.error(failMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  const handleUpdateCategory = async () => {
-    if (!categoryInput.trim() || !category) return;
 
-    const userId = user?.uid;
-    try {
-      if (userId) {
-        await updateCategory({
-          userId,
-          categoryId: category.id,
-          name: categoryInput,
-          color: selectedColor.value,
-        });
-        await invalidateCategoryQueries(queryClient, userId);
-      }
-
-      onClose();
-    } catch (error) {
-      console.error("카테고리 수정 실패", error);
+  const handleCreateCategory = async () => {
+    const name = categoryInput.trim();
+    if (!name) {
+      toast.error("카테고리 이름을 입력해 주세요.");
+      return;
     }
+    const userId = user?.uid;
+    if (!userId) return;
+
+    await runSubmit(async () => {
+      await createCategory({ userId, name, color: selectedColor.value });
+      await invalidateCategoryQueries(queryClient, userId);
+    }, "카테고리 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+  };
+
+  const handleUpdateCategory = async () => {
+    const name = categoryInput.trim();
+    if (!name) {
+      toast.error("카테고리 이름을 입력해 주세요.");
+      return;
+    }
+    const userId = user?.uid;
+    if (!category || !userId) return;
+
+    await runSubmit(async () => {
+      await updateCategory({
+        userId,
+        categoryId: category.id,
+        name,
+        color: selectedColor.value,
+      });
+      await invalidateCategoryQueries(queryClient, userId);
+    }, "카테고리 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.");
   };
 
   const handleEndCategory = async () => {
     if (!category || !user) return;
 
-    try {
-      await endCategory({
-        userId: user.uid,
-        categoryId: category.id,
-      });
+    await runSubmit(async () => {
+      await endCategory({ userId: user.uid, categoryId: category.id });
       await invalidateCategoryQueries(queryClient, user.uid);
-
-      onClose();
-    } catch (error) {
-      console.error("카테고리 종료 실패", error);
-    }
+    }, "카테고리 종료에 실패했습니다. 잠시 후 다시 시도해 주세요.");
   };
 
   const handleRestoreCategory = async () => {
     if (!category || !user) return;
 
-    try {
-      await restoreCategory({
-        userId: user.uid,
-        categoryId: category.id,
-      });
+    await runSubmit(async () => {
+      await restoreCategory({ userId: user.uid, categoryId: category.id });
       await invalidateCategoryQueries(queryClient, user.uid);
-
-      onClose();
-    } catch (error) {
-      console.error("카테고리 복구 실패", error);
-    }
+    }, "카테고리 복구에 실패했습니다. 잠시 후 다시 시도해 주세요.");
   };
 
   return (
-    <ModalWrapper onClose={onClose}>
+    <ModalWrapper onClose={isSubmitting ? () => {} : onClose}>
       <ModalTitle mode={currentMode} />
       <Space10 direction="mb" />
 
@@ -126,34 +126,39 @@ export default function CategoryModal({
         setCategoryInput={setCategoryInput}
         onEnter={() => {
           if (currentMode === "CREATE") {
-            handleCreateCategory();
+            void handleCreateCategory();
             return;
           }
           if (currentMode === "EDIT") {
-            handleUpdateCategory();
+            void handleUpdateCategory();
           }
         }}
-        disabled={isReadOnly}
+        disabled={isReadOnly || isSubmitting}
       />
       <Space8 direction="mb" />
 
       <ColorSelector
         value={selectedColor}
         onChange={setSelectedColor}
-        disabled={isReadOnly}
+        disabled={isReadOnly || isSubmitting}
       />
       <Space10 direction="mb" />
 
       <ButtonSection
         mode={currentMode}
         categoryStatus={category?.status}
+        isSubmitting={isSubmitting}
         onClose={onClose}
         onEdit={() => setCurrentMode("EDIT")}
-        onSubmit={
-          currentMode === "CREATE" ? handleCreateCategory : handleUpdateCategory
-        }
-        onEnd={handleEndCategory}
-        onRestore={handleRestoreCategory}
+        onSubmit={() => {
+          if (currentMode === "CREATE") {
+            void handleCreateCategory();
+            return;
+          }
+          void handleUpdateCategory();
+        }}
+        onEnd={() => void handleEndCategory()}
+        onRestore={() => void handleRestoreCategory()}
       />
     </ModalWrapper>
   );
@@ -189,6 +194,7 @@ const Input = ({
       className="w-full border-0 border-b border-gray-300 text-[16px] outline-none ime-fallback"
       placeholder="카테고리 입력"
       value={categoryInput}
+      maxLength={CATEGORY_NAME_MAX_LENGTH}
       disabled={disabled}
       onChange={(e) => setCategoryInput(e.target.value)}
       onKeyDown={(e) => {
@@ -277,6 +283,7 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
 interface ButtonSectionProps {
   mode: "CREATE" | "VIEW" | "EDIT";
   categoryStatus?: "ACTIVE" | "ENDED";
+  isSubmitting?: boolean;
   onClose: () => void;
   onEdit?: () => void;
   onSubmit?: () => void;
@@ -286,6 +293,7 @@ interface ButtonSectionProps {
 const ButtonSection = ({
   mode,
   categoryStatus,
+  isSubmitting = false,
   onClose,
   onEdit,
   onSubmit,
@@ -298,8 +306,16 @@ const ButtonSection = ({
     if (categoryStatus === "ENDED") {
       return (
         <div className="flex justify-between">
-          <NormalBlackUnFillButton text="닫기" onClick={onClose} />
-          <NormalBlackButton text="복구" onClick={onRestore} />
+          <NormalBlackUnFillButton
+            text="닫기"
+            onClick={onClose}
+            disabled={isSubmitting}
+          />
+          <NormalBlackButton
+            text={isSubmitting ? "처리 중..." : "복구"}
+            onClick={onRestore}
+            disabled={isSubmitting}
+          />
         </div>
       );
     }
@@ -307,9 +323,21 @@ const ButtonSection = ({
     // ✅ 진행중 카테고리
     return (
       <div className="flex justify-between">
-        <NormalBlackUnFillButton text="닫기" onClick={onClose} />
-        <NormalRedUnFillButton text="종료" onClick={onEnd} />
-        <NormalBlackButton text="수정" onClick={onEdit} />
+        <NormalBlackUnFillButton
+          text="닫기"
+          onClick={onClose}
+          disabled={isSubmitting}
+        />
+        <NormalRedUnFillButton
+          text="종료"
+          onClick={onEnd}
+          disabled={isSubmitting}
+        />
+        <NormalBlackButton
+          text="수정"
+          onClick={onEdit}
+          disabled={isSubmitting}
+        />
       </div>
     );
   }
@@ -318,8 +346,16 @@ const ButtonSection = ({
   if (mode === "EDIT") {
     return (
       <div className="flex justify-between">
-        <NormalBlackUnFillButton text="취소" onClick={onClose} />
-        <NormalBlackButton text="저장" onClick={onSubmit} />
+        <NormalBlackUnFillButton
+          text="취소"
+          onClick={onClose}
+          disabled={isSubmitting}
+        />
+        <NormalBlackButton
+          text={isSubmitting ? "저장 중..." : "저장"}
+          onClick={onSubmit}
+          disabled={isSubmitting}
+        />
       </div>
     );
   }
@@ -327,8 +363,16 @@ const ButtonSection = ({
   // CREATE
   return (
     <div className="flex justify-between">
-      <NormalBlackUnFillButton text="닫기" onClick={onClose} />
-      <NormalBlackButton text="완료" onClick={onSubmit} />
+      <NormalBlackUnFillButton
+        text="닫기"
+        onClick={onClose}
+        disabled={isSubmitting}
+      />
+      <NormalBlackButton
+        text={isSubmitting ? "저장 중..." : "완료"}
+        onClick={onSubmit}
+        disabled={isSubmitting}
+      />
     </div>
   );
 };
