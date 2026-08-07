@@ -13,7 +13,12 @@ function formatDate(date?: Date) {
 
 export default function NoticeList({ notices, onSelect }: Props) {
   if (notices.length === 0) {
-    return <Text2 text="공지사항이 없습니다." />;
+    // 콘텐츠 영역 높이가 고정되어 있으므로 안내 문구를 중앙에 둔다
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Text2 text="공지사항이 없습니다." className="text-gray-400" />
+      </div>
+    );
   }
 
   return (
