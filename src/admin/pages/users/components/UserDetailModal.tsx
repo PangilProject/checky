@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import { Text2, Text3, Text5 } from "@/shared/ui/Text";
+import { Text2, Text3 } from "@/shared/ui/Text";
 import { Space10, Space2, Space8 } from "@/shared/ui/Space";
 import { ModalWrapper } from "@/shared/ui/Modal";
+import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { NormalBlackUnFillButton } from "@/shared/ui/Button";
 import type { AdminUser } from "../hooks/useAdminUsers";
 
@@ -57,14 +58,14 @@ function InfoRow({
 ====================== */
 
 export default function UserDetailModal({ user, onClose }: Props) {
+  // 활성 여부는 실사용을 나타내는 마지막 접속 기준으로 판단한다
   const isActive =
-    user.lastLoginAt &&
-    user.lastLoginAt.getTime() >= NOW_TIME - ACTIVE_WINDOW_MS;
+    user.lastActiveAt &&
+    user.lastActiveAt.getTime() >= NOW_TIME - ACTIVE_WINDOW_MS;
 
   return (
     <ModalWrapper onClose={onClose}>
-      <Text5 text="사용자 정보" className="font-bold" />
-      <Space10 direction="mb" />
+      <ModalTitle text="사용자 정보" />
 
       {/* ================= 기본 정보 ================= */}
       <div>
@@ -91,6 +92,10 @@ export default function UserDetailModal({ user, onClose }: Props) {
           icon={<FiClock />}
           text={`마지막 로그인: ${formatDate(user.lastLoginAt)}`}
         />
+        <InfoRow
+          icon={<FiClock />}
+          text={`마지막 접속: ${formatDate(user.lastActiveAt)}`}
+        />
       </div>
 
       <Space8 direction="mb" />
@@ -107,10 +112,10 @@ export default function UserDetailModal({ user, onClose }: Props) {
 
         <InfoRow
           icon={<FiClock />}
-          text={`최근 로그인: ${
-            user.lastLoginAt
-              ? `${diffDays(user.lastLoginAt, NOW_TIME)}일 전`
-              : "-"
+          text={`최근 접속: ${
+            user.lastActiveAt
+              ? `${diffDays(user.lastActiveAt, NOW_TIME)}일 전`
+              : "기록 없음"
           }`}
           muted
         />

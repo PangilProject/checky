@@ -29,6 +29,20 @@ export const createUser = async (user: User) => {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     lastLoginAt: serverTimestamp(),
+    lastActiveAt: serverTimestamp(),
+  });
+};
+
+/**
+ * 마지막 접속 시각을 갱신합니다.
+ *
+ * lastLoginAt은 구글 인증을 실제로 수행할 때만 갱신되므로, 세션이 유지되는 동안
+ * 계속 사용하는 사용자는 값이 오래된 채 남습니다. 실사용 여부를 판단하려면
+ * 세션으로 앱을 열었을 때도 기록이 필요합니다.
+ */
+export const updateLastActive = async (uid: string) => {
+  await updateDoc(doc(db, "users", uid), {
+    lastActiveAt: serverTimestamp(),
   });
 };
 

@@ -3,52 +3,66 @@ import { doc, getDoc } from "firebase/firestore/lite";
 
 /**
  * @file adminAccess.ts
- * @description 관리자 접근 권한(isAdmin) 조회 유틸
+ * @description 로그인 사용자의 users/{uid} 문서에서 접근 권한과 접속 기록을 조회하는 유틸
  */
 
-// uid -> isAdmin 메모리 캐시
-const adminCache = new Map<string, boolean>();
+export interface UserAccessInfo {
+  /** 관리자 여부 */
+  isAdmin: boolean;
+  /** 마지막 접속 시각 (기록이 없으면 null) */
+  lastActiveAt: Date | null;
+}
+
+// uid -> 조회 결과 메모리 캐시
+const accessCache = new Map<string, UserAccessInfo>();
 // uid별 진행 중 요청 Promise 캐시 (중복 요청 방지)
-const adminFetchInFlight = new Map<string, Promise<boolean>>();
+const accessFetchInFlight = new Map<string, Promise<UserAccessInfo>>();
 
 /**
- * 관리자 캐시를 비웁니다.
+ * 캐시를 비웁니다.
  * 로그아웃 시 호출해 다른 계정으로 재로그인했을 때
  * 이전 계정의 권한 판단이 남지 않도록 합니다.
  */
 export const clearAdminCache = () => {
-  adminCache.clear();
-  adminFetchInFlight.clear();
+  accessCache.clear();
+  accessFetchInFlight.clear();
 };
 
 /**
- * 사용자 관리자 여부를 캐시 기반으로 조회합니다.
- * 캐시에 없으면 Firestore users/{uid}.isAdmin 값을 조회합니다.
+ * 사용자 문서를 한 번만 읽어 권한과 접속 기록을 함께 반환합니다.
+ *
+ * 관리자 여부와 마지막 접속 시각은 같은 문서에 있으므로 따로 읽지 않습니다.
  */
-export const getIsAdminCached = async (uid: string): Promise<boolean> => {
+export const getUserAccessInfoCached = async (
+  uid: string
+): Promise<UserAccessInfo> => {
   // 1) 메모리 캐시 히트
-  if (adminCache.has(uid)) {
-    return adminCache.get(uid) === true;
-  }
+  const cached = accessCache.get(uid);
+  if (cached) return cached;
 
   // 2) 동일 uid 요청이 진행 중이면 기존 Promise 재사용
-  const pending = adminFetchInFlight.get(uid);
+  const pending = accessFetchInFlight.get(uid);
   if (pending) return pending;
 
   // 3) Firestore 조회 후 캐시 저장
   const request = (async () => {
-    const userRef = doc(db, "users", uid);
-    const snap = await getDoc(userRef);
-    const isAdmin = snap.data()?.isAdmin === true;
-    adminCache.set(uid, isAdmin);
-    return isAdmin;
+    const snap = await getDoc(doc(db, "users", uid));
+    const data = snap.data();
+    const info: UserAccessInfo = {
+      isAdmin: data?.isAdmin === true,
+      lastActiveAt:
+        (data?.lastActiveAt as { toDate?: () => Date } | undefined)?.toDate?.() ??
+        null,
+    };
+    accessCache.set(uid, info);
+    return info;
   })();
 
-  adminFetchInFlight.set(uid, request);
+  accessFetchInFlight.set(uid, request);
   try {
     return await request;
   } finally {
     // 완료된 in-flight 요청은 정리
-    adminFetchInFlight.delete(uid);
+    accessFetchInFlight.delete(uid);
   }
 };

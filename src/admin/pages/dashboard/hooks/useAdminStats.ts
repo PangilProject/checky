@@ -85,7 +85,9 @@ export const useAdminStats = () => {
 
       users.forEach((user) => {
         const createdAt = user.createdAt?.toDate?.();
-        const lastLoginAt = user.lastLoginAt?.toDate?.();
+        // 활성 지표는 실사용을 나타내는 마지막 접속 기준으로 집계한다.
+        // 마지막 로그인은 구글 인증을 다시 수행할 때만 갱신되어 실사용과 어긋난다.
+        const lastActiveAt = user.lastActiveAt?.toDate?.();
 
         if (createdAt) {
           if (createdAt >= startOfToday) todayUsers++;
@@ -95,11 +97,11 @@ export const useAdminStats = () => {
           signupMap.set(key, (signupMap.get(key) ?? 0) + 1);
         }
 
-        if (lastLoginAt) {
-          if (lastLoginAt >= startOfWeek) activeUsers++;
-          if (lastLoginAt >= startOfToday) todayActiveUsers++;
+        if (lastActiveAt) {
+          if (lastActiveAt >= startOfWeek) activeUsers++;
+          if (lastActiveAt >= startOfToday) todayActiveUsers++;
 
-          const key = toDateKey(lastLoginAt);
+          const key = toDateKey(lastActiveAt);
           activeMap.set(key, (activeMap.get(key) ?? 0) + 1);
         }
       });

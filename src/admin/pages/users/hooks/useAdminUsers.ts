@@ -7,7 +7,10 @@ export interface AdminUser {
   name?: string;
   email?: string;
   createdAt?: Date;
+  /** 구글 인증을 실제로 수행한 시각 */
   lastLoginAt?: Date;
+  /** 세션으로 앱을 연 시각 (실사용 기준) */
+  lastActiveAt?: Date;
 }
 
 export const useAdminUsers = () => {
@@ -37,6 +40,7 @@ export const useAdminUsers = () => {
             email: data.email,
             createdAt: data.createdAt?.toDate?.(),
             lastLoginAt: data.lastLoginAt?.toDate?.(),
+            lastActiveAt: data.lastActiveAt?.toDate?.(),
           };
         });
 

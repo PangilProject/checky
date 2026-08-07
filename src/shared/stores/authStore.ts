@@ -3,8 +3,10 @@ import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
 import {
   clearAdminCache,
-  getIsAdminCached,
+  getUserAccessInfoCached,
 } from "@/shared/api/auth/adminAccess";
+import { updateLastActive } from "@/shared/api/auth/user";
+import { formatDateToYmd } from "@/shared/hooks/formatDate";
 
 /**
  * @file authStore.ts
@@ -31,6 +33,20 @@ export const useAuthStore = create<AuthState>(() => ({
   isLoading: true,
   isAdminLoading: false,
 }));
+
+/**
+ * 마지막 접속 시각을 하루에 한 번만 기록한다.
+ *
+ * 활성 판단 기준이 일 단위이므로 접속마다 쓸 필요가 없고,
+ * 매번 쓰면 사용자 한 명이 하루에 수십 번 쓰게 되어 비용만 늘어난다.
+ * 지표용 기록이라 실패해도 앱 동작에 영향을 주지 않도록 조용히 넘긴다.
+ */
+const touchLastActiveIfNeeded = (uid: string, lastActiveAt: Date | null) => {
+  const today = formatDateToYmd(new Date());
+  if (lastActiveAt && formatDateToYmd(lastActiveAt) === today) return;
+
+  void updateLastActive(uid).catch(() => {});
+};
 
 /** 인증 구독은 앱 생애 동안 하나만 유지한다 */
 let isSubscribed = false;
@@ -64,8 +80,11 @@ export const ensureAuthSubscription = () => {
       isAdminLoading: true,
     });
 
-    getIsAdminCached(uid)
-      .then((isAdmin) => {
+    getUserAccessInfoCached(uid)
+      .then(({ isAdmin, lastActiveAt }) => {
+        // 같은 문서를 읽으며 얻은 접속 기록으로 갱신 필요 여부를 판단한다
+        touchLastActiveIfNeeded(uid, lastActiveAt);
+
         // 조회 중 계정이 바뀌었다면 이전 사용자의 결과를 반영하지 않는다
         if (useAuthStore.getState().user?.uid !== uid) return;
         useAuthStore.setState({ isAdmin, isAdminLoading: false });
