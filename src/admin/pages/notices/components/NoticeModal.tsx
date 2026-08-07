@@ -17,7 +17,12 @@ import {
   updateDoc,
   serverTimestamp,
 } from "firebase/firestore/lite";
+import { toast } from "react-toastify";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import type { AdminNotice } from "../hooks/useAdminNotices";
+
+const TITLE_MAX_LENGTH = 100;
+const CONTENT_MAX_LENGTH = 2000;
 
 interface Props {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -31,40 +36,63 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
   const [content, setContent] = useState(notice?.content ?? "");
   const [pinned, setPinned] = useState(notice?.pinned ?? false);
   const [currentMode, setCurrentMode] = useState(mode);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const isReadOnly = currentMode === "VIEW";
 
   const handleSave = async () => {
-    if (!title.trim()) return;
-
-    if (currentMode === "CREATE") {
-      await addDoc(collection(db, "notices"), {
-        title,
-        content,
-        pinned,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      toast.error("제목을 입력해 주세요.");
+      return;
     }
+    if (isSubmitting) return;
 
-    if (currentMode === "EDIT" && notice) {
-      await updateDoc(doc(db, "notices", notice.id), {
-        title,
-        content,
-        pinned,
-        updatedAt: serverTimestamp(),
-      });
+    setIsSubmitting(true);
+    try {
+      if (currentMode === "CREATE") {
+        await addDoc(collection(db, "notices"), {
+          title: trimmedTitle,
+          content: content.trim(),
+          pinned,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      }
+
+      if (currentMode === "EDIT" && notice) {
+        await updateDoc(doc(db, "notices", notice.id), {
+          title: trimmedTitle,
+          content: content.trim(),
+          pinned,
+          updatedAt: serverTimestamp(),
+        });
+      }
+
+      await onSaved?.();
+      onClose();
+    } catch {
+      toast.error("공지 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    await onSaved?.();
-    onClose();
   };
 
   const handleDelete = async () => {
-    if (!notice) return;
-    await deleteDoc(doc(db, "notices", notice.id));
-    await onSaved?.();
-    onClose();
+    if (!notice || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      await deleteDoc(doc(db, "notices", notice.id));
+      await onSaved?.();
+      onClose();
+    } catch {
+      toast.error("공지 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setIsSubmitting(false);
+      setDeleteOpen(false);
+    }
   };
 
   return (
@@ -85,7 +113,8 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
       <Space2 direction="mb" />
       <input
         value={title}
-        disabled={isReadOnly}
+        disabled={isReadOnly || isSubmitting}
+        maxLength={TITLE_MAX_LENGTH}
         onChange={(e) => setTitle(e.target.value)}
         className="w-full border-b outline-none text-sm"
       />
@@ -96,7 +125,8 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
       <Space2 direction="mb" />
       <textarea
         value={content}
-        disabled={isReadOnly}
+        disabled={isReadOnly || isSubmitting}
+        maxLength={CONTENT_MAX_LENGTH}
         onChange={(e) => setContent(e.target.value)}
         className="w-full h-32 resize-none border rounded p-2 text-sm outline-none"
       />
@@ -123,18 +153,46 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
       {/* 버튼 */}
       {currentMode === "VIEW" ? (
         <div className="flex justify-between">
-          <NormalBlackUnFillButton text="닫기" onClick={onClose} />
-          <NormalRedUnFillButton text="삭제" onClick={handleDelete} />
+          <NormalBlackUnFillButton
+            text="닫기"
+            onClick={onClose}
+            disabled={isSubmitting}
+          />
+          <NormalRedUnFillButton
+            text="삭제"
+            onClick={() => setDeleteOpen(true)}
+            disabled={isSubmitting}
+          />
           <NormalBlackButton
             text="수정"
             onClick={() => setCurrentMode("EDIT")}
+            disabled={isSubmitting}
           />
         </div>
       ) : (
         <div className="flex justify-between">
-          <NormalBlackUnFillButton text="취소" onClick={onClose} />
-          <NormalBlackButton text="저장" onClick={handleSave} />
+          <NormalBlackUnFillButton
+            text="취소"
+            onClick={onClose}
+            disabled={isSubmitting}
+          />
+          <NormalBlackButton
+            text={isSubmitting ? "저장 중..." : "저장"}
+            onClick={() => void handleSave()}
+            disabled={isSubmitting}
+          />
         </div>
+      )}
+
+      {deleteOpen && (
+        <ConfirmModal
+          title="공지를 삭제하시겠습니까?"
+          description="삭제한 공지는 되돌릴 수 없습니다."
+          confirmText="삭제"
+          danger
+          onClose={() => setDeleteOpen(false)}
+          onConfirm={handleDelete}
+        />
       )}
     </ModalWrapper>
   );
