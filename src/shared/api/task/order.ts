@@ -76,6 +76,5 @@ export const migrateTaskOrderIndex = async (userId: string) => {
 
   if (needCommit) {
     await batch.commit();
-    console.log("[Task] orderIndex migration done");
   }
 };

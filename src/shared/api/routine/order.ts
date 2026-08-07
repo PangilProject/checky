@@ -62,7 +62,6 @@ export const migrateRoutineOrderIndex = async (userId: string) => {
 
   if (needCommit) {
     await batch.commit();
-    console.log("[Routine] orderIndex migration done");
   }
 
   migratedUsers.add(userId);
