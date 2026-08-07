@@ -1,10 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { useMinimumLoading } from "@/shared/hooks/useMinimumLoading";
+import LoadingPage from "@/pages/LoadingPage/LoadingPage";
 import { LoginSection } from "./components/LoginSection";
 
 function LoginPage() {
   const { user, isLoading } = useAuth();
+  const showLoading = useMinimumLoading(isLoading);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,8 +16,8 @@ function LoginPage() {
     }
   }, [user, isLoading, navigate]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (showLoading) {
+    return <LoadingPage />;
   }
 
   return (
