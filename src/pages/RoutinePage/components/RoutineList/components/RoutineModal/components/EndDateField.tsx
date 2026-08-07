@@ -1,6 +1,6 @@
 import { Text2, Text3 } from "@/shared/ui/Text";
 import { Space2 } from "@/shared/ui/Space";
-import { IoIosCheckbox, IoIosCheckboxOutline } from "react-icons/io";
+import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import { DatePicker } from "@/shared/ui/DatePicker";
 
 interface EndDateFieldProps {
@@ -33,9 +33,9 @@ export const EndDateField = ({
           >
             <Text2 text={endDateEnabled ? "삭제" : "추가"} />
             {endDateEnabled ? (
-              <IoIosCheckbox size={15} />
+              <MdCheckBox size={15} />
             ) : (
-              <IoIosCheckboxOutline size={15} />
+              <MdCheckBoxOutlineBlank size={15} />
             )}
           </button>
         )}
