@@ -8,17 +8,20 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 function AdminLayout() {
-  const { user, isAdmin, isLoading } = useAuth();
-  const showLoading = useMinimumLoading(isLoading);
+  const { user, isAdmin, isLoading, isAdminLoading } = useAuth();
+  // 관리자 여부는 인증 확인보다 늦게 도착하므로 두 확인이 모두 끝날 때까지 기다린다.
+  // 기다리지 않으면 조회가 끝나기 전에 관리자를 권한 없음으로 판단해 내보내게 된다.
+  const isAuthResolving = isLoading || isAdminLoading;
+  const showLoading = useMinimumLoading(isAuthResolving);
   const navigate = useNavigate();
 
   // 🔹 관리자 권한 없음 처리
   useEffect(() => {
-    if (!isLoading && user && !isAdmin) {
+    if (!isAuthResolving && user && !isAdmin) {
       toast.error("관리자 권한이 없습니다.");
       navigate("/", { replace: true });
     }
-  }, [isLoading, user, isAdmin, navigate]);
+  }, [isAuthResolving, user, isAdmin, navigate]);
 
   // 🔹 로딩 중 (실제 로딩이 끝나도 최소 표시 시간 동안 유지)
   if (showLoading) {

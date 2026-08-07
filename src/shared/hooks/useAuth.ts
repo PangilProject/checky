@@ -1,39 +1,24 @@
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "@/firebase/firebase";
-import { clearAdminCache, getIsAdminCached } from "@/shared/api/auth/adminAccess";
+import { useEffect } from "react";
+import {
+  ensureAuthSubscription,
+  useAuthStore,
+} from "@/shared/stores/authStore";
 
 /**
- * Firebase 인증 상태를 구독하고, 사용자 정보 및 관리자 여부를 제공하는 커스텀 훅
+ * 공유 인증 상태를 읽는 훅.
+ *
+ * 상태는 authStore 한 곳에서만 관리되므로, 여러 컴포넌트가 이 훅을 사용해도
+ * 구독은 하나뿐이고 화면 전환 시 로딩이 다시 시작되지 않는다.
  */
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null); // 사용자 정보
-  const [isAdmin, setIsAdmin] = useState(false); // 관리자 여부
-  const [isLoading, setIsLoading] = useState(true); // 로딩 상태
-
   useEffect(() => {
-    // Firebase 인증 상태를 구독 (로그인 / 로그아웃 변화 감지)
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      // 1. 로그아웃 상태
-      if (!firebaseUser) {
-        // 권한 판단 캐시를 비워 다음 로그인에 이전 계정 값이 재사용되지 않게 한다
-        clearAdminCache();
-        setUser(null);
-        setIsAdmin(false);
-        setIsLoading(false);
-        return;
-      }
-
-      // 2. 로그인 상태
-      setUser(firebaseUser);
-      const isAdminValue = await getIsAdminCached(firebaseUser.uid);
-      setIsAdmin(isAdminValue);
-      setIsLoading(false);
-    });
-
-    // 컴포넌트 언마운트 시 인증 구독 해제 (메모리 누수 방지)
-    return () => unsubscribe();
+    ensureAuthSubscription();
   }, []);
 
-  return { user, isAdmin, isLoading };
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = useAuthStore((state) => state.isAdmin);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const isAdminLoading = useAuthStore((state) => state.isAdminLoading);
+
+  return { user, isAdmin, isLoading, isAdminLoading };
 }
