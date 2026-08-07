@@ -12,6 +12,16 @@ const adminCache = new Map<string, boolean>();
 const adminFetchInFlight = new Map<string, Promise<boolean>>();
 
 /**
+ * 관리자 캐시를 비웁니다.
+ * 로그아웃 시 호출해 다른 계정으로 재로그인했을 때
+ * 이전 계정의 권한 판단이 남지 않도록 합니다.
+ */
+export const clearAdminCache = () => {
+  adminCache.clear();
+  adminFetchInFlight.clear();
+};
+
+/**
  * 사용자 관리자 여부를 캐시 기반으로 조회합니다.
  * 캐시에 없으면 Firestore users/{uid}.isAdmin 값을 조회합니다.
  */

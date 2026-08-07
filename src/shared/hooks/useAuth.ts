@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
-import { getIsAdminCached } from "@/shared/api/auth/adminAccess";
+import { clearAdminCache, getIsAdminCached } from "@/shared/api/auth/adminAccess";
 
 /**
  * Firebase 인증 상태를 구독하고, 사용자 정보 및 관리자 여부를 제공하는 커스텀 훅
@@ -16,6 +16,8 @@ export function useAuth() {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       // 1. 로그아웃 상태
       if (!firebaseUser) {
+        // 권한 판단 캐시를 비워 다음 로그인에 이전 계정 값이 재사용되지 않게 한다
+        clearAdminCache();
         setUser(null);
         setIsAdmin(false);
         setIsLoading(false);
