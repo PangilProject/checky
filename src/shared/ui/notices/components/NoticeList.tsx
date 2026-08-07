@@ -24,14 +24,14 @@ export default function NoticeList({ notices, onSelect }: Props) {
           onClick={() => onSelect(notice)}
           className="border rounded p-3 pressable hover:bg-gray-50 cursor-pointer"
         >
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-2">
             <Text2
               text={`${notice.pinned ? "📌 " : ""}${notice.title}`}
-              className="font-medium"
+              className="min-w-0 flex-1 truncate font-medium"
             />
             <Text1
               text={formatDate(notice.createdAt)}
-              className="text-gray-400"
+              className="shrink-0 text-gray-400"
             />
           </div>
         </div>

@@ -47,10 +47,10 @@ export const SortableCategoryItem = ({
     >
       <Space2 direction="mb" />
       <div className="w-full  flex justify-between items-center">
-        <div className="flex w-2/3 items-center">
+        <div className="flex w-2/3 min-w-0 items-center">
           <Text3
             text={category.name}
-            className={`${textColor} font-bold flex-1 no-select`}
+            className={`${textColor} font-bold min-w-0 flex-1 truncate no-select`}
           />
           {category.status === "ENDED" && (
             <Text1
@@ -61,7 +61,11 @@ export const SortableCategoryItem = ({
             />
           )}
         </div>
-        <button onClick={() => setIsOpen(true)} className="pressable">
+        <button
+          onClick={() => setIsOpen(true)}
+          aria-label={`${category.name} 카테고리 메뉴 열기`}
+          className="pressable shrink-0"
+        >
           <HiDotsHorizontal color="#8E8E93" size={20} />
         </button>
       </div>

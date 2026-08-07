@@ -38,7 +38,9 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
   }
 
   return (
-    <table border={1} cellPadding={8} className="w-full">
+    // 좁은 화면에서 페이지 전체가 가로로 밀리지 않도록 표 자체만 스크롤시킨다
+    <div className="w-full overflow-x-auto">
+    <table border={1} cellPadding={8} className="w-full min-w-85">
       <thead>
         <tr className="border-b border-[#8E8E93]">
           <TD className="border-r border-[#8E8E93]">루틴</TD>
@@ -63,8 +65,8 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
 
           return (
             <tr key={row.routineId}>
-              {/* 1. 루틴 이름 */}
-              <TD className={`border-r border-[#8E8E93]`}>
+              {/* 1. 루틴 이름 (긴 이름이 표 폭을 밀어내지 않도록 제한) */}
+              <TD className="border-r border-[#8E8E93] max-w-32 wrap-break-word">
                 {row.routineTitle}
               </TD>
 
@@ -110,6 +112,7 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
         })}
       </tbody>
     </table>
+    </div>
   );
 };
 

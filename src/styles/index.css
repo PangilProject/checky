@@ -3,7 +3,10 @@
 :root {
   font-family: "Paperlogy", system-ui, Avenir, Helvetica, Arial, sans-serif;
 
-  color-scheme: light dark;
+  /* UI가 라이트 팔레트로 고정되어 있으므로 light 로 선언한다.
+     light dark 로 두면 OS 다크 모드에서 입력창만 브라우저 기본 다크 스타일이 적용되어
+     흰 배경 위에 밝은 글자가 찍혀 거의 보이지 않는다. */
+  color-scheme: light;
   color: #000;
   background-color: #fff;
 

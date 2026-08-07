@@ -56,12 +56,14 @@ export const RoutineCategorySection = ({
   return (
     <div className="mb-5">
       {/* 카테고리 헤더 */}
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center gap-2 mb-2">
         <TitleText
           text={category.name}
-          className={getCategoryTextColor(category.color)}
+          className={`${getCategoryTextColor(category.color)} min-w-0 truncate`}
         />
-        <NormalBlackButton text="추가" onClick={onAdd} />
+        <span className="shrink-0">
+          <NormalBlackButton text="추가" onClick={onAdd} />
+        </span>
       </div>
 
       {/* Drag & Drop 영역 */}
