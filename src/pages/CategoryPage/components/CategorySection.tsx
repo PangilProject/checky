@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/shared/hooks/useAuth";
 import {
   getCategoriesOnce,
@@ -29,6 +29,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { toast } from "react-toastify";
 
 interface CategorySectionProps {
   title: string;
@@ -70,10 +71,14 @@ export const CategorySection = ({
     })
   );
 
-  useEffect(() => {
-    if (!categoriesQuery.data) return;
-    setCategories(categoriesQuery.data);
-  }, [categoriesQuery.data]);
+  // 서버 데이터를 로컬 상태로 동기화 (드래그 정렬 낙관적 반영용)
+  const [syncedData, setSyncedData] = useState<Category[] | undefined>(
+    undefined
+  );
+  if (categoriesQuery.data !== syncedData) {
+    setSyncedData(categoriesQuery.data);
+    if (categoriesQuery.data) setCategories(categoriesQuery.data);
+  }
 
   if (!user) return null;
 
@@ -86,26 +91,26 @@ export const CategorySection = ({
         id: c.id,
         orderIndex: index,
       })),
+    }).catch(() => {
+      // 저장 실패 시 화면 순서만 바뀐 채 어긋나는 것을 막는다
+      toast.error("순서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+      void categoriesQuery.refetch();
     });
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    if (!over || active.id === over.id || !categories) return;
 
-    setCategories((prev) => {
-      if (!prev) return prev;
+    const oldIndex = categories.findIndex((c) => c.id === active.id);
+    const newIndex = categories.findIndex((c) => c.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
 
-      const oldIndex = prev.findIndex((c) => c.id === active.id);
-      const newIndex = prev.findIndex((c) => c.id === over.id);
+    const newList = arrayMove(categories, oldIndex, newIndex);
 
-      const newList = arrayMove(prev, oldIndex, newIndex);
-
-      // 👉 여기서 DB 저장 (뒤에서 설명)
-      saveCategoryOrder(newList);
-
-      return newList;
-    });
+    // setState 업데이터가 두 번 호출될 수 있으므로 저장은 밖에서 한 번만 수행
+    setCategories(newList);
+    saveCategoryOrder(newList);
   };
 
   return (
@@ -127,11 +132,26 @@ export const CategorySection = ({
 
       {/* 내용 영역 */}
       <div className="w-full flex flex-col items-center">
-        {categories === null ? (
+        {categories === null && categoriesQuery.isError ? (
+          <div className="flex flex-col items-center">
+            <img src={ImageEmpty} className="h-15" alt="" />
+            <Space4 direction="mb" />
+            <Text2
+              text="카테고리를 불러오지 못했습니다."
+              className="text-gray-400"
+            />
+            <Space4 direction="mb" />
+            <NormalBlackButton
+              text="다시 시도"
+              onClick={() => void categoriesQuery.refetch()}
+            />
+            <Space10 direction="mb" />
+          </div>
+        ) : categories === null ? (
           <CategoryListSkeleton />
         ) : categories.length === 0 ? (
           <div className="flex flex-col items-center">
-            <img src={ImageEmpty} className="h-15" />
+            <img src={ImageEmpty} className="h-15" alt="" />
             <Space4 direction="mb" />
             <Text2 text={emptyTitle} className="text-gray-400" />
             {emptySubTitle && (
