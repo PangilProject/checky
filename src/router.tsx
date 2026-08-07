@@ -32,13 +32,9 @@ function Router() {
           {/* 로그인 */}
           <Route path="/" element={<LoginPage />} />
 
-          {/* 메인 */}
+          {/* 로그인이 필요한 페이지 (가드를 하나로 두어 화면 전환 시 재마운트를 피한다) */}
           <Route element={<PrivateRoute />}>
             <Route path="/home" element={<HomePage />} />
-          </Route>
-
-          {/* 관리 페이지 */}
-          <Route element={<PrivateRoute />}>
             <Route path="/category" element={<CategoryPage />} />
             <Route path="/routine" element={<RoutinePage />} />
             <Route path="/my" element={<MyPage />} />
