@@ -1,0 +1,66 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // 관리자 여부는 users/{uid}.isAdmin 으로 판단한다.
+    // 이 필드는 아래 users 규칙에서 클라이언트가 스스로 바꿀 수 없도록 막는다.
+    function adminFlag() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && 'isAdmin' in adminFlag()
+        && adminFlag().isAdmin == true;
+    }
+
+    // 사용자 프로필
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+
+      // 최초 로그인 시 본인 문서만 생성 가능. isAdmin 자체 부여 차단
+      allow create: if isOwner(userId)
+        && !('isAdmin' in request.resource.data);
+
+      // 본인 문서 수정 가능하나 isAdmin 값은 변경 불가 (권한 상승 차단).
+      // 기존 문서에 isAdmin 이 없으면 수정 후에도 없어야 하고,
+      // 있으면 값이 그대로 유지되어야 한다.
+      allow update: if isOwner(userId)
+        && (
+          'isAdmin' in resource.data
+            ? ('isAdmin' in request.resource.data
+                && request.resource.data.isAdmin == resource.data.isAdmin)
+            : !('isAdmin' in request.resource.data)
+        );
+
+      allow delete: if isOwner(userId);
+
+      // 사용자 데이터는 본인만 읽고 쓴다 (관리자도 열람 불가)
+      match /{subCollection}/{docId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // 공지사항: 로그인 사용자는 읽기만, 작성/수정/삭제는 관리자만
+    match /notices/{noticeId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 그 외 경로는 모두 차단
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
