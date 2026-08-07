@@ -24,6 +24,7 @@ import {
 
 import { DateSelectModal } from "../modals/DateSelectModal";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
+import { toast } from "react-toastify";
 
 /**
  * 할 일 목록 일괄 작업(이동/복사/삭제) 설정 메뉴를 처리합니다.
@@ -76,6 +77,22 @@ export function TaskSetting() {
     }
   };
 
+  /**
+   * 일괄 작업 공통 실행기.
+   * 실패 시 조용히 끝나지 않도록 사용자에게 알리고, 모달은 열린 채로 둔다.
+   */
+  const runBulkAction = async (
+    action: () => Promise<void>,
+    failMessage: string
+  ) => {
+    try {
+      await action();
+      setPendingAction(null);
+    } catch {
+      toast.error(failMessage);
+    }
+  };
+
   const handleConfirmAction = async (action: TaskActionType) => {
     if (!user) return;
 
@@ -91,23 +108,27 @@ export function TaskSetting() {
     }
 
     if (action === "today") {
-      await moveUncompletedTasksToDate({
-        userId: user.uid,
-        fromDate: dateString,
-        toDate: todayString,
-      });
-      await invalidateTaskCaches([dateString, todayString]);
+      await runBulkAction(async () => {
+        await moveUncompletedTasksToDate({
+          userId: user.uid,
+          fromDate: dateString,
+          toDate: todayString,
+        });
+        await invalidateTaskCaches([dateString, todayString]);
+      }, "할 일을 오늘로 옮기지 못했습니다. 잠시 후 다시 시도해 주세요.");
     }
 
     if (action === "rebuild-monthly-stats") {
       const monthKey = getMonthKey(dateString);
-      await rebuildMonthlyStatsByMonth({
-        userId: user.uid,
-        month: monthKey,
-      });
-      await queryClient.invalidateQueries({
-        queryKey: monthlyStatsKeys.byMonth(user.uid, monthKey),
-      });
+      await runBulkAction(async () => {
+        await rebuildMonthlyStatsByMonth({
+          userId: user.uid,
+          month: monthKey,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: monthlyStatsKeys.byMonth(user.uid, monthKey),
+        });
+      }, "월간 통계 재생성에 실패했습니다. 잠시 후 다시 시도해 주세요.");
     }
 
     setIsOpenModal(false);
@@ -138,13 +159,14 @@ export function TaskSetting() {
           onClose={() => setPendingAction(null)}
           onConfirm={async (date) => {
             if (!user) return;
-            await moveUncompletedTasksToDate({
-              userId: user.uid,
-              fromDate: dateString,
-              toDate: formatDateToYmd(date),
-            });
-            await invalidateTaskCaches([dateString, formatDateToYmd(date)]);
-            setPendingAction(null);
+            await runBulkAction(async () => {
+              await moveUncompletedTasksToDate({
+                userId: user.uid,
+                fromDate: dateString,
+                toDate: formatDateToYmd(date),
+              });
+              await invalidateTaskCaches([dateString, formatDateToYmd(date)]);
+            }, "할 일 이동에 실패했습니다. 잠시 후 다시 시도해 주세요.");
           }}
         />
       )}
@@ -157,13 +179,14 @@ export function TaskSetting() {
           onClose={() => setPendingAction(null)}
           onConfirm={async (date) => {
             if (!user) return;
-            await copyAllTasksToDate({
-              userId: user.uid,
-              fromDate: dateString,
-              toDate: formatDateToYmd(date),
-            });
-            await invalidateTaskCaches([formatDateToYmd(date)]);
-            setPendingAction(null);
+            await runBulkAction(async () => {
+              await copyAllTasksToDate({
+                userId: user.uid,
+                fromDate: dateString,
+                toDate: formatDateToYmd(date),
+              });
+              await invalidateTaskCaches([formatDateToYmd(date)]);
+            }, "할 일 복사에 실패했습니다. 잠시 후 다시 시도해 주세요.");
           }}
         />
       )}
@@ -176,12 +199,13 @@ export function TaskSetting() {
           onClose={() => setPendingAction(null)}
           onConfirm={async () => {
             if (!user) return;
-            await deleteUncompletedTasks({
-              userId: user.uid,
-              date: dateString,
-            });
-            await invalidateTaskCaches([dateString]);
-            setPendingAction(null);
+            await runBulkAction(async () => {
+              await deleteUncompletedTasks({
+                userId: user.uid,
+                date: dateString,
+              });
+              await invalidateTaskCaches([dateString]);
+            }, "할 일 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
           }}
         />
       )}
@@ -196,12 +220,13 @@ export function TaskSetting() {
           onClose={() => setPendingAction(null)}
           onConfirm={async () => {
             if (!user) return;
-            await deleteAllTasksByDate({
-              userId: user.uid,
-              date: dateString,
-            });
-            await invalidateTaskCaches([dateString]);
-            setPendingAction(null);
+            await runBulkAction(async () => {
+              await deleteAllTasksByDate({
+                userId: user.uid,
+                date: dateString,
+              });
+              await invalidateTaskCaches([dateString]);
+            }, "할 일 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
           }}
         />
       )}
