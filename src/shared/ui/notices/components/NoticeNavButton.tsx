@@ -20,7 +20,8 @@ export const NoticeNavButton = ({
   onSelect,
 }: NoticeNavButtonProps) => {
   const label = direction === "prev" ? "이전" : "다음";
-  const title = `${notice.pinned ? "📌 " : ""}${notice.title}`;
+  // 폭이 좁아 제목이 잘리므로 고정 표시는 넣지 않는다. 상세로 들어가면 배지로 보인다.
+  const title = notice.title;
 
   return (
     <button

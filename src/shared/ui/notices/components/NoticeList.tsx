@@ -1,14 +1,11 @@
 import { Text2, Text1 } from "@/shared/ui/Text";
+import { NoticePinnedLabel } from "./NoticePinnedLabel";
+import { formatNoticeDate } from "./formatNoticeDate";
 import type { Notice } from "../hooks/useNotices";
 
 interface Props {
   notices: Notice[];
   onSelect: (notice: Notice) => void;
-}
-
-function formatDate(date?: Date) {
-  if (!date) return "-";
-  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
 }
 
 export default function NoticeList({ notices, onSelect }: Props) {
@@ -27,17 +24,35 @@ export default function NoticeList({ notices, onSelect }: Props) {
         <div
           key={notice.id}
           onClick={() => onSelect(notice)}
-          className="border rounded p-3 pressable hover:bg-gray-50 cursor-pointer"
+          /*
+            고정 공지는 옅은 배경과 한 단계 진한 테두리로만 구분한다.
+            강조 요소를 여러 개 겹치면 제목보다 장식이 먼저 읽힌다.
+            hover 는 배경이 아니라 테두리로 반응시켜, 고정 배경과 충돌하지 않게 한다.
+          */
+          className={`cursor-pointer rounded-lg border p-3 pressable transition-colors hover:border-gray-400 ${
+            notice.pinned
+              ? "border-gray-300 bg-gray-50"
+              : "border-gray-200 bg-white"
+          }`}
         >
-          <div className="flex justify-between items-center gap-2">
+          <div className="flex items-center justify-between gap-3">
             <Text2
-              text={`${notice.pinned ? "📌 " : ""}${notice.title}`}
-              className="min-w-0 flex-1 truncate font-medium"
+              text={notice.title}
+              className={`min-w-0 flex-1 truncate ${
+                notice.pinned ? "font-semibold" : "font-medium"
+              }`}
             />
-            <Text1
-              text={formatDate(notice.createdAt)}
-              className="shrink-0 text-gray-400"
-            />
+            {/*
+              고정 표시는 날짜와 함께 오른쪽 메타 영역에 둔다.
+              제목 앞에 두면 고정 공지만 제목 시작 위치가 밀려 목록의 왼쪽 정렬이 흐트러진다.
+            */}
+            <div className="flex shrink-0 items-center gap-2">
+              {notice.pinned && <NoticePinnedLabel />}
+              <Text1
+                text={formatNoticeDate(notice.createdAt)}
+                className="text-gray-400"
+              />
+            </div>
           </div>
         </div>
       ))}

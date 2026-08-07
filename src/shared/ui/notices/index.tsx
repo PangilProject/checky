@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { IoChevronBack } from "react-icons/io5";
 import { ModalWrapper } from "@/shared/ui/Modal";
-import { Text5 } from "@/shared/ui/Text";
+import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { Space10 } from "@/shared/ui/Space";
 import { NormalBlackUnFillButton } from "@/shared/ui/Button";
 import { useNotices } from "./hooks/useNotices";
@@ -31,10 +31,38 @@ export default function NoticeModal({ onClose }: Props) {
       ? notices[selectedIndex + 1]
       : null;
 
+  /**
+   * 아래에 읽을 내용이 더 남아 있는지 여부.
+   *
+   * 고정 높이 안에서만 스크롤되고 스크롤바가 거의 보이지 않아,
+   * 내용이 더 있다는 사실을 알아채기 어렵다. 하단 페이드로 스크롤을 유도한다.
+   */
+  const [hasMoreBelow, setHasMoreBelow] = useState(false);
+
+  const updateHasMoreBelow = () => {
+    const el = contentRef.current;
+    if (!el) return;
+    // 소수점 스크롤 위치 때문에 끝에 닿아도 1px 미만이 남는 경우가 있다
+    setHasMoreBelow(el.scrollHeight - el.scrollTop - el.clientHeight > 1);
+  };
+
   // 다른 공지로 이동하면 본문을 처음부터 읽도록 스크롤을 올린다
   useEffect(() => {
     contentRef.current?.scrollTo({ top: 0 });
   }, [selectedId]);
+
+  // 내용이나 영역 크기가 바뀌면 다시 계산한다.
+  // ResizeObserver 콜백에서 상태를 바꾸므로 effect 본문에서 직접 setState 하지 않는다.
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver(updateHasMoreBelow);
+    observer.observe(el);
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
+
+    return () => observer.disconnect();
+  }, [selectedId, loading, isError, notices.length]);
 
   return (
     <ModalWrapper onClose={onClose}>
@@ -45,47 +73,63 @@ export default function NoticeModal({ onClose }: Props) {
       */}
       <div className="flex h-105 max-h-[75vh] flex-col">
         {/* 뒤로가기는 스크롤 영역 밖에 두어 본문이 길어도 항상 보이게 한다 */}
-        <div className="flex shrink-0 items-center gap-1">
-          {selected && (
-            <button
-              type="button"
-              onClick={() => setSelectedId(null)}
-              aria-label="공지 목록으로 돌아가기"
-              className="-ml-1 shrink-0 rounded p-1 pressable hover:bg-gray-100"
-            >
-              <IoChevronBack size={20} />
-            </button>
-          )}
-          <Text5
-            text={selected ? "공지사항" : "공지 목록"}
-            className="font-bold"
-          />
-        </div>
-        <Space10 direction="mb" />
+        <ModalTitle
+          text={selected ? "공지사항" : "공지 목록"}
+          leading={
+            selected && (
+              <button
+                type="button"
+                onClick={() => setSelectedId(null)}
+                aria-label="공지 목록으로 돌아가기"
+                className="-ml-1 shrink-0 rounded p-1 pressable hover:bg-gray-100"
+              >
+                <IoChevronBack size={20} />
+              </button>
+            )
+          }
+        />
 
         {/* 남는 공간을 모두 차지하고 내부에서만 스크롤한다 */}
-        <div
-          ref={contentRef}
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
-        >
-          {loading && <NoticeListSkeleton />}
+        <div className="relative min-h-0 flex-1">
+          <div
+            ref={contentRef}
+            onScroll={updateHasMoreBelow}
+            className="h-full overflow-y-auto overscroll-contain"
+          >
+            {/* 크기 변화를 관찰할 대상. min-h-full 로 두어 안내 문구 중앙 정렬도 유지한다 */}
+            <div className="min-h-full">
+              {loading && <NoticeListSkeleton />}
 
-          {!loading && isError && (
-            <div className="flex h-full items-center justify-center text-center text-sm text-gray-500">
-              공지사항을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+              {!loading && isError && (
+                <div className="flex h-full items-center justify-center text-center text-sm text-gray-500">
+                  공지사항을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+                </div>
+              )}
+
+              {!loading && !isError && !selected && (
+                <NoticeList
+                  notices={notices}
+                  onSelect={(notice) => setSelectedId(notice.id)}
+                />
+              )}
+
+              {!loading && !isError && selected && (
+                <NoticeDetail notice={selected} />
+              )}
             </div>
-          )}
+          </div>
 
-          {!loading && !isError && !selected && (
-            <NoticeList
-              notices={notices}
-              onSelect={(notice) => setSelectedId(notice.id)}
-            />
-          )}
-
-          {!loading && !isError && selected && (
-            <NoticeDetail notice={selected} />
-          )}
+          {/*
+            아래에 내용이 더 있을 때만 보이는 페이드.
+            글이 잘린 것처럼 보이게 해 스크롤할 여지가 있다는 것을 알린다.
+            끝까지 내리면 사라지므로 다 읽었다는 신호도 된다.
+          */}
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-linear-to-t from-white to-transparent transition-opacity duration-200 ${
+              hasMoreBelow ? "opacity-100" : "opacity-0"
+            }`}
+          />
         </div>
 
         <Space10 direction="mb" />
