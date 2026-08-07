@@ -1,8 +1,3 @@
-import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
-
-export function getMonthLabel() {
-  const { selectedDate } = useSelectedDate();
-  return `${selectedDate.getFullYear()}년 ${
-    selectedDate.getMonth() + 1
-  }월`;
+export function getMonthLabel(date: Date) {
+  return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
 }

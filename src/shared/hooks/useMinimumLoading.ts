@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * 로딩 화면이 너무 빨리 사라져 깜빡이는 것을 막기 위한 훅.
@@ -12,32 +12,21 @@ import { useEffect, useRef, useState } from "react";
  * @returns 화면에 로딩을 보여줄지 여부
  */
 export function useMinimumLoading(isLoading: boolean, minMs = 1200) {
-  const [show, setShow] = useState(isLoading);
-  const startRef = useRef<number | null>(isLoading ? Date.now() : null);
+  // 최소 표시 시간이 지났는지 여부 (로딩이 없었다면 처음부터 true)
+  const [minElapsed, setMinElapsed] = useState(!isLoading);
+
+  // 렌더 중 상태 조정: 새 로딩이 시작되면 최소 표시 시간을 다시 카운트
+  const [prevLoading, setPrevLoading] = useState(isLoading);
+  if (isLoading !== prevLoading) {
+    setPrevLoading(isLoading);
+    if (isLoading) setMinElapsed(false);
+  }
 
   useEffect(() => {
-    if (isLoading) {
-      if (startRef.current === null) startRef.current = Date.now();
-      setShow(true);
-      return;
-    }
-
-    // 로딩이 한 번도 시작되지 않았으면 바로 종료
-    if (startRef.current === null) {
-      setShow(false);
-      return;
-    }
-
-    // 실제 로딩은 끝났지만, 최소 표시 시간을 채운다
-    const elapsed = Date.now() - startRef.current;
-    const remaining = Math.max(0, minMs - elapsed);
-    const timer = setTimeout(() => {
-      setShow(false);
-      startRef.current = null;
-    }, remaining);
-
+    if (minElapsed) return;
+    const timer = setTimeout(() => setMinElapsed(true), minMs);
     return () => clearTimeout(timer);
-  }, [isLoading, minMs]);
+  }, [minElapsed, minMs]);
 
-  return show;
+  return isLoading || !minElapsed;
 }

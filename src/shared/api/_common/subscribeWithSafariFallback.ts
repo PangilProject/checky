@@ -90,8 +90,9 @@ export const subscribeWithSafariFallback = <T extends DocumentData>(
       }
     } finally {
       isRequestInFlight = false;
-      if (stopped) return;
-      scheduleNext(currentIntervalMs);
+      if (!stopped) {
+        scheduleNext(currentIntervalMs);
+      }
     }
   };
 

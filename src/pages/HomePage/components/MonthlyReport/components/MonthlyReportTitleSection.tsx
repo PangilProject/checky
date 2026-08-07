@@ -9,9 +9,9 @@ import { useMonthlyData } from "@/shared/hooks/calendar";
  * @returns 
  */
 export function MonthlyReportTitleSection() {
-  // 캘린더 헤더에 표시할 월 정보 생성
-  const label = getMonthLabel();
   const { selectedDate, setSelectedDate } = useSelectedDate();
+  // 캘린더 헤더에 표시할 월 정보 생성
+  const label = getMonthLabel(selectedDate);
   const { refresh } = useMonthlyData(selectedDate);
   return (
     <TitleSection
