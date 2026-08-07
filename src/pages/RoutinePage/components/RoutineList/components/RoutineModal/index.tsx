@@ -3,7 +3,8 @@ import { ModalWrapper } from "@/shared/ui/Modal";
 import type { RoutineModalProps } from "./types";
 import { useRoutineModalState } from "./hooks/useRoutineModalState";
 import { useRoutineModalActions } from "./hooks/useRoutineModalActions";
-import { ModalTitle } from "./components/ModalTitle";
+import { ModalTitle } from "@/shared/ui/ModalTitle";
+import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
 import { TitleField } from "./components/TitleField";
 import { RepeatDaysField } from "./components/RepeatDaysField";
 import { StartDateField } from "./components/StartDateField";
@@ -38,8 +39,7 @@ export default function RoutineModal({
   return (
     <ModalWrapper onClose={isSubmitting ? () => {} : onClose}>
       {/* 모달 타이틀 */}
-      <ModalTitle mode={state.currentMode} />
-      <Space10 direction="mb" />
+      <ModalTitle text={getModalModeTitle(state.currentMode, "루틴")} />
 
       {/* 루틴명 */}
       <TitleField

@@ -4,8 +4,9 @@ import {
 } from "@/shared/constants/taskActions";
 import { NormalBlackUnFillButton } from "@/shared/ui/Button";
 import { ModalWrapper } from "@/shared/ui/Modal";
-import { Space4, Space8 } from "@/shared/ui/Space";
-import { Text2, Text5 } from "@/shared/ui/Text";
+import { ModalTitle } from "@/shared/ui/ModalTitle";
+import { Space8 } from "@/shared/ui/Space";
+import { Text2 } from "@/shared/ui/Text";
 import { useState, type JSX } from "react";
 import {
   FaArrowAltCircleDown,
@@ -30,7 +31,6 @@ export function TaskSettingModal({
   return (
     <ModalWrapper onClose={onClose}>
       <ModalTitle text="리스트 메뉴" />
-      <Space4 direction="mb" />
       <ActionItemList
         selectedAction={selectedAction}
         onSelect={setSelectedAction}
@@ -44,17 +44,6 @@ export function TaskSettingModal({
     </ModalWrapper>
   );
 }
-
-/*
-  ModalTitle : 모달 타이틀 컴포넌트
-*/
-interface ModalTitleProps {
-  text: string;
-}
-
-const ModalTitle = ({ text }: ModalTitleProps) => {
-  return <Text5 text={text} className="font-bold" />;
-};
 
 /*
   ActionItemList : 메뉴 리스트 컴포넌트

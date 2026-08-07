@@ -1,5 +1,6 @@
 import { ModalWrapper } from "@/shared/ui/Modal";
-import { Text5 } from "@/shared/ui/Text";
+import { ModalTitle } from "@/shared/ui/ModalTitle";
+
 import { NormalBlackButton, NormalBlackUnFillButton } from "@/shared/ui/Button";
 import { Space10 } from "@/shared/ui/Space";
 import { useState } from "react";
@@ -23,8 +24,7 @@ export function DateSelectModal({
 
   return (
     <ModalWrapper onClose={onClose}>
-      <Text5 text="날짜 선택" className="font-bold" />
-      <Space10 direction="mb" />
+      <ModalTitle text="날짜 선택" />
 
       <DatePicker value={value} onChange={setValue} />
 

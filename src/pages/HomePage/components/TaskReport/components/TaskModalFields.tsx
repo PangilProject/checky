@@ -1,17 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Text3, Text5 } from "@/shared/ui/Text";
+import { Text3 } from "@/shared/ui/Text";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import { TimePicker } from "@/shared/ui/TimePicker";
 import { formatHmLabel, formatYmdLabel } from "@/shared/hooks/formatDate";
 import type { Category } from "@/shared/api/category";
-
-export const ModalTitle = ({ mode }: { mode: "CREATE" | "VIEW" | "EDIT" }) => {
-  if (mode === "CREATE")
-    return <Text5 text="태스크 추가" className="font-bold" />;
-  if (mode === "EDIT")
-    return <Text5 text="태스크 수정" className="font-bold" />;
-  return <Text5 text="태스크 상세" className="font-bold" />;
-};
 
 export const TaskInput = ({
   value,

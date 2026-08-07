@@ -1,5 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { Text3, Text5 } from "@/shared/ui/Text";
+import { Text3 } from "@/shared/ui/Text";
 import {
   NormalBlackButton,
   NormalBlackUnFillButton,
@@ -18,6 +18,8 @@ import {
 import { useAuth } from "@/shared/hooks/useAuth";
 import type { Category } from "@/shared/api/category";
 import { ModalWrapper } from "@/shared/ui/Modal";
+import { ModalTitle } from "@/shared/ui/ModalTitle";
+import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
@@ -118,8 +120,7 @@ export default function CategoryModal({
 
   return (
     <ModalWrapper onClose={isSubmitting ? () => {} : onClose}>
-      <ModalTitle mode={currentMode} />
-      <Space10 direction="mb" />
+      <ModalTitle text={getModalModeTitle(currentMode, "카테고리")} />
 
       <Input
         categoryInput={categoryInput}
@@ -163,18 +164,6 @@ export default function CategoryModal({
     </ModalWrapper>
   );
 }
-
-interface ModalTitleProps {
-  mode: "CREATE" | "VIEW" | "EDIT";
-}
-const ModalTitle = ({ mode }: ModalTitleProps) => {
-  if (mode === "CREATE")
-    return <Text5 text="카테고리 추가" className="font-bold" />;
-  else if (mode === "EDIT")
-    return <Text5 text="카테고리 수정" className="font-bold" />;
-  else if (mode === "VIEW")
-    return <Text5 text="카테고리 상세" className="font-bold" />;
-};
 
 interface InputProps {
   categoryInput: string;

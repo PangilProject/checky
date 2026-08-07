@@ -6,10 +6,11 @@ import type { Category } from "@/shared/api/category";
 import {
   CategoryField,
   DateField,
-  ModalTitle,
   TaskInput,
   TimeField,
 } from "../components/TaskModalFields";
+import { ModalTitle } from "@/shared/ui/ModalTitle";
+import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
 import { ButtonSection } from "../components/TaskModalButtons";
 import { useTaskModalHandlers } from "../hooks/useTaskModalHandlers";
 import { Text3 } from "@/shared/ui/Text";
@@ -80,8 +81,7 @@ export default function TaskModal({
 
   return (
     <ModalWrapper onClose={isSubmitting ? () => {} : onClose}>
-      <ModalTitle mode={currentMode} />
-      <Space10 direction="mb" />
+      <ModalTitle text={getModalModeTitle(currentMode, "태스크")} />
 
       {isReadOnly ? (
         <div className="flex items-center justify-between gap-3">
