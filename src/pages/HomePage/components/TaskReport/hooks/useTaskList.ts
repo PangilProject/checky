@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { getCategoriesOnce, type Category } from "@/shared/api/category";
 import {
   createTask,
@@ -219,7 +220,7 @@ export const useTaskList = ({
         completedDelta: 0,
         remainingDelta: 1,
       });
-    } catch (error) {
+    } catch {
       queryClient.setQueryData<Task[]>(taskQueryKey, (prev = []) =>
         prev.filter((task) => task.id !== tempId)
       );
@@ -256,7 +257,7 @@ export const useTaskList = ({
           };
         }
       );
-      console.error("Failed to create task", error);
+      toast.error("할 일 추가에 실패했습니다. 잠시 후 다시 시도해 주세요.");
     }
   };
 
@@ -342,7 +343,7 @@ export const useTaskList = ({
         day: dayKey,
         completedDelta,
       });
-    } catch (error) {
+    } catch {
       queryClient.setQueryData(taskLogQueryKey, prevLogs);
       queryClient.setQueryData(monthlyStatsKeys.byMonth(userId, monthKey), prevMonthly);
       const affectedMonths = collectAffectedMonths({ dates: [dateString] });
@@ -357,7 +358,7 @@ export const useTaskList = ({
       await queryClient.invalidateQueries({
         queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
       });
-      console.error("Failed to toggle task", error);
+      toast.error("완료 상태를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.");
     }
   };
 
@@ -396,12 +397,16 @@ export const useTaskList = ({
       ];
     });
 
+    // 정렬 저장 실패 시 조용히 어긋나지 않도록 알리고 서버 상태로 되돌린다
     updateTaskOrder({
       userId,
       tasks: nextTasks.map((task, index) => ({
         id: task.id,
         orderIndex: index,
       })),
+    }).catch(() => {
+      toast.error("순서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+      void queryClient.invalidateQueries({ queryKey: taskQueryKey });
     });
   };
 

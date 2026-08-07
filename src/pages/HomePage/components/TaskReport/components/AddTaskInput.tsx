@@ -58,6 +58,8 @@ export const AddTaskInput = ({
         ref={inputRef}
         className={`outline-none border-b flex-1 min-w-0 ${borderColor} ime-fallback`}
         value={taskInput}
+        maxLength={100}
+        aria-label="할 일 입력"
         onChange={(e) => setTaskInput(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {

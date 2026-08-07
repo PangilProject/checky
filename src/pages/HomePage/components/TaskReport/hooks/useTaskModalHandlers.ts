@@ -5,6 +5,7 @@ import type { Task } from "@/shared/api/task";
 import type { Category } from "@/shared/api/category";
 import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
 import { patchMonthlyStatsByDayDeltas } from "@/shared/api/monthlyStats";
+import { toast } from "react-toastify";
 
 interface UseTaskModalHandlersParams {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -37,6 +38,8 @@ export const useTaskModalHandlers = ({
   const [timeEnabled, setTimeEnabled] = useState<boolean>(Boolean(task?.time));
   const [taskTime, setTaskTime] = useState<string>(task?.time ?? DEFAULT_TIME);
   const [currentMode, setCurrentMode] = useState(mode);
+  // 저장/삭제/이동 처리 중 중복 실행 방지
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isReadOnly = currentMode === "VIEW";
   const selectedCategory = useMemo(
@@ -64,12 +67,18 @@ export const useTaskModalHandlers = ({
   };
 
   const handleCreateTask = async () => {
-    if (!taskInput.trim() || !userId || !effectiveCategoryId) return;
+    if (!taskInput.trim()) {
+      toast.error("할 일 내용을 입력해 주세요.");
+      return;
+    }
+    if (!userId || !effectiveCategoryId) return;
+    if (isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       await createTask({
         userId,
-        title: taskInput,
+        title: taskInput.trim(),
         categoryId: effectiveCategoryId,
         categoryColor: selectedCategoryColor,
         date: taskDate,
@@ -77,19 +86,27 @@ export const useTaskModalHandlers = ({
       });
       invalidateTaskDates([taskDate]);
       onClose();
-    } catch (e) {
-      console.error("태스크 생성 실패", e);
+    } catch {
+      toast.error("할 일 추가에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleUpdateTask = async () => {
-    if (!task || !taskInput.trim() || !userId || !effectiveCategoryId) return;
+    if (!taskInput.trim()) {
+      toast.error("할 일 내용을 입력해 주세요.");
+      return;
+    }
+    if (!task || !userId || !effectiveCategoryId) return;
+    if (isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       await updateTaskWithDateMove({
         userId,
         taskId: task.id,
-        title: taskInput,
+        title: taskInput.trim(),
         ...(timeEnabled ? { time: taskTime } : { time: undefined }),
         prevDate: task.date,
         nextDate: taskDate,
@@ -100,14 +117,18 @@ export const useTaskModalHandlers = ({
 
       invalidateTaskDates([task.date, taskDate]);
       onClose();
-    } catch (e) {
-      console.error("태스크 수정 실패", e);
+    } catch {
+      toast.error("할 일 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteTask = async () => {
     if (!task || !userId) return;
+    if (isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       const { wasCompleted } = await deleteTaskWithLogs({
         userId,
@@ -123,14 +144,18 @@ export const useTaskModalHandlers = ({
       });
       invalidateTaskDates([task.date]);
       onClose();
-    } catch (e) {
-      console.error("태스크 삭제 실패", e);
+    } catch {
+      toast.error("할 일 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleMoveTask = async (nextDate: string) => {
     if (!task || !userId || !nextDate || nextDate === task.date) return;
+    if (isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       await updateTaskWithDateMove({
         userId,
@@ -145,8 +170,10 @@ export const useTaskModalHandlers = ({
       });
       invalidateTaskDates([task.date, nextDate]);
       onClose();
-    } catch (e) {
-      console.error("태스크 이동 실패", e);
+    } catch {
+      toast.error("할 일 이동에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -166,6 +193,7 @@ export const useTaskModalHandlers = ({
     currentMode,
     setCurrentMode,
     isReadOnly,
+    isSubmitting,
     shouldShowTimeField,
     defaultTime: DEFAULT_TIME,
     selectedCategoryColor,

@@ -29,6 +29,7 @@ export const TaskInput = ({
       className="w-full border-0 border-b border-gray-300 text-[16px] outline-none ime-fallback"
       placeholder="할 일을 입력하세요"
       value={value}
+      maxLength={100}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
       onKeyDown={(e) => {

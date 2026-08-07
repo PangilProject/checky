@@ -60,6 +60,7 @@ export default function TaskModal({
     currentMode,
     setCurrentMode,
     isReadOnly,
+    isSubmitting,
     shouldShowTimeField,
     defaultTime,
     handleCreateTask,
@@ -78,13 +79,16 @@ export default function TaskModal({
   });
 
   return (
-    <ModalWrapper onClose={onClose}>
+    <ModalWrapper onClose={isSubmitting ? () => {} : onClose}>
       <ModalTitle mode={currentMode} />
       <Space10 direction="mb" />
 
       {isReadOnly ? (
         <div className="flex items-center justify-between gap-3">
-          <Text3 text={taskInput} className="font-semibold" />
+          <Text3
+            text={taskInput}
+            className="min-w-0 font-semibold wrap-break-word"
+          />
           <button
             type="button"
             className="shrink-0"
@@ -107,14 +111,14 @@ export default function TaskModal({
           onChange={setTaskInput}
           onEnter={() => {
             if (currentMode === "CREATE") {
-              handleCreateTask();
+              void handleCreateTask();
               return;
             }
             if (currentMode === "EDIT") {
-              handleUpdateTask();
+              void handleUpdateTask();
             }
           }}
-          disabled={isReadOnly}
+          disabled={isReadOnly || isSubmitting}
         />
       )}
       <Space8 direction="mb" />
@@ -153,13 +157,18 @@ export default function TaskModal({
       )}
       <ButtonSection
         mode={currentMode}
+        isSubmitting={isSubmitting}
         onClose={onClose}
         onEdit={() => setCurrentMode("EDIT")}
         onMove={() => setIsMoveDateModalOpen(true)}
-        onSubmit={
-          currentMode === "CREATE" ? handleCreateTask : handleUpdateTask
-        }
-        onDelete={handleDeleteTask}
+        onSubmit={() => {
+          if (currentMode === "CREATE") {
+            void handleCreateTask();
+            return;
+          }
+          void handleUpdateTask();
+        }}
+        onDelete={() => void handleDeleteTask()}
       />
 
       {isMoveDateModalOpen && (
@@ -171,7 +180,7 @@ export default function TaskModal({
             const yyyy = date.getFullYear();
             const mm = String(date.getMonth() + 1).padStart(2, "0");
             const dd = String(date.getDate()).padStart(2, "0");
-            handleMoveTask(`${yyyy}-${mm}-${dd}`);
+            void handleMoveTask(`${yyyy}-${mm}-${dd}`);
           }}
         />
       )}

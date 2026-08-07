@@ -1,4 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import {
   monthlyStatsKeys,
   routineLogKeys,
@@ -146,7 +147,7 @@ export function useRoutineToggle({
         day: dayKey,
         completedDelta,
       });
-    } catch (error) {
+    } catch {
       queryClient.setQueryData(routineReportKey, prevReport);
       queryClient.setQueryData(routineLogKeys.byMonth(userId, monthKey), prevLogs);
       queryClient.setQueryData(monthlyStatsKeys.byMonth(userId, monthKey), prevMonthly);
@@ -162,7 +163,7 @@ export function useRoutineToggle({
       await queryClient.invalidateQueries({
         queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
       });
-      console.error("Failed to toggle routine", error);
+      toast.error("루틴 완료 상태를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.");
     }
   };
 }

@@ -7,6 +7,7 @@ import {
 
 interface ButtonSectionProps {
   mode: "CREATE" | "VIEW" | "EDIT";
+  isSubmitting?: boolean;
   onClose: () => void;
   onEdit?: () => void;
   onMove?: () => void;
@@ -16,6 +17,7 @@ interface ButtonSectionProps {
 
 export const ButtonSection = ({
   mode,
+  isSubmitting = false,
   onClose,
   onEdit,
   onMove,
@@ -25,10 +27,26 @@ export const ButtonSection = ({
   if (mode === "VIEW") {
     return (
       <div className="flex flex-wrap justify-between gap-2">
-        <NormalBlackUnFillButton text="닫기" onClick={onClose} />
-        <NormalBlueUnFillButton text="이동" onClick={onMove} />
-        <NormalRedUnFillButton text="삭제" onClick={onDelete} />
-        <NormalBlackButton text="수정" onClick={onEdit} />
+        <NormalBlackUnFillButton
+          text="닫기"
+          onClick={onClose}
+          disabled={isSubmitting}
+        />
+        <NormalBlueUnFillButton
+          text="이동"
+          onClick={onMove}
+          disabled={isSubmitting}
+        />
+        <NormalRedUnFillButton
+          text="삭제"
+          onClick={onDelete}
+          disabled={isSubmitting}
+        />
+        <NormalBlackButton
+          text="수정"
+          onClick={onEdit}
+          disabled={isSubmitting}
+        />
       </div>
     );
   }
@@ -36,16 +54,32 @@ export const ButtonSection = ({
   if (mode === "EDIT") {
     return (
       <div className="flex justify-between">
-        <NormalBlackUnFillButton text="취소" onClick={onClose} />
-        <NormalBlackButton text="저장" onClick={onSubmit} />
+        <NormalBlackUnFillButton
+          text="취소"
+          onClick={onClose}
+          disabled={isSubmitting}
+        />
+        <NormalBlackButton
+          text={isSubmitting ? "저장 중..." : "저장"}
+          onClick={onSubmit}
+          disabled={isSubmitting}
+        />
       </div>
     );
   }
 
   return (
     <div className="flex justify-between">
-      <NormalBlackUnFillButton text="닫기" onClick={onClose} />
-      <NormalBlackButton text="완료" onClick={onSubmit} />
+      <NormalBlackUnFillButton
+        text="닫기"
+        onClick={onClose}
+        disabled={isSubmitting}
+      />
+      <NormalBlackButton
+        text={isSubmitting ? "저장 중..." : "완료"}
+        onClick={onSubmit}
+        disabled={isSubmitting}
+      />
     </div>
   );
 };
