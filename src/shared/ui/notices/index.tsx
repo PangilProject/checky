@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function NoticeModal({ onClose }: Props) {
-  const { notices, loading } = useNotices();
+  const { notices, loading, isError } = useNotices();
   const [selected, setSelected] = useState<Notice | null>(null);
 
   return (
@@ -20,13 +20,19 @@ export default function NoticeModal({ onClose }: Props) {
       <Text5 text={selected ? "공지사항" : "공지 목록"} className="font-bold" />
       <Space10 direction="mb" />
 
-      {loading && <div>로딩 중...</div>}
+      {loading && <div className="text-sm text-gray-500">로딩 중...</div>}
 
-      {!loading && !selected && (
+      {!loading && isError && (
+        <div className="text-sm text-gray-500">
+          공지사항을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+        </div>
+      )}
+
+      {!loading && !isError && !selected && (
         <NoticeList notices={notices} onSelect={setSelected} />
       )}
 
-      {!loading && selected && (
+      {!loading && !isError && selected && (
         <NoticeDetail notice={selected} onBack={() => setSelected(null)} />
       )}
 

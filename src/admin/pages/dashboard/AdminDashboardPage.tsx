@@ -7,10 +7,21 @@ import ActiveUserChart from "./components/ActiveUserChart";
 import SectionTitle from "./components/SectionTitle";
 
 function AdminDashboardPage() {
-  const { stats, loading } = useAdminStats();
+  const { stats, loading, isError } = useAdminStats();
 
   if (loading) {
     return <div>로딩 중...</div>;
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-4">
+        <Text5 text="관리자 대시보드" className="font-bold" />
+        <p className="text-sm text-gray-500">
+          통계를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.
+        </p>
+      </div>
+    );
   }
 
   return (

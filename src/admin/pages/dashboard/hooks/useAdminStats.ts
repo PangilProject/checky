@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore/lite";
+import {
+  collection,
+  getDocs,
+  type DocumentData,
+} from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 
 interface ChartItem {
@@ -45,13 +49,22 @@ export const useAdminStats = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true);
+      setIsError(false);
 
-      const usersSnap = await getDocs(collection(db, "users"));
-      const users = usersSnap.docs.map((doc) => doc.data());
+      let users: DocumentData[] = [];
+      try {
+        const usersSnap = await getDocs(collection(db, "users"));
+        users = usersSnap.docs.map((doc) => doc.data());
+      } catch {
+        setIsError(true);
+        setLoading(false);
+        return;
+      }
 
       const now = new Date();
       const startOfToday = new Date(
@@ -113,8 +126,8 @@ export const useAdminStats = () => {
       setLoading(false);
     };
 
-    fetchStats();
+    void fetchStats();
   }, []);
 
-  return { stats, loading };
+  return { stats, loading, isError };
 };

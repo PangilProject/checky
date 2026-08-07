@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { RoutineReportSkeleton } from "./components/RoutineReportSkeleton";
 import { getWeekRangeInfo } from "./utils/getWeekRangeInfo";
 import { useRoutineToggle } from "./hooks/useRoutineToggle";
+import { NormalBlackButton } from "@/shared/ui/Button";
 
 /**
  * 주간 루틴 리포트 섹션을 렌더링합니다.
@@ -25,6 +26,7 @@ function RoutineReportSection() {
   const {
     data: report,
     isLoading,
+    isError,
     refetch,
   } = useRoutineReportQuery({
     userId: user?.uid,
@@ -56,9 +58,17 @@ function RoutineReportSection() {
       {isLoading ? (
         // 2-1. 테이블 스킬레톤
         <RoutineReportSkeleton />
+      ) : isError || !report ? (
+        // 2-2. 조회 실패: 빈 공간만 보이지 않도록 상태와 재시도를 제공
+        <div className="flex flex-col items-center gap-3 py-8">
+          <p className="text-sm text-[#8E8E93]">
+            루틴 목록을 불러오지 못했습니다.
+          </p>
+          <NormalBlackButton text="다시 시도" onClick={() => void refetch()} />
+        </div>
       ) : (
-        // 2-2. 테이블
-        report && <RoutineTable report={report} onToggle={handleToggle} />
+        // 2-3. 테이블
+        <RoutineTable report={report} onToggle={handleToggle} />
       )}
 
       <Space24 direction="mb" />

@@ -21,6 +21,7 @@ export interface AdminNotice {
 export const useAdminNotices = () => {
   const [notices, setNotices] = useState<AdminNotice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const noticesQuery = useMemo(
     () =>
       query(
@@ -43,6 +44,7 @@ export const useAdminNotices = () => {
       };
     });
     setNotices(result);
+    setIsError(false);
     setLoading(false);
   }, []);
 
@@ -53,13 +55,21 @@ export const useAdminNotices = () => {
 
   useEffect(() => {
     // 🔥 실시간 구독
-    const unsubscribe = subscribeWithSafariFallback(noticesQuery, (snapshot) => {
-      mapSnapshotToNotices(snapshot);
-    });
+    const unsubscribe = subscribeWithSafariFallback(
+      noticesQuery,
+      (snapshot) => {
+        mapSnapshotToNotices(snapshot);
+      },
+      // 실패 시에도 로딩을 종료해 "로딩 중"에서 멈추지 않게 한다
+      () => {
+        setIsError(true);
+        setLoading(false);
+      }
+    );
 
     // 🔹 cleanup (컴포넌트 unmount 시 구독 해제)
     return () => unsubscribe();
   }, [mapSnapshotToNotices, noticesQuery]);
 
-  return { notices, loading, refresh };
+  return { notices, loading, isError, refresh };
 };

@@ -14,36 +14,42 @@ export const useAdminUsers = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [isError, setIsError] = useState(false);
+
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
+      setIsError(false);
 
       const q = query(
         collection(db, "users"),
         orderBy("name", "asc") // 🔹 이름 오름차순
       );
 
-      const snap = await getDocs(q);
+      try {
+        const snap = await getDocs(q);
 
-      const result: AdminUser[] = snap.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          name: data.name,
-          email: data.email,
-          createdAt: data.createdAt?.toDate?.(),
-          lastLoginAt: data.lastLoginAt?.toDate?.(),
-        };
-      });
+        const result: AdminUser[] = snap.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data.name,
+            email: data.email,
+            createdAt: data.createdAt?.toDate?.(),
+            lastLoginAt: data.lastLoginAt?.toDate?.(),
+          };
+        });
 
-      setUsers(result);
-      setLoading(false);
+        setUsers(result);
+      } catch {
+        setIsError(true);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchUsers();
+    void fetchUsers();
   }, []);
 
-  console.log(users);
-
-  return { users, loading };
+  return { users, loading, isError };
 };
