@@ -6,7 +6,9 @@ import LogoImage from "@/assets/images/logo.png";
 
 export const LogoSection = () => {
   return (
-    <Link to="/">
+    // 헤더는 로그인 상태에서만 노출되므로 홈으로 바로 보낸다.
+    // "/" 는 로그인 페이지라 인증 확인과 리다이렉트를 거치며 로딩 화면이 노출된다.
+    <Link to="/home">
       <div className="flex items-center my-3 sm:my-4">
         <img src={LogoImage} className="w-6 sm:w-8" />
         <Space2 direction="mr" />
