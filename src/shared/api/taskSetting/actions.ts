@@ -200,6 +200,10 @@ export const deleteUncompletedTasks = async ({
 
   const targets = getUncompletedTasks(tasks, completedTaskIds);
 
+  // 지울 것이 없으면 빈 배치 커밋도 하지 않는다. 빈 커밋도 네트워크 왕복이다.
+  const removedCount = targets.length;
+  if (!removedCount) return;
+
   const batch = writeBatch(db);
 
   targets.forEach((task) => {
@@ -207,9 +211,6 @@ export const deleteUncompletedTasks = async ({
   });
 
   await batch.commit();
-
-  const removedCount = targets.length;
-  if (!removedCount) return;
 
   await patchDayStats({
     userId,
@@ -236,6 +237,9 @@ export const copyAllTasksToDate = async ({
     getTasksByDateOnce({ userId, date: fromDate }),
     getTasksByDateOnce({ userId, date: toDate }),
   ]);
+
+  // 복사할 것이 없으면 빈 배치 커밋도 하지 않는다. 빈 커밋도 네트워크 왕복이다.
+  if (!tasks.length) return;
 
   const allocateOrderIndex = createOrderIndexAllocator(existingTasks);
   const batch = writeBatch(db);
@@ -284,6 +288,9 @@ export const deleteAllTasksByDate = async ({
     date,
   });
 
+  // 지울 것이 없으면 빈 배치 커밋도 하지 않는다. 빈 커밋도 네트워크 왕복이다.
+  if (!tasks.length) return;
+
   const batch = writeBatch(db);
 
   tasks.forEach((task) => {
@@ -291,8 +298,6 @@ export const deleteAllTasksByDate = async ({
   });
 
   await batch.commit();
-
-  if (!tasks.length) return;
 
   const completedCount = tasks.filter((task) =>
     completedTaskIds.has(task.id)
