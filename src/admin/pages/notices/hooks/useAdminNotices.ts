@@ -54,8 +54,7 @@ export const useAdminNotices = () => {
   }, [mapSnapshotToNotices, noticesQuery]);
 
   useEffect(() => {
-    // 🔥 실시간 구독
-    const unsubscribe = fetchQueryOnce(
+    const cancel = fetchQueryOnce(
       noticesQuery,
       (snapshot) => {
         mapSnapshotToNotices(snapshot);
@@ -67,8 +66,8 @@ export const useAdminNotices = () => {
       }
     );
 
-    // 🔹 cleanup (컴포넌트 unmount 시 구독 해제)
-    return () => unsubscribe();
+    // 화면이 사라진 뒤 도착한 응답으로 상태를 갱신하지 않도록 취소한다
+    return () => cancel();
   }, [mapSnapshotToNotices, noticesQuery]);
 
   return { notices, loading, isError, refresh };

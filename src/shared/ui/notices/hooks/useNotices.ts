@@ -23,7 +23,7 @@ export const useNotices = () => {
       orderBy("createdAt", "desc")
     );
 
-    const unsubscribe = fetchQueryOnce(
+    const cancel = fetchQueryOnce(
       q,
       (snapshot) => {
         const result = snapshot.docs.map((doc) => {
@@ -48,7 +48,7 @@ export const useNotices = () => {
       }
     );
 
-    return () => unsubscribe();
+    return () => cancel();
   }, []);
 
   return { notices, loading, isError };
