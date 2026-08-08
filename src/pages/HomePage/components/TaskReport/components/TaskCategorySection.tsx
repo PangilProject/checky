@@ -20,7 +20,8 @@ import { TaskItemsList } from "./TaskItemsList";
 
 interface TaskCategorySectionProps {
   category: Category;
-  categories: Category[];
+  /** 새 할 일을 넣을 수 있는 분류. 종료한 것은 들어 있지 않다. */
+  selectableCategories: Category[];
   tasks: Task[];
   taskLogMap: Map<string, TaskLog>;
   dateString: string;
@@ -35,7 +36,7 @@ interface TaskCategorySectionProps {
 
 export const TaskCategorySection = ({
   category,
-  categories,
+  selectableCategories,
   tasks,
   taskLogMap,
   dateString,
@@ -43,6 +44,16 @@ export const TaskCategorySection = ({
   onToggleTask,
   onReorder,
 }: TaskCategorySectionProps) => {
+  // 종료한 분류는 이미 들어 있는 할 일만 보여 준다. 새로 넣지는 못한다.
+  const isEnded = category.status !== "ACTIVE";
+
+  // 모달의 분류 목록에는 이 할 일이 속한 분류가 반드시 있어야 한다.
+  // 없으면 종료된 분류의 할 일을 열었을 때 분류 칸이 비어 보인다.
+  // 다른 분류로 옮기는 것은 되고, 다른 할 일을 여기로 옮기지는 못한다.
+  const modalCategories = isEnded
+    ? [...selectableCategories, category]
+    : selectableCategories;
+
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
@@ -87,6 +98,7 @@ export const TaskCategorySection = ({
       <AddCategory
         categoryName={category.name}
         categoryColor={category.color}
+        canAdd={!isEnded}
         onClick={() => setIsAddOpen(true)}
       />
 
@@ -110,7 +122,7 @@ export const TaskCategorySection = ({
         </SortableContext>
       </DndContext>
 
-      {isAddOpen && (
+      {isAddOpen && !isEnded && (
         <AddTaskInput
           categoryColor={category.color}
           onAddTask={(title) =>
@@ -135,7 +147,7 @@ export const TaskCategorySection = ({
           selectedDate={dateString}
           categoryId={category.id}
           categoryColor={category.color}
-          categories={categories}
+          categories={modalCategories}
           onClose={handleCloseTaskModal}
         />
       )}

@@ -60,14 +60,16 @@ export const useTaskList = ({
     () => taskLogKeys.byDate(safeUserId, dateString),
     [safeUserId, dateString],
   );
+  // 종료한 분류도 함께 읽는다. 그 분류에 이미 들어 있던 할 일을 계속 보여줘야 하기 때문이다.
+  // 종료는 "새로 만들 때 고를 수 없다"는 뜻이지 "숨긴다"는 뜻이 아니다.
   const categoryQueryKey = useMemo(
-    () => categoryKeys.list(safeUserId, "ACTIVE"),
+    () => categoryKeys.list(safeUserId),
     [safeUserId],
   );
 
   const categoriesQuery = useQuery({
     queryKey: categoryQueryKey,
-    queryFn: () => getCategoriesOnce({ userId: safeUserId, status: "ACTIVE" }),
+    queryFn: () => getCategoriesOnce({ userId: safeUserId }),
     enabled: Boolean(userId),
     staleTime: 10 * 60_000,
     gcTime: 30 * 60_000,
@@ -98,9 +100,35 @@ export const useTaskList = ({
     placeholderData: (previous) => previous,
   });
 
-  const categories = categoriesQuery.data ?? EMPTY_CATEGORIES;
+  const allCategories = categoriesQuery.data ?? EMPTY_CATEGORIES;
   const tasks = tasksQuery.data ?? EMPTY_TASKS;
   const taskLogs = taskLogsQuery.data ?? EMPTY_TASK_LOGS;
+
+  /** 새 할 일을 넣을 수 있는 분류. 종료한 것은 고를 수 없다. */
+  const selectableCategories = useMemo(
+    () => allCategories.filter((category) => category.status === "ACTIVE"),
+    [allCategories],
+  );
+
+  /**
+   * 화면에 줄을 그릴 분류.
+   *
+   * 사용 중인 분류에, 그날 할 일이 남아 있는 종료된 분류를 더한다.
+   * 종료된 분류를 빼면 그 안의 할 일이 목록에서 통째로 사라져
+   * 완료도 삭제도 못 하는데 달력 개수에는 계속 잡히는 상태가 된다.
+   * 종료된 것은 사용 중인 것 뒤에 둔다.
+   */
+  const visibleCategories = useMemo(() => {
+    const usedCategoryIds = new Set(tasks.map((task) => task.categoryId));
+    const endedWithTasks = allCategories.filter(
+      (category) =>
+        category.status !== "ACTIVE" && usedCategoryIds.has(category.id),
+    );
+
+    return endedWithTasks.length === 0
+      ? selectableCategories
+      : [...selectableCategories, ...endedWithTasks];
+  }, [allCategories, selectableCategories, tasks]);
 
   const taskState = queryClient.getQueryState(taskQueryKey);
   const logState = queryClient.getQueryState(taskLogQueryKey);
@@ -427,7 +455,8 @@ export const useTaskList = ({
   };
 
   return {
-    categories,
+    categories: visibleCategories,
+    selectableCategories,
     tasks,
     taskLogMap,
     isLoading: categoriesQuery.isLoading || tasksQuery.isLoading,

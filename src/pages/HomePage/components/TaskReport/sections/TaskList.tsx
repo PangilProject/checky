@@ -22,6 +22,7 @@ export const TaskListSection = ({
 
   const {
     categories,
+    selectableCategories,
     tasks,
     taskLogMap,
     isLoading,
@@ -64,7 +65,7 @@ export const TaskListSection = ({
             <TaskCategorySection
               key={category.id}
               category={category}
-              categories={categories}
+              selectableCategories={selectableCategories}
               tasks={tasks}
               taskLogMap={taskLogMap}
               dateString={dateString}
