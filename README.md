@@ -52,7 +52,8 @@ Checky는 Task와 Routine을 분리해 다음을 명확히 합니다.
 - `categories`
 - `monthlyStats` (월간 집계 캐시)
 
-특히 `monthlyStats`는 월간 화면 비용을 줄이기 위한 요약 문서이며, 상세 내용은 [docs/monthlyStats.md](/Users/kimkwang-il/Desktop/checky/checky/docs/monthlyStats.md)에서 확인할 수 있습니다.
+특히 `monthlyStats`는 월간 화면의 조회 비용을 줄이기 위한 요약 문서입니다.
+하루 단위 활동 요약을 월 문서 하나에 모아 두어, 달력과 리포트가 개별 기록을 모두 읽지 않아도 됩니다.
 
 ## 기술 구성
 
@@ -75,8 +76,3 @@ src
 └─ router.tsx      # 라우팅 정의
 ```
 
-## 참고 문서
-
-- 월간 집계 최적화: [docs/monthlyStats.md](/Users/kimkwang-il/Desktop/checky/checky/docs/monthlyStats.md)
-- 성능 리포트: [docs/performance-report.md](/Users/kimkwang-il/Desktop/checky/checky/docs/performance-report.md)
-- 리팩터 기록: [docs/refactor/260310.md](/Users/kimkwang-il/Desktop/checky/checky/docs/refactor/260310.md)

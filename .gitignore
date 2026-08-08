@@ -29,3 +29,7 @@ dist-ssr
 .firebase/*
 
 AGENTS.md
+
+# 내부 개발 문서 (성능 리포트, 리팩터링 기록, 릴리즈 노트, 배포 메모 등)
+# 화면에 표시되는 개인정보 처리방침·이용약관은 src/pages/legal/content 에 있다
+docs/
