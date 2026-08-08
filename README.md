@@ -33,27 +33,56 @@ Checky는 Task와 Routine을 분리해 다음을 명확히 합니다.
 
 ## 화면/기능 구성
 
-- `/`: 로그인
+로그인이 필요한 화면
+
 - `/home`: 일일 실행 허브(Task/Routine/월간 요약)
 - `/category`: 카테고리 관리(활성/종료/정렬)
 - `/routine`: 루틴 등록/수정/정렬
 - `/my`: 사용자 정보/계정 관련 메뉴
+
+관리자 권한이 필요한 화면
+
 - `/admin`: 관리자 대시보드
 - `/admin/users`: 사용자 관리
 - `/admin/notices`: 공지 관리
 - `/admin/reports`: 운영 리포트
 
+로그인 없이 열리는 화면
+
+- `/`: 로그인
+- `/privacy`: 개인정보 처리방침
+- `/terms`: 이용약관
+
+방침과 약관은 가입 전에 확인할 수 있어야 하므로 인증 가드 밖에 둡니다.
+문서 원본은 `src/pages/legal/content` 의 마크다운 한 벌이며, 화면이 이를 읽어 렌더링합니다.
+
 ## 데이터 관점 요약
 
 사용자 하위 컬렉션 중심으로 데이터가 분리됩니다.
 
-- `tasks`, `taskLogs`
-- `routines`, `routineLogs`
-- `categories`
-- `monthlyStats` (월간 집계 캐시)
+```text
+users/{uid}                 # 프로필, 접속 기록, 관리자 여부
+├─ tasks, taskLogs
+├─ routines, routineLogs
+├─ categories
+└─ monthlyStats             # 월간 집계 캐시
+
+notices/{noticeId}          # 공지 (읽기는 로그인 사용자, 쓰기는 관리자)
+```
 
 특히 `monthlyStats`는 월간 화면의 조회 비용을 줄이기 위한 요약 문서입니다.
 하루 단위 활동 요약을 월 문서 하나에 모아 두어, 달력과 리포트가 개별 기록을 모두 읽지 않아도 됩니다.
+
+### 접근 통제
+
+이 분리는 관례가 아니라 `firestore.rules` 가 강제합니다.
+
+- 사용자 하위 컬렉션은 본인만 읽고 쓸 수 있습니다.
+- `users` 문서의 `isAdmin` 은 클라이언트가 변경할 수 없습니다.
+- 규칙에 없는 경로는 전부 차단됩니다.
+
+규칙과 복합 인덱스는 `firestore.rules`, `firestore.indexes.json` 으로 저장소에서 관리하며
+배포 시 함께 반영됩니다.
 
 ## 기술 구성
 
@@ -67,12 +96,41 @@ Checky는 Task와 Routine을 분리해 다음을 명확히 합니다.
 
 ```text
 src
-├─ pages/          # 사용자 화면
-├─ admin/          # 관리자 화면
-├─ shared/api/     # 도메인 API 계층
-├─ shared/ui/      # 공통 UI
-├─ shared/hooks/   # 공통 훅
-├─ firebase/       # Firebase 초기화/인증
-└─ router.tsx      # 라우팅 정의
+├─ pages/            # 사용자 화면
+│  └─ legal/         # 개인정보 처리방침·이용약관 (문서 원본 포함)
+├─ admin/            # 관리자 화면
+├─ shared/api/       # 도메인 API 계층
+├─ shared/ui/        # 공통 UI
+├─ shared/hooks/     # 공통 훅
+├─ shared/stores/    # 앱 전역 인증 상태 (zustand)
+├─ shared/contexts/  # 화면 간 공유 상태 (선택 날짜 등)
+├─ firebase/         # Firebase 초기화
+└─ router.tsx        # 라우팅 정의
 ```
+
+## 로컬 실행
+
+Node.js `^20.19.0` 또는 `>=22.12.0` 이 필요합니다 (Vite 7 요구 사항).
+
+```bash
+npm install
+cp .env.example .env   # Firebase 설정값을 채워 넣습니다
+npm run dev
+```
+
+환경변수는 Firebase Console > 프로젝트 설정 > 일반 > 내 앱 에서 확인할 수 있습니다.
+이 값들은 클라이언트 번들에 포함되므로 비밀이 아니며, 데이터 접근 통제는 `firestore.rules` 가 담당합니다.
+
+Google 로그인을 쓰려면 Firebase Authentication 에서 Google 제공업체를 켜고,
+승인된 도메인에 `localhost` 가 있어야 합니다.
+
+### 명령어
+
+| 명령 | 설명 |
+| --- | --- |
+| `npm run dev` | 개발 서버 |
+| `npm run build` | 타입 검사 후 프로덕션 빌드 |
+| `npm run preview` | 빌드 결과 확인 |
+| `npm run lint` | ESLint |
+| `npm run deploy` | 빌드 후 Firebase 배포 (호스팅·규칙·인덱스) |
 
