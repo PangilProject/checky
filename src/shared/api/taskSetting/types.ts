@@ -1,8 +1,3 @@
-/**
- * @file taskSetting/types.ts
- * @description API 모듈
- */
-
 export interface MoveTasksParams {
   userId: string;
   fromDate: string;

@@ -3,11 +3,9 @@ import { collection, deleteDoc, getDocs } from "firebase/firestore/lite";
 import { deleteUserDoc } from "./user";
 
 /**
- * @file userCleanup.ts
- * @description 사용자 탈퇴 시 연관 Firestore 데이터 삭제 유틸
+ * 회원 탈퇴 시 사용자와 연결된 Firestore 데이터를 지운다.
  */
 
-/** 삭제 대상 하위 컬렉션 목록 */
 const USER_SUB_COLLECTIONS = [
   "tasks",
   "taskLogs",
@@ -17,7 +15,6 @@ const USER_SUB_COLLECTIONS = [
   "monthlyStats",
 ] as const;
 
-/** users/{uid}/{subCollection} 하위 문서를 일괄 삭제합니다. */
 const deleteSubCollection = async (uid: string, subCollection: string) => {
   const ref = collection(db, "users", uid, subCollection);
   const snap = await getDocs(ref);

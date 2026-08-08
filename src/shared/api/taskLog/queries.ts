@@ -1,8 +1,3 @@
-/**
- * @file taskLog/queries.ts
- * @description API 모듈
- */
-
 import { getDocs, query, where } from "firebase/firestore/lite";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import { taskLogsRef } from "./refs";
@@ -11,8 +6,6 @@ import { baselineFetch } from "@/shared/utils/perfBaseline";
 
 /**
  * @description 날짜 기준 태스크 로그를 1회 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
  */
 export const getTaskLogsByDateOnce = async ({
   userId,
@@ -31,8 +24,6 @@ export const getTaskLogsByDateOnce = async ({
 
 /**
  * @description 월 기준 태스크 로그를 1회 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
  */
 export const getTaskLogsByMonthOnce = async ({
   userId,

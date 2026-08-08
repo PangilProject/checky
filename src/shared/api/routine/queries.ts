@@ -1,8 +1,3 @@
-/**
- * @file routine/queries.ts
- * @description API 모듈
- */
-
 import { getDocs, query, where } from "firebase/firestore/lite";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { routineLogsRef, routinesRef } from "./refs";
@@ -19,8 +14,6 @@ export type RoutineLogMonthly = { routineId: string; date: string; done: boolean
 
 /**
  * @description 월 기준 루틴을 1회 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
  */
 export const getRoutinesByMonthOnce = async ({
   userId,
@@ -55,8 +48,6 @@ export const getRoutinesByMonthOnce = async ({
 
 /**
  * @description 월 기준 루틴 로그를 1회 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
  */
 export const getRoutineLogsByMonthOnce = async ({
   userId,

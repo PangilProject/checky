@@ -1,8 +1,3 @@
-/**
- * @file routine/types.ts
- * @description API 모듈
- */
-
 import type { Category } from "@/shared/api/category";
 
 export interface RoutineScheduleHistoryItem {

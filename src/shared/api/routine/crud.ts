@@ -1,8 +1,3 @@
-/**
- * @file routine/crud.ts
- * @description API 모듈
- */
-
 import {
   addDoc,
   deleteField,
@@ -19,9 +14,10 @@ import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Routine, RoutineScheduleHistoryItem } from "./types";
 
 /**
- * @description 카테고리별 루틴을 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
+ * 한 분류에 속한 루틴을 순서대로 읽는다.
+ *
+ * routines(categoryId, orderIndex) 복합 인덱스가 필요하다.
+ * 결과가 없으면 빈 배열이며 예외를 던지지 않는다.
  */
 export const getRoutinesByCategory = async ({
   userId,
@@ -43,7 +39,6 @@ export const getRoutinesByCategory = async ({
 
 /**
  * @description 루틴을 생성합니다.
- * @param params 요청 파라미터
  * @returns 생성 결과
  */
 export const createRoutine = async ({
@@ -82,8 +77,6 @@ export const createRoutine = async ({
 
 /**
  * @description 루틴 정보를 수정합니다.
- * @param params 요청 파라미터
- * @returns 작업 결과
  */
 export const updateRoutine = async ({
   userId,
@@ -115,8 +108,6 @@ export const updateRoutine = async ({
 
 /**
  * @description 루틴을 삭제합니다.
- * @param params 요청 파라미터
- * @returns 작업 결과
  */
 export const deleteRoutine = async ({
   userId,

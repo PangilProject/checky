@@ -1,8 +1,3 @@
-/**
- * @file routine/report.ts
- * @description API 모듈
- */
-
 import {
   getDocs,
   query,
@@ -50,7 +45,6 @@ const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
  * @description 주간 범위 데이터를 생성합니다.
  * @param startDate 시작 날짜
  * @param endDate 종료 날짜
- * @returns 반환값
  */
 const buildWeek = (startDate: string, endDate: string): RoutineReportWeek => {
   const days: RoutineReportWeek["days"] = [];
@@ -77,7 +71,6 @@ const buildWeek = (startDate: string, endDate: string): RoutineReportWeek => {
 /**
  * @description 루틴 로그를 조회 맵으로 변환합니다.
  * @param logs 로그 목록
- * @returns 반환값
  */
 const buildLogMap = (logs: RoutineLog[]) => {
   const logMap = new Map<string, boolean>();
@@ -90,7 +83,6 @@ const buildLogMap = (logs: RoutineLog[]) => {
 /**
  * @description Firestore Timestamp/Date 값을 YYYY-MM-DD로 변환합니다.
  * @param value 날짜 원본 값
- * @returns 반환값
  */
 const toDateString = (value: unknown): string | null => {
   if (!value) return null;
@@ -143,8 +135,6 @@ const getRepeatDaysByDate = ({
 
 /**
  * @description 카테고리 스냅샷을 맵으로 변환합니다.
- * @param params 요청 파라미터
- * @returns 반환값
  */
 const buildCategoriesMap = (
   docs: QueryDocumentSnapshot<DocumentData>[]
@@ -159,8 +149,6 @@ const buildCategoriesMap = (
 
 /**
  * @description 리포트 행 데이터를 생성합니다.
- * @param params 요청 파라미터
- * @returns 반환값
  */
 const buildRows = ({
   routines,
@@ -244,8 +232,6 @@ const buildRows = ({
 
 /**
  * @description 주간 루틴 리포트를 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
  */
 export const getRoutineReportByWeek = async ({
   userId,

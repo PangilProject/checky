@@ -1,8 +1,3 @@
-/**
- * @file category/types.ts
- * @description API 모듈
- */
-
 import type { Timestamp } from "firebase/firestore/lite";
 
 export type CategoryStatus = "ACTIVE" | "ENDED";

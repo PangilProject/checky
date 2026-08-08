@@ -1,13 +1,12 @@
 /**
- * @file category/invalidate.ts
- * @description 카테고리 변경 후 갱신해야 하는 모든 캐시를 한 곳에서 무효화합니다.
+ * 카테고리 변경 후 갱신해야 하는 모든 캐시를 한곳에서 무효화한다.
  *
- * 카테고리(ACTIVE/ENDED)는 다음 두 캐시에 걸쳐 사용됩니다.
+ * 카테고리(ACTIVE/ENDED)는 다음 두 캐시에 걸쳐 사용된다.
  *  1) categoryKeys.all  - 카테고리 페이지, 할 일 페이지의 카테고리 목록
  *  2) routinePageKeys   - 루틴 페이지가 활성 카테고리를 내부에 포함해 조회
  *
- * 생성/수정/종료/복구 등 카테고리 mutation 직후 이 헬퍼를 호출하면,
- * 무효화 누락으로 UI가 갱신되지 않는 문제를 방지할 수 있습니다.
+ * 생성·수정·종료·복구 등 카테고리 mutation 직후 이 헬퍼를 호출하면
+ * 무효화 누락으로 화면이 갱신되지 않는 문제를 막을 수 있다.
  */
 
 import type { QueryClient } from "@tanstack/react-query";

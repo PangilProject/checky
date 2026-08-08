@@ -1,8 +1,3 @@
-/**
- * @file taskSetting/queries.ts
- * @description API 모듈
- */
-
 import { getDocs, query, where } from "firebase/firestore/lite";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import type { Task } from "@/shared/api/task";
@@ -15,8 +10,6 @@ type TaskLogRecord = {
 
 /**
  * @description 날짜 기준 태스크를 1회 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
  */
 export const getTasksByDateOnce = async ({
   userId,
@@ -34,8 +27,6 @@ export const getTasksByDateOnce = async ({
 
 /**
  * @description 날짜 기준 완료된 태스크 ID를 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
  */
 export const getCompletedTaskIdsByDate = async ({
   userId,

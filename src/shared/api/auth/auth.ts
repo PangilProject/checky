@@ -8,8 +8,7 @@ import { createUser, getUserDoc, updateLastLogin } from "./user";
 import { deleteAllUserData } from "./userCleanup";
 
 /**
- * @file auth.ts
- * @description Google 인증 및 계정 삭제 액션
+ * Google 인증과 계정 삭제 동작을 모은다.
  */
 
 /**
@@ -46,7 +45,6 @@ export class AccountDeletionIncompleteError extends Error {
  * 계정 완전 삭제
  * - 재인증 후 사용자 하위 데이터 삭제
  * - Firebase Auth 계정 삭제
- *
  * 데이터 삭제는 Firestore 규칙상 로그인 상태에서만 가능하므로 Auth 계정 삭제를
  * 마지막에 수행한다. 마지막 단계가 실패하면 데이터만 지워진 어중간한 상태가 되므로
  * 한 번 재시도한 뒤, 그래도 실패하면 재시도가 필요함을 알리는 에러를 던진다.

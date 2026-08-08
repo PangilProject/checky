@@ -2,14 +2,11 @@ import { db } from "@/firebase/firebase";
 import { doc, getDoc } from "firebase/firestore/lite";
 
 /**
- * @file adminAccess.ts
- * @description 로그인 사용자의 users/{uid} 문서에서 접근 권한과 접속 기록을 조회하는 유틸
+ * 로그인 사용자의 users/{uid} 문서에서 접근 권한과 접속 기록을 읽어 온다.
  */
 
 export interface UserAccessInfo {
-  /** 관리자 여부 */
   isAdmin: boolean;
-  /** 마지막 접속 시각 (기록이 없으면 null) */
   lastActiveAt: Date | null;
 }
 
@@ -30,7 +27,6 @@ export const clearAdminCache = () => {
 
 /**
  * 사용자 문서를 한 번만 읽어 권한과 접속 기록을 함께 반환합니다.
- *
  * 관리자 여부와 마지막 접속 시각은 같은 문서에 있으므로 따로 읽지 않습니다.
  */
 export const getUserAccessInfoCached = async (

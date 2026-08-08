@@ -1,16 +1,12 @@
-/**
- * @file category/order.ts
- * @description API 모듈
- */
-
 import { writeBatch } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { categoryRef } from "./refs";
 
 /**
- * @description 카테고리 정렬 순서를 업데이트합니다.
- * @param params 요청 파라미터
- * @returns 작업 결과
+ * 분류 정렬 순서를 한 번에 저장한다.
+ *
+ * 배치 쓰기라 전부 반영되거나 전부 실패한다.
+ * Firestore 배치 한도가 500건이므로 한 번에 넘기는 항목이 그보다 적어야 한다.
  */
 export const updateCategoryOrder = async ({
   userId,

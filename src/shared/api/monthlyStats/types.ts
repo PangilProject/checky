@@ -1,8 +1,3 @@
-/**
- * @file monthlyStats/types.ts
- * @description API 모듈
- */
-
 export type MonthlyActivitySummary = {
   total: number;
   completed: number;

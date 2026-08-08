@@ -1,8 +1,3 @@
-/**
- * @file routine/order.ts
- * @description API 모듈
- */
-
 import { getDocs, orderBy, query, serverTimestamp, writeBatch } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { routineRef, routinesRef } from "./refs";
@@ -10,9 +5,10 @@ import { routineRef, routinesRef } from "./refs";
 const migratedUsers = new Set<string>();
 
 /**
- * @description 루틴 정렬 순서를 업데이트합니다.
- * @param params 요청 파라미터
- * @returns 작업 결과
+ * 루틴 정렬 순서를 한 번에 저장한다.
+ *
+ * 배치 쓰기라 전부 반영되거나 전부 실패한다.
+ * Firestore 배치 한도가 500건이므로 한 번에 넘기는 항목이 그보다 적어야 한다.
  */
 export const updateRoutineOrder = async ({
   userId,
@@ -33,9 +29,11 @@ export const updateRoutineOrder = async ({
 };
 
 /**
- * @description 루틴 orderIndex를 마이그레이션합니다.
- * @param userId 사용자 ID
- * @returns 작업 결과
+ * orderIndex 가 없던 시절에 만들어진 루틴에 순서를 채워 넣는다.
+ *
+ * 사용자의 루틴 전체를 읽으므로, 이미 끝난 사용자는 다시 읽지 않도록
+ * 모듈 수준 Set 에 기록해 둔다. 이 기록은 메모리에만 있어 새로고침하면 사라진다.
+ * 채울 것이 없으면 쓰기를 하지 않으므로 다시 돌아도 안전하다.
  */
 export const migrateRoutineOrderIndex = async (userId: string) => {
   if (migratedUsers.has(userId)) return;

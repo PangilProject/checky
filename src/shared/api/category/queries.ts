@@ -1,8 +1,3 @@
-/**
- * @file category/queries.ts
- * @description API 모듈
- */
-
 import { getDocs, orderBy, query, where } from "firebase/firestore/lite";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import { categoriesRef } from "./refs";
@@ -11,8 +6,6 @@ import { baselineFetch } from "@/shared/utils/perfBaseline";
 
 /**
  * @description 카테고리를 1회 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
  */
 export const getCategoriesOnce = async ({
   userId,

@@ -1,9 +1,8 @@
 /**
- * src/shared/api/keys.ts
- * 쿼리 키를 관리하는 파일
- * 이 키들은 React Query의 useQuery, useMutation 및 queryClient의 캐시 관리 메서드(invalidateQueries 등)에서 사용됩니다.
- * 계층 구조(all -> list -> detail)로 분리하여 특정 범위의 캐시를 효율적으로 무효화하고,
- * 중앙 집중식 관리를 통해 키의 일관성을 유지하여 휴먼 에러를 방지하고 유지보수성을 높입니다.
+ * React Query 캐시 키를 한곳에서 관리한다.
+ *
+ * 계층 구조(all -> list -> detail)로 나누어 필요한 범위만 무효화할 수 있게 하고,
+ * 키를 흩어 두지 않아 무효화 대상이 어긋나는 실수를 막는다.
  */
 
 /**

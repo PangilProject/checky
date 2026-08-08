@@ -1,8 +1,3 @@
-/**
- * @file monthlyStats/queries.ts
- * @description API 모듈
- */
-
 import { getDoc, serverTimestamp, setDoc } from "firebase/firestore/lite";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { monthlyStatsDocRef } from "./refs";

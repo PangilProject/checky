@@ -1,8 +1,3 @@
-/**
- * @file category/crud.ts
- * @description API 모듈
- */
-
 import {
   doc,
   getDocs,
@@ -21,9 +16,10 @@ interface CreateCategoryParams {
 }
 
 /**
- * @description 카테고리를 생성합니다.
- * @param params 요청 파라미터
- * @returns 생성 결과
+ * 분류를 만든다.
+ *
+ * 목록 맨 뒤에 붙이려고 활성 분류 개수를 먼저 읽어 orderIndex 로 쓴다.
+ * 읽기 1회 + 쓰기 1회다.
  */
 export const createCategory = async ({
   userId,
@@ -52,8 +48,6 @@ export const createCategory = async ({
 
 /**
  * @description 카테고리 정보를 수정합니다.
- * @param params 요청 파라미터
- * @returns 작업 결과
  */
 export const updateCategory = async ({
   userId,
@@ -80,8 +74,6 @@ interface EndCategoryParams {
 
 /**
  * @description 카테고리를 종료 상태로 변경합니다.
- * @param params 요청 파라미터
- * @returns 반환값
  */
 export const endCategory = async ({
   userId,
@@ -100,9 +92,10 @@ interface RestoreCategoryParams {
 }
 
 /**
- * @description 카테고리를 활성 상태로 복구합니다.
- * @param params 요청 파라미터
- * @returns 반환값
+ * 종료한 분류를 다시 활성으로 되돌린다.
+ *
+ * 종료 전 순서는 남겨 두지 않으므로 목록 맨 뒤로 간다.
+ * 그 자리를 정하려고 활성 분류 개수를 먼저 읽는다.
  */
 export const restoreCategory = async ({
   userId,

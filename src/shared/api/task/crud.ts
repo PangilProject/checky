@@ -1,8 +1,3 @@
-/**
- * @file task/crud.ts
- * @description API 모듈
- */
-
 import {
   addDoc,
   deleteField,
@@ -20,9 +15,10 @@ import { taskLogsRef, taskRef, tasksRef } from "./refs";
 import type { Task } from "./types";
 
 /**
- * @description 태스크를 생성합니다.
- * @param params 요청 파라미터
- * @returns 생성 결과
+ * 할 일을 만든다.
+ *
+ * 목록 맨 뒤에 붙이려고 같은 날짜·분류의 마지막 orderIndex 를 먼저 읽는다.
+ * 읽기 1회 + 쓰기 1회이며, tasks(categoryId, date, orderIndex DESC) 복합 인덱스가 필요하다.
  */
 export const createTask = async ({
   userId,
@@ -75,8 +71,6 @@ export const createTask = async ({
 
 /**
  * @description 태스크 수정과 날짜 이동을 처리합니다.
- * @param params 요청 파라미터
- * @returns 작업 결과
  */
 export const updateTaskWithDateMove = async ({
   userId,
@@ -147,9 +141,10 @@ export const updateTaskWithDateMove = async ({
 };
 
 /**
- * @description 태스크와 관련 로그를 삭제합니다.
- * @param params 요청 파라미터
- * @returns 작업 결과
+ * 할 일과 그 완료 기록을 함께 지운다.
+ *
+ * 배치 하나로 처리해 할 일만 지워지고 기록이 남는 상태를 만들지 않는다.
+ * 반환하는 wasCompleted 는 호출부가 월간 통계를 되돌릴지 판단하는 데 쓴다.
  */
 export const deleteTaskWithLogs = async ({
   userId,

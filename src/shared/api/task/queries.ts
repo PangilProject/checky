@@ -1,8 +1,3 @@
-/**
- * @file task/queries.ts
- * @description API 모듈
- */
-
 import { getDocs, query, where } from "firebase/firestore/lite";
 import { tasksRef } from "./refs";
 import type { Task } from "./types";
@@ -11,8 +6,6 @@ import { mapTaskDoc } from "./mappers";
 
 /**
  * @description 날짜 기준 태스크를 1회 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
  */
 export const getTasksByDateOnce = async ({
   userId,
@@ -31,8 +24,6 @@ export const getTasksByDateOnce = async ({
 
 /**
  * @description 월 기준 태스크를 1회 조회합니다.
- * @param params 요청 파라미터
- * @returns 조회 결과
  */
 export const getTasksByMonthOnce = async ({
   userId,
