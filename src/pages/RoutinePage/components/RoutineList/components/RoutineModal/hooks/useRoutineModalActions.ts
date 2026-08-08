@@ -80,6 +80,8 @@ const refreshAffectedData = async ({
     userId,
     affectedMonths: await collectMonthsToRecalculate({ userId, span }),
     recalculate: true,
+    // 루틴이 바뀌었으므로 루틴 목록과 주간 리포트 캐시도 함께 갱신한다.
+    invalidateRoutineData: true,
   });
   await queryClient.invalidateQueries({
     queryKey: routinePageKeys.detail(userId),

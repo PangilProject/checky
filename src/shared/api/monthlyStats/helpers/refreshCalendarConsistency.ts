@@ -7,6 +7,11 @@ import { recalculateMonthlyStatsByMonth } from "../recalculate";
  *
  * recalculate 를 켜면 해당 달들을 원본에서 다시 세고, 그다음 관련 캐시를 무효화한다.
  * 다시 세는 쪽은 비용이 크므로 요약이 실제와 달라졌을 때만 켠다.
+ *
+ * 무효화는 넘긴 달의 캐시만 좁혀서 한다. 도메인 전체를 무효화하면
+ * 마운트된 쿼리가 전부 다시 읽어 와 변경과 무관한 read 가 쌓인다.
+ * 루틴이 바뀐 경우에만 invalidateRoutineData 를 켜서
+ * 루틴 목록과 주간 리포트 캐시를 함께 갱신한다.
  */
 export const refreshCalendarConsistency = async ({
   queryClient,
@@ -14,12 +19,14 @@ export const refreshCalendarConsistency = async ({
   affectedMonths,
   recalculate = false,
   invalidateTasksByMonth = false,
+  invalidateRoutineData = false,
 }: {
   queryClient: QueryClient;
   userId: string;
   affectedMonths: string[];
   recalculate?: boolean;
   invalidateTasksByMonth?: boolean;
+  invalidateRoutineData?: boolean;
 }) => {
   const months = Array.from(new Set(affectedMonths.filter(Boolean)));
 
@@ -42,8 +49,11 @@ export const refreshCalendarConsistency = async ({
           }),
         )
       : []),
-    queryClient.invalidateQueries({ queryKey: monthlyStatsKeys.all }),
-    queryClient.invalidateQueries({ queryKey: routineKeys.all }),
-    queryClient.invalidateQueries({ queryKey: routineReportKeys.all }),
+    ...(invalidateRoutineData
+      ? [
+          queryClient.invalidateQueries({ queryKey: routineKeys.all }),
+          queryClient.invalidateQueries({ queryKey: routineReportKeys.all }),
+        ]
+      : []),
   ]);
 };
