@@ -17,6 +17,7 @@ import { LegalLinks } from "@/shared/ui/LegalLinks";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { clearAdminCache } from "@/shared/api/auth/adminAccess";
+import { useAdminShortcut } from "./hooks/useAdminShortcut";
 
 function MyPage() {
   return (
@@ -33,17 +34,23 @@ function MyPage() {
 }
 
 const UserInfoSection = () => {
-  const user = useAuth();
+  const { user, isAdmin } = useAuth();
+  // 관리자만 쓰는 숨은 통로. 관리자가 아니면 핸들러 자체가 붙지 않는다.
+  const handleAdminShortcutTap = useAdminShortcut(isAdmin);
 
-  const name = user?.user?.displayName || "";
-  const email = user?.user?.email || "";
-  const imageUrl = user?.user?.photoURL || "";
+  const name = user?.displayName || "";
+  const email = user?.email || "";
+  const imageUrl = user?.photoURL || "";
   return (
     <div className="flex">
       <img
         src={imageUrl || LogoImage}
         alt=""
-        className="w-16 h-16 shrink-0 rounded-4xl object-cover"
+        // 누를 수 있어 보이면 숨긴 뜻이 없으므로 커서와 모양은 그대로 둔다.
+        // 빠르게 여러 번 누를 때 이미지 끌기나 글자 선택이 끼어들지 않게만 막는다.
+        className="w-16 h-16 shrink-0 rounded-4xl object-cover select-none"
+        draggable={false}
+        onClick={handleAdminShortcutTap}
         onError={(e) => {
           e.currentTarget.src = LogoImage;
         }}
