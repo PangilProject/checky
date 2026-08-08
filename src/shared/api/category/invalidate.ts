@@ -13,7 +13,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { categoryKeys, routinePageKeys } from "@/shared/api/keys";
 
 /**
- * @description 카테고리 변경에 영향을 받는 모든 쿼리를 무효화합니다.
+ * 카테고리 변경에 영향을 받는 모든 쿼리를 무효화합니다.
  * @param queryClient React Query 클라이언트
  * @param userId 대상 사용자 ID
  */

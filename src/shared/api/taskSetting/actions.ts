@@ -8,7 +8,7 @@ import { getTasksByDateOnce } from "./queries";
 import type { DateOnlyParams, MoveTasksParams } from "./types";
 
 /**
- * @description 태스크들의 날짜를 일괄 변경합니다.
+ * 태스크들의 날짜를 일괄 변경합니다.
  */
 const updateTasksDate = async ({
   userId,
@@ -55,7 +55,7 @@ const patchDayStats = async ({
 };
 
 /**
- * @description 미완료 태스크를 오늘 날짜로 이동합니다.
+ * 미완료 태스크를 오늘 날짜로 이동합니다.
  */
 export const moveUncompletedTasksToToday = async ({
   userId,
@@ -93,7 +93,7 @@ export const moveUncompletedTasksToToday = async ({
 };
 
 /**
- * @description 미완료 태스크를 지정 날짜로 이동합니다.
+ * 미완료 태스크를 지정 날짜로 이동합니다.
  */
 export const moveUncompletedTasksToDate = async ({
   userId,
@@ -131,7 +131,7 @@ export const moveUncompletedTasksToDate = async ({
 };
 
 /**
- * @description 미완료 태스크를 삭제합니다.
+ * 미완료 태스크를 삭제합니다.
  */
 export const deleteUncompletedTasks = async ({
   userId,
@@ -165,7 +165,7 @@ export const deleteUncompletedTasks = async ({
 };
 
 /**
- * @description 모든 태스크를 다른 날짜로 복사합니다.
+ * 모든 태스크를 다른 날짜로 복사합니다.
  */
 export const copyAllTasksToDate = async ({
   userId,
@@ -206,7 +206,7 @@ export const copyAllTasksToDate = async ({
 };
 
 /**
- * @description 해당 날짜의 모든 태스크를 삭제합니다.
+ * 해당 날짜의 모든 태스크를 삭제합니다.
  */
 export const deleteAllTasksByDate = async ({
   userId,

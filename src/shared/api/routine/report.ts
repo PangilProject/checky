@@ -42,7 +42,7 @@ type FirestoreTimestampLike = {
 const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
 /**
- * @description 주간 범위 데이터를 생성합니다.
+ * 주간 범위 데이터를 생성합니다.
  * @param startDate 시작 날짜
  * @param endDate 종료 날짜
  */
@@ -69,7 +69,7 @@ const buildWeek = (startDate: string, endDate: string): RoutineReportWeek => {
 };
 
 /**
- * @description 루틴 로그를 조회 맵으로 변환합니다.
+ * 루틴 로그를 조회 맵으로 변환합니다.
  * @param logs 로그 목록
  */
 const buildLogMap = (logs: RoutineLog[]) => {
@@ -81,7 +81,7 @@ const buildLogMap = (logs: RoutineLog[]) => {
 };
 
 /**
- * @description Firestore Timestamp/Date 값을 YYYY-MM-DD로 변환합니다.
+ * Firestore Timestamp/Date 값을 YYYY-MM-DD로 변환합니다.
  * @param value 날짜 원본 값
  */
 const toDateString = (value: unknown): string | null => {
@@ -134,7 +134,7 @@ const getRepeatDaysByDate = ({
 };
 
 /**
- * @description 카테고리 스냅샷을 맵으로 변환합니다.
+ * 카테고리 스냅샷을 맵으로 변환합니다.
  */
 const buildCategoriesMap = (
   docs: QueryDocumentSnapshot<DocumentData>[]
@@ -148,7 +148,7 @@ const buildCategoriesMap = (
 };
 
 /**
- * @description 리포트 행 데이터를 생성합니다.
+ * 리포트 행 데이터를 생성합니다.
  */
 const buildRows = ({
   routines,
@@ -231,7 +231,7 @@ const buildRows = ({
 };
 
 /**
- * @description 주간 루틴 리포트를 조회합니다.
+ * 주간 루틴 리포트를 조회합니다.
  */
 export const getRoutineReportByWeek = async ({
   userId,

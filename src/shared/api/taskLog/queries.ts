@@ -5,7 +5,7 @@ import type { TaskLog } from "./types";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 
 /**
- * @description 날짜 기준 태스크 로그를 1회 조회합니다.
+ * 날짜 기준 태스크 로그를 1회 조회합니다.
  */
 export const getTaskLogsByDateOnce = async ({
   userId,
@@ -23,7 +23,7 @@ export const getTaskLogsByDateOnce = async ({
 };
 
 /**
- * @description 월 기준 태스크 로그를 1회 조회합니다.
+ * 월 기준 태스크 로그를 1회 조회합니다.
  */
 export const getTaskLogsByMonthOnce = async ({
   userId,

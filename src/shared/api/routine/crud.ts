@@ -38,7 +38,7 @@ export const getRoutinesByCategory = async ({
 };
 
 /**
- * @description 루틴을 생성합니다.
+ * 루틴을 생성합니다.
  * @returns 생성 결과
  */
 export const createRoutine = async ({
@@ -76,7 +76,7 @@ export const createRoutine = async ({
 };
 
 /**
- * @description 루틴 정보를 수정합니다.
+ * 루틴 정보를 수정합니다.
  */
 export const updateRoutine = async ({
   userId,
@@ -107,7 +107,7 @@ export const updateRoutine = async ({
 };
 
 /**
- * @description 루틴을 삭제합니다.
+ * 루틴을 삭제합니다.
  */
 export const deleteRoutine = async ({
   userId,

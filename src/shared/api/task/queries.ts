@@ -5,7 +5,7 @@ import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { mapTaskDoc } from "./mappers";
 
 /**
- * @description 날짜 기준 태스크를 1회 조회합니다.
+ * 날짜 기준 태스크를 1회 조회합니다.
  */
 export const getTasksByDateOnce = async ({
   userId,
@@ -23,7 +23,7 @@ export const getTasksByDateOnce = async ({
 };
 
 /**
- * @description 월 기준 태스크를 1회 조회합니다.
+ * 월 기준 태스크를 1회 조회합니다.
  */
 export const getTasksByMonthOnce = async ({
   userId,

@@ -47,7 +47,7 @@ export const createCategory = async ({
 };
 
 /**
- * @description 카테고리 정보를 수정합니다.
+ * 카테고리 정보를 수정합니다.
  */
 export const updateCategory = async ({
   userId,
@@ -73,7 +73,7 @@ interface EndCategoryParams {
 }
 
 /**
- * @description 카테고리를 종료 상태로 변경합니다.
+ * 카테고리를 종료 상태로 변경합니다.
  */
 export const endCategory = async ({
   userId,

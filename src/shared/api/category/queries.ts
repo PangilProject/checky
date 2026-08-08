@@ -5,7 +5,7 @@ import type { Category, CategoryStatus } from "./types";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 
 /**
- * @description 카테고리를 1회 조회합니다.
+ * 카테고리를 1회 조회합니다.
  */
 export const getCategoriesOnce = async ({
   userId,

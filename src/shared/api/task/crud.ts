@@ -70,7 +70,7 @@ export const createTask = async ({
 };
 
 /**
- * @description 태스크 수정과 날짜 이동을 처리합니다.
+ * 태스크 수정과 날짜 이동을 처리합니다.
  */
 export const updateTaskWithDateMove = async ({
   userId,

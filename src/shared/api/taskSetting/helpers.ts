@@ -2,7 +2,7 @@ import type { Task } from "@/shared/api/task";
 import { getCompletedTaskIdsByDate, getTasksByDateOnce } from "./queries";
 
 /**
- * @description 미완료 태스크만 필터링합니다.
+ * 미완료 태스크만 필터링합니다.
  */
 export const getUncompletedTasks = (
   tasks: Task[],
@@ -10,7 +10,7 @@ export const getUncompletedTasks = (
 ) => tasks.filter((task) => !completedTaskIds.has(task.id));
 
 /**
- * @description 태스크 목록과 완료 ID를 함께 조회합니다.
+ * 태스크 목록과 완료 ID를 함께 조회합니다.
  */
 export const fetchTasksAndCompleted = async ({
   userId,

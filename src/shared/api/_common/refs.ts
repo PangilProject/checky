@@ -2,14 +2,14 @@ import { collection, doc } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 
 /**
- * @description 사용자 하위 컬렉션 레퍼런스를 반환합니다.
+ * 사용자 하위 컬렉션 레퍼런스를 반환합니다.
  * @param collectionName 컬렉션 이름
  */
 export const userCollection = (userId: string, collectionName: string) =>
   collection(db, "users", userId, collectionName);
 
 /**
- * @description 사용자 하위 문서 레퍼런스를 반환합니다.
+ * 사용자 하위 문서 레퍼런스를 반환합니다.
  */
 export const userDoc = (
   userId: string,

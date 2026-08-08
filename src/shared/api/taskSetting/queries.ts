@@ -9,7 +9,7 @@ type TaskLogRecord = {
 };
 
 /**
- * @description 날짜 기준 태스크를 1회 조회합니다.
+ * 날짜 기준 태스크를 1회 조회합니다.
  */
 export const getTasksByDateOnce = async ({
   userId,
@@ -26,7 +26,7 @@ export const getTasksByDateOnce = async ({
 };
 
 /**
- * @description 날짜 기준 완료된 태스크 ID를 조회합니다.
+ * 날짜 기준 완료된 태스크 ID를 조회합니다.
  */
 export const getCompletedTaskIdsByDate = async ({
   userId,

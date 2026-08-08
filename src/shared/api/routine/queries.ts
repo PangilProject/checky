@@ -13,7 +13,7 @@ export type RoutineMonthly = {
 export type RoutineLogMonthly = { routineId: string; date: string; done: boolean };
 
 /**
- * @description 월 기준 루틴을 1회 조회합니다.
+ * 월 기준 루틴을 1회 조회합니다.
  */
 export const getRoutinesByMonthOnce = async ({
   userId,
@@ -47,7 +47,7 @@ export const getRoutinesByMonthOnce = async ({
 };
 
 /**
- * @description 월 기준 루틴 로그를 1회 조회합니다.
+ * 월 기준 루틴 로그를 1회 조회합니다.
  */
 export const getRoutineLogsByMonthOnce = async ({
   userId,
