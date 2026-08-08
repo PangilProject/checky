@@ -66,6 +66,10 @@ export const createTask = async ({
     date,
     ...(time !== undefined && { time }),
     orderIndex,
+    // 저장에는 서버 시각을 쓰지만 그 값을 알려면 문서를 다시 읽어야 한다.
+    // 화면은 등록 후 며칠 지났는지를 날짜 단위로만 쓰므로 여기서는 기기 시각으로 채운다.
+    // 비워 두면 다시 읽어 오기 전까지 경과일 표시가 뜨지 않는다.
+    createdAt: new Date(),
   } as Task;
 };
 

@@ -197,6 +197,9 @@ export const useTaskList = ({
       categoryColor,
       date: dateString,
       orderIndex: currentTasks.length,
+      // 경과일 표시가 이 값을 쓴다. 비워 두면 방금 만든 할 일만 라벨이 없다가
+      // 나중에 다시 읽어 왔을 때 뒤늦게 나타난다.
+      createdAt: new Date(),
     };
     const monthKey = dateString.slice(0, 7);
     const dayKey = dateString.slice(8, 10);
