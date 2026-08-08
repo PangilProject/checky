@@ -4,7 +4,11 @@ import { createTask, deleteTaskWithLogs, updateTaskWithDateMove } from "@/shared
 import type { Task } from "@/shared/api/task";
 import type { Category } from "@/shared/api/category";
 import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
-import { patchMonthlyStatsByDayDeltas } from "@/shared/api/monthlyStats";
+import {
+  collectAffectedMonths,
+  patchMonthlyStatsByDayDeltas,
+  refreshCalendarConsistency,
+} from "@/shared/api/monthlyStats";
 import { toast } from "react-toastify";
 
 interface UseTaskModalHandlersParams {
@@ -66,6 +70,47 @@ export const useTaskModalHandlers = ({
     });
   };
 
+  /**
+   * 할 일이 다른 날짜로 옮겨진 뒤 달력 집계를 맞춘다.
+   *
+   * 이동은 두 날짜의 전체·완료·남은 개수가 동시에 움직이고 완료 기록도 따라가므로,
+   * 증감을 손으로 계산하지 않고 두 날짜가 걸친 달을 원본에서 다시 센다.
+   * 옛 날짜와 새 날짜가 다른 달일 수 있어 둘 다 넘겨야 한다.
+   *
+   * 다시 세는 쪽이 먼저다. 캐시를 먼저 비우면 아직 낡은 문서를 다시 읽어 온다.
+   *
+   * 여기서 실패해도 할 일 자체는 이미 옮겨진 뒤다. 실패를 위로 던지면
+   * 저장에 실패했다고 잘못 알리게 되므로, 달력만 어긋났다는 사실과
+   * 되돌릴 방법을 따로 알린다.
+   */
+  const syncCalendarAfterDateMove = async (dates: string[]) => {
+    if (!userId) return;
+
+    const uniqueDates = Array.from(new Set(dates.filter(Boolean)));
+
+    try {
+      await refreshCalendarConsistency({
+        queryClient,
+        userId,
+        affectedMonths: collectAffectedMonths({ dates: uniqueDates }),
+        recalculate: true,
+        invalidateTasksByMonth: true,
+      });
+
+      await Promise.all(
+        uniqueDates.map((date) =>
+          queryClient.invalidateQueries({
+            queryKey: taskKeys.byDate(userId, date),
+          }),
+        ),
+      );
+    } catch {
+      toast.error(
+        "할 일은 옮겼지만 달력 숫자를 맞추지 못했습니다. 리스트 메뉴의 월간 통계 재생성을 실행해 주세요.",
+      );
+    }
+  };
+
   const handleCreateTask = async () => {
     if (!taskInput.trim()) {
       toast.error("할 일 내용을 입력해 주세요.");
@@ -103,6 +148,8 @@ export const useTaskModalHandlers = ({
 
     setIsSubmitting(true);
     try {
+      const isDateChanged = task.date !== taskDate;
+
       await updateTaskWithDateMove({
         userId,
         taskId: task.id,
@@ -115,7 +162,12 @@ export const useTaskModalHandlers = ({
         categoryColor: selectedCategoryColor,
       });
 
-      invalidateTaskDates([task.date, taskDate]);
+      // 날짜가 그대로면 날짜별 개수가 바뀌지 않으므로 비싼 재계산을 하지 않는다
+      if (isDateChanged) {
+        await syncCalendarAfterDateMove([task.date, taskDate]);
+      } else {
+        invalidateTaskDates([taskDate]);
+      }
       onClose();
     } catch {
       toast.error("할 일 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.");
@@ -168,7 +220,7 @@ export const useTaskModalHandlers = ({
         categoryId: task.categoryId,
         categoryColor: task.categoryColor,
       });
-      invalidateTaskDates([task.date, nextDate]);
+      await syncCalendarAfterDateMove([task.date, nextDate]);
       onClose();
     } catch {
       toast.error("할 일 이동에 실패했습니다. 잠시 후 다시 시도해 주세요.");
