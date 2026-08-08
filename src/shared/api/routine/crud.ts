@@ -40,7 +40,10 @@ export const getRoutinesByCategory = async ({
 /**
  * 루틴을 만든다.
  *
- * 같은 분류의 루틴 개수를 먼저 읽어 목록 맨 뒤 순서를 정한다.
+ * 같은 분류의 루틴을 먼저 읽어 가장 큰 순서 값 뒤에 놓는다.
+ * 개수를 세면 안 된다. 루틴을 하나 지우면 개수가 줄어들어
+ * 이미 그 번호를 쓰고 있는 루틴과 값이 겹치고, 새 루틴이 목록 가운데 끼어든다.
+ *
  * 시작 시점의 반복 요일을 scheduleHistory 첫 항목으로 함께 남긴다.
  * @returns 생성 결과
  */
@@ -65,6 +68,12 @@ export const createRoutine = async ({
     query(routinesCollection, where("categoryId", "==", categoryId))
   );
 
+  const orderIndexes = snap.docs
+    .map((docSnap) => docSnap.data().orderIndex)
+    .filter((value): value is number => typeof value === "number");
+  const orderIndex =
+    orderIndexes.length === 0 ? 0 : Math.max(...orderIndexes) + 1;
+
   await addDoc(routinesCollection, {
     title,
     categoryId,
@@ -72,7 +81,7 @@ export const createRoutine = async ({
     scheduleHistory: [{ effectiveFrom: startDate, days }],
     startDate,
     ...(endDate !== undefined && endDate !== "" && { endDate }),
-    orderIndex: snap.size,
+    orderIndex,
     status: "ACTIVE",
     createdAt: serverTimestamp(),
   });
