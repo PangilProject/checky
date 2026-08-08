@@ -9,7 +9,6 @@
 
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
-| `fetchQueryOnce` | 쿼리를 한 번 조회하고 취소 함수를 돌려준다. | `fetchQueryOnce.ts` |
 | `mapDoc` | Firestore 문서를 도메인 타입으로 바꾼다. | `mappers.ts` |
 | `userCollection` | 사용자 하위 컬렉션 레퍼런스를 반환합니다. | `refs.ts` |
 | `userDoc` | 사용자 하위 문서 레퍼런스를 반환합니다. | `refs.ts` |
@@ -62,6 +61,17 @@
 | `refreshCalendarConsistency` | — | `helpers/refreshCalendarConsistency.ts` |
 | `replaceMonthlyStatsByMonth` | 한 달치를 통째로 바꾼다. | `queries.ts` |
 | `upsertMonthlyStatsByMonth` | 넘긴 날짜만 덮어쓰고 나머지 날짜는 그대로 둔다. | `queries.ts` |
+
+## notice — 공지 (사용자별이 아닌 최상위 컬렉션)
+
+| 이름 | 하는 일 | 파일 |
+| --- | --- | --- |
+| `createNotice` | 공지를 만든다. 쓰기 1회다. | `crud.ts` |
+| `deleteNotice` | 공지를 지운다. 되돌릴 수 없다. | `crud.ts` |
+| `getNoticesOnce` | 공지를 고정 항목이 위로 오도록 정렬해 읽는다. | `queries.ts` |
+| `Notice` | — | `types.ts` |
+| `setNoticePinned` | 상단 고정만 바꾼다. | `crud.ts` |
+| `updateNotice` | 공지 내용을 고친다. 쓰기 1회다. | `crud.ts` |
 
 ## routine — 반복 루틴
 
@@ -126,4 +136,4 @@
 
 ---
 
-공개 항목 72개.
+공개 항목 77개.

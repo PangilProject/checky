@@ -1,74 +1,22 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  collection,
-  getDocs,
-  orderBy,
-  query,
-  type QuerySnapshot,
-  type DocumentData,
-} from "firebase/firestore/lite";
-import { fetchQueryOnce } from "@/shared/api/_common/fetchQueryOnce";
-import { db } from "@/firebase/firebase";
+import { useQuery } from "@tanstack/react-query";
+import { getNoticesOnce } from "@/shared/api/notice";
+import { noticeKeys } from "@/shared/api/keys";
 
-export interface AdminNotice {
-  id: string;
-  title: string;
-  content: string;
-  pinned: boolean;
-  createdAt?: Date;
-}
+export type { Notice as AdminNotice } from "@/shared/api/notice";
 
+/**
+ * 관리자 화면의 공지 목록을 읽는다.
+ *
+ * 사용자 화면과 같은 키·같은 조회를 쓴다. 저장하거나 지운 뒤 목록을 다시 읽는 일은
+ * noticeKeys.all 무효화로 처리하므로 여기에 갱신 함수를 두지 않는다.
+ * 관리자는 방금 바꾼 결과를 봐야 하므로 캐시를 오래 두지 않는다.
+ */
 export const useAdminNotices = () => {
-  const [notices, setNotices] = useState<AdminNotice[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const noticesQuery = useMemo(
-    () =>
-      query(
-        collection(db, "notices"),
-        orderBy("pinned", "desc"),
-        orderBy("createdAt", "desc")
-      ),
-    []
-  );
+  const { data, isLoading, isError } = useQuery({
+    queryKey: noticeKeys.all,
+    queryFn: getNoticesOnce,
+    staleTime: 0,
+  });
 
-  const mapSnapshotToNotices = useCallback((snapshot: QuerySnapshot<DocumentData>) => {
-    const result: AdminNotice[] = snapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        title: data.title as string,
-        content: data.content as string,
-        pinned: data.pinned as boolean,
-        createdAt: (data.createdAt as { toDate?: () => Date } | undefined)?.toDate?.(),
-      };
-    });
-    setNotices(result);
-    setIsError(false);
-    setLoading(false);
-  }, []);
-
-  const refresh = useCallback(async () => {
-    const snapshot = await getDocs(noticesQuery);
-    mapSnapshotToNotices(snapshot);
-  }, [mapSnapshotToNotices, noticesQuery]);
-
-  useEffect(() => {
-    const cancel = fetchQueryOnce(
-      noticesQuery,
-      (snapshot) => {
-        mapSnapshotToNotices(snapshot);
-      },
-      // 실패 시에도 로딩을 종료해 "로딩 중"에서 멈추지 않게 한다
-      () => {
-        setIsError(true);
-        setLoading(false);
-      }
-    );
-
-    // 화면이 사라진 뒤 도착한 응답으로 상태를 갱신하지 않도록 취소한다
-    return () => cancel();
-  }, [mapSnapshotToNotices, noticesQuery]);
-
-  return { notices, loading, isError, refresh };
+  return { notices: data ?? [], loading: isLoading, isError };
 };

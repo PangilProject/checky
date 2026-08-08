@@ -1,55 +1,22 @@
-import { useEffect, useState } from "react";
-import { collection, orderBy, query } from "firebase/firestore/lite";
-import { fetchQueryOnce } from "@/shared/api/_common/fetchQueryOnce";
-import { db } from "@/firebase/firebase";
+import { useQuery } from "@tanstack/react-query";
+import { getNoticesOnce } from "@/shared/api/notice";
+import { noticeKeys } from "@/shared/api/keys";
 
-export interface Notice {
-  id: string;
-  title: string;
-  content: string;
-  pinned: boolean;
-  createdAt?: Date;
-}
+export type { Notice } from "@/shared/api/notice";
 
+/**
+ * 공지 목록을 읽는다.
+ *
+ * 관리자 화면과 같은 키를 쓰므로, 관리자가 공지를 고치면 이쪽도 함께 갱신된다.
+ * 공지는 자주 바뀌지 않아 staleTime 을 길게 두고 모달을 열 때마다 다시 읽지 않는다.
+ */
 export const useNotices = () => {
-  const [notices, setNotices] = useState<Notice[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: noticeKeys.all,
+    queryFn: getNoticesOnce,
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
+  });
 
-  useEffect(() => {
-    const q = query(
-      collection(db, "notices"),
-      orderBy("pinned", "desc"),
-      orderBy("createdAt", "desc")
-    );
-
-    const cancel = fetchQueryOnce(
-      q,
-      (snapshot) => {
-        const result = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            title: data.title,
-            content: data.content,
-            pinned: data.pinned,
-            createdAt: data.createdAt?.toDate?.(),
-          };
-        });
-
-        setNotices(result);
-        setIsError(false);
-        setLoading(false);
-      },
-      // 실패 시에도 로딩을 종료해 "로딩 중"에서 멈추지 않게 한다
-      () => {
-        setIsError(true);
-        setLoading(false);
-      }
-    );
-
-    return () => cancel();
-  }, []);
-
-  return { notices, loading, isError };
+  return { notices: data ?? [], loading: isLoading, isError };
 };

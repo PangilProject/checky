@@ -5,10 +5,9 @@ import NoticeModal from "./NoticeModal";
 
 interface Props {
   notices: AdminNotice[];
-  onSaved: () => Promise<void>;
 }
 
-function NoticeTable({ notices, onSaved }: Props) {
+function NoticeTable({ notices }: Props) {
   const [selected, setSelected] = useState<AdminNotice | null>(null);
 
   return (
@@ -39,7 +38,6 @@ function NoticeTable({ notices, onSaved }: Props) {
           mode="VIEW"
           notice={selected}
           onClose={() => setSelected(null)}
-          onSaved={onSaved}
         />
       )}
     </>

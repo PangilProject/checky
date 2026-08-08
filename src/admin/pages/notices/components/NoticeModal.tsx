@@ -10,15 +10,14 @@ import {
   NormalBlackUnFillButton,
   NormalRedUnFillButton,
 } from "@/shared/ui/Button";
-import { db } from "@/firebase/firebase";
+import { useQueryClient } from "@tanstack/react-query";
 import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  updateDoc,
-  serverTimestamp,
-} from "firebase/firestore/lite";
+  createNotice,
+  deleteNotice,
+  setNoticePinned,
+  updateNotice,
+} from "@/shared/api/notice";
+import { noticeKeys } from "@/shared/api/keys";
 import { toast } from "react-toastify";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import type { AdminNotice } from "../hooks/useAdminNotices";
@@ -30,10 +29,15 @@ interface Props {
   mode: "CREATE" | "VIEW" | "EDIT";
   notice?: AdminNotice;
   onClose: () => void;
-  onSaved?: () => Promise<void>;
 }
 
-export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
+export default function NoticeModal({ mode, notice, onClose }: Props) {
+  const queryClient = useQueryClient();
+
+  /** 목록 캐시를 비워 다시 읽게 한다. 사용자 화면도 같은 키를 쓰므로 함께 갱신된다. */
+  const refreshNotices = () =>
+    queryClient.invalidateQueries({ queryKey: noticeKeys.all });
+
   const [title, setTitle] = useState(notice?.title ?? "");
   const [content, setContent] = useState(notice?.content ?? "");
   const [pinned, setPinned] = useState(notice?.pinned ?? false);
@@ -54,25 +58,23 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
     setIsSubmitting(true);
     try {
       if (currentMode === "CREATE") {
-        await addDoc(collection(db, "notices"), {
+        await createNotice({
           title: trimmedTitle,
           content: content.trim(),
           pinned,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
         });
       }
 
       if (currentMode === "EDIT" && notice) {
-        await updateDoc(doc(db, "notices", notice.id), {
+        await updateNotice({
+          noticeId: notice.id,
           title: trimmedTitle,
           content: content.trim(),
           pinned,
-          updatedAt: serverTimestamp(),
         });
       }
 
-      await onSaved?.();
+      await refreshNotices();
       onClose();
     } catch {
       toast.error("공지 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
@@ -94,11 +96,8 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
     setPinned(nextPinned);
     setIsSubmitting(true);
     try {
-      await updateDoc(doc(db, "notices", notice.id), {
-        pinned: nextPinned,
-        updatedAt: serverTimestamp(),
-      });
-      await onSaved?.();
+      await setNoticePinned({ noticeId: notice.id, pinned: nextPinned });
+      await refreshNotices();
     } catch {
       setPinned(!nextPinned);
       toast.error("고정 설정에 실패했습니다. 잠시 후 다시 시도해 주세요.");
@@ -112,8 +111,8 @@ export default function NoticeModal({ mode, notice, onClose, onSaved }: Props) {
 
     setIsSubmitting(true);
     try {
-      await deleteDoc(doc(db, "notices", notice.id));
-      await onSaved?.();
+      await deleteNotice(notice.id);
+      await refreshNotices();
       onClose();
     } catch {
       toast.error("공지 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");

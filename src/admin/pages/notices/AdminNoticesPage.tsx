@@ -6,7 +6,7 @@ import NoticeTable from "./components/NoticeTable";
 import NoticeModal from "./components/NoticeModal";
 
 function AdminNoticesPage() {
-  const { notices, loading, isError, refresh } = useAdminNotices();
+  const { notices, loading, isError } = useAdminNotices();
   const [openCreate, setOpenCreate] = useState(false);
 
   if (loading) return <div>로딩 중...</div>;
@@ -32,14 +32,10 @@ function AdminNoticesPage() {
         />
       </div>
 
-      <NoticeTable notices={notices} onSaved={refresh} />
+      <NoticeTable notices={notices} />
 
       {openCreate && (
-        <NoticeModal
-          mode="CREATE"
-          onClose={() => setOpenCreate(false)}
-          onSaved={refresh}
-        />
+        <NoticeModal mode="CREATE" onClose={() => setOpenCreate(false)} />
       )}
     </div>
   );
