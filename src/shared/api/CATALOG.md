@@ -53,6 +53,7 @@
 | `buildMonthKeysBetween` | 두 날짜가 걸쳐 있는 달의 키 목록을 만든다. | `recalculate.ts` |
 | `collectAffectedMonths` | 바뀐 날짜들이 걸쳐 있는 달을 모은다. | `helpers/collectAffectedMonths.ts` |
 | `getMonthlyStatsByMonthOnce` | 한 달치 집계 문서를 읽는다. | `queries.ts` |
+| `getMonthlyStatsMonthsOnce` | 집계 문서가 이미 만들어져 있는 달의 목록을 읽는다. | `queries.ts` |
 | `MonthlyActivitySummary` | 하루치 요약. 그날 할 일과 루틴을 합쳐 전체·완료·남은 개수를 센다. | `types.ts` |
 | `MonthlyStats` | 한 달치 요약을 담는 문서. | `types.ts` |
 | `patchMonthlyStatsByDayDeltas` | 하루의 집계를 증감값만큼 조정한다. | `queries.ts` |
@@ -136,4 +137,4 @@
 
 ---
 
-공개 항목 77개.
+공개 항목 78개.
