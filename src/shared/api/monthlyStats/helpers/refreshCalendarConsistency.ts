@@ -2,6 +2,12 @@ import type { QueryClient } from "@tanstack/react-query";
 import { monthlyStatsKeys, routineKeys, routineReportKeys, taskKeys } from "@/shared/api/keys";
 import { rebuildMonthlyStatsByMonth } from "../rebuild";
 
+/**
+ * 달력과 리포트가 실제 기록과 어긋나지 않게 맞춘다.
+ *
+ * rebuild 를 켜면 해당 달들을 원본에서 다시 세고, 그다음 관련 캐시를 무효화한다.
+ * 다시 세는 쪽은 비용이 크므로 요약이 실제와 달라졌을 때만 켠다.
+ */
 export const refreshCalendarConsistency = async ({
   queryClient,
   userId,

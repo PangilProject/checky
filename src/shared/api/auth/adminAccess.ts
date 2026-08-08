@@ -5,6 +5,7 @@ import { doc, getDoc } from "firebase/firestore/lite";
  * 로그인 사용자의 users/{uid} 문서에서 접근 권한과 접속 기록을 읽어 온다.
  */
 
+/** 사용자 문서에서 뽑아낸 관리자 여부와 마지막 접속 시각 */
 export interface UserAccessInfo {
   isAdmin: boolean;
   lastActiveAt: Date | null;
@@ -16,9 +17,10 @@ const accessCache = new Map<string, UserAccessInfo>();
 const accessFetchInFlight = new Map<string, Promise<UserAccessInfo>>();
 
 /**
- * 캐시를 비웁니다.
- * 로그아웃 시 호출해 다른 계정으로 재로그인했을 때
- * 이전 계정의 권한 판단이 남지 않도록 합니다.
+ * 권한 조회 캐시를 비운다.
+ *
+ * 캐시는 메모리에 uid 별로 남으므로, 로그아웃 시 비우지 않으면
+ * 다른 계정으로 다시 로그인했을 때 이전 계정의 관리자 여부가 그대로 쓰인다.
  */
 export const clearAdminCache = () => {
   accessCache.clear();
@@ -26,8 +28,10 @@ export const clearAdminCache = () => {
 };
 
 /**
- * 사용자 문서를 한 번만 읽어 권한과 접속 기록을 함께 반환합니다.
- * 관리자 여부와 마지막 접속 시각은 같은 문서에 있으므로 따로 읽지 않습니다.
+ * 사용자 문서를 한 번만 읽어 권한과 접속 기록을 함께 돌려준다.
+ *
+ * 두 값이 같은 문서에 있으므로 따로 읽지 않는다.
+ * 결과는 uid 별로 메모리에 남기고, 같은 요청이 겹치면 진행 중인 것을 함께 쓴다.
  */
 export const getUserAccessInfoCached = async (
   uid: string

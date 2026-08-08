@@ -1,3 +1,4 @@
+/** 운영자가 올리는 공지. 모든 사용자가 같은 목록을 본다. */
 export interface Notice {
   id: string;
   title: string;

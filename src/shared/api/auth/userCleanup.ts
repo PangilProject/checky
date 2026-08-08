@@ -23,8 +23,11 @@ const deleteSubCollection = async (uid: string, subCollection: string) => {
 };
 
 /**
- * 사용자와 연관된 Firestore 데이터를 정리합니다.
- * 하위 컬렉션 전체와 users 문서를 삭제합니다.
+ * 사용자에게 딸린 Firestore 데이터를 전부 지운다.
+ *
+ * 하위 컬렉션 여섯 종을 비운 뒤 프로필 문서를 지운다.
+ * 목록에 빠진 컬렉션이 있으면 탈퇴 후에도 데이터가 남으므로,
+ * 하위 컬렉션을 새로 만들면 USER_SUB_COLLECTIONS 에도 반드시 넣어야 한다.
  */
 export const deleteAllUserData = async (uid: string) => {
   await Promise.all(

@@ -55,7 +55,10 @@ const patchDayStats = async ({
 };
 
 /**
- * 미완료 태스크를 오늘 날짜로 이동합니다.
+ * 끝내지 못한 할 일을 오늘로 가져온다.
+ *
+ * 완료한 것은 그대로 두고 남은 것만 옮긴다.
+ * 옮기면 두 날짜의 집계가 함께 바뀌므로 월간 요약도 이어서 조정한다.
  */
 export const moveUncompletedTasksToToday = async ({
   userId,
@@ -93,7 +96,9 @@ export const moveUncompletedTasksToToday = async ({
 };
 
 /**
- * 미완료 태스크를 지정 날짜로 이동합니다.
+ * 끝내지 못한 할 일을 고른 날짜로 옮긴다.
+ *
+ * 옮기면 두 날짜의 집계가 함께 바뀌므로 월간 요약도 이어서 조정한다.
  */
 export const moveUncompletedTasksToDate = async ({
   userId,
@@ -131,7 +136,10 @@ export const moveUncompletedTasksToDate = async ({
 };
 
 /**
- * 미완료 태스크를 삭제합니다.
+ * 끝내지 못한 할 일을 지운다.
+ *
+ * 한 배치로 지운 뒤 그날의 월간 요약에서 지운 만큼 뺀다.
+ * 지울 것이 없으면 요약을 건드리지 않는다.
  */
 export const deleteUncompletedTasks = async ({
   userId,
@@ -165,7 +173,10 @@ export const deleteUncompletedTasks = async ({
 };
 
 /**
- * 모든 태스크를 다른 날짜로 복사합니다.
+ * 하루치 할 일을 다른 날짜로 복사한다.
+ *
+ * 원본은 그대로 두고 같은 내용을 새 문서로 만든다. 완료 기록은 따라가지 않는다.
+ * 복사한 만큼 대상 날짜의 월간 요약을 늘린다.
  */
 export const copyAllTasksToDate = async ({
   userId,
@@ -206,7 +217,10 @@ export const copyAllTasksToDate = async ({
 };
 
 /**
- * 해당 날짜의 모든 태스크를 삭제합니다.
+ * 하루치 할 일을 모두 지운다.
+ *
+ * 완료 여부와 상관없이 그날 할 일 문서를 한 배치로 지우고 월간 요약을 되돌린다.
+ * 완료 기록(taskLogs)은 이 배치에 포함되지 않는다.
  */
 export const deleteAllTasksByDate = async ({
   userId,

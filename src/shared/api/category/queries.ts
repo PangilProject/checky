@@ -5,7 +5,10 @@ import type { Category, CategoryStatus } from "./types";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 
 /**
- * 카테고리를 1회 조회합니다.
+ * 분류를 사용자가 정한 순서대로 읽는다.
+ *
+ * status 를 주면 사용 중인 것만, 또는 종료한 것만 걸러 온다.
+ * categories(status, orderIndex) 복합 인덱스가 필요하다.
  */
 export const getCategoriesOnce = async ({
   userId,

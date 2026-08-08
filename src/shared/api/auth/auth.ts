@@ -12,9 +12,9 @@ import { deleteAllUserData } from "./userCleanup";
  */
 
 /**
- * Google 로그인 + 사용자 문서 동기화
- * - 최초 로그인: users 문서 생성
- * - 재로그인: lastLoginAt 갱신
+ * Google 계정으로 로그인하고 사용자 문서를 맞춘다.
+ *
+ * 처음이면 프로필 문서를 만들고, 이미 있으면 마지막 로그인 시각만 갱신한다.
  */
 export const signInWithGoogle = async () => {
   const { user } = await signInWithPopup(auth, googleProvider);
@@ -42,9 +42,9 @@ export class AccountDeletionIncompleteError extends Error {
 }
 
 /**
- * 계정 완전 삭제
- * - 재인증 후 사용자 하위 데이터 삭제
- * - Firebase Auth 계정 삭제
+ * 계정과 데이터를 모두 지운다.
+ *
+ * 본인 확인을 위해 재인증한 뒤 Firestore 데이터를 지우고, 마지막에 Auth 계정을 지운다.
  * 데이터 삭제는 Firestore 규칙상 로그인 상태에서만 가능하므로 Auth 계정 삭제를
  * 마지막에 수행한다. 마지막 단계가 실패하면 데이터만 지워진 어중간한 상태가 되므로
  * 한 번 재시도한 뒤, 그래도 실패하면 재시도가 필요함을 알리는 에러를 던진다.

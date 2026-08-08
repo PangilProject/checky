@@ -231,7 +231,10 @@ const buildRows = ({
 };
 
 /**
- * 주간 루틴 리포트를 조회합니다.
+ * 한 주 동안의 루틴 수행 현황을 표 형태로 만든다.
+ *
+ * 루틴과 그 주의 기록을 읽어 요일별 체크 여부로 엮는다.
+ * 반복 요일이 바뀐 루틴은 scheduleHistory 를 따라 그 시점의 요일을 적용한다.
  */
 export const getRoutineReportByWeek = async ({
   userId,

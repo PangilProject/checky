@@ -38,7 +38,10 @@ export const getRoutinesByCategory = async ({
 };
 
 /**
- * 루틴을 생성합니다.
+ * 루틴을 만든다.
+ *
+ * 같은 분류의 루틴 개수를 먼저 읽어 목록 맨 뒤 순서를 정한다.
+ * 시작 시점의 반복 요일을 scheduleHistory 첫 항목으로 함께 남긴다.
  * @returns 생성 결과
  */
 export const createRoutine = async ({
@@ -76,7 +79,9 @@ export const createRoutine = async ({
 };
 
 /**
- * 루틴 정보를 수정합니다.
+ * 루틴을 고친다.
+ *
+ * 반복 요일이 바뀌면 scheduleHistory 에 이력을 더해, 지난 기록이 예전 요일 기준으로 남게 한다.
  */
 export const updateRoutine = async ({
   userId,
@@ -107,7 +112,9 @@ export const updateRoutine = async ({
 };
 
 /**
- * 루틴을 삭제합니다.
+ * 루틴 문서를 지운다.
+ *
+ * 수행 기록(routineLogs)은 함께 지우지 않는다. 남은 기록은 루틴이 없으므로 화면에 나타나지 않는다.
  */
 export const deleteRoutine = async ({
   userId,

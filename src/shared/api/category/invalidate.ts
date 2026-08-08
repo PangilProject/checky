@@ -13,7 +13,9 @@ import type { QueryClient } from "@tanstack/react-query";
 import { categoryKeys, routinePageKeys } from "@/shared/api/keys";
 
 /**
- * 카테고리 변경에 영향을 받는 모든 쿼리를 무효화합니다.
+ * 분류 변경 뒤 다시 읽어야 하는 캐시를 모두 무효화한다.
+ *
+ * 분류 목록뿐 아니라 루틴 페이지도 활성 분류를 품고 있어 함께 갱신해야 한다.
  * @param queryClient React Query 클라이언트
  * @param userId 대상 사용자 ID
  */

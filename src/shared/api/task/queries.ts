@@ -5,7 +5,7 @@ import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { mapTaskDoc } from "./mappers";
 
 /**
- * 날짜 기준 태스크를 1회 조회합니다.
+ * 하루치 할 일을 읽는다. 홈 화면이 오늘 목록을 그릴 때 쓴다.
  */
 export const getTasksByDateOnce = async ({
   userId,
@@ -23,7 +23,7 @@ export const getTasksByDateOnce = async ({
 };
 
 /**
- * 월 기준 태스크를 1회 조회합니다.
+ * 그달의 할 일을 읽는다. 달력과 월간 집계를 다시 셀 때 쓴다.
  */
 export const getTasksByMonthOnce = async ({
   userId,

@@ -16,9 +16,9 @@ interface CreateCategoryParams {
 }
 
 /**
- * 분류를 만든다.
+ * 분류를 만들어 목록 맨 뒤에 붙인다.
  *
- * 목록 맨 뒤에 붙이려고 활성 분류 개수를 먼저 읽어 orderIndex 로 쓴다.
+ * 붙일 자리를 정하려고 활성 분류 개수를 먼저 읽어 orderIndex 로 쓴다.
  * 읽기 1회 + 쓰기 1회다.
  */
 export const createCategory = async ({
@@ -47,7 +47,7 @@ export const createCategory = async ({
 };
 
 /**
- * 카테고리 정보를 수정합니다.
+ * 분류의 이름과 색을 바꾼다. 순서와 상태는 건드리지 않는다.
  */
 export const updateCategory = async ({
   userId,
@@ -73,7 +73,10 @@ interface EndCategoryParams {
 }
 
 /**
- * 카테고리를 종료 상태로 변경합니다.
+ * 분류를 종료 상태로 바꾼다.
+ *
+ * 지우지 않고 상태만 바꾸므로 이미 쌓인 할 일과 루틴 기록은 그대로 남는다.
+ * 새로 만들 때만 고를 수 없게 된다.
  */
 export const endCategory = async ({
   userId,

@@ -13,7 +13,10 @@ export type RoutineMonthly = {
 export type RoutineLogMonthly = { routineId: string; date: string; done: boolean };
 
 /**
- * 월 기준 루틴을 1회 조회합니다.
+ * 그달에 걸쳐 있는 루틴을 읽는다.
+ *
+ * 루틴은 기간으로 이어지므로 그달에 만들어진 것만이 아니라,
+ * 이전에 시작해 아직 끝나지 않은 것도 포함한다. 달력을 그릴 때 쓴다.
  */
 export const getRoutinesByMonthOnce = async ({
   userId,
@@ -47,7 +50,7 @@ export const getRoutinesByMonthOnce = async ({
 };
 
 /**
- * 월 기준 루틴 로그를 1회 조회합니다.
+ * 그달의 루틴 수행 기록을 읽는다.
  */
 export const getRoutineLogsByMonthOnce = async ({
   userId,
