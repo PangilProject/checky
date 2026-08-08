@@ -10,6 +10,8 @@ const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
 const RoutinePage = lazy(() => import("@/pages/RoutinePage"));
 const MyPage = lazy(() => import("@/pages/MyPage"));
 const PageNotFound = lazy(() => import("./pages/PageNotFound"));
+const PrivacyPage = lazy(() => import("@/pages/legal/PrivacyPage"));
+const TermsPage = lazy(() => import("@/pages/legal/TermsPage"));
 const AdminLayout = lazy(() => import("./admin/layout/AdminLayout"));
 const AdminDashboardPage = lazy(
   () => import("./admin/pages/dashboard/AdminDashboardPage")
@@ -31,6 +33,10 @@ function Router() {
         <Routes>
           {/* 로그인 */}
           <Route path="/" element={<LoginPage />} />
+
+          {/* 약관·방침은 가입 전에 확인할 수 있어야 하므로 로그인 없이 연다 */}
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
 
           {/* 로그인이 필요한 페이지 (가드를 하나로 두어 화면 전환 시 재마운트를 피한다) */}
           <Route element={<PrivateRoute />}>

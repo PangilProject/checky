@@ -13,6 +13,7 @@ import {
   deleteAccount,
 } from "@/shared/api/auth/auth";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
+import { LegalLinks } from "@/shared/ui/LegalLinks";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { clearAdminCache } from "@/shared/api/auth/adminAccess";
@@ -25,6 +26,8 @@ function MyPage() {
       <UserInfoSection />
       <Space10 direction="mb" />
       <ButtonSection />
+      <Space10 direction="mb" />
+      <LegalLinks />
     </div>
   );
 }

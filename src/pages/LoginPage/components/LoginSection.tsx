@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Text3 } from "@/shared/ui/Text";
 import { Space10, Space12, Space4 } from "@/shared/ui/Space";
 import { signInWithGoogle } from "@/shared/api/auth/auth";
+import { LegalConsentNotice } from "@/shared/ui/LegalLinks";
 import { toast } from "react-toastify";
 
 export const LoginSection = () => {
@@ -97,6 +98,8 @@ const LoginButton = () => {
         width="w-50"
         height="h-10"
       />
+      <Space4 direction="mb" />
+      <LegalConsentNotice />
     </div>
   );
 };
