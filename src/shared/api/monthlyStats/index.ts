@@ -1,8 +1,3 @@
-/**
- * @file monthlyStats/index.ts
- * @description API 모듈
- */
-
 export type { MonthlyStats, MonthlyActivitySummary } from "./types";
 
 export {

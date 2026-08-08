@@ -7,7 +7,7 @@ import {
   type QuerySnapshot,
   type DocumentData,
 } from "firebase/firestore/lite";
-import { subscribeWithSafariFallback } from "@/shared/api/_common/subscribeWithSafariFallback";
+import { fetchQueryOnce } from "@/shared/api/_common/fetchQueryOnce";
 import { db } from "@/firebase/firebase";
 
 export interface AdminNotice {
@@ -55,7 +55,7 @@ export const useAdminNotices = () => {
 
   useEffect(() => {
     // 🔥 실시간 구독
-    const unsubscribe = subscribeWithSafariFallback(
+    const unsubscribe = fetchQueryOnce(
       noticesQuery,
       (snapshot) => {
         mapSnapshotToNotices(snapshot);
