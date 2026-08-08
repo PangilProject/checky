@@ -1,6 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { monthlyStatsKeys, routineKeys, routineReportKeys, taskKeys } from "@/shared/api/keys";
 import { recalculateMonthlyStatsByMonth } from "../recalculate";
+import type { RecalculateScope } from "../recalculate";
 
 /**
  * 달력과 리포트가 실제 기록과 어긋나지 않게 맞춘다.
@@ -18,6 +19,7 @@ export const refreshCalendarConsistency = async ({
   userId,
   affectedMonths,
   recalculate = false,
+  recalculateScope = "all",
   invalidateTasksByMonth = false,
   invalidateRoutineData = false,
 }: {
@@ -25,6 +27,8 @@ export const refreshCalendarConsistency = async ({
   userId: string;
   affectedMonths: string[];
   recalculate?: boolean;
+  /** 다시 셀 몫. 할 일만 바뀌었으면 "task", 루틴만 바뀌었으면 "routine". */
+  recalculateScope?: RecalculateScope;
   invalidateTasksByMonth?: boolean;
   invalidateRoutineData?: boolean;
 }) => {
@@ -32,7 +36,13 @@ export const refreshCalendarConsistency = async ({
 
   if (recalculate && months.length > 0) {
     await Promise.all(
-      months.map((month) => recalculateMonthlyStatsByMonth({ userId, month })),
+      months.map((month) =>
+        recalculateMonthlyStatsByMonth({
+          userId,
+          month,
+          scope: recalculateScope,
+        }),
+      ),
     );
   }
 

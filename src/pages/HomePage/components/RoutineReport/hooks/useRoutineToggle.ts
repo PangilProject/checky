@@ -168,6 +168,7 @@ export function useRoutineToggle({
         month: monthKey,
         day: dayKey,
         completedDelta,
+        kind: "routine",
       });
     } catch {
       queryClient.setQueryData(routineReportKey, prevReport);
@@ -179,6 +180,7 @@ export function useRoutineToggle({
           recalculateMonthlyStatsByMonth({
             userId,
             month,
+            scope: "routine",
           }),
         ),
       );

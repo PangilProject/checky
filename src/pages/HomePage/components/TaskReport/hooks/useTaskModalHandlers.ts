@@ -94,6 +94,8 @@ export const useTaskModalHandlers = ({
         userId,
         affectedMonths: collectAffectedMonths({ dates: uniqueDates }),
         recalculate: true,
+        // 할 일만 옮겨졌으므로 task 몫만 다시 세고, 루틴 몫은 기존 집계를 쓴다.
+        recalculateScope: "task",
         invalidateTasksByMonth: true,
       });
 

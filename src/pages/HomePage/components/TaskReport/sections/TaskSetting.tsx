@@ -72,6 +72,8 @@ export function TaskSetting() {
         userId: user.uid,
         affectedMonths: months,
         recalculate: true,
+        // 일괄 작업은 할 일만 바꾸므로 task 몫만 다시 세고, 루틴 몫은 기존 집계를 쓴다.
+        recalculateScope: "task",
         invalidateTasksByMonth: true,
       });
     }

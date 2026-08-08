@@ -2,7 +2,8 @@ import type { RoutineScheduleHistoryItem } from "@/shared/api/routine";
 import { getRoutinesByMonthOnce, getRoutineLogsByMonthOnce } from "@/shared/api/routine/queries";
 import { getTasksByMonthOnce } from "@/shared/api/task/queries";
 import { getTaskLogsByMonthOnce } from "@/shared/api/taskLog/queries";
-import { replaceMonthlyStatsByMonth } from "./queries";
+import { getMonthlyStatsByMonthOnce, replaceMonthlyStatsByMonth } from "./queries";
+import { MONTHLY_STATS_SPLIT_VERSION } from "./types";
 import type { MonthlyActivitySummary } from "./types";
 
 /**
@@ -29,10 +30,22 @@ type MonthlyRoutine = {
 };
 type MonthlyRoutineLog = { routineId: string; date: string; done: boolean };
 
+/** 세는 도중 쓰는 하루치 칸. 합산값과 함께 task/routine 몫을 따로 든다. */
+type DayCount = {
+  total: number;
+  completed: number;
+  remaining: number;
+  taskTotal: number;
+  taskCompleted: number;
+  routineTotal: number;
+  routineCompleted: number;
+};
+
 /**
  * 한 달치 기록을 날짜별 개수로 센다.
  *
- * 반환값은 `YYYY-MM-DD` -> { total, completed, remaining } 형태의 Map 이다.
+ * 반환값은 `YYYY-MM-DD` -> DayCount 형태의 Map 이다.
+ * 합산값과 함께 task/routine 몫을 따로 세어, 한쪽 몫만 갈아 끼우는 재계산을 가능하게 한다.
  *
  * 순서가 중요하다. 먼저 "해야 했던 것"을 세어 total 을 채우면서 유효한 조합을 기록해 두고,
  * 그다음 기록을 훑으며 그 조합에 해당하는 것만 completed 로 센다.
@@ -52,7 +65,7 @@ const buildMonthlyActivityCountMap = ({
   routineLogs: MonthlyRoutineLog[];
 }) => {
   // 날짜 -> 그날의 개수
-  const next = new Map<string, { total: number; completed: number; remaining: number }>();
+  const next = new Map<string, DayCount>();
 
   // "이 날짜에 이 항목이 실제로 있었다"를 기록해 두는 집합.
   // 기록(로그)은 항목이 지워지거나 반복 요일이 바뀐 뒤에도 남아 있을 수 있어서,
@@ -63,7 +76,15 @@ const buildMonthlyActivityCountMap = ({
   /** 해당 날짜 칸이 없으면 0으로 만들어 두고 돌려준다 */
   const ensure = (dateKey: string) => {
     if (!next.has(dateKey)) {
-      next.set(dateKey, { total: 0, completed: 0, remaining: 0 });
+      next.set(dateKey, {
+        total: 0,
+        completed: 0,
+        remaining: 0,
+        taskTotal: 0,
+        taskCompleted: 0,
+        routineTotal: 0,
+        routineCompleted: 0,
+      });
     }
     return next.get(dateKey)!;
   };
@@ -91,7 +112,9 @@ const buildMonthlyActivityCountMap = ({
 
   // 할 일은 문서 하나가 곧 하루치라 그대로 센다
   tasks.forEach(({ id, date: dateKey }) => {
-    ensure(dateKey).total += 1;
+    const day = ensure(dateKey);
+    day.total += 1;
+    day.taskTotal += 1;
     validTaskKeySet.add(`${id}_${dateKey}`);
   });
 
@@ -125,7 +148,9 @@ const buildMonthlyActivityCountMap = ({
 
       const repeatDays = getRepeatDaysByDate({ history, date: dateStr });
       if (repeatDays.includes(dateObj.getDay())) {
-        ensure(dateStr).total += 1;
+        const day = ensure(dateStr);
+        day.total += 1;
+        day.routineTotal += 1;
         validRoutineKeySet.add(`${id}_${dateStr}`);
       }
     }
@@ -137,7 +162,9 @@ const buildMonthlyActivityCountMap = ({
     if (!completed) return;
     if (!next.has(dateKey)) return;
     if (!validTaskKeySet.has(`${taskId}_${dateKey}`)) return;
-    ensure(dateKey).completed += 1;
+    const day = ensure(dateKey);
+    day.completed += 1;
+    day.taskCompleted += 1;
   });
 
   // 루틴도 같은 규칙이다. 반복 요일을 바꾸기 전에 남긴 기록이
@@ -146,7 +173,9 @@ const buildMonthlyActivityCountMap = ({
     if (!done) return;
     if (!next.has(dateKey)) return;
     if (!validRoutineKeySet.has(`${routineId}_${dateKey}`)) return;
-    ensure(dateKey).completed += 1;
+    const day = ensure(dateKey);
+    day.completed += 1;
+    day.routineCompleted += 1;
   });
 
   // 남은 개수는 따로 세지 않고 전체에서 완료를 뺀다.
@@ -170,7 +199,7 @@ const convertToMonthlyStatsDays = ({
   map,
 }: {
   monthKey: string;
-  map: Map<string, { total: number; completed: number; remaining: number }>;
+  map: Map<string, DayCount>;
 }) => {
   const days: Record<string, MonthlyActivitySummary> = {};
 
@@ -182,25 +211,139 @@ const convertToMonthlyStatsDays = ({
       completed: value.completed,
       remaining: value.remaining,
       hasActivity: value.total > 0,
+      taskTotal: value.taskTotal,
+      taskCompleted: value.taskCompleted,
+      routineTotal: value.routineTotal,
+      routineCompleted: value.routineCompleted,
     };
   });
+  return days;
+};
+
+/** 다시 셀 범위. 바뀐 몫만 지정하면 나머지 몫은 기존 문서 값을 그대로 쓴다. */
+export type RecalculateScope = "all" | "task" | "routine";
+
+/**
+ * 한쪽 몫만 새로 센 결과를 기존 문서의 반대쪽 몫과 합친다.
+ *
+ * 두 몫의 날짜 집합이 다를 수 있어 합집합을 돌며, 합계가 0이 된 날은 버린다.
+ * replace 로 덮어쓰므로 버려진 날은 문서에서도 사라진다.
+ */
+const mergeScopedDays = ({
+  scope,
+  existingDays,
+  freshDays,
+}: {
+  scope: "task" | "routine";
+  existingDays: Record<string, MonthlyActivitySummary>;
+  freshDays: Record<string, MonthlyActivitySummary>;
+}) => {
+  const days: Record<string, MonthlyActivitySummary> = {};
+  const dayKeys = new Set([
+    ...Object.keys(existingDays),
+    ...Object.keys(freshDays),
+  ]);
+
+  dayKeys.forEach((day) => {
+    const preserved = existingDays[day];
+    const fresh = freshDays[day];
+    const fromTask = scope === "task" ? fresh : preserved;
+    const fromRoutine = scope === "routine" ? fresh : preserved;
+
+    const taskTotal = fromTask?.taskTotal ?? 0;
+    const taskCompleted = fromTask?.taskCompleted ?? 0;
+    const routineTotal = fromRoutine?.routineTotal ?? 0;
+    const routineCompleted = fromRoutine?.routineCompleted ?? 0;
+
+    const total = taskTotal + routineTotal;
+    if (total === 0) return;
+
+    const completed = Math.min(taskCompleted + routineCompleted, total);
+    days[day] = {
+      total,
+      completed,
+      remaining: Math.max(total - completed, 0),
+      hasActivity: true,
+      taskTotal,
+      taskCompleted,
+      routineTotal,
+      routineCompleted,
+    };
+  });
+
   return days;
 };
 
 /**
  * 원본 기록에서 한 달치 집계를 다시 계산해 덮어쓴다.
  *
- * 할 일·완료 기록·루틴·루틴 기록 네 컬렉션을 그 달 범위로 모두 읽으므로 비용이 크다.
+ * scope 로 다시 셀 몫을 좁힐 수 있다. 할 일만 바뀌었으면 "task", 루틴만 바뀌었으면
+ * "routine" 을 넘겨 해당 몫의 두 컬렉션만 읽고, 반대쪽 몫은 기존 문서에서 가져온다.
+ * 몫이 나뉘어 있지 않은 옛 문서(version 1)는 전체 재계산으로 대신해 세대를 올린다.
+ *
+ * "all" 은 네 컬렉션을 그 달 범위로 모두 읽으므로 비용이 크다.
  * 증감 반영이 어긋나 집계가 실제와 달라졌을 때 되돌리는 용도이며,
  * 평상시 갱신에는 patch 계열을 쓴다.
  */
 export const recalculateMonthlyStatsByMonth = async ({
   userId,
   month,
+  scope = "all",
 }: {
   userId: string;
   month: string;
+  scope?: RecalculateScope;
 }) => {
+  const [year, monthIndex] = month.split("-").map(Number);
+  const monthDate = new Date(year, monthIndex - 1, 1);
+
+  if (scope !== "all") {
+    const existing = await getMonthlyStatsByMonthOnce({ userId, month });
+    const isSplit =
+      existing != null &&
+      (existing.version ?? 1) >= MONTHLY_STATS_SPLIT_VERSION;
+
+    if (isSplit) {
+      // 바뀐 몫의 두 컬렉션만 읽는다. 반대쪽 몫은 기존 문서가 이미 들고 있다.
+      const [tasks, taskLogs] =
+        scope === "task"
+          ? await Promise.all([
+              getTasksByMonthOnce({ userId, month }),
+              getTaskLogsByMonthOnce({ userId, month }),
+            ])
+          : [[], []];
+      const [routines, routineLogs] =
+        scope === "routine"
+          ? await Promise.all([
+              getRoutinesByMonthOnce({ userId, month }),
+              getRoutineLogsByMonthOnce({ userId, month }),
+            ])
+          : [[], []];
+
+      const map = buildMonthlyActivityCountMap({
+        date: monthDate,
+        tasks,
+        taskLogs,
+        routines,
+        routineLogs,
+      });
+      const freshDays = convertToMonthlyStatsDays({ monthKey: month, map });
+      const days = mergeScopedDays({
+        scope,
+        existingDays: existing.days ?? {},
+        freshDays,
+      });
+      await replaceMonthlyStatsByMonth({
+        userId,
+        month,
+        days,
+        version: MONTHLY_STATS_SPLIT_VERSION,
+      });
+      return;
+    }
+    // 몫이 없는 문서는 부분 교체가 불가능하므로 전체 재계산으로 떨어진다.
+  }
+
   const [tasks, taskLogs, routines, routineLogs] = await Promise.all([
     getTasksByMonthOnce({ userId, month }),
     getTaskLogsByMonthOnce({ userId, month }),
@@ -208,16 +351,20 @@ export const recalculateMonthlyStatsByMonth = async ({
     getRoutineLogsByMonthOnce({ userId, month }),
   ]);
 
-  const [year, monthIndex] = month.split("-").map(Number);
   const map = buildMonthlyActivityCountMap({
-    date: new Date(year, monthIndex - 1, 1),
+    date: monthDate,
     tasks,
     taskLogs,
     routines,
     routineLogs,
   });
   const days = convertToMonthlyStatsDays({ monthKey: month, map });
-  await replaceMonthlyStatsByMonth({ userId, month, days });
+  await replaceMonthlyStatsByMonth({
+    userId,
+    month,
+    days,
+    version: MONTHLY_STATS_SPLIT_VERSION,
+  });
 };
 
 /**

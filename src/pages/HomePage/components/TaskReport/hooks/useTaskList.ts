@@ -373,6 +373,7 @@ export const useTaskList = ({
         month: monthKey,
         day: dayKey,
         completedDelta,
+        kind: "task",
       });
     } catch {
       queryClient.setQueryData(taskLogQueryKey, prevLogs);
@@ -383,6 +384,7 @@ export const useTaskList = ({
           recalculateMonthlyStatsByMonth({
             userId,
             month,
+            scope: "task",
           }),
         ),
       );

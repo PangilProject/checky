@@ -54,12 +54,13 @@ const collectMonthsToRecalculate = async ({
     ],
   });
 
-  const existingMonths = await getMonthlyStatsMonthsOnce(userId);
-  const overlapping = existingMonths.filter(
-    (month) =>
-      month >= span.startMonth &&
-      (span.endMonth === null || month <= span.endMonth),
-  );
+  // 기간과 겹치는 문서만 서버에서 골라 읽는다. 전체를 읽으면 계정이 오래될수록
+  // 루틴 저장 한 번의 read 가 집계 문서 수만큼 늘어난다.
+  // 끝나지 않는 루틴은 미리 넘겨 본 미래 달의 문서도 낡을 수 있으므로 상한을 두지 않는다.
+  const overlapping = await getMonthlyStatsMonthsOnce(userId, {
+    fromMonth: span.startMonth,
+    toMonth: span.endMonth ?? "9999-12",
+  });
 
   return Array.from(new Set([...rangeMonths, ...overlapping]));
 };
@@ -80,6 +81,8 @@ const refreshAffectedData = async ({
     userId,
     affectedMonths: await collectMonthsToRecalculate({ userId, span }),
     recalculate: true,
+    // 루틴만 바뀌었으므로 루틴 몫만 다시 세고, 할 일 몫은 기존 집계를 쓴다.
+    recalculateScope: "routine",
     // 루틴이 바뀌었으므로 루틴 목록과 주간 리포트 캐시도 함께 갱신한다.
     invalidateRoutineData: true,
   });
