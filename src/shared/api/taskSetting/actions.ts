@@ -8,7 +8,46 @@ import { getTasksByDateOnce } from "./queries";
 import type { DateOnlyParams, MoveTasksParams } from "./types";
 
 /**
+ * 대상 날짜에서 이어 쓸 순서 값을 나눠 주는 함수를 만든다.
+ *
+ * 순서 값은 날짜와 분류 안에서만 뜻이 있다. 옮기거나 복사할 때 원래 값을 그대로 두거나
+ * 0 부터 다시 매기면, 대상 날짜에 이미 그 번호를 쓰는 할 일이 있어 목록이 뒤섞인다.
+ * 그래서 분류별로 현재 가장 큰 값을 찾아 그 뒤부터 하나씩 나눠 준다.
+ *
+ * 부를 때마다 값을 올리므로, 넘기는 순서가 곧 화면에 놓이는 순서가 된다.
+ */
+const createOrderIndexAllocator = (existingTasks: Task[]) => {
+  const lastIndexByCategory = new Map<string, number>();
+
+  existingTasks.forEach((task) => {
+    if (typeof task.orderIndex !== "number") return;
+
+    const current = lastIndexByCategory.get(task.categoryId);
+    if (current === undefined || task.orderIndex > current) {
+      lastIndexByCategory.set(task.categoryId, task.orderIndex);
+    }
+  });
+
+  return (categoryId: string) => {
+    const next = (lastIndexByCategory.get(categoryId) ?? -1) + 1;
+    lastIndexByCategory.set(categoryId, next);
+    return next;
+  };
+};
+
+/**
+ * 원래 목록 순서를 유지한 채 넘기기 위해 순서 값으로 정렬한다.
+ *
+ * 날짜로만 걸러 읽은 결과는 순서가 정해져 있지 않다. 그대로 새 번호를 매기면
+ * 옮긴 것들끼리의 앞뒤가 뒤바뀐다.
+ */
+const sortByOrderIndex = (tasks: Task[]) =>
+  [...tasks].sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+
+/**
  * 태스크들의 날짜를 일괄 변경합니다.
+ *
+ * 대상 날짜의 기존 할 일을 먼저 읽어, 그 뒤에 이어지도록 순서 값을 새로 매긴다.
  */
 const updateTasksDate = async ({
   userId,
@@ -19,11 +58,15 @@ const updateTasksDate = async ({
   tasks: Task[];
   toDate: string;
 }) => {
+  const existingTasks = await getTasksByDateOnce({ userId, date: toDate });
+  const allocateOrderIndex = createOrderIndexAllocator(existingTasks);
+
   const batch = writeBatch(db);
 
-  tasks.forEach((task) => {
+  sortByOrderIndex(tasks).forEach((task) => {
     batch.update(taskRef(userId, task.id), {
       date: toDate,
+      orderIndex: allocateOrderIndex(task.categoryId),
       updatedAt: serverTimestamp(),
     });
   });
@@ -72,10 +115,13 @@ export const moveUncompletedTasksToToday = async ({
 
   const targets = getUncompletedTasks(tasks, completedTaskIds);
 
+  // 같은 날짜로 옮기는 것은 아무 뜻이 없다. 쓰기도 하지 않는다.
+  // 순서 값을 다시 매기는 쪽이 원본과 대상을 같은 날짜로 보게 되어 값만 밀린다.
+  if (targets.length === 0 || fromDate === toDate) return;
+
   await updateTasksDate({ userId, tasks: targets, toDate });
 
   const movedCount = targets.length;
-  if (movedCount === 0 || fromDate === toDate) return;
 
   await Promise.all([
     patchDayStats({
@@ -112,10 +158,13 @@ export const moveUncompletedTasksToDate = async ({
 
   const targets = getUncompletedTasks(tasks, completedTaskIds);
 
+  // 같은 날짜로 옮기는 것은 아무 뜻이 없다. 쓰기도 하지 않는다.
+  // 순서 값을 다시 매기는 쪽이 원본과 대상을 같은 날짜로 보게 되어 값만 밀린다.
+  if (targets.length === 0 || fromDate === toDate) return;
+
   await updateTasksDate({ userId, tasks: targets, toDate });
 
   const movedCount = targets.length;
-  if (movedCount === 0 || fromDate === toDate) return;
 
   await Promise.all([
     patchDayStats({
@@ -176,6 +225,7 @@ export const deleteUncompletedTasks = async ({
  * 하루치 할 일을 다른 날짜로 복사한다.
  *
  * 원본은 그대로 두고 같은 내용을 새 문서로 만든다. 완료 기록은 따라가지 않는다.
+ * 대상 날짜의 기존 할 일 뒤에 이어지도록 순서 값을 새로 매긴다.
  * 복사한 만큼 대상 날짜의 월간 요약을 늘린다.
  */
 export const copyAllTasksToDate = async ({
@@ -183,11 +233,15 @@ export const copyAllTasksToDate = async ({
   fromDate,
   toDate,
 }: MoveTasksParams) => {
-  const tasks = await getTasksByDateOnce({ userId, date: fromDate });
+  const [tasks, existingTasks] = await Promise.all([
+    getTasksByDateOnce({ userId, date: fromDate }),
+    getTasksByDateOnce({ userId, date: toDate }),
+  ]);
 
+  const allocateOrderIndex = createOrderIndexAllocator(existingTasks);
   const batch = writeBatch(db);
 
-  tasks.forEach((task, index) => {
+  sortByOrderIndex(tasks).forEach((task) => {
     const nextRef = doc(tasksRef(userId));
 
     batch.set(nextRef, {
@@ -196,7 +250,7 @@ export const copyAllTasksToDate = async ({
       categoryColor: task.categoryColor,
       date: toDate,
       ...(task.time && { time: task.time }),
-      orderIndex: index,
+      orderIndex: allocateOrderIndex(task.categoryId),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
