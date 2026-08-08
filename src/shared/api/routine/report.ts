@@ -6,7 +6,7 @@ import {
   where,
 } from "firebase/firestore/lite";
 import { mapDoc } from "@/shared/api/_common/mappers";
-import { formatDateToYmd } from "@/shared/hooks/formatDate";
+import { formatDateToYmd, parseYmd } from "@/shared/hooks/formatDate";
 import { categoriesRef, routineLogsRef, routinesRef } from "./refs";
 import type {
   Routine,
@@ -42,12 +42,21 @@ type FirestoreTimestampLike = {
 
 /**
  * 주간 범위 데이터를 생성합니다.
+ *
+ * 시작일은 반드시 parseYmd 로 읽는다. `new Date("2026-08-02")` 는 그 문자열을
+ * UTC 자정으로 해석하므로, UTC 보다 늦은 지역에서는 전날이 되어 일곱 칸이 통째로 하루 밀린다.
+ * 그러면 조회 범위와 칸의 날짜가 어긋나 기존 체크가 사라져 보이고
+ * 새로 체크한 값도 다른 날짜에 저장된다.
+ *
  * @param startDate 시작 날짜
  * @param endDate 종료 날짜
  */
 const buildWeek = (startDate: string, endDate: string): RoutineReportWeek => {
   const days: RoutineReportWeek["days"] = [];
-  const start = new Date(startDate);
+  const start = parseYmd(startDate);
+
+  // 날짜 형식이 어긋나면 빈 주를 돌려준다. 틀린 날짜로 일곱 칸을 그리는 것보다 낫다.
+  if (!start) return { startDate, endDate, days };
 
   for (let i = 0; i < 7; i++) {
     const d = new Date(start);
