@@ -133,6 +133,13 @@ const convertToMonthlyStatsDays = ({
   return days;
 };
 
+/**
+ * 원본 기록에서 한 달치 집계를 다시 계산해 덮어쓴다.
+ *
+ * 할 일·완료 기록·루틴·루틴 기록 네 컬렉션을 그 달 범위로 모두 읽으므로 비용이 크다.
+ * 증감 반영이 어긋나 집계가 실제와 달라졌을 때 되돌리는 용도이며,
+ * 평상시 갱신에는 patch 계열을 쓴다.
+ */
 export const rebuildMonthlyStatsByMonth = async ({
   userId,
   month,
@@ -159,6 +166,12 @@ export const rebuildMonthlyStatsByMonth = async ({
   await replaceMonthlyStatsByMonth({ userId, month, days });
 };
 
+/**
+ * 두 날짜가 걸쳐 있는 달의 키 목록을 만든다.
+ *
+ * 할 일을 다른 달로 옮기면 두 달의 집계가 함께 바뀌므로, 갱신 대상을 정할 때 쓴다.
+ * 순수 계산이며 Firestore 를 읽지 않는다. 범위가 뒤집혀 있으면 빈 배열이다.
+ */
 export const buildMonthKeysBetween = (startDate: string, endDate: string) => {
   if (!startDate || !endDate || startDate > endDate) return [] as string[];
 

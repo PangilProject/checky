@@ -3,6 +3,11 @@ import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { monthlyStatsDocRef } from "./refs";
 import type { MonthlyActivitySummary, MonthlyStats } from "./types";
 
+/**
+ * 한 달치 집계 문서를 읽는다.
+ *
+ * 문서가 없으면 null 이다. 아직 활동이 없는 달이면 정상적인 상태이므로 예외로 다루지 않는다.
+ */
 export const getMonthlyStatsByMonthOnce = async ({
   userId,
   month,
@@ -23,6 +28,12 @@ export const getMonthlyStatsByMonthOnce = async ({
   return data;
 };
 
+/**
+ * 넘긴 날짜만 덮어쓰고 나머지 날짜는 그대로 둔다.
+ *
+ * days 를 병합하므로 일부 날짜만 고칠 때 쓴다.
+ * 사라진 날짜를 지우지는 못한다. 그 경우에는 replace 를 써야 한다.
+ */
 export const upsertMonthlyStatsByMonth = async ({
   userId,
   month,
@@ -44,6 +55,12 @@ export const upsertMonthlyStatsByMonth = async ({
   );
 };
 
+/**
+ * 한 달치를 통째로 바꾼다.
+ *
+ * 병합하지 않으므로 넘기지 않은 날짜는 사라진다.
+ * 원본에서 다시 계산한 결과를 덮어쓸 때만 쓴다. 부분 수정에 쓰면 다른 날짜를 잃는다.
+ */
 export const replaceMonthlyStatsByMonth = async ({
   userId,
   month,
@@ -61,6 +78,12 @@ export const replaceMonthlyStatsByMonth = async ({
   });
 };
 
+/**
+ * 하루의 완료 수만 고친다.
+ *
+ * 현재 값을 읽어 계산한 뒤 쓰므로 읽기 1회 + 쓰기 1회다.
+ * 원자적 증감이 아니라서, 같은 날짜에 대한 요청이 겹치면 나중 것이 앞선 것을 덮을 수 있다.
+ */
 export const patchMonthlyStatsCompletionByDay = async ({
   userId,
   month,
@@ -101,6 +124,14 @@ export const patchMonthlyStatsCompletionByDay = async ({
   );
 };
 
+/**
+ * 하루의 집계를 증감값만큼 조정한다.
+ *
+ * 할 일을 더하거나 지웠을 때 전체를 다시 세지 않고 차이만 반영한다.
+ * 현재 값을 읽어 더한 뒤 쓰므로 읽기 1회 + 쓰기 1회이며, 원자적 증감이 아니다.
+ * 음수로 내려가지 않게 0 에서 막고, 완료·잔여가 전체를 넘지 않도록 잘라 낸다.
+ * 세 증감이 모두 0 이면 아무것도 하지 않는다.
+ */
 export const patchMonthlyStatsByDayDeltas = async ({
   userId,
   month,
