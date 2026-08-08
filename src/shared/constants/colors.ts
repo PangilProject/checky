@@ -42,3 +42,13 @@ export const COLOR_CLASS_BORDER_MAP: Record<string, string> = {
 
 export const SUNDAY_COLOR = "#FF393C";
 export const SATURDAY_COLOR = "#0088FF";
+
+/**
+ * 주말 글자색 Tailwind 클래스.
+ *
+ * Tailwind 는 소스에 그대로 적힌 클래스만 만들어 내므로
+ * `text-[${SUNDAY_COLOR}]` 처럼 조립하면 스타일이 나오지 않는다.
+ * 위 색상값과 짝을 이루므로 한쪽을 고치면 다른 쪽도 함께 고쳐야 한다.
+ */
+export const SUNDAY_TEXT_CLASS = "text-[#FF393C]";
+export const SATURDAY_TEXT_CLASS = "text-[#0088FF]";

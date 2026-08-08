@@ -8,8 +8,8 @@ import {
   parseYmd,
 } from "@/shared/hooks/formatDate";
 import { SATURDAY_COLOR, SUNDAY_COLOR } from "@/shared/constants/colors";
+import { WEEK_LABELS } from "@/shared/constants/dateLabels";
 
-const WEEK_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
 const getWeekdayColor = (index: number) => {
   if (index % 7 === 0) return SUNDAY_COLOR;

@@ -5,16 +5,11 @@ import type { ReactNode } from "react";
 import type { RoutineReport } from "@/shared/api/routine";
 import { GoDash } from "react-icons/go";
 import { Space20 } from "@/shared/ui/Space";
+import { getWeekendTextClass } from "@/shared/constants/dateLabels";
 
 interface RoutineTableProps {
   report: RoutineReport;
   onToggle: (routineId: string, date: string, current: boolean) => void;
-}
-
-function getWeekendTextClass(label: string): string | undefined {
-  if (label === "일") return "text-[#FF393C]";
-  if (label === "토") return "text-[#0088FF]";
-  return undefined;
 }
 
 /**
@@ -46,7 +41,7 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
           <TD className="border-r border-[#8E8E93]">루틴</TD>
           {week.days.map((day) => {
             return (
-              <TD key={day.date} className={getWeekendTextClass(day.label)}>
+              <TD key={day.date} className={getWeekendTextClass(day.day)}>
                 <div className="flex flex-col items-center">
                   <Text1 text={day.label} />
                   <Text1 text={getDay(day.date)} />

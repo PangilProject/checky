@@ -16,6 +16,7 @@ import type {
   RoutineScheduleHistoryItem,
 } from "./types";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
+import { getDayLabel } from "@/shared/constants/dateLabels";
 
 type RoutineReportRowInternal = RoutineReportRow & {
   routineOrderIndex: number;
@@ -39,8 +40,6 @@ type FirestoreTimestampLike = {
   toDate?: () => Date;
 };
 
-const DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
-
 /**
  * 주간 범위 데이터를 생성합니다.
  * @param startDate 시작 날짜
@@ -57,7 +56,7 @@ const buildWeek = (startDate: string, endDate: string): RoutineReportWeek => {
     days.push({
       date: formatDateToYmd(d),
       day: d.getDay(),
-      label: DAY_LABELS[d.getDay()],
+      label: getDayLabel(d.getDay()),
     });
   }
 
