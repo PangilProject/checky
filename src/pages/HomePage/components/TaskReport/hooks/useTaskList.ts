@@ -41,6 +41,8 @@ export const useTaskList = ({
 }) => {
   const queryClient = useQueryClient();
   const tempIdRef = useRef(0);
+  // 완료 처리가 진행 중인 할 일. 같은 항목의 연타를 막는다.
+  const togglingTaskIdsRef = useRef(new Set<string>());
   const lastTaskCacheLogRef = useRef<{ date: string; status?: string }>({
     date: "",
     status: undefined,
@@ -261,9 +263,7 @@ export const useTaskList = ({
     }
   };
 
-  const toggleTask = async (taskId: string) => {
-    if (!userId) return;
-
+  const runToggleTask = async (taskId: string, userId: string) => {
     const currentLog = taskLogMap.get(taskId);
     const nextCompleted = currentLog ? !currentLog.completed : true;
     const monthKey = dateString.slice(0, 7);
@@ -359,6 +359,22 @@ export const useTaskList = ({
         queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
       });
       toast.error("완료 상태를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    }
+  };
+
+  const toggleTask = async (taskId: string) => {
+    if (!userId) return;
+
+    // 진행 중인 같은 할 일의 체크는 무시한다.
+    // runToggleTask 가 보는 currentLog 는 렌더 시점 값이라, 다시 그려지기 전에 또 누르면
+    // 같은 기준으로 판단해 완료 증감이 같은 방향으로 두 번 나간다.
+    if (togglingTaskIdsRef.current.has(taskId)) return;
+    togglingTaskIdsRef.current.add(taskId);
+
+    try {
+      await runToggleTask(taskId, userId);
+    } finally {
+      togglingTaskIdsRef.current.delete(taskId);
     }
   };
 

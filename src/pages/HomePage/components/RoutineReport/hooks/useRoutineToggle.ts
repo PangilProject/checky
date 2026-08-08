@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import {
@@ -36,10 +37,31 @@ export function useRoutineToggle({
     week.startDate,
     week.endDate
   );
+  // 처리가 진행 중인 (루틴, 날짜) 칸. 같은 칸의 연타를 막는다.
+  const togglingKeysRef = useRef(new Set<string>());
 
   return async (routineId: string, date: string, current: boolean) => {
     if (!userId) return;
 
+    // 호출부가 넘기는 current 는 렌더 시점 값이라, 다시 그려지기 전에 또 누르면
+    // 같은 기준으로 판단해 완료 증감이 같은 방향으로 두 번 나간다.
+    const togglingKey = `${routineId}_${date}`;
+    if (togglingKeysRef.current.has(togglingKey)) return;
+    togglingKeysRef.current.add(togglingKey);
+
+    try {
+      await runToggle(routineId, date, current, userId);
+    } finally {
+      togglingKeysRef.current.delete(togglingKey);
+    }
+  };
+
+  async function runToggle(
+    routineId: string,
+    date: string,
+    current: boolean,
+    userId: string
+  ) {
     const monthKey = date.slice(0, 7);
     const dayKey = date.slice(8, 10);
     const done = !current;
@@ -165,5 +187,5 @@ export function useRoutineToggle({
       });
       toast.error("루틴 완료 상태를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.");
     }
-  };
+  }
 }

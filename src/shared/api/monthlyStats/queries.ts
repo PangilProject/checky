@@ -1,4 +1,10 @@
-import { getDoc, serverTimestamp, setDoc } from "firebase/firestore/lite";
+import {
+  getDoc,
+  runTransaction,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore/lite";
+import { db } from "@/firebase/firebase";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { monthlyStatsDocRef } from "./refs";
 import type { MonthlyActivitySummary, MonthlyStats } from "./types";
@@ -81,8 +87,15 @@ export const replaceMonthlyStatsByMonth = async ({
 /**
  * 하루의 완료 수만 고친다.
  *
- * 현재 값을 읽어 계산한 뒤 쓰므로 읽기 1회 + 쓰기 1회다.
- * 원자적 증감이 아니라서, 같은 날짜에 대한 요청이 겹치면 나중 것이 앞선 것을 덮을 수 있다.
+ * 읽고 더한 뒤 쓰는 동작을 트랜잭션으로 묶는다. 묶지 않으면 같은 날짜에 대한 요청이 겹칠 때
+ * 뒤에 온 것이 앞선 것의 결과를 읽기 전에 계산해 버려, 한쪽 증감이 통째로 사라진다.
+ * 체크를 빠르게 여러 번 누르거나 탭을 두 개 열어 둔 경우에 실제로 일어난다.
+ *
+ * 완료 수는 전체 수를 넘지 못하게 자른다. 넘어가면 남은 수가 0으로 눌려
+ * 달력이 "다 했음"으로 보이게 된다.
+ *
+ * 집계 문서나 해당 날짜 칸이 아직 없으면 아무것도 하지 않는다.
+ * 셀 대상이 정해지지 않은 상태라 완료만 먼저 세면 전체보다 커진다.
  */
 export const patchMonthlyStatsCompletionByDay = async ({
   userId,
@@ -96,39 +109,48 @@ export const patchMonthlyStatsCompletionByDay = async ({
   completedDelta: 1 | -1;
 }) => {
   const ref = monthlyStatsDocRef(userId, month);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) return;
 
-  const data = snap.data() as MonthlyStats;
-  const current = data.days?.[day];
-  if (!current) return;
+  await runTransaction(db, async (transaction) => {
+    const snap = await transaction.get(ref);
+    if (!snap.exists()) return;
 
-  const completed = Math.max((current.completed ?? 0) + completedDelta, 0);
-  const total = Math.max(current.total ?? 0, 0);
-  const remaining = Math.max(total - completed, 0);
+    const data = snap.data() as MonthlyStats;
+    const current = data.days?.[day];
+    if (!current) return;
 
-  await setDoc(
-    ref,
-    {
-      days: {
-        [day]: {
-          ...current,
-          completed,
-          remaining,
-          hasActivity: total > 0,
+    const total = Math.max(current.total ?? 0, 0);
+    const completed = Math.min(
+      Math.max((current.completed ?? 0) + completedDelta, 0),
+      total
+    );
+    const remaining = Math.max(total - completed, 0);
+
+    transaction.set(
+      ref,
+      {
+        days: {
+          [day]: {
+            ...current,
+            completed,
+            remaining,
+            hasActivity: total > 0,
+          },
         },
+        updatedAt: serverTimestamp(),
       },
-      updatedAt: serverTimestamp(),
-    },
-    { merge: true }
-  );
+      { merge: true }
+    );
+  });
 };
 
 /**
  * 하루의 집계를 증감값만큼 조정한다.
  *
  * 할 일을 더하거나 지웠을 때 전체를 다시 세지 않고 차이만 반영한다.
- * 현재 값을 읽어 더한 뒤 쓰므로 읽기 1회 + 쓰기 1회이며, 원자적 증감이 아니다.
+ *
+ * 읽고 더한 뒤 쓰는 동작을 트랜잭션으로 묶는다. 묶지 않으면 할 일을 빠르게 연달아 추가할 때
+ * 뒤 요청이 앞 요청의 결과를 읽기 전에 계산해, 두 개를 넣었는데 전체가 하나만 늘어난다.
+ *
  * 음수로 내려가지 않게 0 에서 막고, 완료·잔여가 전체를 넘지 않도록 잘라 낸다.
  * 세 증감이 모두 0 이면 아무것도 하지 않는다.
  */
@@ -150,35 +172,38 @@ export const patchMonthlyStatsByDayDeltas = async ({
   if (!totalDelta && !completedDelta && !remainingDelta) return;
 
   const ref = monthlyStatsDocRef(userId, month);
-  const snap = await getDoc(ref);
-  const data = (snap.exists() ? snap.data() : null) as MonthlyStats | null;
-  const current = data?.days?.[day];
 
-  const nextTotal = Math.max((current?.total ?? 0) + totalDelta, 0);
-  const nextCompleted = Math.max(
-    (current?.completed ?? 0) + completedDelta,
-    0
-  );
-  const nextRemaining = Math.max(
-    (current?.remaining ?? 0) + remainingDelta,
-    0
-  );
+  await runTransaction(db, async (transaction) => {
+    const snap = await transaction.get(ref);
+    const data = (snap.exists() ? snap.data() : null) as MonthlyStats | null;
+    const current = data?.days?.[day];
 
-  await setDoc(
-    ref,
-    {
-      month,
-      days: {
-        [day]: {
-          total: nextTotal,
-          completed: Math.min(nextCompleted, nextTotal),
-          remaining: Math.min(nextRemaining, nextTotal),
-          hasActivity: nextTotal > 0,
+    const nextTotal = Math.max((current?.total ?? 0) + totalDelta, 0);
+    const nextCompleted = Math.max(
+      (current?.completed ?? 0) + completedDelta,
+      0
+    );
+    const nextRemaining = Math.max(
+      (current?.remaining ?? 0) + remainingDelta,
+      0
+    );
+
+    transaction.set(
+      ref,
+      {
+        month,
+        days: {
+          [day]: {
+            total: nextTotal,
+            completed: Math.min(nextCompleted, nextTotal),
+            remaining: Math.min(nextRemaining, nextTotal),
+            hasActivity: nextTotal > 0,
+          },
         },
+        version: 1,
+        updatedAt: serverTimestamp(),
       },
-      version: 1,
-      updatedAt: serverTimestamp(),
-    },
-    { merge: true }
-  );
+      { merge: true }
+    );
+  });
 };
