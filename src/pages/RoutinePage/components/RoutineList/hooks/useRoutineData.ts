@@ -14,11 +14,10 @@ export const useRoutineData = (userId: string, enabled: boolean) => {
 
     // 카테고리 + 루틴 데이터를 함께 가져오는 비동기 함수
     queryFn: async () => {
-      // 1. 활성화된 카테고리 목록 조회
-      const categories = await getCategoriesOnce({
-        userId,
-        status: "ACTIVE",
-      });
+      // 1. 종료한 것까지 포함해 카테고리를 모두 조회
+      //    종료한 카테고리를 빼면 그 안의 루틴을 고치거나 지울 방법이 사라진다.
+      //    홈의 주간 표에는 계속 나오므로 매일 체크해야 하는 것처럼 보이기만 한다.
+      const categories = await getCategoriesOnce({ userId });
 
       // 2. 각 카테고리별 루틴을 병렬로 조회
       const routinesByCategory = await Promise.all(
@@ -31,7 +30,12 @@ export const useRoutineData = (userId: string, enabled: boolean) => {
         })),
       );
 
-      return routinesByCategory;
+      // 3. 사용 중인 카테고리와, 루틴이 남아 있는 종료된 카테고리만 남긴다.
+      //    루틴이 없는 종료된 카테고리까지 그리면 빈 줄만 늘어난다.
+      return routinesByCategory.filter(
+        ({ category, routines }) =>
+          category.status === "ACTIVE" || routines.length > 0,
+      );
     },
 
     enabled, // 로그인 상태일 때만 요청 실행

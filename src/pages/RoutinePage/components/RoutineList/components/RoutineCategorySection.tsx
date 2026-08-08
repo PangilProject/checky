@@ -53,6 +53,10 @@ export const RoutineCategorySection = ({
     }),
   );
 
+  // 종료한 카테고리에는 새 루틴을 넣지 못한다.
+  // 다만 이미 있는 루틴은 그대로 보여 줘야 고치거나 지울 수 있다.
+  const isEnded = category.status !== "ACTIVE";
+
   return (
     <div className="mb-5">
       {/* 카테고리 헤더 */}
@@ -62,7 +66,12 @@ export const RoutineCategorySection = ({
           className={`${getCategoryTextColor(category.color)} min-w-0 truncate`}
         />
         <span className="shrink-0">
-          <NormalBlackButton text="추가" onClick={onAdd} />
+          {isEnded ? (
+            // 왜 더할 수 없는지 알 수 있도록 상태를 적어 둔다
+            <span className="text-sm text-gray-400">종료됨</span>
+          ) : (
+            <NormalBlackButton text="추가" onClick={onAdd} />
+          )}
         </span>
       </div>
 
