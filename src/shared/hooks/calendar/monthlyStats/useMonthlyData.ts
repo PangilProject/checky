@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { getTasksByMonthOnce } from "@/shared/api/task";
 import { getTaskLogsByMonthOnce } from "@/shared/api/taskLog";
@@ -37,10 +37,15 @@ import type {
  * 2. monthlyStats가 없는 경우에만 legacy 원천 데이터(tasks, routines 등)로 fallback 계산
  * 3. fallback 결과를 monthlyStats에 upsert하여 이후부터는 집계 데이터를 사용
  *
+ * 주의: fallback upsert 부수효과가 있으므로 화면당 한 곳에서만 호출하고,
+ * 하위 컴포넌트에는 반환값을 props로 내려야 한다. 여러 곳에서 호출하면
+ * 같은 문서를 인스턴스 수만큼 중복 write 한다.
+ *
  * @param date 기준 날짜 (해당 월 데이터를 조회)
  */
 export const useMonthlyData = (date: Date) => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const monthKey = `${year}-${month}`;
@@ -136,15 +141,22 @@ export const useMonthlyData = (date: Date) => {
 
     // 1회 upsert 후 캐시에 monthlyStats가 생기면 다음 렌더부터 정식 경로를 사용합니다.
     writtenMonthRef.current = monthKey;
-    void upsertMonthlyStatsByMonth({ userId, month: monthKey, days }).catch(
-      (error) => {
+    void upsertMonthlyStatsByMonth({ userId, month: monthKey, days })
+      .then(() => {
+        // 방금 쓴 값을 캐시에 심어, refetch(read) 없이 정식 경로로 전환한다.
+        queryClient.setQueryData(monthlyStatsKeys.byMonth(userId, monthKey), {
+          month: monthKey,
+          days,
+        });
+      })
+      .catch((error) => {
         writtenMonthRef.current = null;
         console.error("Failed to upsert monthlyStats", error);
-      },
-    );
+      });
   }, [
     date,
     monthKey,
+    queryClient,
     routineLogsQuery.data,
     routineLogsQuery.status,
     routinesQuery.data,
@@ -201,3 +213,6 @@ export const useMonthlyData = (date: Date) => {
     },
   };
 };
+
+/** useMonthlyData 반환값. 하위 컴포넌트에 props로 내릴 때 쓴다. */
+export type MonthlyData = ReturnType<typeof useMonthlyData>;
