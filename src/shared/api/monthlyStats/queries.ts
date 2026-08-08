@@ -1,13 +1,37 @@
 import {
   getDoc,
+  getDocs,
   runTransaction,
   serverTimestamp,
   setDoc,
 } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
-import { monthlyStatsDocRef } from "./refs";
+import { monthlyStatsCollectionRef, monthlyStatsDocRef } from "./refs";
 import type { MonthlyActivitySummary, MonthlyStats } from "./types";
+
+const MONTH_KEY_PATTERN = /^\d{4}-\d{2}$/;
+
+/**
+ * 집계 문서가 이미 만들어져 있는 달의 목록을 읽는다.
+ *
+ * 달력은 집계 문서가 **없을 때만** 원본으로 다시 센다. 그래서 문서가 없는 달은 늘 맞고,
+ * 틀어질 수 있는 것은 이미 만들어진 문서뿐이다.
+ * 어떤 달을 다시 세어야 하는지 고를 때, 몇 달치인지 추측하는 대신 이 목록을 쓴다.
+ *
+ * 문서 ID 가 곧 `YYYY-MM` 이라 내용은 보지 않는다.
+ */
+export const getMonthlyStatsMonthsOnce = async (
+  userId: string
+): Promise<string[]> => {
+  const perf = baselineFetch("monthlyStats/fetch/months", { userId });
+  const snap = await getDocs(monthlyStatsCollectionRef(userId));
+  const months = snap.docs
+    .map((docSnap) => docSnap.id)
+    .filter((id) => MONTH_KEY_PATTERN.test(id));
+  perf.end({ count: months.length });
+  return months;
+};
 
 /**
  * 한 달치 집계 문서를 읽는다.

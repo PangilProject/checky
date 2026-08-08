@@ -8,49 +8,77 @@ import {
   updateRoutine,
   type Routine,
 } from "@/shared/api/routine";
-import {
-  monthlyStatsKeys,
-  routinePageKeys,
-} from "@/shared/api/keys";
+import { routinePageKeys } from "@/shared/api/keys";
 import {
   collectAffectedMonths,
+  getMonthlyStatsMonthsOnce,
   refreshCalendarConsistency,
 } from "@/shared/api/monthlyStats";
 import { buildNextScheduleHistory, getTodayLocalDate } from "../utils";
 import type { RoutineModalMode } from "../types";
 
-const getCachedMonthlyStatsMonths = ({
-  queryClient,
+/**
+ * 루틴이 걸쳐 있는 기간. endMonth 가 null 이면 끝나지 않는 루틴이다.
+ */
+type RoutineSpan = { startMonth: string; endMonth: string | null };
+
+/**
+ * 루틴 변경으로 다시 세어야 하는 달을 모은다.
+ *
+ * 두 갈래를 합친다.
+ *
+ * 1. 루틴 기간이 걸친 달. 끝나지 않는 루틴이면 오늘까지로 본다.
+ * 2. **집계 문서가 이미 있는 달 중 루틴 기간과 겹치는 것.**
+ *
+ * 두 번째가 이 함수의 핵심이다. 달력은 집계 문서가 없는 달만 원본으로 다시 세므로,
+ * 틀어질 수 있는 것은 이미 만들어진 문서뿐이다. 끝나지 않는 루틴을 오늘까지만 다시 세면
+ * 사용자가 미리 넘겨 본 다음 달의 문서가 낡은 채로 남아, 새 루틴이 영영 보이지 않는다.
+ *
+ * 몇 달 뒤까지 볼지 추측하는 대신 실제로 있는 달을 읽어 정확히 고른다.
+ * 문서가 없는 미래 달은 어차피 원본으로 계산되므로 건드릴 필요가 없다.
+ */
+const collectMonthsToRecalculate = async ({
   userId,
+  span,
 }: {
-  queryClient: ReturnType<typeof useQueryClient>;
   userId: string;
+  span: RoutineSpan;
 }) => {
-  const entries = queryClient.getQueriesData({
-    queryKey: monthlyStatsKeys.all,
-  });
-  const months = new Set<string>();
-
-  entries.forEach(([queryKey]) => {
-    if (!Array.isArray(queryKey)) return;
-    if (queryKey[0] !== monthlyStatsKeys.all[0]) return;
-    if (queryKey[1] !== userId) return;
-
-    const month = queryKey[2];
-    if (typeof month === "string" && /^\d{4}-\d{2}$/.test(month)) {
-      months.add(month);
-    }
+  const today = getTodayLocalDate();
+  const rangeMonths = collectAffectedMonths({
+    ranges: [
+      {
+        startDate: `${span.startMonth}-01`,
+        endDate: span.endMonth ? `${span.endMonth}-01` : today,
+      },
+    ],
   });
 
-  return [...months];
+  const existingMonths = await getMonthlyStatsMonthsOnce(userId);
+  const overlapping = existingMonths.filter(
+    (month) =>
+      month >= span.startMonth &&
+      (span.endMonth === null || month <= span.endMonth),
+  );
+
+  return Array.from(new Set([...rangeMonths, ...overlapping]));
 };
 
-const refreshAffectedData = async ({ userId, affectedMonths, queryClient }: { userId: string; affectedMonths: string[]; queryClient: ReturnType<typeof useQueryClient> }) => {
-  const months = Array.from(new Set([...affectedMonths, ...getCachedMonthlyStatsMonths({ queryClient, userId })]));
+const monthOf = (date: string) => date.slice(0, 7);
+
+const refreshAffectedData = async ({
+  userId,
+  span,
+  queryClient,
+}: {
+  userId: string;
+  span: RoutineSpan;
+  queryClient: ReturnType<typeof useQueryClient>;
+}) => {
   await refreshCalendarConsistency({
     queryClient,
     userId,
-    affectedMonths: months,
+    affectedMonths: await collectMonthsToRecalculate({ userId, span }),
     recalculate: true,
   });
   await queryClient.invalidateQueries({
@@ -118,7 +146,10 @@ export const useRoutineModalActions = ({
 
     setIsSubmitting(true);
     try {
-      let affectedMonths: string[] = [];
+      let span: RoutineSpan = {
+        startMonth: monthOf(startDate),
+        endMonth: null,
+      };
 
       if (mode === "CREATE") {
         await createRoutine({
@@ -130,21 +161,24 @@ export const useRoutineModalActions = ({
           endDate: endDateEnabled ? endDate : undefined,
         });
 
-        const today = getTodayLocalDate();
-        const end = endDateEnabled && endDate ? endDate : today;
-        affectedMonths = collectAffectedMonths({
-          ranges: [{ startDate, endDate: end }],
-        });
+        span = {
+          startMonth: monthOf(startDate),
+          endMonth: endDateEnabled && endDate ? monthOf(endDate) : null,
+        };
       }
 
       if (mode === "EDIT" && routine) {
-        const today = getTodayLocalDate();
-        const prevEnd = routine.endDate ?? today;
-        const nextEnd = endDateEnabled && endDate ? endDate : today;
-        const spanEnd = prevEnd > nextEnd ? prevEnd : nextEnd;
-        affectedMonths = collectAffectedMonths({
-          ranges: [{ startDate: routine.startDate, endDate: spanEnd }],
-        });
+        const prevEnd = routine.endDate ?? null;
+        const nextEnd = endDateEnabled && endDate ? endDate : null;
+        // 한쪽이라도 끝이 없으면 기간을 열어 둔다.
+        // 끝없던 루틴에 종료일을 붙인 경우, 종료일 뒤의 달에도 예전 집계가 남아 있다.
+        const spanEnd =
+          prevEnd && nextEnd ? (prevEnd > nextEnd ? prevEnd : nextEnd) : null;
+
+        span = {
+          startMonth: monthOf(routine.startDate),
+          endMonth: spanEnd ? monthOf(spanEnd) : null,
+        };
 
         await updateRoutine({
           userId: user.uid,
@@ -161,11 +195,7 @@ export const useRoutineModalActions = ({
         });
       }
 
-      await refreshAffectedData({
-        userId: user.uid,
-        affectedMonths,
-        queryClient,
-      });
+      await refreshAffectedData({ userId: user.uid, span, queryClient });
 
       onClose();
     } catch {
@@ -181,22 +211,17 @@ export const useRoutineModalActions = ({
 
     setIsSubmitting(true);
     try {
-      const today = getTodayLocalDate();
-      const end = routine.endDate ?? today;
-      const affectedMonths = collectAffectedMonths({
-        ranges: [{ startDate: routine.startDate, endDate: end }],
-      });
+      const span: RoutineSpan = {
+        startMonth: monthOf(routine.startDate),
+        endMonth: routine.endDate ? monthOf(routine.endDate) : null,
+      };
 
       await deleteRoutine({
         userId: user.uid,
         routineId: routine.id,
       });
 
-      await refreshAffectedData({
-        userId: user.uid,
-        affectedMonths,
-        queryClient,
-      });
+      await refreshAffectedData({ userId: user.uid, span, queryClient });
 
       onClose();
     } catch {

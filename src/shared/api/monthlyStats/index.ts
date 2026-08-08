@@ -2,6 +2,7 @@ export type { MonthlyStats, MonthlyActivitySummary } from "./types";
 
 export {
   getMonthlyStatsByMonthOnce,
+  getMonthlyStatsMonthsOnce,
   upsertMonthlyStatsByMonth,
   replaceMonthlyStatsByMonth,
   patchMonthlyStatsCompletionByDay,
