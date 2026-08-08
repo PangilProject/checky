@@ -2,6 +2,47 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
+/**
+ * 마크다운 렌더링에만 쓰이는 패키지들.
+ *
+ * react-markdown 은 unified·remark·micromark 계열 소패키지 수십 개에 의존한다.
+ * 이름을 일일이 적는 대신 계열 접두사로 묶어 한 chunk 로 모은다.
+ */
+const MARKDOWN_PACKAGES = [
+  "react-markdown",
+  "remark-",
+  "rehype-",
+  "micromark",
+  "mdast",
+  "hast",
+  "unist",
+  "unified",
+  "vfile",
+  "estree",
+  "character-entities",
+  "decode-named-character-reference",
+  "property-information",
+  "space-separated-tokens",
+  "comma-separated-tokens",
+  "html-url-attributes",
+  "markdown-table",
+  "longest-streak",
+  "zwitch",
+  "ccount",
+  "trim-lines",
+  "devlop",
+  "bail",
+  "trough",
+  "style-to-js",
+  "style-to-object",
+  "inline-style-parser",
+  "stringify-entities",
+  "html-void-elements",
+  "web-namespaces",
+  "escape-string-regexp",
+  "is-plain-obj",
+];
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -30,6 +71,15 @@ export default defineConfig({
           if (id.includes("recharts")) return "charts";
           if (id.includes("react-router")) return "router";
           if (id.includes("@tanstack")) return "react-query";
+          /**
+           * 📦 markdown
+           * - 약관·개인정보 처리방침 페이지에서만 쓰는 마크다운 렌더러
+           * - vendor 에 섞이면 모든 화면이 이 용량을 함께 내려받는다.
+           *   두 페이지에서만 쓰므로 따로 떼어 필요할 때만 받게 한다.
+           */
+          if (MARKDOWN_PACKAGES.some((name) => id.includes(name))) {
+            return "markdown";
+          }
           /**
            * 📦 vendor
            * - 나머지 모든 외부 라이브러리
