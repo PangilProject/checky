@@ -98,3 +98,13 @@ export const monthlyStatsKeys = {
   byMonth: (userId: string, month: string) =>
     [...monthlyStatsKeys.all, userId, month] as const,
 };
+
+/**
+ * 공지 관련 쿼리 키
+ *
+ * 공지는 사용자별 데이터가 아니므로 userId 를 넣지 않는다.
+ * 사용자 화면과 관리자 화면이 같은 키를 써서 한쪽에서 바꾸면 다른 쪽도 갱신된다.
+ */
+export const noticeKeys = {
+  all: ["notices"] as const,
+};
