@@ -1,5 +1,5 @@
-import type { Task } from "@/shared/api/task";
-import { getCompletedTaskIdsByDate, getTasksByDateOnce } from "./queries";
+import { getTasksByDateOnce, type Task } from "@/shared/api/task";
+import { getCompletedTaskIdsByDate } from "./queries";
 
 /**
  * 미완료 태스크만 필터링합니다.
