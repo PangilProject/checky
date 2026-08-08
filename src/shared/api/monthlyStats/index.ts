@@ -8,6 +8,6 @@ export {
   patchMonthlyStatsByDayDeltas,
 } from "./queries";
 
-export { rebuildMonthlyStatsByMonth, buildMonthKeysBetween } from "./rebuild";
+export { recalculateMonthlyStatsByMonth, buildMonthKeysBetween } from "./recalculate";
 export { collectAffectedMonths } from "./helpers/collectAffectedMonths";
 export { refreshCalendarConsistency } from "./helpers/refreshCalendarConsistency";

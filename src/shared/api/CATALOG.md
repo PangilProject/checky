@@ -50,14 +50,14 @@
 
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
-| `buildMonthKeysBetween` | 두 날짜가 걸쳐 있는 달의 키 목록을 만든다. | `rebuild.ts` |
+| `buildMonthKeysBetween` | 두 날짜가 걸쳐 있는 달의 키 목록을 만든다. | `recalculate.ts` |
 | `collectAffectedMonths` | 바뀐 날짜들이 걸쳐 있는 달을 모은다. | `helpers/collectAffectedMonths.ts` |
 | `getMonthlyStatsByMonthOnce` | 한 달치 집계 문서를 읽는다. | `queries.ts` |
 | `MonthlyActivitySummary` | 하루치 요약. 그날 할 일과 루틴을 합쳐 전체·완료·남은 개수를 센다. | `types.ts` |
 | `MonthlyStats` | 한 달치 요약을 담는 문서. | `types.ts` |
 | `patchMonthlyStatsByDayDeltas` | 하루의 집계를 증감값만큼 조정한다. | `queries.ts` |
 | `patchMonthlyStatsCompletionByDay` | 하루의 완료 수만 고친다. | `queries.ts` |
-| `rebuildMonthlyStatsByMonth` | 원본 기록에서 한 달치 집계를 다시 계산해 덮어쓴다. | `rebuild.ts` |
+| `recalculateMonthlyStatsByMonth` | 원본 기록에서 한 달치 집계를 다시 계산해 덮어쓴다. | `recalculate.ts` |
 | `refreshCalendarConsistency` | 달력과 리포트가 실제 기록과 어긋나지 않게 맞춘다. | `helpers/refreshCalendarConsistency.ts` |
 | `replaceMonthlyStatsByMonth` | 한 달치를 통째로 바꾼다. | `queries.ts` |
 | `upsertMonthlyStatsByMonth` | 넘긴 날짜만 덮어쓰고 나머지 날짜는 그대로 둔다. | `queries.ts` |

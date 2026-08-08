@@ -10,7 +10,7 @@ import { toggleRoutineLog } from "@/shared/api/routineLog";
 import {
   collectAffectedMonths,
   patchMonthlyStatsCompletionByDay,
-  rebuildMonthlyStatsByMonth,
+  recalculateMonthlyStatsByMonth,
   type MonthlyStats,
 } from "@/shared/api/monthlyStats";
 
@@ -154,7 +154,7 @@ export function useRoutineToggle({
       const affectedMonths = collectAffectedMonths({ dates: [date] });
       await Promise.all(
         affectedMonths.map((month) =>
-          rebuildMonthlyStatsByMonth({
+          recalculateMonthlyStatsByMonth({
             userId,
             month,
           }),

@@ -10,7 +10,7 @@ import {
 import {
   collectAffectedMonths,
   getMonthlyStatsByMonthOnce,
-  rebuildMonthlyStatsByMonth,
+  recalculateMonthlyStatsByMonth,
   upsertMonthlyStatsByMonth,
 } from "@/shared/api/monthlyStats";
 import {
@@ -191,7 +191,7 @@ export const useMonthlyData = (date: Date) => {
       const months = collectAffectedMonths({ dates: [`${monthKey}-01`] });
       await Promise.all(
         months.map((month) =>
-          rebuildMonthlyStatsByMonth({
+          recalculateMonthlyStatsByMonth({
             userId,
             month,
           }),

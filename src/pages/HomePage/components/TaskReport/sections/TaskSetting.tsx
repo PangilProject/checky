@@ -11,7 +11,7 @@ import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
 import { moveDay } from "@/shared/hooks/dateNavigation";
 import {
   collectAffectedMonths,
-  rebuildMonthlyStatsByMonth,
+  recalculateMonthlyStatsByMonth,
   refreshCalendarConsistency,
 } from "@/shared/api/monthlyStats";
 
@@ -71,7 +71,7 @@ export function TaskSetting() {
         queryClient,
         userId: user.uid,
         affectedMonths: months,
-        rebuild: true,
+        recalculate: true,
         invalidateTasksByMonth: true,
       });
     }
@@ -118,10 +118,10 @@ export function TaskSetting() {
       }, "할 일을 오늘로 옮기지 못했습니다. 잠시 후 다시 시도해 주세요.");
     }
 
-    if (action === "rebuild-monthly-stats") {
+    if (action === "recalculate-monthly-stats") {
       const monthKey = getMonthKey(dateString);
       await runBulkAction(async () => {
-        await rebuildMonthlyStatsByMonth({
+        await recalculateMonthlyStatsByMonth({
           userId: user.uid,
           month: monthKey,
         });

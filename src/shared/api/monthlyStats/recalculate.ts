@@ -5,6 +5,19 @@ import { getTaskLogsByMonthOnce } from "@/shared/api/taskLog/queries";
 import { replaceMonthlyStatsByMonth } from "./queries";
 import type { MonthlyActivitySummary } from "./types";
 
+/**
+ * 원본 기록에서 월간 요약을 처음부터 다시 센다.
+ *
+ * 평상시에는 할 일을 더하거나 체크할 때마다 요약을 조금씩 고쳐 나간다(queries.ts 의 patch 계열).
+ * 그 방식은 싸지만, 중간에 실패하거나 순서가 꼬이면 요약과 실제 기록이 어긋난다.
+ * 이 파일은 어긋났을 때 원본을 전부 읽어 요약을 새로 만들어 덮어쓰는 쪽을 맡는다.
+ *
+ * 세는 규칙은 하나다. **그날 해야 했던 것이 전체, 그중 체크된 것이 완료다.**
+ * 할 일은 문서가 곧 하루치지만, 루틴은 문서 하나가 여러 날에 걸치므로 날짜별로 펼쳐서 세야 한다.
+ */
+
+// 아래 타입들은 세는 데 필요한 필드만 추린 것이다.
+// 도메인 타입을 그대로 쓰면 여기서 안 쓰는 필드까지 따라와 무엇을 보고 세는지 흐려진다.
 type MonthlyTask = { id: string; date: string };
 type MonthlyTaskLog = { taskId: string; date: string; completed: boolean };
 type MonthlyRoutine = {
@@ -16,6 +29,15 @@ type MonthlyRoutine = {
 };
 type MonthlyRoutineLog = { routineId: string; date: string; done: boolean };
 
+/**
+ * 한 달치 기록을 날짜별 개수로 센다.
+ *
+ * 반환값은 `YYYY-MM-DD` -> { total, completed, remaining } 형태의 Map 이다.
+ *
+ * 순서가 중요하다. 먼저 "해야 했던 것"을 세어 total 을 채우면서 유효한 조합을 기록해 두고,
+ * 그다음 기록을 훑으며 그 조합에 해당하는 것만 completed 로 센다.
+ * 이렇게 해야 지워진 할 일이나 더 이상 반복하지 않는 요일의 기록이 완료로 잡히지 않는다.
+ */
 const buildMonthlyActivityCountMap = ({
   date,
   tasks,
@@ -29,10 +51,16 @@ const buildMonthlyActivityCountMap = ({
   routines: MonthlyRoutine[];
   routineLogs: MonthlyRoutineLog[];
 }) => {
+  // 날짜 -> 그날의 개수
   const next = new Map<string, { total: number; completed: number; remaining: number }>();
+
+  // "이 날짜에 이 항목이 실제로 있었다"를 기록해 두는 집합.
+  // 기록(로그)은 항목이 지워지거나 반복 요일이 바뀐 뒤에도 남아 있을 수 있어서,
+  // 완료를 셀 때 이 집합에 있는 것만 인정한다.
   const validTaskKeySet = new Set<string>();
   const validRoutineKeySet = new Set<string>();
 
+  /** 해당 날짜 칸이 없으면 0으로 만들어 두고 돌려준다 */
   const ensure = (dateKey: string) => {
     if (!next.has(dateKey)) {
       next.set(dateKey, { total: 0, completed: 0, remaining: 0 });
@@ -40,6 +68,13 @@ const buildMonthlyActivityCountMap = ({
     return next.get(dateKey)!;
   };
 
+  /**
+   * 그날 적용되던 반복 요일을 찾는다.
+   *
+   * 이력은 시간순으로 정렬돼 있으므로 뒤에서부터 훑어, 그날보다 앞선 첫 항목을 쓴다.
+   * 요일을 바꾸기 전 날짜에는 예전 요일이 그대로 적용돼, 지난 기록이 틀어지지 않는다.
+   * 시작일보다 앞선 날짜는 해당하는 이력이 없으므로 빈 배열이 되어 아무 날도 세지 않는다.
+   */
   const getRepeatDaysByDate = ({
     history,
     date,
@@ -54,13 +89,18 @@ const buildMonthlyActivityCountMap = ({
     return [];
   };
 
+  // 할 일은 문서 하나가 곧 하루치라 그대로 센다
   tasks.forEach(({ id, date: dateKey }) => {
     ensure(dateKey).total += 1;
     validTaskKeySet.add(`${id}_${dateKey}`);
   });
 
+  // 루틴은 문서 하나가 여러 날에 걸치므로, 그달 1일부터 말일까지 훑으며
+  // 실제로 해야 했던 날만 골라 하루치로 펼쳐 센다.
   routines.forEach((routine) => {
     const { id, startDate, endDate } = routine;
+    // scheduleHistory 가 생기기 전에 만들어진 루틴은 이력이 없으므로,
+    // 시작일부터 현재 요일이 계속 적용됐다고 보고 한 건짜리 이력을 만들어 쓴다.
     const history =
       routine.scheduleHistory && routine.scheduleHistory.length > 0
         ? [...routine.scheduleHistory].sort((a, b) =>
@@ -78,6 +118,7 @@ const buildMonthlyActivityCountMap = ({
         d
       ).padStart(2, "0")}`;
 
+      // 루틴이 살아 있던 기간 밖은 건너뛴다. endDate 가 없으면 끝나지 않은 루틴이다.
       const isAfterStart = dateStr >= startDate;
       const isBeforeEnd = !endDate || dateStr <= endDate;
       if (!isAfterStart || !isBeforeEnd) continue;
@@ -90,6 +131,8 @@ const buildMonthlyActivityCountMap = ({
     }
   });
 
+  // 완료를 센다. 체크 안 된 기록, 그달 밖 기록, 그리고 위에서 세지 않은 조합은 제외한다.
+  // 마지막 조건이 없으면 지워진 할 일의 기록이 완료로 잡혀 완료가 전체보다 많아질 수 있다.
   taskLogs.forEach(({ taskId, date: dateKey, completed }) => {
     if (!completed) return;
     if (!next.has(dateKey)) return;
@@ -97,6 +140,8 @@ const buildMonthlyActivityCountMap = ({
     ensure(dateKey).completed += 1;
   });
 
+  // 루틴도 같은 규칙이다. 반복 요일을 바꾸기 전에 남긴 기록이
+  // 이제는 해당하지 않는 날짜라면 완료로 세지 않는다.
   routineLogs.forEach(({ routineId, date: dateKey, done }) => {
     if (!done) return;
     if (!next.has(dateKey)) return;
@@ -104,6 +149,8 @@ const buildMonthlyActivityCountMap = ({
     ensure(dateKey).completed += 1;
   });
 
+  // 남은 개수는 따로 세지 않고 전체에서 완료를 뺀다.
+  // 위 필터 덕분에 음수가 날 일은 없지만, 어긋난 데이터가 들어와도 0 아래로는 가지 않게 막는다.
   next.forEach((value) => {
     value.remaining = Math.max(value.total - value.completed, 0);
   });
@@ -111,6 +158,13 @@ const buildMonthlyActivityCountMap = ({
   return next;
 };
 
+/**
+ * 날짜별 Map 을 monthlyStats 문서에 넣을 형태로 바꾼다.
+ *
+ * 문서가 이미 월 단위로 나뉘어 있어 키에 연·월을 되풀이할 필요가 없으므로,
+ * `2026-08-15` 대신 `15` 를 키로 쓴다.
+ * 다른 달 날짜가 섞여 들어오면 걸러 낸다.
+ */
 const convertToMonthlyStatsDays = ({
   monthKey,
   map,
@@ -140,7 +194,7 @@ const convertToMonthlyStatsDays = ({
  * 증감 반영이 어긋나 집계가 실제와 달라졌을 때 되돌리는 용도이며,
  * 평상시 갱신에는 patch 계열을 쓴다.
  */
-export const rebuildMonthlyStatsByMonth = async ({
+export const recalculateMonthlyStatsByMonth = async ({
   userId,
   month,
 }: {

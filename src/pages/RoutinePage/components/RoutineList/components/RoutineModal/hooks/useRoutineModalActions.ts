@@ -51,7 +51,7 @@ const refreshAffectedData = async ({ userId, affectedMonths, queryClient }: { us
     queryClient,
     userId,
     affectedMonths: months,
-    rebuild: true,
+    recalculate: true,
   });
   await queryClient.invalidateQueries({
     queryKey: routinePageKeys.detail(userId),

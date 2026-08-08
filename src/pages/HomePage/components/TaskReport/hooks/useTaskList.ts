@@ -17,7 +17,7 @@ import {
   collectAffectedMonths,
   patchMonthlyStatsCompletionByDay,
   patchMonthlyStatsByDayDeltas,
-  rebuildMonthlyStatsByMonth,
+  recalculateMonthlyStatsByMonth,
   type MonthlyStats,
 } from "@/shared/api/monthlyStats";
 import {
@@ -349,7 +349,7 @@ export const useTaskList = ({
       const affectedMonths = collectAffectedMonths({ dates: [dateString] });
       await Promise.all(
         affectedMonths.map((month) =>
-          rebuildMonthlyStatsByMonth({
+          recalculateMonthlyStatsByMonth({
             userId,
             month,
           }),

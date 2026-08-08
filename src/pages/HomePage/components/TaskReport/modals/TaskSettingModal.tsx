@@ -84,7 +84,7 @@ const ActionItem = ({ text, icon, isSelected, onClick }: ActionItemProps) => {
     delete: <FaRegTimesCircle size={20} />,
     copy: <FaPlusCircle size={20} className="text-[#0088FF]" />,
     "delete-all": <FaRegTimesCircle size={20} className="text-[#FF393C]" />,
-    "rebuild-monthly-stats": <FaRedoAlt size={20} className="text-[#2E6BFF]" />,
+    "recalculate-monthly-stats": <FaRedoAlt size={20} className="text-[#2E6BFF]" />,
   };
 
   return (
