@@ -20,6 +20,7 @@ const DOMAIN_NOTE = {
   routineLog: "루틴 수행 기록",
   monthlyStats: "월간 집계 캐시",
   taskSetting: "할 일 설정 화면의 복합 동작",
+  notice: "공지 (사용자별이 아닌 최상위 컬렉션)",
   auth: "로그인, 프로필, 계정 삭제",
   _common: "도메인 공통 유틸",
 };
@@ -35,7 +36,11 @@ const listTsFiles = (dir) =>
 const summaryFromDoc = (block) => {
   if (!block) return "";
   for (const raw of block.split("\n")) {
-    const line = raw.replace(/^\s*\/?\*+\/?/, "").trim();
+    // 여는 `/**` 와 줄머리 `*` 를 떼고, 한 줄 주석이면 닫는 `*/` 까지 뗀다
+    const line = raw
+      .replace(/^\s*\/?\*+/, "")
+      .replace(/\*\/\s*$/, "")
+      .trim();
     if (!line || line.startsWith("@")) continue;
     return line;
   }
