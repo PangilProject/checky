@@ -12,7 +12,6 @@ import { moveDay } from "@/shared/hooks/dateNavigation";
 import {
   collectAffectedMonths,
   recalculateMonthlyStatsByMonth,
-  refreshCalendarConsistency,
 } from "@/shared/api/monthlyStats";
 
 import {
@@ -45,6 +44,9 @@ export function TaskSetting() {
 
   const getMonthKey = (date: string) => date.slice(0, 7);
 
+  // 일괄 작업의 집계 반영은 actions.ts 의 증분 패치가 이미 끝냈다.
+  // 여기서는 화면이 새 상태를 읽어 오도록 바뀐 날짜·달의 캐시만 정밀하게 비운다.
+  // 원본 전체 재계산은 어긋났을 때의 복구 수단("월간 통계 재생성" 메뉴)으로만 쓴다.
   const invalidateTaskCaches = async (dates: string[]) => {
     const uniqueDates = Array.from(new Set(dates));
     const months = collectAffectedMonths({ dates: uniqueDates });
@@ -65,18 +67,6 @@ export function TaskSetting() {
         }),
       ),
     ]);
-
-    if (user?.uid) {
-      await refreshCalendarConsistency({
-        queryClient,
-        userId: user.uid,
-        affectedMonths: months,
-        recalculate: true,
-        // 일괄 작업은 할 일만 바꾸므로 task 몫만 다시 세고, 루틴 몫은 기존 집계를 쓴다.
-        recalculateScope: "task",
-        invalidateTasksByMonth: true,
-      });
-    }
   };
 
   /**

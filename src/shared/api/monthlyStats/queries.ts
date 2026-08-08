@@ -237,6 +237,11 @@ export const patchMonthlyStatsCompletionByDay = async ({
  * 읽고 더한 뒤 쓰는 동작을 트랜잭션으로 묶는다. 묶지 않으면 할 일을 빠르게 연달아 추가할 때
  * 뒤 요청이 앞 요청의 결과를 읽기 전에 계산해, 두 개를 넣었는데 전체가 하나만 늘어난다.
  *
+ * 집계 문서가 아직 없으면 아무것도 하지 않는다(완료 패치와 같은 규칙).
+ * 여기서 그날 하나짜리 문서를 만들면 달력이 문서가 있다고 보고 원본 계산을 건너뛰어,
+ * 그 달의 다른 활동이 통째로 사라져 보인다. 문서 없는 달은 달력이 열릴 때
+ * 원본에서 완전하게 계산해 만드는 쪽이 맞다.
+ *
  * 음수로 내려가지 않게 0 에서 막고, 완료·잔여가 전체를 넘지 않도록 잘라 낸다.
  * 세 증감이 모두 0 이면 아무것도 하지 않는다.
  */
@@ -261,9 +266,11 @@ export const patchMonthlyStatsByDayDeltas = async ({
 
   await runTransaction(db, async (transaction) => {
     const snap = await transaction.get(ref);
-    const data = (snap.exists() ? snap.data() : null) as MonthlyStats | null;
-    const current = data?.days?.[day];
-    const version = data?.version ?? 1;
+    if (!snap.exists()) return;
+
+    const data = snap.data() as MonthlyStats;
+    const current = data.days?.[day];
+    const version = data.version ?? 1;
 
     if (version >= MONTHLY_STATS_SPLIT_VERSION) {
       // 몫이 나뉜 문서에 없는 날짜는 그날 활동이 없었다는 뜻이므로,
