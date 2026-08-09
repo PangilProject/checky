@@ -93,17 +93,20 @@ export const formatHmLabel = (value: string) => {
 };
 
 /**
- * Timestamp -> ko-KR 날짜 문자열
+ * Timestamp 또는 Date -> ko-KR 날짜 문자열
+ *
+ * mapDoc 을 거친 문서는 Date 로, 거치지 않은 원본은 Timestamp 로 올 수 있어
+ * 둘 다 받는다.
  *
  * @example
  * undefined -> ""
  * Timestamp(2026-03-19) -> "2026. 03. 19."
  */
 export const formatTimestampToKoreanDate = (
-  timestamp?: Timestamp | null,
+  value?: Timestamp | Date | null,
 ) => {
-  if (!timestamp) return "";
-  const date = timestamp.toDate();
+  if (!value) return "";
+  const date = value instanceof Date ? value : value.toDate();
   return date.toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "2-digit",

@@ -21,8 +21,9 @@ export interface Routine {
   orderIndex: number;
   startDate: string;
   endDate?: string;
+  // 읽기는 mapDoc 을 거치므로 Date 다. 저장 시에는 serverTimestamp() 를 쓴다.
   createdAt?: Date;
-  updatedAt?: Date | { toDate: () => Date };
+  updatedAt?: Date;
 }
 
 /** 한 분류와 그 분류에 속한 루틴들. 루틴 화면이 분류별로 묶어 보여줄 때 쓴다. */

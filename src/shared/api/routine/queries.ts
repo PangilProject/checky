@@ -1,5 +1,6 @@
 import { getDocs, query, where } from "firebase/firestore/lite";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
+import { mapDoc } from "@/shared/api/_common/mappers";
 import { formatDateLikeToYmd } from "@/shared/hooks/formatDate";
 import { routineLogsRef, routinesRef } from "./refs";
 import type { Routine, RoutineScheduleHistoryItem } from "./types";
@@ -27,9 +28,7 @@ export type RoutineLogMonthly = { routineId: string; date: string; done: boolean
 export const getRoutinesOnce = async (userId: string): Promise<Routine[]> => {
   const perf = baselineFetch("routines/fetch/all", { userId });
   const snap = await getDocs(routinesRef(userId));
-  const routines = snap.docs.map(
-    (doc) => ({ id: doc.id, ...doc.data() }) as Routine
-  );
+  const routines = snap.docs.map((doc) => mapDoc<Routine>(doc));
   perf.end({ count: routines.length });
   return routines;
 };
