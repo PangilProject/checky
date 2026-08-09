@@ -49,7 +49,9 @@ export const DatePicker = ({
   const panelRef = useRef<HTMLDivElement>(null);
 
   const selectedDate = useMemo(() => parseYmd(value), [value]);
-  const todayYmd = useMemo(() => formatDateToYmd(new Date()), []);
+  // memo 하지 않는다. 빈 deps 로 고정하면 자정을 넘긴 세션에서
+  // 어제에 "오늘" 링이 계속 그려진다. 문자열 하나 만드는 값싼 연산이다.
+  const todayYmd = formatDateToYmd(new Date());
 
   // 팝오버에 표시 중인 기준 월 (선택 값이 없으면 오늘 기준)
   const [viewDate, setViewDate] = useState(() => selectedDate ?? new Date());
