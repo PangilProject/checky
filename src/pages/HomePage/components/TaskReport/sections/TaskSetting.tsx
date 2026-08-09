@@ -72,13 +72,22 @@ export function TaskSetting() {
   /**
    * 일괄 작업 공통 실행기.
    * 실패 시 조용히 끝나지 않도록 사용자에게 알리고, 모달은 열린 채로 둔다.
+   *
+   * 대상이 없을 때도 알린다. 옮기거나 지울 할 일이 없으면 API 는 아무 일도 하지
+   * 않고 끝나는데, 그대로 두면 확인을 눌러도 화면이 그대로여서 고장으로 보인다.
+   * emptyMessage 를 넘긴 작업은 처리 건수가 0일 때 그 이유를 알려 준다.
    */
   const runBulkAction = async (
-    action: () => Promise<void>,
-    failMessage: string
+    action: () => Promise<number | void>,
+    failMessage: string,
+    emptyMessage?: string
   ) => {
     try {
-      await action();
+      const affected = await action();
+      if (emptyMessage && affected === 0) {
+        toast.info(emptyMessage);
+        return;
+      }
       setPendingAction(null);
     } catch {
       toast.error(failMessage);
@@ -100,14 +109,21 @@ export function TaskSetting() {
     }
 
     if (action === "today") {
-      await runBulkAction(async () => {
-        await moveUncompletedTasksToDate({
-          userId: user.uid,
-          fromDate: dateString,
-          toDate: todayString,
-        });
-        await invalidateTaskCaches([dateString, todayString]);
-      }, "할 일을 오늘로 옮기지 못했습니다. 잠시 후 다시 시도해 주세요.");
+      await runBulkAction(
+        async () => {
+          const moved = await moveUncompletedTasksToDate({
+            userId: user.uid,
+            fromDate: dateString,
+            toDate: todayString,
+          });
+          await invalidateTaskCaches([dateString, todayString]);
+          return moved;
+        },
+        "할 일을 오늘로 옮기지 못했습니다. 잠시 후 다시 시도해 주세요.",
+        dateString === todayString
+          ? "이미 오늘 목록입니다."
+          : "옮길 미완료 할 일이 없습니다."
+      );
     }
 
     if (action === "recalculate-monthly-stats") {
@@ -151,14 +167,19 @@ export function TaskSetting() {
           onClose={() => setPendingAction(null)}
           onConfirm={async (date) => {
             if (!user) return;
-            await runBulkAction(async () => {
-              await moveUncompletedTasksToDate({
-                userId: user.uid,
-                fromDate: dateString,
-                toDate: formatDateToYmd(date),
-              });
-              await invalidateTaskCaches([dateString, formatDateToYmd(date)]);
-            }, "할 일 이동에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+            await runBulkAction(
+              async () => {
+                const moved = await moveUncompletedTasksToDate({
+                  userId: user.uid,
+                  fromDate: dateString,
+                  toDate: formatDateToYmd(date),
+                });
+                await invalidateTaskCaches([dateString, formatDateToYmd(date)]);
+                return moved;
+              },
+              "할 일 이동에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+              "옮길 미완료 할 일이 없습니다."
+            );
           }}
         />
       )}
@@ -171,14 +192,19 @@ export function TaskSetting() {
           onClose={() => setPendingAction(null)}
           onConfirm={async (date) => {
             if (!user) return;
-            await runBulkAction(async () => {
-              await copyAllTasksToDate({
-                userId: user.uid,
-                fromDate: dateString,
-                toDate: formatDateToYmd(date),
-              });
-              await invalidateTaskCaches([formatDateToYmd(date)]);
-            }, "할 일 복사에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+            await runBulkAction(
+              async () => {
+                const copied = await copyAllTasksToDate({
+                  userId: user.uid,
+                  fromDate: dateString,
+                  toDate: formatDateToYmd(date),
+                });
+                await invalidateTaskCaches([formatDateToYmd(date)]);
+                return copied;
+              },
+              "할 일 복사에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+              "복사할 할 일이 없습니다."
+            );
           }}
         />
       )}
@@ -191,13 +217,18 @@ export function TaskSetting() {
           onClose={() => setPendingAction(null)}
           onConfirm={async () => {
             if (!user) return;
-            await runBulkAction(async () => {
-              await deleteUncompletedTasks({
-                userId: user.uid,
-                date: dateString,
-              });
-              await invalidateTaskCaches([dateString]);
-            }, "할 일 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+            await runBulkAction(
+              async () => {
+                const removed = await deleteUncompletedTasks({
+                  userId: user.uid,
+                  date: dateString,
+                });
+                await invalidateTaskCaches([dateString]);
+                return removed;
+              },
+              "할 일 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+              "삭제할 미완료 할 일이 없습니다."
+            );
           }}
         />
       )}
@@ -212,13 +243,18 @@ export function TaskSetting() {
           onClose={() => setPendingAction(null)}
           onConfirm={async () => {
             if (!user) return;
-            await runBulkAction(async () => {
-              await deleteAllTasksByDate({
-                userId: user.uid,
-                date: dateString,
-              });
-              await invalidateTaskCaches([dateString]);
-            }, "할 일 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+            await runBulkAction(
+              async () => {
+                const removed = await deleteAllTasksByDate({
+                  userId: user.uid,
+                  date: dateString,
+                });
+                await invalidateTaskCaches([dateString]);
+                return removed;
+              },
+              "할 일 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+              "삭제할 할 일이 없습니다."
+            );
           }}
         />
       )}

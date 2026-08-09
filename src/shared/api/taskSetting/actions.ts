@@ -116,7 +116,7 @@ export const moveUncompletedTasksToToday = async ({
 
   // 같은 날짜로 옮기는 것은 아무 뜻이 없다. 쓰기도 하지 않는다.
   // 순서 값을 다시 매기는 쪽이 원본과 대상을 같은 날짜로 보게 되어 값만 밀린다.
-  if (targets.length === 0 || fromDate === toDate) return;
+  if (targets.length === 0 || fromDate === toDate) return 0;
 
   await updateTasksDate({ userId, tasks: targets, toDate });
 
@@ -138,6 +138,8 @@ export const moveUncompletedTasksToToday = async ({
       remainingDelta: movedCount,
     }),
   ]);
+
+  return movedCount;
 };
 
 /**
@@ -159,7 +161,7 @@ export const moveUncompletedTasksToDate = async ({
 
   // 같은 날짜로 옮기는 것은 아무 뜻이 없다. 쓰기도 하지 않는다.
   // 순서 값을 다시 매기는 쪽이 원본과 대상을 같은 날짜로 보게 되어 값만 밀린다.
-  if (targets.length === 0 || fromDate === toDate) return;
+  if (targets.length === 0 || fromDate === toDate) return 0;
 
   await updateTasksDate({ userId, tasks: targets, toDate });
 
@@ -181,6 +183,8 @@ export const moveUncompletedTasksToDate = async ({
       remainingDelta: movedCount,
     }),
   ]);
+
+  return movedCount;
 };
 
 /**
@@ -202,7 +206,7 @@ export const deleteUncompletedTasks = async ({
 
   // 지울 것이 없으면 빈 배치 커밋도 하지 않는다. 빈 커밋도 네트워크 왕복이다.
   const removedCount = targets.length;
-  if (!removedCount) return;
+  if (!removedCount) return 0;
 
   const batch = writeBatch(db);
 
@@ -228,6 +232,8 @@ export const deleteUncompletedTasks = async ({
     completedDelta: 0,
     remainingDelta: -removedCount,
   });
+
+  return removedCount;
 };
 
 /**
@@ -248,7 +254,7 @@ export const copyAllTasksToDate = async ({
   ]);
 
   // 복사할 것이 없으면 빈 배치 커밋도 하지 않는다. 빈 커밋도 네트워크 왕복이다.
-  if (!tasks.length) return;
+  if (!tasks.length) return 0;
 
   const allocateOrderIndex = createOrderIndexAllocator(existingTasks);
   const batch = writeBatch(db);
@@ -271,7 +277,6 @@ export const copyAllTasksToDate = async ({
   await batch.commit();
 
   const copiedCount = tasks.length;
-  if (!copiedCount) return;
 
   await patchDayStats({
     userId,
@@ -280,6 +285,8 @@ export const copyAllTasksToDate = async ({
     completedDelta: 0,
     remainingDelta: copiedCount,
   });
+
+  return copiedCount;
 };
 
 /**
@@ -299,7 +306,7 @@ export const deleteAllTasksByDate = async ({
   });
 
   // 지울 것이 없으면 빈 배치 커밋도 하지 않는다. 빈 커밋도 네트워크 왕복이다.
-  if (!tasks.length && !taskLogs.length) return;
+  if (!tasks.length && !taskLogs.length) return 0;
 
   const batch = writeBatch(db);
 
@@ -325,4 +332,6 @@ export const deleteAllTasksByDate = async ({
     completedDelta: -completedCount,
     remainingDelta: -uncompletedCount,
   });
+
+  return tasks.length;
 };
