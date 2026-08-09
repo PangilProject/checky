@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Text2, Text3 } from "@/shared/ui/Text";
 import { Space10, Space2, Space8 } from "@/shared/ui/Space";
 import { ModalWrapper } from "@/shared/ui/Modal";
@@ -14,7 +14,6 @@ interface Props {
 }
 
 const ACTIVE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
-const NOW_TIME = Date.now();
 
 /* ======================
    Utils
@@ -58,10 +57,13 @@ function InfoRow({
 ====================== */
 
 export default function UserDetailModal({ user, onClose }: Props) {
+  // 기준 시각은 모달을 열 때마다 계산한다. 모듈 스코프에 고정하면
+  // 탭을 열어 둔 만큼 활성 판정과 "N일 전" 표기가 밀린다.
+  const [nowTime] = useState(() => Date.now());
+
   // 활성 여부는 실사용을 나타내는 마지막 접속 기준으로 판단한다
   const isActive =
-    user.lastActiveAt &&
-    user.lastActiveAt.getTime() >= NOW_TIME - ACTIVE_WINDOW_MS;
+    user.lastActiveAt && user.lastActiveAt.getTime() >= nowTime - ACTIVE_WINDOW_MS;
 
   return (
     <ModalWrapper onClose={onClose}>
@@ -114,7 +116,7 @@ export default function UserDetailModal({ user, onClose }: Props) {
           icon={<FiClock />}
           text={`최근 접속: ${
             user.lastActiveAt
-              ? `${diffDays(user.lastActiveAt, NOW_TIME)}일 전`
+              ? `${diffDays(user.lastActiveAt, nowTime)}일 전`
               : "기록 없음"
           }`}
           muted

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AdminUser } from "../hooks/useAdminUsers";
 import UserRow from "./UserRow";
 import UserDetailModal from "./UserDetailModal";
@@ -16,17 +16,18 @@ interface Props {
 }
 
 const STATUS_CONDITION = 3; // 3일 기준
-const NOW_TIME = Date.now();
-const ACTIVE_THRESHOLD_TIME =
-  NOW_TIME - STATUS_CONDITION * 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
  * 활성 여부는 마지막 접속 기준으로 판단한다.
  * 마지막 로그인은 구글 인증을 다시 수행할 때만 갱신되므로,
  * 세션이 유지되는 동안 계속 사용하는 사용자가 비활성으로 잡힌다.
  */
-const isActiveUser = (user: AdminUser) =>
-  Boolean(user.lastActiveAt && user.lastActiveAt.getTime() >= ACTIVE_THRESHOLD_TIME);
+const isActiveUser = (user: AdminUser, nowTime: number) =>
+  Boolean(
+    user.lastActiveAt &&
+      user.lastActiveAt.getTime() >= nowTime - STATUS_CONDITION * DAY_MS
+  );
 
 /** 컬럼을 처음 눌렀을 때의 정렬 방향. 날짜와 상태는 최신·활성이 먼저 보이는 게 유용하다. */
 const DEFAULT_SORT_ORDER: Record<SortKey, SortOrder> = {
@@ -40,7 +41,8 @@ const DEFAULT_SORT_ORDER: Record<SortKey, SortOrder> = {
 /** 정렬 기준값. 값이 없으면 null 을 반환해 항상 뒤로 보낸다. */
 const getSortValue = (
   user: AdminUser,
-  key: SortKey
+  key: SortKey,
+  nowTime: number
 ): string | number | null => {
   switch (key) {
     case "name":
@@ -52,7 +54,7 @@ const getSortValue = (
     case "lastActiveAt":
       return user.lastActiveAt?.getTime() ?? null;
     case "status":
-      return isActiveUser(user) ? 1 : 0;
+      return isActiveUser(user, nowTime) ? 1 : 0;
   }
 };
 
@@ -63,6 +65,16 @@ const compareValues = (a: string | number, b: string | number) =>
 
 function UserTable({ users }: Props) {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+
+  // 활성 판정의 기준 시각. 모듈 스코프에 고정하면 탭을 열어 둔 만큼
+  // "3일 내 활성" 판정이 통째로 밀리므로, 마운트 시점에 잡고
+  // 오래 열어 둔 탭을 위해 주기적으로 갱신한다. 판정 단위가 '일'이라
+  // 한 시간 간격이면 충분하다.
+  const [nowTime, setNowTime] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNowTime(Date.now()), 60 * 60 * 1000);
+    return () => window.clearInterval(id);
+  }, []);
   // 실사용 파악이 목적이므로 최근 접속한 사용자가 먼저 보이도록 한다
   const [sortKey, setSortKey] = useState<SortKey>("lastActiveAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -78,8 +90,8 @@ function UserTable({ users }: Props) {
 
   const sortedUsers = useMemo(() => {
     return [...users].sort((a, b) => {
-      const aValue = getSortValue(a, sortKey);
-      const bValue = getSortValue(b, sortKey);
+      const aValue = getSortValue(a, sortKey, nowTime);
+      const bValue = getSortValue(b, sortKey, nowTime);
 
       // 기록이 없는 사용자는 정렬 방향과 무관하게 항상 뒤로 보낸다.
       // 최신순 정렬에서 기록 없는 사용자가 맨 위로 올라오면 목록이 무의미해진다.
@@ -90,7 +102,7 @@ function UserTable({ users }: Props) {
       const diff = compareValues(aValue, bValue);
       return sortOrder === "asc" ? diff : -diff;
     });
-  }, [users, sortKey, sortOrder]);
+  }, [users, sortKey, sortOrder, nowTime]);
 
   const renderHeader = (label: string, key: SortKey) => {
     const isActive = sortKey === key;
@@ -151,7 +163,7 @@ function UserTable({ users }: Props) {
               <UserRow
                 key={user.id}
                 user={user}
-                isActive={isActiveUser(user)}
+                isActive={isActiveUser(user, nowTime)}
                 onClick={() => setSelectedUser(user)}
               />
             ))}
