@@ -2,6 +2,7 @@ import {
   addDoc,
   deleteField,
   getDocs,
+  limit,
   orderBy,
   query,
   serverTimestamp,
@@ -10,37 +11,13 @@ import {
   deleteDoc,
 } from "firebase/firestore/lite";
 import { routineRef, routinesRef } from "./refs";
-import { mapDoc } from "@/shared/api/_common/mappers";
-import type { Routine, RoutineScheduleHistoryItem } from "./types";
-
-/**
- * 한 분류에 속한 루틴을 순서대로 읽는다.
- *
- * routines(categoryId, orderIndex) 복합 인덱스가 필요하다.
- * 결과가 없으면 빈 배열이며 예외를 던지지 않는다.
- */
-export const getRoutinesByCategory = async ({
-  userId,
-  categoryId,
-}: {
-  userId: string;
-  categoryId: string;
-}): Promise<Routine[]> => {
-  const q = query(
-    routinesRef(userId),
-    where("categoryId", "==", categoryId),
-    orderBy("orderIndex", "asc")
-  );
-
-  const snapshot = await getDocs(q);
-
-  return snapshot.docs.map((doc) => mapDoc<Routine>(doc));
-};
+import type { RoutineScheduleHistoryItem } from "./types";
 
 /**
  * 루틴을 만든다.
  *
- * 같은 분류의 루틴을 먼저 읽어 가장 큰 순서 값 뒤에 놓는다.
+ * 같은 분류에서 순서 값이 가장 큰 루틴 하나만 읽어 그 뒤에 놓는다.
+ * routines(categoryId, orderIndex DESC) 복합 인덱스가 필요하다.
  * 개수를 세면 안 된다. 루틴을 하나 지우면 개수가 줄어들어
  * 이미 그 번호를 쓰고 있는 루틴과 값이 겹치고, 새 루틴이 목록 가운데 끼어든다.
  *
@@ -65,14 +42,17 @@ export const createRoutine = async ({
   const routinesCollection = routinesRef(userId);
 
   const snap = await getDocs(
-    query(routinesCollection, where("categoryId", "==", categoryId))
+    query(
+      routinesCollection,
+      where("categoryId", "==", categoryId),
+      orderBy("orderIndex", "desc"),
+      limit(1)
+    )
   );
 
-  const orderIndexes = snap.docs
-    .map((docSnap) => docSnap.data().orderIndex)
-    .filter((value): value is number => typeof value === "number");
+  const maxOrderIndex = snap.docs[0]?.data().orderIndex;
   const orderIndex =
-    orderIndexes.length === 0 ? 0 : Math.max(...orderIndexes) + 1;
+    typeof maxOrderIndex === "number" ? maxOrderIndex + 1 : 0;
 
   await addDoc(routinesCollection, {
     title,

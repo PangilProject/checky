@@ -7,7 +7,7 @@ export type {
   RoutineReportWeek,
 } from "./types";
 
-export { getRoutinesByCategory, createRoutine, updateRoutine, deleteRoutine } from "./crud";
+export { createRoutine, updateRoutine, deleteRoutine } from "./crud";
 export { getRoutineReportByWeek } from "./report";
-export { updateRoutineOrder, migrateRoutineOrderIndex } from "./order";
-export { getRoutinesByMonthOnce, getRoutineLogsByMonthOnce } from "./queries";
+export { updateRoutineOrder } from "./order";
+export { getRoutinesOnce, getRoutinesByMonthOnce, getRoutineLogsByMonthOnce } from "./queries";

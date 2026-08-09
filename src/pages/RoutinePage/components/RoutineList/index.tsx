@@ -1,12 +1,9 @@
 import { useAuth } from "@/shared/hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRoutineData } from "./hooks/useRoutineData";
 import { useRoutineDnD } from "./hooks/useRoutineDnD";
 import { useRoutineModal } from "./hooks/useRoutineModal";
-import {
-  migrateRoutineOrderIndex,
-  type RoutineCategory,
-} from "@/shared/api/routine";
+import { type RoutineCategory } from "@/shared/api/routine";
 import { RoutineListSkeleton } from "./components/RoutineListSkeleton";
 import EmptyRoutineList from "./components/EmptyRoutineList";
 import { RoutineCategorySection } from "./components/RoutineCategorySection";
@@ -29,16 +26,6 @@ export const RoutineList = () => {
   const { data, isError, refetch } = useRoutineData(userId, !!user);
   const { handleDragEnd } = useRoutineDnD(userId, setRoutineCategories);
   const modal = useRoutineModal();
-
-  /**
-   * hook: 기존 루틴 데이터에 orderIndex가 없는 경우 초기 정렬값을 세팅
-   * 드래그 앤 드롭 정렬 기능 도입 이후, 데이터 정합성을 맞추기 위한 마이그레이션
-   * 사용자 로그인 시 한 번만 실행
-   */
-  useEffect(() => {
-    if (!user) return;
-    migrateRoutineOrderIndex(user.uid);
-  }, [user]);
 
   /**
    * 서버에서 가져온 루틴 데이터를 로컬 상태로 동기화

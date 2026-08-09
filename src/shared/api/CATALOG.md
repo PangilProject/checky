@@ -82,9 +82,8 @@
 | `deleteRoutine` | 루틴 문서를 지운다. | `crud.ts` |
 | `getRoutineLogsByMonthOnce` | 그달의 루틴 수행 기록을 읽는다. | `queries.ts` |
 | `getRoutineReportByWeek` | 한 주 동안의 루틴 수행 현황을 표 형태로 만든다. | `report.ts` |
-| `getRoutinesByCategory` | 한 분류에 속한 루틴을 순서대로 읽는다. | `crud.ts` |
 | `getRoutinesByMonthOnce` | 그달에 걸쳐 있는 루틴을 읽는다. | `queries.ts` |
-| `migrateRoutineOrderIndex` | orderIndex 가 없던 시절에 만들어진 루틴에 순서를 채워 넣는다. | `order.ts` |
+| `getRoutinesOnce` | 사용자의 루틴을 모두 읽는다. 루틴 화면이 분류별로 묶어 그릴 때 쓴다. | `queries.ts` |
 | `Routine` | 정해진 요일마다 되풀이하는 습관. | `types.ts` |
 | `RoutineCategory` | 한 분류와 그 분류에 속한 루틴들. 루틴 화면이 분류별로 묶어 보여줄 때 쓴다. | `types.ts` |
 | `RoutineReport` | 주간 리포트 전체. 한 주 정보와 루틴별 줄 목록으로 이루어진다. | `types.ts` |
@@ -109,7 +108,6 @@
 | `deleteTaskWithLogs` | 할 일과 그 완료 기록을 함께 지운다. | `crud.ts` |
 | `getTasksByDateOnce` | 하루치 할 일을 읽는다. 홈 화면이 오늘 목록을 그릴 때 쓴다. | `queries.ts` |
 | `getTasksByMonthOnce` | 그달의 할 일을 읽는다. 달력과 월간 집계를 다시 셀 때 쓴다. | `queries.ts` |
-| `migrateTaskOrderIndex` | orderIndex 가 없던 시절에 만들어진 할 일에 순서를 채워 넣는다. | `order.ts` |
 | `Task` | 특정 날짜에 하기로 한 할 일. date 는 `YYYY-MM-DD`, time 은 정한 경우에만 있다. | `types.ts` |
 | `updateTaskOrder` | 할 일 정렬 순서를 한 번에 저장한다. | `order.ts` |
 | `updateTaskWithDateMove` | 할 일을 고치고, 날짜나 분류가 바뀌면 옮긴다. | `crud.ts` |
@@ -137,4 +135,4 @@
 
 ---
 
-공개 항목 78개.
+공개 항목 76개.

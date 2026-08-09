@@ -4,4 +4,4 @@ export { createTask, updateTaskWithDateMove, deleteTaskWithLogs } from "./crud";
 
 export { getTasksByDateOnce, getTasksByMonthOnce } from "./queries";
 
-export { updateTaskOrder, migrateTaskOrderIndex } from "./order";
+export { updateTaskOrder } from "./order";

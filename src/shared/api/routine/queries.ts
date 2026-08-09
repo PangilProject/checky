@@ -13,6 +13,22 @@ export type RoutineMonthly = {
 export type RoutineLogMonthly = { routineId: string; date: string; done: boolean };
 
 /**
+ * 사용자의 루틴을 모두 읽는다. 루틴 화면이 분류별로 묶어 그릴 때 쓴다.
+ *
+ * 일부러 정렬 없이 읽는다. 서버 orderBy 는 그 필드가 없는 문서를 결과에서 빼 버려,
+ * orderIndex 가 없던 시절의 루틴이 목록에서 사라진다. 정렬은 화면 쪽에서 한다.
+ */
+export const getRoutinesOnce = async (userId: string): Promise<Routine[]> => {
+  const perf = baselineFetch("routines/fetch/all", { userId });
+  const snap = await getDocs(routinesRef(userId));
+  const routines = snap.docs.map(
+    (doc) => ({ id: doc.id, ...doc.data() }) as Routine
+  );
+  perf.end({ count: routines.length });
+  return routines;
+};
+
+/**
  * 그달에 걸쳐 있는 루틴을 읽는다.
  *
  * 루틴은 기간으로 이어지므로 그달에 만들어진 것만이 아니라,

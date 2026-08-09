@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getRoutinesByCategory } from "@/shared/api/routine";
+import { getRoutinesOnce, type Routine } from "@/shared/api/routine";
 import { routinePageKeys } from "@/shared/api/keys";
 import { fetchCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
 
@@ -19,25 +19,36 @@ export const useRoutineData = (userId: string, enabled: boolean) => {
       // 1. 종료한 것까지 포함해 카테고리를 모두 조회 (정본 캐시 재사용)
       //    종료한 카테고리를 빼면 그 안의 루틴을 고치거나 지울 방법이 사라진다.
       //    홈의 주간 표에는 계속 나오므로 매일 체크해야 하는 것처럼 보이기만 한다.
-      const categories = await fetchCategoriesQuery(queryClient, userId);
+      // 2. 루틴은 한 번에 전부 읽는다. 분류마다 나눠 읽으면 빈 분류도
+      //    쿼리마다 최소 1 read 로 과금되고 왕복이 분류 수만큼 늘어난다.
+      const [categories, routines] = await Promise.all([
+        fetchCategoriesQuery(queryClient, userId),
+        getRoutinesOnce(userId),
+      ]);
 
-      // 2. 각 카테고리별 루틴을 병렬로 조회
-      const routinesByCategory = await Promise.all(
-        categories.map(async (category) => ({
-          category,
-          routines: await getRoutinesByCategory({
-            userId,
-            categoryId: category.id,
-          }),
-        })),
+      // 3. 분류별로 묶고 순서 값으로 정렬한다. orderIndex 가 없던 시절의
+      //    루틴도 목록에 나오도록 0 으로 보고 정렬한다.
+      const routinesByCategoryId = new Map<string, Routine[]>();
+      routines.forEach((routine) => {
+        const group = routinesByCategoryId.get(routine.categoryId) ?? [];
+        group.push(routine);
+        routinesByCategoryId.set(routine.categoryId, group);
+      });
+      routinesByCategoryId.forEach((group) =>
+        group.sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0)),
       );
 
-      // 3. 사용 중인 카테고리와, 루틴이 남아 있는 종료된 카테고리만 남긴다.
+      // 4. 사용 중인 카테고리와, 루틴이 남아 있는 종료된 카테고리만 남긴다.
       //    루틴이 없는 종료된 카테고리까지 그리면 빈 줄만 늘어난다.
-      return routinesByCategory.filter(
-        ({ category, routines }) =>
-          category.status === "ACTIVE" || routines.length > 0,
-      );
+      return categories
+        .map((category) => ({
+          category,
+          routines: routinesByCategoryId.get(category.id) ?? [],
+        }))
+        .filter(
+          ({ category, routines: group }) =>
+            category.status === "ACTIVE" || group.length > 0,
+        );
     },
 
     enabled, // 로그인 상태일 때만 요청 실행

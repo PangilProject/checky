@@ -1,14 +1,6 @@
-import {
-  getDocs,
-  orderBy,
-  query,
-  serverTimestamp,
-  writeBatch,
-  type DocumentData,
-  type DocumentReference,
-} from "firebase/firestore/lite";
+import { writeBatch } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
-import { taskRef, tasksRef } from "./refs";
+import { taskRef } from "./refs";
 
 /**
  * 할 일 정렬 순서를 한 번에 저장한다.
@@ -32,46 +24,4 @@ export const updateTaskOrder = async ({
   });
 
   await batch.commit();
-};
-
-/**
- * orderIndex 가 없던 시절에 만들어진 할 일에 순서를 채워 넣는다.
- *
- * 사용자의 할 일 전체를 읽으므로 문서 수만큼 비용이 든다.
- * 채울 것이 없으면 쓰기를 하지 않는다.
- */
-export const migrateTaskOrderIndex = async (userId: string) => {
-  const snap = await getDocs(query(tasksRef(userId), orderBy("createdAt", "asc")));
-
-  const batch = writeBatch(db);
-  let needCommit = false;
-
-  const groupMap = new Map<
-    string,
-    Array<{ ref: DocumentReference<DocumentData>; data: DocumentData }>
-  >();
-
-  snap.docs.forEach((docSnap) => {
-    const data = docSnap.data();
-    const key = `${data.date}_${data.categoryId}`;
-
-    if (!groupMap.has(key)) groupMap.set(key, []);
-    groupMap.get(key)!.push({ ref: docSnap.ref, data });
-  });
-
-  groupMap.forEach((items) => {
-    items.forEach((item, index) => {
-      if (typeof item.data.orderIndex === "number") return;
-
-      needCommit = true;
-      batch.update(item.ref, {
-        orderIndex: index,
-        updatedAt: serverTimestamp(),
-      });
-    });
-  });
-
-  if (needCommit) {
-    await batch.commit();
-  }
 };
