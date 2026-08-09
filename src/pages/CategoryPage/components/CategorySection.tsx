@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { updateCategoryOrder, type Category } from "@/shared/api/category";
 import { useCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
+import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
 import { TitleText } from "@/shared/ui/TitleText";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { Space10, Space4 } from "@/shared/ui/Space";
@@ -45,6 +46,7 @@ export const CategorySection = ({
   const [categories, setCategories] = useState<Category[] | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const safeUserId = user?.uid ?? "";
+  const { schedule: scheduleOrderCommit } = useDebouncedCommit();
 
   // 정본 카테고리 캐시에서 status 로 걸러 쓴다. ACTIVE/ENDED 두 섹션이
   // 각각 서버를 조회하지 않고 같은 캐시 한 벌을 나눠 쓴다.
@@ -76,17 +78,20 @@ export const CategorySection = ({
   const saveCategoryOrder = (list: Category[]) => {
     if (!user) return;
 
-    updateCategoryOrder({
-      userId: user.uid,
-      categories: list.map((c, index) => ({
-        id: c.id,
-        orderIndex: index,
-      })),
-    }).catch(() => {
-      // 저장 실패 시 화면 순서만 바뀐 채 어긋나는 것을 막는다
-      toast.error("순서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
-      void categoriesQuery.refetch();
-    });
+    // 연속 드래그를 마지막 상태 한 번으로 합쳐 저장한다. 화면은 로컬 상태로 이미 반영됐다.
+    scheduleOrderCommit(`categories:${status}`, () =>
+      updateCategoryOrder({
+        userId: user.uid,
+        categories: list.map((c, index) => ({
+          id: c.id,
+          orderIndex: index,
+        })),
+      }).catch(() => {
+        // 저장 실패 시 화면 순서만 바뀐 채 어긋나는 것을 막는다
+        toast.error("순서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        void categoriesQuery.refetch();
+      }),
+    );
   };
 
   const handleDragEnd = (event: DragEndEvent) => {

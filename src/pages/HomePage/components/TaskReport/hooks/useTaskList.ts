@@ -28,6 +28,7 @@ import {
   taskLogKeys,
 } from "@/shared/api/keys";
 import { baselineCacheCheck } from "@/shared/utils/perfBaseline";
+import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
 
 const EMPTY_CATEGORIES: Category[] = [];
 const EMPTY_TASKS: Task[] = [];
@@ -41,6 +42,7 @@ export const useTaskList = ({
   dateString: string;
 }) => {
   const queryClient = useQueryClient();
+  const { schedule: scheduleOrderCommit } = useDebouncedCommit();
   const tempIdRef = useRef(0);
   // 완료 처리가 진행 중인 할 일. 같은 항목의 연타를 막는다.
   const togglingTaskIdsRef = useRef(new Set<string>());
@@ -448,17 +450,20 @@ export const useTaskList = ({
       ];
     });
 
-    // 정렬 저장 실패 시 조용히 어긋나지 않도록 알리고 서버 상태로 되돌린다
-    updateTaskOrder({
-      userId,
-      tasks: nextTasks.map((task, index) => ({
-        id: task.id,
-        orderIndex: index,
-      })),
-    }).catch(() => {
-      toast.error("순서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
-      void queryClient.invalidateQueries({ queryKey: taskQueryKey });
-    });
+    // 연속 드래그를 마지막 상태 한 번으로 합쳐 저장한다. 화면은 위에서 이미 반영됐다.
+    // 정렬 저장 실패 시 조용히 어긋나지 않도록 알리고 서버 상태로 되돌린다.
+    scheduleOrderCommit(`tasks:${categoryId}`, () =>
+      updateTaskOrder({
+        userId,
+        tasks: nextTasks.map((task, index) => ({
+          id: task.id,
+          orderIndex: index,
+        })),
+      }).catch(() => {
+        toast.error("순서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        void queryClient.invalidateQueries({ queryKey: taskQueryKey });
+      }),
+    );
   };
 
   return {

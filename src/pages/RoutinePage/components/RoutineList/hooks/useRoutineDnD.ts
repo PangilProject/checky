@@ -1,5 +1,9 @@
 import { arrayMove } from "@dnd-kit/sortable";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { updateRoutineOrder } from "@/shared/api/routine";
+import { routinePageKeys } from "@/shared/api/keys";
+import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { Routine, RoutineCategory } from "@/shared/api/routine";
 
@@ -13,6 +17,9 @@ export const useRoutineDnD = (
     React.SetStateAction<RoutineCategory[] | null>
   >,
 ) => {
+  const queryClient = useQueryClient();
+  const { schedule: scheduleOrderCommit } = useDebouncedCommit();
+
   const handleDragEnd = (
     event: DragEndEvent,
     routines: Routine[],
@@ -42,25 +49,23 @@ export const useRoutineDnD = (
       );
     });
 
-    // 2. 서버에 변경된 순서 반영 (orderIndex 기반)
-    updateRoutineOrder({
-      userId,
-      routines: newList.map((r, index) => ({
-        id: r.id,
-        orderIndex: index,
-      })),
-    }).catch((error) => {
-      console.error("[Routine] order update failed:", error);
-
-      // 3. Rollback
-      // → 서버 업데이트 실패 시, 기존 상태로 되돌려 데이터 정합성 유지
-      setRoutineCategories((prev) => {
-        const safePrev = prev ?? [];
-        return safePrev.map((item) =>
-          item.category.id === categoryId ? { ...item, routines } : item,
-        );
-      });
-    });
+    // 2. 서버 반영은 연속 드래그를 마지막 상태 한 번으로 합쳐 보낸다.
+    //    실패하면 알리고 서버 상태를 다시 읽어 온다. 손으로 되돌리면
+    //    합쳐진 드래그의 중간 상태로만 돌아가 오히려 어긋난다.
+    scheduleOrderCommit(`routines:${categoryId}`, () =>
+      updateRoutineOrder({
+        userId,
+        routines: newList.map((r, index) => ({
+          id: r.id,
+          orderIndex: index,
+        })),
+      }).catch(() => {
+        toast.error("순서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        void queryClient.invalidateQueries({
+          queryKey: routinePageKeys.detail(userId),
+        });
+      }),
+    );
   };
 
   return { handleDragEnd };
