@@ -8,9 +8,10 @@ import {
   serverTimestamp,
   updateDoc,
   where,
-  deleteDoc,
+  writeBatch,
 } from "firebase/firestore/lite";
-import { routineRef, routinesRef } from "./refs";
+import { db } from "@/firebase/firebase";
+import { routineLogsRef, routineRef, routinesRef } from "./refs";
 import type { RoutineScheduleHistoryItem } from "./types";
 
 /**
@@ -101,9 +102,12 @@ export const updateRoutine = async ({
 };
 
 /**
- * 루틴 문서를 지운다.
+ * 루틴과 그 수행 기록(routineLogs)을 함께 지운다.
  *
- * 수행 기록(routineLogs)은 함께 지우지 않는다. 남은 기록은 루틴이 없으므로 화면에 나타나지 않는다.
+ * 기록을 남겨 두면 화면에는 안 나오지만, 월간 재계산과 주간 리포트가
+ * 그 달·그 주의 기록을 읽을 때마다 영원히 과금된다.
+ * 배치 한도(500)를 넘지 않도록 나눠 지우고, 루틴 문서는 마지막 배치에 넣어
+ * 중간에 실패해도 루틴 없는 고아 기록이 새로 생기지 않게 한다.
  */
 export const deleteRoutine = async ({
   userId,
@@ -112,5 +116,22 @@ export const deleteRoutine = async ({
   userId: string;
   routineId: string;
 }) => {
-  await deleteDoc(routineRef(userId, routineId));
+  const logsSnap = await getDocs(
+    query(routineLogsRef(userId), where("routineId", "==", routineId))
+  );
+
+  // 기록을 앞에, 루틴 문서를 맨 뒤에 두어 중간 실패 시 고아 기록이 늘지 않게 한다.
+  const refsToDelete = [
+    ...logsSnap.docs.map((logDoc) => logDoc.ref),
+    routineRef(userId, routineId),
+  ];
+
+  const BATCH_LIMIT = 500;
+  for (let start = 0; start < refsToDelete.length; start += BATCH_LIMIT) {
+    const batch = writeBatch(db);
+    refsToDelete
+      .slice(start, start + BATCH_LIMIT)
+      .forEach((ref) => batch.delete(ref));
+    await batch.commit();
+  }
 };

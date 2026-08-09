@@ -79,7 +79,7 @@
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
 | `createRoutine` | 루틴을 만든다. | `crud.ts` |
-| `deleteRoutine` | 루틴 문서를 지운다. | `crud.ts` |
+| `deleteRoutine` | 루틴과 그 수행 기록(routineLogs)을 함께 지운다. | `crud.ts` |
 | `getRoutineLogsByMonthOnce` | 그달의 루틴 수행 기록을 읽는다. | `queries.ts` |
 | `getRoutineReportByWeek` | 한 주 동안의 루틴 수행 현황을 표 형태로 만든다. | `report.ts` |
 | `getRoutinesByMonthOnce` | 그달에 걸쳐 있는 루틴을 읽는다. | `queries.ts` |
@@ -127,8 +127,8 @@
 | --- | --- | --- |
 | `copyAllTasksToDate` | 하루치 할 일을 다른 날짜로 복사한다. | `actions.ts` |
 | `DateOnlyParams` | 하루를 통째로 다루는 동작에 넘기는 값 | `types.ts` |
-| `deleteAllTasksByDate` | 하루치 할 일을 모두 지운다. | `actions.ts` |
-| `deleteUncompletedTasks` | 끝내지 못한 할 일을 지운다. | `actions.ts` |
+| `deleteAllTasksByDate` | 하루치 할 일을 완료 기록과 함께 모두 지운다. | `actions.ts` |
+| `deleteUncompletedTasks` | 끝내지 못한 할 일을 그 완료 기록과 함께 지운다. | `actions.ts` |
 | `MoveTasksParams` | 어느 날짜에서 어느 날짜로 옮길지 | `types.ts` |
 | `moveUncompletedTasksToDate` | 끝내지 못한 할 일을 고른 날짜로 옮긴다. | `actions.ts` |
 | `moveUncompletedTasksToToday` | 끝내지 못한 할 일을 오늘로 가져온다. | `actions.ts` |

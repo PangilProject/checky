@@ -14,31 +14,31 @@ import { taskLogsRef } from "./refs";
  * 그래서 중복을 없애고 `@/shared/api/task` 의 것 하나만 쓴다.
  */
 
-type TaskLogRecord = {
+export type TaskLogRecord = {
+  id: string;
   taskId: string;
   completed: boolean;
 };
 
 /**
- * 날짜 기준 완료된 태스크 ID를 조회합니다.
+ * 하루치 완료 기록을 문서 ID 와 함께 읽는다.
+ *
+ * 일괄 작업이 완료 여부 판별과 기록 삭제에 같은 결과를 쓴다.
+ * ID 를 함께 돌려줘야 지운 할 일의 기록을 추가 조회 없이 같이 지울 수 있다.
  */
-export const getCompletedTaskIdsByDate = async ({
+export const getTaskLogRecordsByDate = async ({
   userId,
   date,
 }: {
   userId: string;
   date: string;
-}): Promise<Set<string>> => {
+}): Promise<TaskLogRecord[]> => {
   const logsSnap = await getDocs(
     query(taskLogsRef(userId), where("date", "==", date))
   );
 
-  const completedTaskIds = new Set(
-    logsSnap.docs
-      .map((doc) => doc.data() as TaskLogRecord)
-      .filter((log) => log.completed)
-      .map((log) => log.taskId)
-  );
-
-  return completedTaskIds;
+  return logsSnap.docs.map((doc) => {
+    const data = doc.data() as { taskId: string; completed: boolean };
+    return { id: doc.id, taskId: data.taskId, completed: data.completed };
+  });
 };

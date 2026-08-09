@@ -2,7 +2,7 @@ import { doc, serverTimestamp, writeBatch } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { getTasksByDateOnce, type Task } from "@/shared/api/task";
 import { patchMonthlyStatsByDayDeltas } from "@/shared/api/monthlyStats";
-import { taskRef, tasksRef } from "./refs";
+import { taskLogsRef, taskRef, tasksRef } from "./refs";
 import { fetchTasksAndCompleted, getUncompletedTasks } from "./helpers";
 import type { DateOnlyParams, MoveTasksParams } from "./types";
 
@@ -184,7 +184,7 @@ export const moveUncompletedTasksToDate = async ({
 };
 
 /**
- * 끝내지 못한 할 일을 지운다.
+ * 끝내지 못한 할 일을 그 완료 기록과 함께 지운다.
  *
  * 한 배치로 지운 뒤 그날의 월간 요약에서 지운 만큼 뺀다.
  * 지울 것이 없으면 요약을 건드리지 않는다.
@@ -193,7 +193,7 @@ export const deleteUncompletedTasks = async ({
   userId,
   date,
 }: DateOnlyParams) => {
-  const { tasks, completedTaskIds } = await fetchTasksAndCompleted({
+  const { tasks, completedTaskIds, taskLogs } = await fetchTasksAndCompleted({
     userId,
     date,
   });
@@ -209,6 +209,15 @@ export const deleteUncompletedTasks = async ({
   targets.forEach((task) => {
     batch.delete(taskRef(userId, task.id));
   });
+
+  // 지운 할 일에 딸린 기록(미완료 체크 흔적)도 함께 지운다.
+  // 남겨 두면 화면에는 안 보여도 이후 모든 재계산이 영원히 읽는다.
+  const targetIds = new Set(targets.map((task) => task.id));
+  taskLogs
+    .filter((log) => targetIds.has(log.taskId))
+    .forEach((log) => {
+      batch.delete(doc(taskLogsRef(userId), log.id));
+    });
 
   await batch.commit();
 
@@ -274,27 +283,32 @@ export const copyAllTasksToDate = async ({
 };
 
 /**
- * 하루치 할 일을 모두 지운다.
+ * 하루치 할 일을 완료 기록과 함께 모두 지운다.
  *
  * 완료 여부와 상관없이 그날 할 일 문서를 한 배치로 지우고 월간 요약을 되돌린다.
- * 완료 기록(taskLogs)은 이 배치에 포함되지 않는다.
+ * 그날의 기록은 전부 함께 지운다. 할 일이 다 지워지므로 남는 기록은 모두 고아이고,
+ * 이전에 고아가 된 기록이 있었다면 이 기회에 같이 정리된다.
  */
 export const deleteAllTasksByDate = async ({
   userId,
   date,
 }: DateOnlyParams) => {
-  const { tasks, completedTaskIds } = await fetchTasksAndCompleted({
+  const { tasks, completedTaskIds, taskLogs } = await fetchTasksAndCompleted({
     userId,
     date,
   });
 
   // 지울 것이 없으면 빈 배치 커밋도 하지 않는다. 빈 커밋도 네트워크 왕복이다.
-  if (!tasks.length) return;
+  if (!tasks.length && !taskLogs.length) return;
 
   const batch = writeBatch(db);
 
   tasks.forEach((task) => {
     batch.delete(taskRef(userId, task.id));
+  });
+
+  taskLogs.forEach((log) => {
+    batch.delete(doc(taskLogsRef(userId), log.id));
   });
 
   await batch.commit();
