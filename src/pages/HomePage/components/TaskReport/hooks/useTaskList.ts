@@ -357,13 +357,26 @@ export const useTaskList = ({
         currentLog,
       });
 
-      await patchMonthlyStatsCompletionByDay({
+      const patchResult = await patchMonthlyStatsCompletionByDay({
         userId,
         month: monthKey,
         day: dayKey,
         completedDelta,
         kind: "task",
       });
+
+      // 문서는 있는데 그날 칸이 없으면 집계가 실제와 어긋난 상태다.
+      // 지나치면 이 완료가 달력에서 영영 빠지므로 그 달의 task 몫을 다시 센다.
+      if (patchResult === "missing-day") {
+        await recalculateMonthlyStatsByMonth({
+          userId,
+          month: monthKey,
+          scope: "task",
+        });
+        await queryClient.invalidateQueries({
+          queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
+        });
+      }
     } catch {
       queryClient.setQueryData(taskLogQueryKey, prevLogs);
       queryClient.setQueryData(monthlyStatsKeys.byMonth(userId, monthKey), prevMonthly);

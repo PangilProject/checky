@@ -163,13 +163,26 @@ export function useRoutineToggle({
     // 실제 서버 데이터도 반영합니다.
     try {
       await toggleRoutineLog({ userId, routineId, date, done });
-      await patchMonthlyStatsCompletionByDay({
+      const patchResult = await patchMonthlyStatsCompletionByDay({
         userId,
         month: monthKey,
         day: dayKey,
         completedDelta,
         kind: "routine",
       });
+
+      // 문서는 있는데 그날 칸이 없으면 집계가 실제와 어긋난 상태다.
+      // 지나치면 이 완료가 달력에서 영영 빠지므로 그 달의 루틴 몫을 다시 센다.
+      if (patchResult === "missing-day") {
+        await recalculateMonthlyStatsByMonth({
+          userId,
+          month: monthKey,
+          scope: "routine",
+        });
+        await queryClient.invalidateQueries({
+          queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
+        });
+      }
     } catch {
       queryClient.setQueryData(routineReportKey, prevReport);
       queryClient.setQueryData(routineLogKeys.byMonth(userId, monthKey), prevLogs);

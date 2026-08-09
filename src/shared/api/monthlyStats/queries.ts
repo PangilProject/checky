@@ -135,8 +135,11 @@ export const replaceMonthlyStatsByMonth = async ({
  * 완료 수는 전체 수를 넘지 못하게 자른다. 넘어가면 남은 수가 0으로 눌려
  * 달력이 "다 했음"으로 보이게 된다.
  *
- * 집계 문서나 해당 날짜 칸이 아직 없으면 아무것도 하지 않는다.
+ * 집계 문서나 해당 날짜 칸이 아직 없으면 쓰지 않고 그 사실을 반환한다.
  * 셀 대상이 정해지지 않은 상태라 완료만 먼저 세면 전체보다 커진다.
+ * - "missing-doc": 문서 자체가 없음. 달력이 열릴 때 원본에서 만들므로 둬도 된다.
+ * - "missing-day": 문서는 있는데 그날 칸이 없음. 집계가 실제와 어긋난 상태이므로
+ *   호출자가 그 달을 다시 세어야 한다. 여기서 지나치면 이 완료가 영영 빠진다.
  */
 export const patchMonthlyStatsCompletionByDay = async ({
   userId,
@@ -151,16 +154,16 @@ export const patchMonthlyStatsCompletionByDay = async ({
   completedDelta: 1 | -1;
   /** 어느 몫의 완료가 바뀌었는지. 몫이 나뉜 문서(version 2)에서 해당 몫도 함께 고친다. */
   kind: "task" | "routine";
-}) => {
+}): Promise<"patched" | "missing-doc" | "missing-day"> => {
   const ref = monthlyStatsDocRef(userId, month);
 
-  await runTransaction(db, async (transaction) => {
+  return await runTransaction(db, async (transaction) => {
     const snap = await transaction.get(ref);
-    if (!snap.exists()) return;
+    if (!snap.exists()) return "missing-doc";
 
     const data = snap.data() as MonthlyStats;
     const current = data.days?.[day];
-    if (!current) return;
+    if (!current) return "missing-day";
 
     const isSplit = (data.version ?? 1) >= MONTHLY_STATS_SPLIT_VERSION;
 
@@ -199,7 +202,7 @@ export const patchMonthlyStatsCompletionByDay = async ({
         },
         { merge: true }
       );
-      return;
+      return "patched";
     }
 
     const total = Math.max(current.total ?? 0, 0);
@@ -224,6 +227,7 @@ export const patchMonthlyStatsCompletionByDay = async ({
       },
       { merge: true }
     );
+    return "patched";
   });
 };
 
