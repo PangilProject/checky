@@ -531,3 +531,66 @@ describe("정상 앱 동작 회귀 확인", () => {
     await assertSucceeds(getDocs(collection(asAttacker(), "notices")));
   });
 });
+
+/**
+ * 규칙을 조이기 전에 저장된 문서가 갱신 불가 상태가 되지 않는지 본다.
+ * 접속 기록 실패는 authStore 에서 조용히 삼켜지므로, 여기서 막히면
+ * 운영 중에 아무도 모르게 지표가 멈춘다.
+ */
+describe("기존 데이터 호환성 (규칙 강화 배포 안전성)", () => {
+  /** 예전 스키마의 모르는 필드가 남아 있는 문서를 만든다 */
+  const seedLegacyDoc = async (extra: Record<string, unknown>) => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(
+        doc(ctx.firestore() as unknown as Firestore, "users", ATTACKER),
+        { uid: ATTACKER, name: "공격자", ...extra },
+      );
+    });
+  };
+
+  it("모르는 필드가 남아 있어도 접속 기록은 계속 저장된다", async () => {
+    await seedLegacyDoc({ legacyField: "옛 스키마" });
+    await assertSucceeds(
+      updateDoc(doc(asAttacker(), "users", ATTACKER), {
+        lastActiveAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it("uid 가 없던 옛 문서도 갱신할 수 있다", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(
+        doc(ctx.firestore() as unknown as Firestore, "users", ATTACKER),
+        { name: "uid 없는 옛 문서" },
+      );
+    });
+    await assertSucceeds(
+      updateDoc(doc(asAttacker(), "users", ATTACKER), {
+        lastActiveAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it("모르는 필드가 남아 있어도 새 모르는 필드는 추가할 수 없다", async () => {
+    await seedLegacyDoc({ legacyField: "옛 스키마" });
+    await assertFails(
+      updateDoc(doc(asAttacker(), "users", ATTACKER), { role: "superadmin" }),
+    );
+  });
+
+  it("남아 있는 모르는 필드의 값을 바꿀 수도 없다", async () => {
+    await seedLegacyDoc({ legacyField: "옛 스키마" });
+    await assertFails(
+      updateDoc(doc(asAttacker(), "users", ATTACKER), {
+        legacyField: "조작",
+      }),
+    );
+  });
+
+  it("이미 있는 name 은 여전히 지울 수 없다", async () => {
+    await seedLegacyDoc({ legacyField: "옛 스키마" });
+    await assertFails(
+      updateDoc(doc(asAttacker(), "users", ATTACKER), { name: deleteField() }),
+    );
+  });
+});

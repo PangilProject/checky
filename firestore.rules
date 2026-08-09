@@ -50,18 +50,14 @@ service cloud.firestore {
         && timeFieldIsTrusted('lastActiveAt');
     }
 
-    // 프로필의 모양을 검사한다.
-    // name 은 반드시 있어야 한다. 관리자 목록이 name 기준으로 정렬해 읽는데,
-    // Firestore 는 정렬 필드가 없는 문서를 결과에서 빼므로 name 을 지우면
-    // 목록에서 사라질 수 있다.
-    function userDocIsWellFormed(userId) {
+    // 프로필 필드의 값 검사. 문서에 있는 필드만 본다.
+    // uid 는 없으면 기본값으로 경로 uid 를 써서, uid 가 없던 옛 문서도
+    // 갱신이 막히지 않게 하되 다른 uid 로 위조하는 것은 막는다.
+    function userFieldsAreValid(userId) {
       let data = request.resource.data;
-      // hasAll 을 먼저 본다. 없는 필드를 바로 읽으면 평가 에러가 되어
-      // 거부는 되지만 원인이 로그에 에러로 남는다.
-      return data.keys().hasOnly(allowedUserFields())
-        && data.keys().hasAll(['uid', 'name'])
-        && data.uid == userId
-        && data.name is string && data.name.size() <= 100
+      return data.get('uid', userId) == userId
+        && (!('name' in data)
+            || (data.name is string && data.name.size() <= 100))
         && (!('email' in data)
             || data.email == null
             || (data.email is string && data.email.size() <= 320))
@@ -71,15 +67,24 @@ service cloud.firestore {
         && timeFieldsAreTrusted();
     }
 
+    // 이미 있는 필드를 지워 없애지 못하게 한다.
+    // 없던 문서에는 요구하지 않아, 옛 문서도 갱신할 수 있다.
+    function keepsField(field) {
+      return !(field in resource.data) || (field in request.resource.data);
+    }
+
     // 사용자 프로필
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
 
-      // 최초 로그인 시 본인 문서만 생성 가능. isAdmin 자체 부여 차단
+      // 최초 로그인 시 본인 문서만 생성 가능. isAdmin 자체 부여 차단.
+      // 새로 만드는 문서는 모양을 온전히 강제할 수 있으므로 엄격하게 본다.
       allow create: if isOwner(userId)
         && !('isAdmin' in request.resource.data)
-        && userDocIsWellFormed(userId);
+        && request.resource.data.keys().hasOnly(allowedUserFields())
+        && request.resource.data.keys().hasAll(['uid', 'name'])
+        && userFieldsAreValid(userId);
 
       // 본인 문서 수정 가능하나 isAdmin 값은 변경 불가 (권한 상승 차단).
       // 기존 문서에 isAdmin 이 없으면 수정 후에도 없어야 하고,
@@ -91,7 +96,14 @@ service cloud.firestore {
                 && request.resource.data.isAdmin == resource.data.isAdmin)
             : !('isAdmin' in request.resource.data)
         )
-        && userDocIsWellFormed(userId);
+        // 바뀐 키만 검사한다. 문서 전체를 검사하면 예전 스키마의 모르는
+        // 필드가 남아 있는 문서는 건드리지도 않은 필드 때문에 갱신이 영구히
+        // 막히고, 접속 기록 실패는 조용히 삼켜져 눈에 띄지도 않는다.
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(allowedUserFields())
+        && keepsField('uid')
+        && keepsField('name')
+        && userFieldsAreValid(userId);
 
       allow delete: if isOwner(userId);
 
