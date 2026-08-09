@@ -33,6 +33,14 @@ interface CategorySectionProps {
   emptyTitle: string;
   emptySubTitle?: string;
   showAddButton?: boolean;
+  /**
+   * 비어 있으면 섹션째 감춘다.
+   *
+   * 종료된 카테고리처럼 아직 만들어 본 적 없는 사용자에게는 채워질 수 없는
+   * 섹션이 있다. 첫 화면에서 "없습니다"가 두 번 반복되면 시작하는 방법보다
+   * 비어 있다는 사실이 먼저 읽힌다.
+   */
+  hideWhenEmpty?: boolean;
 }
 
 export const CategorySection = ({
@@ -41,6 +49,7 @@ export const CategorySection = ({
   emptyTitle,
   emptySubTitle,
   showAddButton = false,
+  hideWhenEmpty = false,
 }: CategorySectionProps) => {
   const { user } = useAuth();
   const [categories, setCategories] = useState<Category[] | null>(null);
@@ -109,6 +118,11 @@ export const CategorySection = ({
     saveCategoryOrder(newList);
   };
 
+  // 감출 섹션은 로딩 자리도 만들지 않는다. 잠깐 나타났다 사라지면 더 어수선하다.
+  if (hideWhenEmpty && (categories === null || categories.length === 0)) {
+    return null;
+  }
+
   return (
     <div className="w-full flex flex-col">
       {/* 타이틀 영역 */}
@@ -152,6 +166,17 @@ export const CategorySection = ({
             <Text2 text={emptyTitle} className="text-gray-400" />
             {emptySubTitle && (
               <Text2 text={emptySubTitle} className="text-gray-400" />
+            )}
+            {/* 안내문이 가리키는 버튼을 안내문 옆에 둔다.
+                제목 줄의 "추가"만 있으면 무엇을 눌러야 하는지 눈으로 잇기 어렵다. */}
+            {showAddButton && (
+              <>
+                <Space4 direction="mb" />
+                <NormalBlackButton
+                  text="카테고리 추가"
+                  onClick={() => setIsOpen(true)}
+                />
+              </>
             )}
             <Space10 direction="mb" />
           </div>

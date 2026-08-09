@@ -41,7 +41,15 @@ export const TaskItemsList = ({
   onToggle,
   onClickTask,
 }: TaskListProps) => {
-  if (tasks.length === 0) return null;
+  // 분류를 방금 만든 직후가 가장 허전한 지점이다. 빈 자리를 그대로 두면
+  // 옆의 작은 + 아이콘이 유일한 단서라, 무엇을 해야 할지 알기 어렵다.
+  if (tasks.length === 0) {
+    return (
+      <p className="py-2 pl-1 text-[13px] text-gray-400">
+        + 를 눌러 할 일을 추가해보세요.
+      </p>
+    );
+  }
 
   return (
     <>
