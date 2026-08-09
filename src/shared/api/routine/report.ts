@@ -1,6 +1,10 @@
 import { getDocs, query, where } from "firebase/firestore/lite";
 import { mapDoc } from "@/shared/api/_common/mappers";
-import { formatDateToYmd, parseYmd } from "@/shared/hooks/formatDate";
+import {
+  formatDateLikeToYmd,
+  formatDateToYmd,
+  parseYmd,
+} from "@/shared/hooks/formatDate";
 import { routineLogsRef, routinesRef } from "./refs";
 import type {
   Routine,
@@ -28,10 +32,6 @@ type CategoryMapValue = {
   name: string;
   color: string;
   orderIndex: number;
-};
-
-type FirestoreTimestampLike = {
-  toDate?: () => Date;
 };
 
 /**
@@ -80,25 +80,6 @@ const buildLogMap = (logs: RoutineLog[]) => {
     logMap.set(`${log.routineId}_${log.date}`, log.done);
   });
   return logMap;
-};
-
-/**
- * Firestore Timestamp/Date 값을 YYYY-MM-DD로 변환합니다.
- * @param value 날짜 원본 값
- */
-const toDateString = (value: unknown): string | null => {
-  if (!value) return null;
-
-  if (value instanceof Date) {
-    return formatDateToYmd(value);
-  }
-
-  const maybeTimestamp = value as FirestoreTimestampLike;
-  if (typeof maybeTimestamp.toDate === "function") {
-    return formatDateToYmd(maybeTimestamp.toDate());
-  }
-
-  return null;
 };
 
 const normalizeScheduleHistory = (
@@ -164,7 +145,8 @@ const buildRows = ({
         return null;
       }
       const checks: Record<string, boolean> = {};
-      const updatedAt = toDateString(routine.updatedAt);
+      // 레거시 루틴 게이트의 기준일. 월간 재계산·legacy 집계도 같은 규칙을 쓴다.
+      const updatedAt = formatDateLikeToYmd(routine.updatedAt);
       const scheduleHistory = normalizeScheduleHistory(routine);
       const hasExplicitHistory = Boolean(
         routine.scheduleHistory && routine.scheduleHistory.length > 0

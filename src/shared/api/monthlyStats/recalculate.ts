@@ -27,6 +27,8 @@ type MonthlyRoutine = {
   endDate?: string;
   days: number[];
   scheduleHistory?: RoutineScheduleHistoryItem[];
+  /** 마지막 수정일(YYYY-MM-DD). 이력 없는 레거시 루틴의 게이트 기준이다. */
+  updatedAt?: string | null;
 };
 type MonthlyRoutineLog = { routineId: string; date: string; done: boolean };
 
@@ -118,10 +120,22 @@ const buildMonthlyActivityCountMap = ({
     validTaskKeySet.add(`${id}_${dateKey}`);
   });
 
+  // 레거시 루틴 게이트에서 "실제 기록이 있는 날"을 찾기 위한 색인
+  const logDatesByRoutine = new Map<string, Set<string>>();
+  routineLogs.forEach(({ routineId, date: dateKey }) => {
+    if (!logDatesByRoutine.has(routineId)) {
+      logDatesByRoutine.set(routineId, new Set());
+    }
+    logDatesByRoutine.get(routineId)!.add(dateKey);
+  });
+
   // 루틴은 문서 하나가 여러 날에 걸치므로, 그달 1일부터 말일까지 훑으며
   // 실제로 해야 했던 날만 골라 하루치로 펼쳐 센다.
   routines.forEach((routine) => {
     const { id, startDate, endDate } = routine;
+    const hasExplicitHistory = Boolean(
+      routine.scheduleHistory && routine.scheduleHistory.length > 0
+    );
     // scheduleHistory 가 생기기 전에 만들어진 루틴은 이력이 없으므로,
     // 시작일부터 현재 요일이 계속 적용됐다고 보고 한 건짜리 이력을 만들어 쓴다.
     const history =
@@ -130,6 +144,13 @@ const buildMonthlyActivityCountMap = ({
             a.effectiveFrom.localeCompare(b.effectiveFrom)
           )
         : [{ effectiveFrom: startDate, days: routine.days }];
+
+    // 주간 리포트(report.ts)와 같은 게이트: 이력 없는 레거시 루틴은
+    // 마지막 수정일 이전 날짜를 숨기되, 실제 기록이 있는 날은 남긴다.
+    // 여기서도 같은 규칙으로 세지 않으면, 리포트에는 칸이 없어 체크할 수
+    // 없는 날이 달력에는 미완료로 영영 남는다.
+    const legacyGateFrom = hasExplicitHistory ? null : routine.updatedAt;
+    const logDates = logDatesByRoutine.get(id);
 
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -147,7 +168,13 @@ const buildMonthlyActivityCountMap = ({
       if (!isAfterStart || !isBeforeEnd) continue;
 
       const repeatDays = getRepeatDaysByDate({ history, date: dateStr });
-      if (repeatDays.includes(dateObj.getDay())) {
+      const isRepeatDay = repeatDays.includes(dateObj.getDay());
+      const isCounted = legacyGateFrom
+        ? Boolean(logDates?.has(dateStr)) ||
+          (isRepeatDay && dateStr >= legacyGateFrom)
+        : isRepeatDay;
+
+      if (isCounted) {
         const day = ensure(dateStr);
         day.total += 1;
         day.routineTotal += 1;

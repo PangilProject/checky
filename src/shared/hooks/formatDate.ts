@@ -34,6 +34,29 @@ export const parseYmd = (value: string): Date | null => {
 };
 
 /**
+ * Date 또는 Firestore Timestamp -> YYYY-MM-DD
+ *
+ * 메타데이터(updatedAt 등)는 캐시 상태에 따라 Date 로도 Timestamp 로도
+ * 흘러올 수 있어, 날짜 비교 전에 이 함수로 문자열로 눌러서 쓴다.
+ *
+ * @example
+ * Date(2026-03-19) -> "2026-03-19"
+ * Timestamp(2026-03-19) -> "2026-03-19"
+ * undefined -> null
+ */
+export const formatDateLikeToYmd = (value: unknown): string | null => {
+  if (!value) return null;
+  if (value instanceof Date) return formatDateToYmd(value);
+
+  const maybeTimestamp = value as { toDate?: () => Date };
+  if (typeof maybeTimestamp.toDate === "function") {
+    return formatDateToYmd(maybeTimestamp.toDate());
+  }
+
+  return null;
+};
+
+/**
  * "YYYY-MM-DD" -> "YYYY. MM. DD."
  *
  * @example

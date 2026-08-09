@@ -1,5 +1,6 @@
 import { getDocs, query, where } from "firebase/firestore/lite";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
+import { formatDateLikeToYmd } from "@/shared/hooks/formatDate";
 import { routineLogsRef, routinesRef } from "./refs";
 import type { Routine, RoutineScheduleHistoryItem } from "./types";
 
@@ -9,6 +10,11 @@ export type RoutineMonthly = {
   endDate?: string;
   days: number[];
   scheduleHistory?: RoutineScheduleHistoryItem[];
+  /**
+   * 마지막 수정일(YYYY-MM-DD). 이력이 없는 레거시 루틴을 셀 때
+   * 주간 리포트와 같은 게이트(수정일 이전 날짜 숨김)를 적용하기 위해 든다.
+   */
+  updatedAt?: string | null;
 };
 export type RoutineLogMonthly = { routineId: string; date: string; done: boolean };
 
@@ -57,6 +63,7 @@ export const getRoutinesByMonthOnce = async ({
       endDate: data.endDate,
       days: data.days,
       scheduleHistory: data.scheduleHistory,
+      updatedAt: formatDateLikeToYmd(data.updatedAt),
     };
   })
     .filter((routine) => !routine.endDate || routine.endDate >= start);

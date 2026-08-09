@@ -86,6 +86,15 @@ export const buildLegacyMonthlyActivityCountMap = ({
     validTaskKeySet.add(`${id}_${date}`);
   });
 
+  // 레거시 루틴 게이트에서 "실제 기록이 있는 날"을 찾기 위한 색인
+  const logDatesByRoutine = new Map<string, Set<string>>();
+  routineLogs.forEach(({ routineId, date: dateKey }) => {
+    if (!logDatesByRoutine.has(routineId)) {
+      logDatesByRoutine.set(routineId, new Set());
+    }
+    logDatesByRoutine.get(routineId)!.add(dateKey);
+  });
+
   /**
    * 2. Routine 집계
    *
@@ -94,6 +103,9 @@ export const buildLegacyMonthlyActivityCountMap = ({
    */
   routines.forEach((routine) => {
     const { id, startDate, endDate } = routine;
+    const hasExplicitHistory = Boolean(
+      routine.scheduleHistory && routine.scheduleHistory.length > 0,
+    );
 
     // scheduleHistory가 없으면 기본 days 사용
     const history =
@@ -102,6 +114,11 @@ export const buildLegacyMonthlyActivityCountMap = ({
             a.effectiveFrom.localeCompare(b.effectiveFrom),
           )
         : [{ effectiveFrom: startDate, days: routine.days }];
+
+    // 주간 리포트(report.ts)와 같은 게이트: 이력 없는 레거시 루틴은
+    // 마지막 수정일 이전 날짜를 숨기되, 실제 기록이 있는 날은 남긴다.
+    const legacyGateFrom = hasExplicitHistory ? null : routine.updatedAt;
+    const logDates = logDatesByRoutine.get(id);
 
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -121,9 +138,14 @@ export const buildLegacyMonthlyActivityCountMap = ({
 
       // 해당 날짜에 적용되는 반복 요일 가져오기
       const repeatDays = getRepeatDaysByDate({ history, date: dateStr });
+      const isRepeatDay = repeatDays.includes(dateObj.getDay());
+      const isCounted = legacyGateFrom
+        ? Boolean(logDates?.has(dateStr)) ||
+          (isRepeatDay && dateStr >= legacyGateFrom)
+        : isRepeatDay;
 
       // 요일이 포함되면 total 증가
-      if (repeatDays.includes(dateObj.getDay())) {
+      if (isCounted) {
         ensure(dateStr).total += 1;
         validRoutineKeySet.add(`${id}_${dateStr}`);
       }

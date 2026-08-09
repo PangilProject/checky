@@ -8,6 +8,8 @@ export type MonthlyRoutine = {
   endDate?: string;
   days: number[];
   scheduleHistory?: RoutineScheduleHistoryItem[];
+  /** 마지막 수정일(YYYY-MM-DD). 레거시 루틴 게이트용 — RoutineMonthly 참고 */
+  updatedAt?: string | null;
 };
 export type MonthlyRoutineLog = { routineId: string; date: string; done: boolean };
 
