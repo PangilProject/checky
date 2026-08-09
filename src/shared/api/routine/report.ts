@@ -255,19 +255,22 @@ export const getRoutineReportByWeek = async ({
   });
   const week = buildWeek(startDate, endDate);
 
-  const routinesSnap = await getDocs(
-    query(routinesRef(userId), where("startDate", "<=", week.endDate))
-  );
+  // 두 조회는 서로 의존하지 않으므로 병렬로 보낸다. 직렬이면 왕복이 두 배다.
+  // endDate 로 종료 루틴을 서버에서 거르지 못하는 이유: 끝나지 않는 루틴은
+  // endDate 필드 자체가 없고, Firestore 는 없는 필드를 어떤 쿼리에도 매칭하지 않는다.
+  // 그래서 startDate 조건만 걸고 종료 여부는 클라이언트에서 거른다.
+  const [routinesSnap, logsSnap] = await Promise.all([
+    getDocs(query(routinesRef(userId), where("startDate", "<=", week.endDate))),
+    getDocs(
+      query(
+        routineLogsRef(userId),
+        where("date", ">=", week.startDate),
+        where("date", "<=", week.endDate)
+      )
+    ),
+  ]);
 
   const routines = routinesSnap.docs.map((doc) => mapDoc<Routine>(doc));
-
-  const logsSnap = await getDocs(
-    query(
-      routineLogsRef(userId),
-      where("date", ">=", week.startDate),
-      where("date", "<=", week.endDate)
-    )
-  );
 
   const logs = logsSnap.docs.map((doc) => doc.data() as RoutineLog);
   const logMap = buildLogMap(logs);
