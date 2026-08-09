@@ -4,7 +4,8 @@ import {
   reauthenticateWithPopup,
   signInWithPopup,
 } from "firebase/auth";
-import { createUser, getUserDoc, updateLastLogin } from "./user";
+import { ensureUserProfile, updateLastLogin } from "./user";
+import { getUserAccessInfoCached } from "./adminAccess";
 import { deleteAllUserData } from "./userCleanup";
 
 /**
@@ -15,16 +16,24 @@ import { deleteAllUserData } from "./userCleanup";
  * Google 계정으로 로그인하고 사용자 문서를 맞춘다.
  *
  * 처음이면 프로필 문서를 만들고, 이미 있으면 마지막 로그인 시각만 갱신한다.
+ *
+ * 존재 여부는 인증 구독이 권한을 확인하며 이미 읽고 있는 결과를 함께 쓴다.
+ * 팝업이 닫히는 순간 구독이 먼저 깨어나므로, 여기서 다시 읽으면 같은 문서를 두 번 읽는다.
+ *
+ * 프로필 생성은 구독도 함께 맡는다. Auth 세션이 프로필보다 먼저 확정되므로,
+ * 생성을 이 함수에만 맡기면 중간에 끊겼을 때 프로필 없는 계정이 영구히 남는다.
+ * 두 곳이 동시에 불러도 ensureUserProfile 이 진행 중인 요청을 공유해 한 번만 만든다.
  */
 export const signInWithGoogle = async () => {
   const { user } = await signInWithPopup(auth, googleProvider);
 
-  const snap = await getUserDoc(user.uid);
+  const { exists } = await getUserAccessInfoCached(user.uid);
 
-  if (!snap.exists()) {
-    await createUser(user);
-  } else {
+  if (exists) {
     await updateLastLogin(user.uid);
+  } else {
+    // 생성 시 lastLoginAt 도 함께 남으므로 따로 갱신하지 않는다.
+    await ensureUserProfile(user);
   }
 
   return user;

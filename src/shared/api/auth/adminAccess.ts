@@ -9,6 +9,8 @@ import { doc, getDoc } from "firebase/firestore/lite";
 export interface UserAccessInfo {
   isAdmin: boolean;
   lastActiveAt: Date | null;
+  /** 프로필 문서가 실제로 있는지 */
+  exists: boolean;
 }
 
 // uid -> 조회 결과 메모리 캐시
@@ -53,8 +55,13 @@ export const getUserAccessInfoCached = async (
       lastActiveAt:
         (data?.lastActiveAt as { toDate?: () => Date } | undefined)?.toDate?.() ??
         null,
+      exists: snap.exists(),
     };
-    accessCache.set(uid, info);
+
+    // 문서가 없는 상태는 캐시하지 않는다. 가입 직후에는 프로필이 만들어지기 전에
+    // 이 조회가 먼저 끝나므로, 캐시해 두면 "없음"이 그 세션 내내 굳어
+    // 방금 만든 프로필을 계속 못 보게 된다.
+    if (info.exists) accessCache.set(uid, info);
     return info;
   })();
 

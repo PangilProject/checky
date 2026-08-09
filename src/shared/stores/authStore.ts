@@ -5,7 +5,7 @@ import {
   clearAdminCache,
   getUserAccessInfoCached,
 } from "@/shared/api/auth/adminAccess";
-import { updateLastActive } from "@/shared/api/auth/user";
+import { ensureUserProfile, updateLastActive } from "@/shared/api/auth/user";
 import { formatDateToYmd } from "@/shared/hooks/formatDate";
 
 /**
@@ -81,9 +81,17 @@ export const ensureAuthSubscription = () => {
     });
 
     getUserAccessInfoCached(uid)
-      .then(({ isAdmin, lastActiveAt }) => {
-        // 같은 문서를 읽으며 얻은 접속 기록으로 갱신 필요 여부를 판단한다
-        touchLastActiveIfNeeded(uid, lastActiveAt);
+      .then(({ isAdmin, lastActiveAt, exists }) => {
+        if (exists) {
+          // 같은 문서를 읽으며 얻은 접속 기록으로 갱신 필요 여부를 판단한다
+          touchLastActiveIfNeeded(uid, lastActiveAt);
+        } else {
+          // 프로필이 아직 없다. 첫 로그인 중이거나, 지난 가입이 중간에 끊긴 계정이다.
+          // 이 구독은 앱을 열 때마다 실행되므로 여기서 만들면 한 번 실패해도
+          // 다음 접속에 다시 시도된다. 접속 기록은 생성 시 함께 남으므로
+          // 여기서 따로 쓰지 않는다 (없는 문서에 쓰면 실패한다).
+          void ensureUserProfile(firebaseUser).catch(() => {});
+        }
 
         // 조회 중 계정이 바뀌었다면 이전 사용자의 결과를 반영하지 않는다
         if (useAuthStore.getState().user?.uid !== uid) return;
