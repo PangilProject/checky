@@ -111,3 +111,15 @@ export const monthlyStatsKeys = {
 export const noticeKeys = {
   all: ["notices"] as const,
 };
+
+/**
+ * 관리자 화면 전용 쿼리 키
+ *
+ * users 컬렉션 전체 조회는 비싸므로, 캐시로 대시보드와 목록을 오갈 때의
+ * 재조회를 막는 것이 이 키의 목적이다.
+ */
+export const adminKeys = {
+  all: ["admin"] as const,
+  stats: () => [...adminKeys.all, "stats"] as const,
+  users: () => [...adminKeys.all, "users"] as const,
+};
