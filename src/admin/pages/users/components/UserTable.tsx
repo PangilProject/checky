@@ -138,22 +138,22 @@ function UserTable({ users }: Props) {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600">
             <tr>
-              <th className="px-4 py-2 text-left">
+              <th className="px-4 py-2 text-left whitespace-nowrap">
                 {renderHeader("이름", "name")}
               </th>
-              <th className="px-4 py-2 text-left hidden sm:table-cell">
+              <th className="px-4 py-2 text-left whitespace-nowrap hidden sm:table-cell">
                 이메일
               </th>
-              <th className="px-4 py-2 text-left">
+              <th className="px-4 py-2 text-left whitespace-nowrap">
                 {renderHeader("가입일", "createdAt")}
               </th>
-              <th className="px-4 py-2 text-left hidden sm:table-cell">
+              <th className="px-4 py-2 text-left whitespace-nowrap hidden sm:table-cell">
                 {renderHeader("마지막 로그인", "lastLoginAt")}
               </th>
-              <th className="px-4 py-2 text-left">
+              <th className="px-4 py-2 text-left whitespace-nowrap">
                 {renderHeader("마지막 접속", "lastActiveAt")}
               </th>
-              <th className="px-4 py-2 text-left">
+              <th className="px-4 py-2 text-left whitespace-nowrap">
                 {renderHeader("상태(3일)", "status")}
               </th>
             </tr>

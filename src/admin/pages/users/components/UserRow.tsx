@@ -15,14 +15,14 @@ function formatDate(date?: Date) {
 function UserRow({ user, onClick, isActive }: Props) {
   return (
     <tr onClick={onClick} className="hover:bg-gray-50 cursor-pointer">
-      <td className="px-4 py-2">{user.name ?? "-"}</td>
-      <td className="px-4 py-2 hidden sm:table-cell">{user.email ?? "-"}</td>
-      <td className="px-4 py-2">{formatDate(user.createdAt)}</td>
-      <td className="px-4 py-2 hidden sm:table-cell">
+      <td className="px-4 py-2 whitespace-nowrap">{user.name ?? "-"}</td>
+      <td className="px-4 py-2 whitespace-nowrap hidden sm:table-cell">{user.email ?? "-"}</td>
+      <td className="px-4 py-2 whitespace-nowrap">{formatDate(user.createdAt)}</td>
+      <td className="px-4 py-2 whitespace-nowrap hidden sm:table-cell">
         {formatDate(user.lastLoginAt)}
       </td>
-      <td className="px-4 py-2">{formatDate(user.lastActiveAt)}</td>
-      <td className="px-4 py-2">
+      <td className="px-4 py-2 whitespace-nowrap">{formatDate(user.lastActiveAt)}</td>
+      <td className="px-4 py-2 whitespace-nowrap">
         <UserStatusBadge isActive={isActive} />
       </td>
     </tr>
