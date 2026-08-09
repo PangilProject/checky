@@ -50,7 +50,7 @@
 
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
-| `buildMonthKeysBetween` | 두 날짜가 걸쳐 있는 달의 키 목록을 만든다. | `recalculate.ts` |
+| `buildMonthKeysBetween` | 두 날짜가 걸쳐 있는 달의 키 목록을 만든다. | `monthKeys.ts` |
 | `collectAffectedMonths` | 바뀐 날짜들이 걸쳐 있는 달을 모은다. | `helpers/collectAffectedMonths.ts` |
 | `getMonthlyStatsByMonthOnce` | 한 달치 집계 문서를 읽는다. | `queries.ts` |
 | `getMonthlyStatsMonthsOnce` | 집계 문서가 이미 만들어져 있는 달의 목록을 읽는다. | `queries.ts` |
