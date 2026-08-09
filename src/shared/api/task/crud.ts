@@ -129,6 +129,9 @@ export const updateTaskWithDateMove = async ({
     ...(nextOrderIndex !== undefined && { orderIndex: nextOrderIndex }),
     updatedAt: serverTimestamp(),
   });
+  // 날짜가 그대로면 완료 기록도 그 자리에 맞으므로 읽지도 옮기지도 않는다.
+  if (prevDate === nextDate) return;
+
   const prevLogQuery = query(
     taskLogsRef(userId),
     where("taskId", "==", taskId),
@@ -139,17 +142,23 @@ export const updateTaskWithDateMove = async ({
 
   if (snapshot.empty) return;
 
-  const prevLog = snapshot.docs[0];
-  const prevLogData = prevLog.data();
+  const prevLogData = snapshot.docs[0].data();
 
-  // 삭제와 생성을 하나의 배치로 처리해 중간에 실패해도 완료 기록이 사라지지 않게 한다
+  // 삭제와 생성을 하나의 배치로 처리해 중간에 실패해도 완료 기록이 사라지지 않게 한다.
+  // 새 기록은 toggleTaskLog 와 같은 고정 ID(`{taskId}_{date}`)로 만든다.
+  // 자동 ID 로 만들면 이후 토글이 고정 ID 문서를 또 만들어 기록이 두 벌이 된다.
+  // 같은 이유로, 혹시 중복돼 있던 옛 기록도 전부 지워 하나로 모은다.
   const batch = writeBatch(db);
-  batch.delete(prevLog.ref);
-  batch.set(doc(taskLogsRef(userId)), {
-    ...prevLogData,
-    date: nextDate,
-    updatedAt: serverTimestamp(),
-  });
+  snapshot.docs.forEach((logDoc) => batch.delete(logDoc.ref));
+  batch.set(
+    doc(taskLogsRef(userId), `${taskId}_${nextDate}`),
+    {
+      ...prevLogData,
+      date: nextDate,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
   await batch.commit();
 };
 
