@@ -7,14 +7,6 @@ export const hasSameDays = (a: number[], b: number[]) => {
   return sa.every((value, index) => value === sb[index]);
 };
 
-export const getTodayLocalDate = () => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-${String(now.getDate()).padStart(2, "0")}`;
-};
-
 export const buildNextScheduleHistory = ({
   routine,
   effectiveFrom,

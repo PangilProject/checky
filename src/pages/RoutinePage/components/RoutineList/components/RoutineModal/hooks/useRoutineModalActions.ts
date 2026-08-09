@@ -14,7 +14,8 @@ import {
   getMonthlyStatsMonthsOnce,
   refreshCalendarConsistency,
 } from "@/shared/api/monthlyStats";
-import { buildNextScheduleHistory, getTodayLocalDate } from "../utils";
+import { getTodayYmd } from "@/shared/hooks/formatDate";
+import { buildNextScheduleHistory } from "../utils";
 import type { RoutineModalMode } from "../types";
 
 /**
@@ -44,12 +45,16 @@ const collectMonthsToRecalculate = async ({
   userId: string;
   span: RoutineSpan;
 }) => {
-  const today = getTodayLocalDate();
+  const today = getTodayYmd();
+  const monthStart = `${span.startMonth}-01`;
+  // 끝나지 않는 루틴은 오늘까지로 보되, 미래에 시작하는 루틴은
+  // 오늘이 시작일보다 앞이라 범위가 뒤집혀 빈 배열이 되므로 시작 달은 보장한다.
+  const openEnd = today >= monthStart ? today : monthStart;
   const rangeMonths = collectAffectedMonths({
     ranges: [
       {
-        startDate: `${span.startMonth}-01`,
-        endDate: span.endMonth ? `${span.endMonth}-01` : today,
+        startDate: monthStart,
+        endDate: span.endMonth ? `${span.endMonth}-01` : openEnd,
       },
     ],
   });

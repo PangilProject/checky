@@ -15,12 +15,22 @@ export const formatDateToYmd = (date: Date) => {
 };
 
 /**
+ * 오늘 -> YYYY-MM-DD (기기 로컬 기준)
+ *
+ * toISOString()은 UTC 기준이라 KST 오전 9시 이전에는 어제가 되므로 쓰지 않습니다.
+ */
+export const getTodayYmd = () => formatDateToYmd(new Date());
+
+/**
  * "YYYY-MM-DD" -> Date (로컬 자정)
  *
  * new Date("YYYY-MM-DD")는 UTC로 해석되어 KST에서 하루 밀리므로 직접 파싱합니다.
+ * 정규식은 모양만 보므로, 2월 30일처럼 달력에 없는 날짜는
+ * Date 생성 후 되짚어 확인해 null 로 거릅니다 (그냥 두면 3월 2일로 밀립니다).
  *
  * @example
  * "2026-03-19" -> Date(2026-03-19 00:00 KST)
+ * "2026-02-30" -> null
  * "abc" -> null
  */
 export const parseYmd = (value: string): Date | null => {
@@ -30,7 +40,12 @@ export const parseYmd = (value: string): Date | null => {
   const [, year, month, day] = matched;
   const date = new Date(Number(year), Number(month) - 1, Number(day));
 
-  return Number.isNaN(date.getTime()) ? null : date;
+  const isSameDate =
+    date.getFullYear() === Number(year) &&
+    date.getMonth() === Number(month) - 1 &&
+    date.getDate() === Number(day);
+
+  return isSameDate ? date : null;
 };
 
 /**

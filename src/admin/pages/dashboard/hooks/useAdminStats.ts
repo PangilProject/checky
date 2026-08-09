@@ -6,6 +6,7 @@ import {
 } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { adminKeys } from "@/shared/api/keys";
+import { formatDateToYmd } from "@/shared/hooks/formatDate";
 
 interface ChartItem {
   date: string;
@@ -34,13 +35,6 @@ const EMPTY_STATS: AdminStats = {
   inactiveUsers: 0,
   signupByDate: [],
   activeByDate: [],
-};
-
-const toDateKey = (date: Date) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
 };
 
 const labelFromKey = (dateKey: string) => {
@@ -86,7 +80,7 @@ const fetchAdminStats = async (): Promise<AdminStats> => {
       if (createdAt >= startOfToday) todayUsers++;
       if (createdAt >= startOfWeek) weeklyUsers++;
 
-      const key = toDateKey(createdAt);
+      const key = formatDateToYmd(createdAt);
       signupMap.set(key, (signupMap.get(key) ?? 0) + 1);
     }
 
@@ -94,7 +88,7 @@ const fetchAdminStats = async (): Promise<AdminStats> => {
       if (lastActiveAt >= startOfWeek) activeUsers++;
       if (lastActiveAt >= startOfToday) todayActiveUsers++;
 
-      const key = toDateKey(lastActiveAt);
+      const key = formatDateToYmd(lastActiveAt);
       activeMap.set(key, (activeMap.get(key) ?? 0) + 1);
     }
   });
