@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { collection, getDocs, orderBy, query } from "firebase/firestore/lite";
+import { collection, getDocs } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { adminKeys } from "@/shared/api/keys";
 
@@ -15,24 +15,24 @@ export interface AdminUser {
 }
 
 const fetchAdminUsers = async (): Promise<AdminUser[]> => {
-  const q = query(
-    collection(db, "users"),
-    orderBy("name", "asc") // 🔹 이름 오름차순
-  );
+  // 서버 orderBy 를 쓰지 않는다. Firestore 는 정렬 필드가 없는 문서를
+  // 결과에서 빼므로, name 이 없는 사용자가 관리자 목록에서 통째로 사라진다.
+  // 관리 목적의 목록은 빠짐없이 보이는 쪽이 중요하므로 여기서 정렬한다.
+  const snap = await getDocs(collection(db, "users"));
 
-  const snap = await getDocs(q);
-
-  return snap.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      name: data.name,
-      email: data.email,
-      createdAt: data.createdAt?.toDate?.(),
-      lastLoginAt: data.lastLoginAt?.toDate?.(),
-      lastActiveAt: data.lastActiveAt?.toDate?.(),
-    };
-  });
+  return snap.docs
+    .map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: data.name,
+        email: data.email,
+        createdAt: data.createdAt?.toDate?.(),
+        lastLoginAt: data.lastLoginAt?.toDate?.(),
+        lastActiveAt: data.lastActiveAt?.toDate?.(),
+      };
+    })
+    .sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "ko"));
 };
 
 /**
