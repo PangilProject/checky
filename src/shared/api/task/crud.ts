@@ -3,6 +3,7 @@ import {
   deleteField,
   doc,
   getDocs,
+  limit,
   orderBy,
   query,
   serverTimestamp,
@@ -37,11 +38,14 @@ export const createTask = async ({
 }) => {
   const baseRef = tasksRef(userId);
 
+  // 가장 큰 순서 값 하나만 읽는다. limit 이 없으면 그날 그 분류 전체를 읽어
+  // 문서 수만큼 과금되고도 첫 문서만 쓴다.
   const q = query(
     baseRef,
     where("date", "==", date),
     where("categoryId", "==", categoryId),
-    orderBy("orderIndex", "desc")
+    orderBy("orderIndex", "desc"),
+    limit(1)
   );
 
   const snap = await getDocs(q);
@@ -108,7 +112,8 @@ export const updateTaskWithDateMove = async ({
       tasksRef(userId),
       where("date", "==", nextDate),
       where("categoryId", "==", categoryId),
-      orderBy("orderIndex", "desc")
+      orderBy("orderIndex", "desc"),
+      limit(1)
     );
 
     const snap = await getDocs(q);
