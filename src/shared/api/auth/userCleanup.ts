@@ -1,5 +1,5 @@
 import { db } from "@/firebase/firebase";
-import { collection, deleteDoc, getDocs } from "firebase/firestore/lite";
+import { collection, getDocs, writeBatch } from "firebase/firestore/lite";
 import { deleteUserDoc } from "./user";
 
 /**
@@ -15,11 +15,21 @@ const USER_SUB_COLLECTIONS = [
   "monthlyStats",
 ] as const;
 
+// 문서마다 개별 요청을 병렬로 쏘면 데이터가 많은 사용자의 탈퇴에서
+// 수천 개 요청이 한꺼번에 나가 일부만 실패한 채 끝날 수 있다.
+// 배치 한도(500) 단위로 순차 커밋해 요청 수와 실패 단위를 줄인다.
 const deleteSubCollection = async (uid: string, subCollection: string) => {
   const ref = collection(db, "users", uid, subCollection);
   const snap = await getDocs(ref);
 
-  await Promise.all(snap.docs.map((docSnap) => deleteDoc(docSnap.ref)));
+  const BATCH_LIMIT = 500;
+  for (let start = 0; start < snap.docs.length; start += BATCH_LIMIT) {
+    const batch = writeBatch(db);
+    snap.docs
+      .slice(start, start + BATCH_LIMIT)
+      .forEach((docSnap) => batch.delete(docSnap.ref));
+    await batch.commit();
+  }
 };
 
 /**
