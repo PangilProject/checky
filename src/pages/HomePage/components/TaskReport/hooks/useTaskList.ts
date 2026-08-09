@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { getCategoriesOnce, type Category } from "@/shared/api/category";
+import type { Category } from "@/shared/api/category";
+import { useCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
 import {
   createTask,
   getTasksByDateOnce,
@@ -67,14 +68,8 @@ export const useTaskList = ({
     [safeUserId],
   );
 
-  const categoriesQuery = useQuery({
-    queryKey: categoryQueryKey,
-    queryFn: () => getCategoriesOnce({ userId: safeUserId }),
+  const categoriesQuery = useCategoriesQuery(safeUserId, {
     enabled: Boolean(userId),
-    staleTime: 10 * 60_000,
-    gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
   });
 
   const tasksQuery = useQuery({

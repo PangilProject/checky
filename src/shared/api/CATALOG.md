@@ -56,7 +56,7 @@
 | `getMonthlyStatsMonthsOnce` | 집계 문서가 이미 만들어져 있는 달의 목록을 읽는다. | `queries.ts` |
 | `MonthlyActivitySummary` | 하루치 요약. 그날 할 일과 루틴을 합쳐 전체·완료·남은 개수를 센다. | `types.ts` |
 | `MonthlyStats` | 한 달치 요약을 담는 문서. | `types.ts` |
-| `patchMonthlyStatsByDayDeltas` | 하루의 집계를 증감값만큼 조정한다. | `queries.ts` |
+| `patchMonthlyStatsByDayDeltas` | 하루의 집계를 증감값만큼 조정한다. 할 일 경로 전용이다. | `queries.ts` |
 | `patchMonthlyStatsCompletionByDay` | 하루의 완료 수만 고친다. | `queries.ts` |
 | `recalculateMonthlyStatsByMonth` | 원본 기록에서 한 달치 집계를 다시 계산해 덮어쓴다. | `recalculate.ts` |
 | `refreshCalendarConsistency` | 달력과 리포트가 실제 기록과 어긋나지 않게 맞춘다. | `helpers/refreshCalendarConsistency.ts` |

@@ -1,23 +1,25 @@
-import { useQuery } from "@tanstack/react-query";
-import { getCategoriesOnce } from "@/shared/api/category";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getRoutinesByCategory } from "@/shared/api/routine";
 import { routinePageKeys } from "@/shared/api/keys";
+import { fetchCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
 
 /**
  * hook: 루틴 페이지 데이터 조회
  */
 
 export const useRoutineData = (userId: string, enabled: boolean) => {
+  const queryClient = useQueryClient();
+
   return useQuery({
     // 사용자별 캐싱을 위한 queryKey (userId 기준으로 캐시 분리)
     queryKey: routinePageKeys.detail(userId),
 
     // 카테고리 + 루틴 데이터를 함께 가져오는 비동기 함수
     queryFn: async () => {
-      // 1. 종료한 것까지 포함해 카테고리를 모두 조회
+      // 1. 종료한 것까지 포함해 카테고리를 모두 조회 (정본 캐시 재사용)
       //    종료한 카테고리를 빼면 그 안의 루틴을 고치거나 지울 방법이 사라진다.
       //    홈의 주간 표에는 계속 나오므로 매일 체크해야 하는 것처럼 보이기만 한다.
-      const categories = await getCategoriesOnce({ userId });
+      const categories = await fetchCategoriesQuery(queryClient, userId);
 
       // 2. 각 카테고리별 루틴을 병렬로 조회
       const routinesByCategory = await Promise.all(

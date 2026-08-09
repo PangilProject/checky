@@ -8,12 +8,15 @@
 /**
  * 카테고리 관련 쿼리 키
  * all: 모든 카테고리
- * list: 사용자별 카테고리 목록 (userId, status)
+ * list: 사용자별 카테고리 목록 (userId)
+ *
+ * 상태(ACTIVE/ENDED)별 키는 두지 않는다. 상태별 목록은 무필터 정본에서
+ * select 로 파생한다(useCategoriesQuery). 키를 나누면 같은 컬렉션이
+ * 캐시에 여러 벌 생겨 화면마다 다시 읽게 된다.
  */
 export const categoryKeys = {
   all: ["categories"] as const,
-  list: (userId: string, status?: string) =>
-    [...categoryKeys.all, userId, status ?? "all"] as const,
+  list: (userId: string) => [...categoryKeys.all, userId, "all"] as const,
 };
 
 /**

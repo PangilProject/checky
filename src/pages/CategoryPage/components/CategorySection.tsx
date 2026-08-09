@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/shared/hooks/useAuth";
-import {
-  getCategoriesOnce,
-  updateCategoryOrder,
-  type Category,
-} from "@/shared/api/category";
-import { useQuery } from "@tanstack/react-query";
-import { categoryKeys } from "@/shared/api/keys";
+import { updateCategoryOrder, type Category } from "@/shared/api/category";
+import { useCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
 import { TitleText } from "@/shared/ui/TitleText";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { Space10, Space4 } from "@/shared/ui/Space";
@@ -51,15 +46,11 @@ export const CategorySection = ({
   const [isOpen, setIsOpen] = useState(false);
   const safeUserId = user?.uid ?? "";
 
-  const categoriesQuery = useQuery({
-    queryKey: categoryKeys.list(safeUserId, status),
-    queryFn: () => getCategoriesOnce({ userId: safeUserId, status }),
+  // 정본 카테고리 캐시에서 status 로 걸러 쓴다. ACTIVE/ENDED 두 섹션이
+  // 각각 서버를 조회하지 않고 같은 캐시 한 벌을 나눠 쓴다.
+  const categoriesQuery = useCategoriesQuery(safeUserId, {
+    status,
     enabled: Boolean(user?.uid),
-    staleTime: 10 * 60_000,
-    gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    placeholderData: (previous) => previous,
   });
 
   const sensors = useSensors(

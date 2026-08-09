@@ -1,13 +1,7 @@
-import {
-  getDocs,
-  query,
-  type DocumentData,
-  type QueryDocumentSnapshot,
-  where,
-} from "firebase/firestore/lite";
+import { getDocs, query, where } from "firebase/firestore/lite";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import { formatDateToYmd, parseYmd } from "@/shared/hooks/formatDate";
-import { categoriesRef, routineLogsRef, routinesRef } from "./refs";
+import { routineLogsRef, routinesRef } from "./refs";
 import type {
   Routine,
   RoutineReport,
@@ -142,16 +136,11 @@ const getRepeatDaysByDate = ({
 };
 
 /**
- * 카테고리 스냅샷을 맵으로 변환합니다.
+ * 카테고리 목록을 id 로 찾는 맵으로 변환합니다.
  */
-const buildCategoriesMap = (
-  docs: QueryDocumentSnapshot<DocumentData>[]
-) => {
+const buildCategoriesMap = (categories: CategoryMapValue[]) => {
   return Object.fromEntries(
-    docs.map((doc) => [
-      doc.id,
-      { id: doc.id, ...(doc.data() as Omit<CategoryMapValue, "id">) },
-    ])
+    categories.map((category) => [category.id, category])
   ) as Record<string, CategoryMapValue>;
 };
 
@@ -243,15 +232,21 @@ const buildRows = ({
  *
  * 루틴과 그 주의 기록을 읽어 요일별 체크 여부로 엮는다.
  * 반복 요일이 바뀐 루틴은 scheduleHistory 를 따라 그 시점의 요일을 적용한다.
+ *
+ * 카테고리는 여기서 읽지 않고 호출자가 넘긴다. 리포트는 주 단위로 캐시되어
+ * 여기서 읽으면 주가 바뀔 때마다 카테고리 전체를 다시 과금하기 때문이다.
+ * 호출자는 정본 카테고리 캐시(useCategoriesQuery)에서 조달한다.
  */
 export const getRoutineReportByWeek = async ({
   userId,
   startDate,
   endDate,
+  categories,
 }: {
   userId: string;
   startDate: string;
   endDate: string;
+  categories: CategoryMapValue[];
 }): Promise<RoutineReport> => {
   const perf = baselineFetch("routineReport/fetchByWeek", {
     userId,
@@ -277,15 +272,14 @@ export const getRoutineReportByWeek = async ({
   const logs = logsSnap.docs.map((doc) => doc.data() as RoutineLog);
   const logMap = buildLogMap(logs);
 
-  const categoriesSnap = await getDocs(categoriesRef(userId));
-  const categoriesMap = buildCategoriesMap(categoriesSnap.docs);
+  const categoriesMap = buildCategoriesMap(categories);
 
   const rows = buildRows({ routines, categoriesMap, week, logMap });
 
   perf.end({
     routineCount: routines.length,
     logCount: logs.length,
-    categoryCount: categoriesSnap.docs.length,
+    categoryCount: categories.length,
     rowCount: rows.length,
   });
 
