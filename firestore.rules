@@ -13,15 +13,62 @@ service cloud.firestore {
 
     // 관리자 여부는 users/{uid}.isAdmin 으로 판단한다.
     // 이 필드는 아래 users 규칙에서 클라이언트가 스스로 바꿀 수 없도록 막는다.
-    function adminFlag() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-    }
-
+    // 없는 필드를 기본값 false 로 읽어, 문서에 isAdmin 이 없어도 안전하게 거짓이 된다.
     function isAdmin() {
       return isSignedIn()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && 'isAdmin' in adminFlag()
-        && adminFlag().isAdmin == true;
+        && get(/databases/$(database)/documents/users/$(request.auth.uid))
+             .data.get('isAdmin', false) == true;
+    }
+
+    // users 문서에 둘 수 있는 필드. 닫힌 집합으로 두어 모르는 필드가 섞이지 못하게 한다.
+    // 프로필에 필드를 추가하려면 여기에도 함께 추가해야 한다.
+    function allowedUserFields() {
+      return [
+        'uid', 'email', 'name', 'photoURL',
+        'createdAt', 'updatedAt', 'lastLoginAt', 'lastActiveAt',
+        'isAdmin'
+      ];
+    }
+
+    // 시각 필드는 서버 시각으로만 남긴다.
+    // 클라이언트가 임의 시각을 넣을 수 있으면 관리자 지표(가입 추이·활성 판정)를
+    // 통째로 조작할 수 있고, 활성 상태를 영구히 유지하는 것도 가능해진다.
+    // 값을 그대로 두는 수정은 허용해야 다른 필드만 고치는 갱신이 막히지 않는다.
+    function timeFieldIsTrusted(field) {
+      return !(field in request.resource.data)
+        || request.resource.data[field] == request.time
+        || (resource != null
+            && field in resource.data
+            && request.resource.data[field] == resource.data[field]);
+    }
+
+    function timeFieldsAreTrusted() {
+      return timeFieldIsTrusted('createdAt')
+        && timeFieldIsTrusted('updatedAt')
+        && timeFieldIsTrusted('lastLoginAt')
+        && timeFieldIsTrusted('lastActiveAt');
+    }
+
+    // 프로필의 모양을 검사한다.
+    // name 은 반드시 있어야 한다. 관리자 목록이 name 기준으로 정렬해 읽는데,
+    // Firestore 는 정렬 필드가 없는 문서를 결과에서 빼므로 name 을 지우면
+    // 목록에서 사라질 수 있다.
+    function userDocIsWellFormed(userId) {
+      let data = request.resource.data;
+      // hasAll 을 먼저 본다. 없는 필드를 바로 읽으면 평가 에러가 되어
+      // 거부는 되지만 원인이 로그에 에러로 남는다.
+      return data.keys().hasOnly(allowedUserFields())
+        && data.keys().hasAll(['uid', 'name'])
+        && data.uid == userId
+        && data.name is string && data.name.size() <= 100
+        && (!('email' in data)
+            || data.email == null
+            || (data.email is string && data.email.size() <= 320))
+        && (!('photoURL' in data)
+            || data.photoURL == null
+            || (data.photoURL is string && data.photoURL.size() <= 2048))
+        && timeFieldsAreTrusted();
     }
 
     // 사용자 프로필
@@ -31,7 +78,8 @@ service cloud.firestore {
 
       // 최초 로그인 시 본인 문서만 생성 가능. isAdmin 자체 부여 차단
       allow create: if isOwner(userId)
-        && !('isAdmin' in request.resource.data);
+        && !('isAdmin' in request.resource.data)
+        && userDocIsWellFormed(userId);
 
       // 본인 문서 수정 가능하나 isAdmin 값은 변경 불가 (권한 상승 차단).
       // 기존 문서에 isAdmin 이 없으면 수정 후에도 없어야 하고,
@@ -42,13 +90,21 @@ service cloud.firestore {
             ? ('isAdmin' in request.resource.data
                 && request.resource.data.isAdmin == resource.data.isAdmin)
             : !('isAdmin' in request.resource.data)
-        );
+        )
+        && userDocIsWellFormed(userId);
 
       allow delete: if isOwner(userId);
 
-      // 사용자 데이터는 본인만 읽고 쓴다 (관리자도 열람 불가)
+      // 사용자 데이터는 본인만 읽고 쓴다 (관리자도 열람 불가).
+      // 컬렉션 이름을 앱이 쓰는 것으로 한정해, 자기 영역이라도 임의의
+      // 저장 공간으로 쓰지 못하게 한다. 새 도메인을 추가하면 여기에도 넣는다.
       match /{subCollection}/{docId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isOwner(userId)
+          && subCollection in [
+            'tasks', 'taskLogs',
+            'routines', 'routineLogs',
+            'categories', 'monthlyStats'
+          ];
       }
     }
 
