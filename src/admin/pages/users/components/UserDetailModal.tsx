@@ -27,9 +27,26 @@ function formatDateTime(date?: Date) {
   return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${hours}:${minutes}`;
 }
 
-function diffDays(date: Date, nowTime: number) {
-  const diff = nowTime - date.getTime();
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
+/**
+ * 달력일 기준 며칠 전인지 센다. 어제 밤 11시 접속을 오늘 아침에 보면
+ * 경과 시간은 반나절이지만 사람 기준으로는 "1일 전(어제)"이므로,
+ * 자정끼리 비교한다.
+ */
+function diffCalendarDays(date: Date, nowTime: number) {
+  const now = new Date(nowTime);
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+  const startOfThatDay = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+  return Math.round(
+    (startOfToday.getTime() - startOfThatDay.getTime()) / (1000 * 60 * 60 * 24)
+  );
 }
 
 /* ======================
@@ -119,7 +136,7 @@ export default function UserDetailModal({ user, onClose }: Props) {
           icon={<FiClock />}
           text={`최근 접속: ${
             user.lastActiveAt
-              ? `${diffDays(user.lastActiveAt, nowTime)}일 전`
+              ? `${diffCalendarDays(user.lastActiveAt, nowTime)}일 전`
               : "기록 없음"
           }`}
           muted
