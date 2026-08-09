@@ -15,7 +15,10 @@ export const useAdminNotices = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: noticeKeys.all,
     queryFn: getNoticesOnce,
+    // 관리자는 화면에 들어올 때마다 최신 목록을 봐야 한다.
+    // 전역 기본값(staleTime 10분, mount 재조회 없음)을 여기서만 뒤집는다.
     staleTime: 0,
+    refetchOnMount: true,
   });
 
   return { notices: data ?? [], loading: isLoading, isError };

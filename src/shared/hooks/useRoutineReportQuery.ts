@@ -38,20 +38,9 @@ export const useRoutineReportQuery = ({
       return getRoutineReportByWeek({ userId, startDate, endDate, categories });
     },
 
-    /*
-      3. 캐싱 관련 설정
-    */
-    // 3-1. 쿼리가 활성화될 조건을 설정
+    // 3. 쿼리가 활성화될 조건을 설정 (캐시 정책은 전역 기본값을 따른다)
     enabled: Boolean(userId && startDate && endDate),
-    // 3-2. 데이터가 신선하다고 간주되는 시간(10분)
-    staleTime: 10 * 60_000, 
-    // 3-3. 가비지 컬렉션에서 데이터를 유지하는 시간(30분)
-    gcTime: 30 * 60_000,     
-    // 3-4. 창이 포커스될 때 리페치하지 않음
-    refetchOnWindowFocus: false,     
-    // 3-5. // 마운트될 때 리페치하지 않음
-    refetchOnMount: false, 
-    // 3-6. 플레이스홀더 데이터 설정
-    placeholderData: (previous) => previous, 
+    // 4. 플레이스홀더 데이터 설정
+    placeholderData: (previous) => previous,
   });
 };

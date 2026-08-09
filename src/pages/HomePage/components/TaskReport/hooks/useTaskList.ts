@@ -76,22 +76,16 @@ export const useTaskList = ({
     queryKey: taskQueryKey,
     queryFn: () => getTasksByDateOnce({ userId: safeUserId, date: dateString }),
     enabled: Boolean(userId && dateString),
-    staleTime: 10 * 60_000,
-    gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 
+  // 캐시 정책은 전역 기본값을 따른다. 함께 렌더되는 tasks 와 같은
+  // 신선도(10분)를 쓴다. 따로 두면 체크 표시와 목록이 어긋난 채 보인다.
   const taskLogsQuery = useQuery({
     queryKey: taskLogQueryKey,
     queryFn: () =>
       getTaskLogsByDateOnce({ userId: safeUserId, date: dateString }),
     enabled: Boolean(userId && dateString),
-    staleTime: 5 * 60_000,
-    gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 

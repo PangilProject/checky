@@ -17,6 +17,8 @@ import {
 const categoriesQueryOptions = (userId: string) => ({
   queryKey: categoryKeys.list(userId),
   queryFn: () => getCategoriesOnce({ userId }),
+  // fetchQuery 경로에서도 캐시 신선도 판단이 명확하도록 여기 명시한다
+  // (값은 전역 기본과 같다).
   staleTime: 10 * 60_000,
   gcTime: 30 * 60_000,
 });
@@ -42,8 +44,6 @@ export const useCategoriesQuery = (
   return useQuery({
     ...categoriesQueryOptions(userId),
     enabled: options?.enabled ?? Boolean(userId),
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
     placeholderData: (previous: Category[] | undefined) => previous,
     select,
   });

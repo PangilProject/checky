@@ -51,11 +51,7 @@ export const useRoutineData = (userId: string, enabled: boolean) => {
         );
     },
 
-    enabled, // 로그인 상태일 때만 요청 실행
-    staleTime: 10 * 60_000, // 데이터가 10분 동안 신선한 상태로 유지 (재요청 방지)
-    gcTime: 30 * 60_000, // 캐시를 30분 동안 유지 (메모리 관리)
-    refetchOnWindowFocus: false, // 탭 포커스 시 자동 refetch 방지 (UX 안정성)
-    refetchOnMount: false, // 컴포넌트 마운트 시 재요청 방지
+    enabled, // 로그인 상태일 때만 요청 실행 (캐시 정책은 전역 기본값을 따른다)
     placeholderData: (prev) => prev, // 이전 데이터를 유지하여 로딩 시 UI 깜빡임 방지
   });
 };
