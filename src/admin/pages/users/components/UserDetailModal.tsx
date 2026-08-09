@@ -19,9 +19,12 @@ const ACTIVE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
    Utils
 ====================== */
 
-function formatDate(date?: Date) {
+// 목록은 폭이 좁아 날짜만 보여주고(UserRow), 상세 모달은 시각까지 보여준다.
+function formatDateTime(date?: Date) {
   if (!date) return "-";
-  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${hours}:${minutes}`;
 }
 
 function diffDays(date: Date, nowTime: number) {
@@ -88,15 +91,15 @@ export default function UserDetailModal({ user, onClose }: Props) {
 
         <InfoRow
           icon={<FiClock />}
-          text={`가입일: ${formatDate(user.createdAt)}`}
+          text={`가입일: ${formatDateTime(user.createdAt)}`}
         />
         <InfoRow
           icon={<FiClock />}
-          text={`마지막 로그인: ${formatDate(user.lastLoginAt)}`}
+          text={`마지막 로그인: ${formatDateTime(user.lastLoginAt)}`}
         />
         <InfoRow
           icon={<FiClock />}
-          text={`마지막 접속: ${formatDate(user.lastActiveAt)}`}
+          text={`마지막 접속: ${formatDateTime(user.lastActiveAt)}`}
         />
       </div>
 
