@@ -8,7 +8,6 @@ import {
   getRoutinesByMonthOnce,
 } from "@/shared/api/routine";
 import {
-  collectAffectedMonths,
   getMonthlyStatsByMonthOnce,
   recalculateMonthlyStatsByMonth,
   upsertMonthlyStatsByMonth,
@@ -56,10 +55,6 @@ export const useMonthlyData = (date: Date) => {
     queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
     queryFn: () => getMonthlyStatsByMonthOnce({ userId, month: monthKey }),
     enabled: Boolean(user?.uid),
-    staleTime: 10 * 60_000,
-    gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
   const shouldUseLegacyFallback =
@@ -75,10 +70,6 @@ export const useMonthlyData = (date: Date) => {
     queryKey: taskKeys.byMonth(userId, monthKey),
     queryFn: () => getTasksByMonthOnce({ userId, month: monthKey }),
     enabled: shouldUseLegacyFallback,
-    staleTime: 10 * 60_000,
-    gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 
@@ -86,10 +77,6 @@ export const useMonthlyData = (date: Date) => {
     queryKey: taskLogKeys.byMonth(userId, monthKey),
     queryFn: () => getTaskLogsByMonthOnce({ userId, month: monthKey }),
     enabled: shouldUseLegacyFallback,
-    staleTime: 10 * 60_000,
-    gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 
@@ -97,10 +84,6 @@ export const useMonthlyData = (date: Date) => {
     queryKey: routineKeys.byMonth(userId, monthKey),
     queryFn: () => getRoutinesByMonthOnce({ userId, month: monthKey }),
     enabled: shouldUseLegacyFallback,
-    staleTime: 10 * 60_000,
-    gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 
@@ -108,10 +91,6 @@ export const useMonthlyData = (date: Date) => {
     queryKey: routineLogKeys.byMonth(userId, monthKey),
     queryFn: () => getRoutineLogsByMonthOnce({ userId, month: monthKey }),
     enabled: shouldUseLegacyFallback,
-    staleTime: 10 * 60_000,
-    gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
     placeholderData: (previous) => previous,
   });
 
@@ -187,28 +166,17 @@ export const useMonthlyData = (date: Date) => {
           routineLogsQuery.isLoading)),
     refresh: async () => {
       if (!userId) return;
-      // monthlyStats 우선 재조회 후 없으면 fallback 원천 쿼리를 강제 갱신합니다.
+      // monthlyStats 를 다시 읽어 있으면 그대로 쓴다.
       const monthlyStatsResult = await monthlyStatsQuery.refetch();
       if (monthlyStatsResult.data) {
         return;
       }
 
-      await Promise.all([
-        tasksQuery.refetch(),
-        taskLogsQuery.refetch(),
-        routinesQuery.refetch(),
-        routineLogsQuery.refetch(),
-      ]);
-
-      const months = collectAffectedMonths({ dates: [`${monthKey}-01`] });
-      await Promise.all(
-        months.map((month) =>
-          recalculateMonthlyStatsByMonth({
-            userId,
-            month,
-          }),
-        ),
-      );
+      // 문서가 없으면 원본에서 다시 세워 만든다. 재계산이 원본 네 컬렉션을
+      // 직접 읽으므로 fallback 쿼리를 따로 refetch 하지 않는다 — 하면 같은
+      // 컬렉션을 두 번 읽는다. 만들어진 문서를 읽어 오면 fallback 쿼리는
+      // enabled 가 꺼져 화면에 쓰이지 않는다.
+      await recalculateMonthlyStatsByMonth({ userId, month: monthKey });
       await monthlyStatsQuery.refetch();
     },
   };
