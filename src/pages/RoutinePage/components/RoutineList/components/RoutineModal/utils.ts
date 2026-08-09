@@ -37,14 +37,13 @@ export const buildNextScheduleHistory = ({
     );
   }
 
-  const next = [...baseHistory];
-  const index = next.findIndex((item) => item.effectiveFrom === effectiveFrom);
-
-  if (index >= 0) {
-    next[index] = { effectiveFrom, days };
-  } else {
-    next.push({ effectiveFrom, days });
-  }
+  // 새 변경은 그 날짜부터 계속 적용되는 것이 사용자의 의도다.
+  // 그 뒤의 기존 이력을 남겨 두면 그 날짜가 오는 순간 방금 바꾼 요일이
+  // 소리 없이 예전 값으로 되돌아가므로, 이후 이력은 잘라내고 덧붙인다.
+  const next = baseHistory.filter(
+    (item) => item.effectiveFrom < effectiveFrom
+  );
+  next.push({ effectiveFrom, days });
 
   return next.sort((a, b) => a.effectiveFrom.localeCompare(b.effectiveFrom));
 };
