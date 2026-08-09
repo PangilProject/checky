@@ -6,7 +6,7 @@ import {
 } from "@/shared/ui/Button";
 
 interface ButtonSectionProps {
-  mode: "CREATE" | "VIEW" | "EDIT";
+  mode: "VIEW" | "EDIT";
   isSubmitting?: boolean;
   onClose: () => void;
   onEdit?: () => void;
@@ -51,32 +51,15 @@ export const ButtonSection = ({
     );
   }
 
-  if (mode === "EDIT") {
-    return (
-      <div className="flex justify-between">
-        <NormalBlackUnFillButton
-          text="취소"
-          onClick={onClose}
-          disabled={isSubmitting}
-        />
-        <NormalBlackButton
-          text={isSubmitting ? "저장 중..." : "저장"}
-          onClick={onSubmit}
-          disabled={isSubmitting}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="flex justify-between">
       <NormalBlackUnFillButton
-        text="닫기"
+        text="취소"
         onClick={onClose}
         disabled={isSubmitting}
       />
       <NormalBlackButton
-        text={isSubmitting ? "저장 중..." : "완료"}
+        text={isSubmitting ? "저장 중..." : "저장"}
         onClick={onSubmit}
         disabled={isSubmitting}
       />

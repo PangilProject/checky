@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { createTask, deleteTaskWithLogs, updateTaskWithDateMove } from "@/shared/api/task";
+import { deleteTaskWithLogs, updateTaskWithDateMove } from "@/shared/api/task";
 import type { Task } from "@/shared/api/task";
 import type { Category } from "@/shared/api/category";
 import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
@@ -11,8 +11,11 @@ import {
 } from "@/shared/api/monthlyStats";
 import { toast } from "react-toastify";
 
+// 생성은 목록의 인라인 입력(useTaskList.addTask)이 전담한다.
+// 모달은 기존 할 일의 조회·수정만 다룬다. 생성 경로를 두 갈래로 두면
+// 한쪽만 월간 집계를 갱신하는 식으로 어긋나기 쉽다.
 interface UseTaskModalHandlersParams {
-  mode: "CREATE" | "VIEW" | "EDIT";
+  mode: "VIEW" | "EDIT";
   task?: Task;
   selectedDate: string;
   categoryId: string;
@@ -110,33 +113,6 @@ export const useTaskModalHandlers = ({
       toast.error(
         "할 일은 옮겼지만 달력 숫자를 맞추지 못했습니다. 리스트 메뉴의 월간 통계 재생성을 실행해 주세요.",
       );
-    }
-  };
-
-  const handleCreateTask = async () => {
-    if (!taskInput.trim()) {
-      toast.error("할 일 내용을 입력해 주세요.");
-      return;
-    }
-    if (!userId || !effectiveCategoryId) return;
-    if (isSubmitting) return;
-
-    setIsSubmitting(true);
-    try {
-      await createTask({
-        userId,
-        title: taskInput.trim(),
-        categoryId: effectiveCategoryId,
-        categoryColor: selectedCategoryColor,
-        date: taskDate,
-        ...(timeEnabled && { time: taskTime }),
-      });
-      invalidateTaskDates([taskDate]);
-      onClose();
-    } catch {
-      toast.error("할 일 추가에 실패했습니다. 잠시 후 다시 시도해 주세요.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -251,7 +227,6 @@ export const useTaskModalHandlers = ({
     shouldShowTimeField,
     defaultTime: DEFAULT_TIME,
     selectedCategoryColor,
-    handleCreateTask,
     handleUpdateTask,
     handleDeleteTask,
     handleMoveTask,

@@ -20,7 +20,7 @@ import { useState } from "react";
 import { DateSelectModal } from "./DateSelectModal";
 
 interface TaskModalProps {
-  mode: "CREATE" | "VIEW" | "EDIT";
+  mode: "VIEW" | "EDIT";
   task?: Task;
   isCompleted?: boolean;
   onToggleCompleted?: (taskId: string) => void;
@@ -32,7 +32,8 @@ interface TaskModalProps {
 }
 
 /**
- * 할 일 생성/조회/수정을 공통으로 처리하는 모달입니다.
+ * 할 일 조회/수정을 공통으로 처리하는 모달입니다.
+ * 생성은 목록의 인라인 입력이 전담합니다.
  */
 export default function TaskModal({
   mode,
@@ -64,7 +65,6 @@ export default function TaskModal({
     isSubmitting,
     shouldShowTimeField,
     defaultTime,
-    handleCreateTask,
     handleUpdateTask,
     handleDeleteTask,
     handleMoveTask,
@@ -110,10 +110,6 @@ export default function TaskModal({
           value={taskInput}
           onChange={setTaskInput}
           onEnter={() => {
-            if (currentMode === "CREATE") {
-              void handleCreateTask();
-              return;
-            }
             if (currentMode === "EDIT") {
               void handleUpdateTask();
             }
@@ -162,10 +158,6 @@ export default function TaskModal({
         onEdit={() => setCurrentMode("EDIT")}
         onMove={() => setIsMoveDateModalOpen(true)}
         onSubmit={() => {
-          if (currentMode === "CREATE") {
-            void handleCreateTask();
-            return;
-          }
           void handleUpdateTask();
         }}
         onDelete={() => void handleDeleteTask()}
