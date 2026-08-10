@@ -18,6 +18,31 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
 
+    <!--
+      테마를 첫 페인트 전에 적용한다.
+      번들이 로드된 뒤에 붙이면 다크 사용자에게 흰 화면이 한 번 번쩍인다.
+      저장 키는 src/shared/stores/themeStore.ts 의 THEME_STORAGE_KEY 와 짝을 이룬다.
+    -->
+    <script>
+      (function () {
+        try {
+          var mode = localStorage.getItem("checky:theme") || "system";
+          var isDark =
+            mode === "dark" ||
+            (mode === "system" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (isDark) {
+            document.documentElement.classList.add("dark");
+            document
+              .querySelector('meta[name="theme-color"]')
+              .setAttribute("content", "#141414");
+          }
+        } catch (e) {
+          // 저장소를 못 읽는 환경에서는 기본값(라이트)으로 둔다
+        }
+      })();
+    </script>
+
     <title>checky</title>
     <meta
       name="description"
