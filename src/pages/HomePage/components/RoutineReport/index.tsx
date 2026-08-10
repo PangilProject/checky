@@ -61,7 +61,7 @@ function RoutineReportSection() {
       ) : isError || !report ? (
         // 2-2. 조회 실패: 빈 공간만 보이지 않도록 상태와 재시도를 제공
         <div className="flex flex-col items-center gap-3 py-8">
-          <p className="text-sm text-[#8E8E93]">
+          <p className="text-sm text-content-muted">
             루틴 목록을 불러오지 못했습니다.
           </p>
           <NormalBlackButton text="다시 시도" onClick={() => void refetch()} />

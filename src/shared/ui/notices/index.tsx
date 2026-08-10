@@ -101,7 +101,7 @@ export default function NoticeModal({ onClose }: Props) {
               {loading && <NoticeListSkeleton />}
 
               {!loading && isError && (
-                <div className="flex h-full items-center justify-center text-center text-sm text-gray-500">
+                <div className="flex h-full items-center justify-center text-center text-sm text-content-muted">
                   공지사항을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
                 </div>
               )}

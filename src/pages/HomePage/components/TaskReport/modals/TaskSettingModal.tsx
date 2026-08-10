@@ -82,9 +82,9 @@ const ActionItem = ({ text, icon, isSelected, onClick }: ActionItemProps) => {
     today: <FaArrowAltCircleDown size={20} />,
     after: <FaArrowAltCircleRight size={20} />,
     delete: <FaRegTimesCircle size={20} />,
-    copy: <FaPlusCircle size={20} className="text-[#0088FF]" />,
-    "delete-all": <FaRegTimesCircle size={20} className="text-[#FF393C]" />,
-    "recalculate-monthly-stats": <FaRedoAlt size={20} className="text-[#2E6BFF]" />,
+    copy: <FaPlusCircle size={20} className="text-accent" />,
+    "delete-all": <FaRegTimesCircle size={20} className="text-danger" />,
+    "recalculate-monthly-stats": <FaRedoAlt size={20} className="text-accent" />,
   };
 
   return (
@@ -100,7 +100,7 @@ const ActionItem = ({ text, icon, isSelected, onClick }: ActionItemProps) => {
         <button
           type="button"
           onClick={onClick}
-          className="w-5 h-5 border-2 border-gray-400 rounded-2xl"
+          className="w-5 h-5 border-2 border-content-muted rounded-2xl"
         />
       )}
     </div>

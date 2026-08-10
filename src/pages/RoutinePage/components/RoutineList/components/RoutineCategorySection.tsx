@@ -68,7 +68,7 @@ export const RoutineCategorySection = ({
         <span className="shrink-0">
           {isEnded ? (
             // 왜 더할 수 없는지 알 수 있도록 상태를 적어 둔다
-            <span className="text-sm text-gray-400">종료됨</span>
+            <span className="text-sm text-content-muted">종료됨</span>
           ) : (
             <NormalBlackButton text="추가" onClick={onAdd} />
           )}
@@ -77,7 +77,7 @@ export const RoutineCategorySection = ({
 
       {/* 분류를 방금 만든 직후가 가장 허전한 지점이라, 다음에 할 일을 적어 둔다 */}
       {routines.length === 0 && (
-        <p className="pl-1 pb-1 text-[13px] text-gray-400">
+        <p className="pl-1 pb-1 text-[13px] text-content-muted">
           {isEnded
             ? "루틴이 없습니다."
             : "추가를 눌러 이 분류의 첫 루틴을 만들어보세요."}

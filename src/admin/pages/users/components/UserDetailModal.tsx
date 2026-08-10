@@ -64,10 +64,10 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={`text-sm ${muted ? "text-gray-300" : "text-black"}`}>
+      <span className={`text-sm ${muted ? "text-content-subtle" : "text-content"}`}>
         {icon}
       </span>
-      <Text2 text={text} className={muted ? "text-gray-400" : ""} />
+      <Text2 text={text} className={muted ? "text-content-muted" : ""} />
     </div>
   );
 }

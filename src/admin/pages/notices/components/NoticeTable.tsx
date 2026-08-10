@@ -12,9 +12,9 @@ function NoticeTable({ notices }: Props) {
 
   return (
     <>
-      <div className="bg-white border rounded-lg overflow-hidden">
+      <div className="bg-surface-raised border border-line rounded-lg overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
+          <thead className="bg-surface-sunken text-content-muted">
             <tr>
               <th className="px-4 py-2 text-left">고정 여부</th>
               <th className="px-4 py-2 text-left">제목</th>

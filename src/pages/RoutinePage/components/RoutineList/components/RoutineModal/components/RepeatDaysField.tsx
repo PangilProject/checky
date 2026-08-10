@@ -50,8 +50,8 @@ export const RepeatDaysField = ({
                 border pressable
                 ${
                   active
-                    ? "bg-black text-white border-black"
-                    : "border-gray-300 text-gray-500"
+                    ? "bg-primary text-on-primary border-line-strong"
+                    : "border-content-subtle text-content-muted"
                 }
               `}
             >

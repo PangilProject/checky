@@ -11,15 +11,15 @@ function EmptyRoutineList() {
       <div className="flex flex-col items-center">
         <img src={ImageEmpty} className="h-15" />
         <Space4 direction="mb" />
-        <Text2 text="아직 카테고리가 없습니다." className="text-gray-400" />
+        <Text2 text="아직 카테고리가 없습니다." className="text-content-muted" />
         <Text2
           text="루틴은 카테고리 안에 만들어요. 카테고리부터 추가해 주세요."
-          className="text-gray-400"
+          className="text-content-muted"
         />
         <Space2 direction="mb" />
         <Link
           to="/category"
-          className="text-xs text-blue-400 hover:text-blue-200"
+          className="text-xs text-accent hover:opacity-70"
         >
           카테고리 만들러 가기
         </Link>

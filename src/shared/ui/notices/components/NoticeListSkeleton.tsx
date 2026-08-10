@@ -20,7 +20,7 @@ export const NoticeListSkeleton = ({ rows = 5 }: NoticeListSkeletonProps) => {
       aria-label="공지사항을 불러오는 중입니다"
     >
       {Array.from({ length: rows }).map((_, index) => (
-        <div key={`notice-skeleton-${index}`} className="border rounded p-3">
+        <div key={`notice-skeleton-${index}`} className="border border-line rounded p-3">
           {/* h-5: 제목(text-sm)의 줄높이와 동일하게 유지해 행 높이를 맞춘다 */}
           <div className="flex h-5 items-center justify-between gap-2">
             <SkeletonBlock className="h-4 min-w-0 flex-1" />

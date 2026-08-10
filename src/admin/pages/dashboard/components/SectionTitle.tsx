@@ -12,7 +12,7 @@ function SectionTitle({ title, description, rightElement }: SectionTitleProps) {
       <div>
         <Text3 text={title} className="font-semibold" />
         {description && (
-          <p className="text-xs text-gray-400 mt-1">{description}</p>
+          <p className="text-xs text-content-muted mt-1">{description}</p>
         )}
       </div>
 

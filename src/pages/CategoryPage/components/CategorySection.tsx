@@ -148,7 +148,7 @@ export const CategorySection = ({
             <Space4 direction="mb" />
             <Text2
               text="카테고리를 불러오지 못했습니다."
-              className="text-gray-400"
+              className="text-content-muted"
             />
             <Space4 direction="mb" />
             <NormalBlackButton
@@ -163,9 +163,9 @@ export const CategorySection = ({
           <div className="flex flex-col items-center">
             <img src={ImageEmpty} className="h-15" alt="" />
             <Space4 direction="mb" />
-            <Text2 text={emptyTitle} className="text-gray-400" />
+            <Text2 text={emptyTitle} className="text-content-muted" />
             {emptySubTitle && (
-              <Text2 text={emptySubTitle} className="text-gray-400" />
+              <Text2 text={emptySubTitle} className="text-content-muted" />
             )}
             {/* 안내문이 가리키는 버튼을 안내문 옆에 둔다.
                 제목 줄의 "추가"만 있으면 무엇을 눌러야 하는지 눈으로 잇기 어렵다. */}

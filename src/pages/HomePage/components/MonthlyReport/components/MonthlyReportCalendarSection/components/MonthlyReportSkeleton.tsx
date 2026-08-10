@@ -11,7 +11,7 @@ export const MonthlyReportSkeleton = () => {
   return (
     <div className="w-full flex flex-col">
       {/* 1. 요일 영역*/}
-      <div className="flex w-full border-b border-[#8E8E93]">
+      <div className="flex w-full border-b border-content-muted">
         {WEEK_LABELS.map((label) => (
           <div key={label} className="w-[14.285%] text-center font-medium py-2">
             <SkeletonBlock className="mx-auto h-4 w-6" />

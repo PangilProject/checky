@@ -1,7 +1,9 @@
 import { Text1 } from "@/shared/ui/Text";
-import { SATURDAY_COLOR, SUNDAY_COLOR } from "@/shared/constants/colors";
+import {
+  SATURDAY_TEXT_CLASS,
+  SUNDAY_TEXT_CLASS,
+} from "@/shared/constants/colors";
 import type { CalendarDateCell } from "@/shared/hooks/calendar/useCalendar";
-import type { CSSProperties } from "react";
 
 interface CalendarCellProps {
   cell: CalendarDateCell;
@@ -26,11 +28,11 @@ export function CalendarCell({
 
   const textColor =
     !isCurrentMonth
-      ? "text-gray-400"
+      ? "text-content-muted"
       : dayOfWeek === 0
-        ? "text-[var(--sun-color)]"
+        ? SUNDAY_TEXT_CLASS
         : dayOfWeek === 6
-          ? "text-[var(--sat-color)]"
+          ? SATURDAY_TEXT_CLASS
           : "";
 
   // 선택된 날짜 여부
@@ -42,15 +44,9 @@ export function CalendarCell({
   return (
     <button
       onClick={() => setSelectedDate(new Date(date))}
-      style={
-        {
-          "--sun-color": SUNDAY_COLOR,
-          "--sat-color": SATURDAY_COLOR,
-        } as CSSProperties
-      }
       className={`
         w-[14.285%] h-15 flex flex-col items-center justify-center gap-1
-        ${isSelected ? "bg-gray-100" : isCurrentMonth ? "hover:bg-gray-100" : "hover:bg-gray-50"}
+        ${isSelected ? "bg-surface-sunken" : isCurrentMonth ? "hover:bg-surface-sunken" : "hover:bg-surface-sunken"}
       `}
     >
       {/* 태스크 개수 */}
@@ -61,8 +57,8 @@ export function CalendarCell({
             text-xs font-bold
             ${
               activity.remaining === 0
-                ? "bg-green-500 text-white"
-                : "bg-gray-200 text-black"
+                ? "bg-success text-on-success"
+                : "bg-line text-content"
             }
           `}
         >
@@ -70,7 +66,7 @@ export function CalendarCell({
         </div>
       ) : (
         <div
-          className={`w-6 h-6 rounded-full ${isCurrentMonth ? "bg-gray-200" : "bg-gray-100"}`}
+          className={`w-6 h-6 rounded-full ${isCurrentMonth ? "bg-line" : "bg-surface-sunken"}`}
         />
       )}
 

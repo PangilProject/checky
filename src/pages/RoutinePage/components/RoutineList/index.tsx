@@ -48,7 +48,7 @@ export const RoutineList = () => {
   if (!routineCategories && isError) {
     return (
       <div className="flex flex-col items-center gap-3 py-10">
-        <p className="text-sm text-gray-400">루틴을 불러오지 못했습니다.</p>
+        <p className="text-sm text-content-muted">루틴을 불러오지 못했습니다.</p>
         <NormalBlackButton text="다시 시도" onClick={() => void refetch()} />
       </div>
     );

@@ -9,6 +9,6 @@
  */
 export const NoticePinnedLabel = () => {
   return (
-    <span className="shrink-0 text-xs font-bold text-gray-500">고정</span>
+    <span className="shrink-0 text-xs font-bold text-content-muted">고정</span>
   );
 };

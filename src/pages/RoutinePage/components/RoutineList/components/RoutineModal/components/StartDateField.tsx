@@ -45,11 +45,11 @@ export const StartDateField = ({
       />
       <Space2 direction="mb" />
       {isReadOnly ? (
-        <Text2 text={startDate} className="text-gray-700" />
+        <Text2 text={startDate} className="text-content" />
       ) : mode === "EDIT" && !isRepeatChanged ? (
         <Text2
           text={routine?.startDate ?? startDate}
-          className="text-gray-700"
+          className="text-content"
         />
       ) : mode === "EDIT" && isRepeatChanged ? (
         <DatePicker

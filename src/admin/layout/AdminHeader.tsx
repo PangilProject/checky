@@ -6,7 +6,7 @@ import { Text2, Text3, Text4, Text6 } from "@/shared/ui/Text";
 
 function AdminHeader() {
   return (
-    <div className="w-full sticky top-0 z-50 bg-white flex justify-between items-center">
+    <div className="w-full sticky top-0 z-50 bg-surface flex justify-between items-center">
       <LogoSection />
       <MenuSection />
     </div>
@@ -30,7 +30,7 @@ const LogoSection = () => {
           text="CHECKY"
         />
         <Space2 direction="mr" />
-        <Text2 text="ADMIN" className="text-blue-500 font-bold" />
+        <Text2 text="ADMIN" className="text-accent font-bold" />
       </div>
     </Link>
   );
@@ -49,7 +49,7 @@ const MenuSection = () => {
             key={menu.path}
             to={menu.path}
             className={`pressable ${
-              isActive ? "font-bold text-black" : "font-normal text-[#8E8E93]"
+              isActive ? "font-bold text-content" : "font-normal text-content-muted"
             }`}
           >
             <Text3 text={menu.label} className="block sm:hidden" />

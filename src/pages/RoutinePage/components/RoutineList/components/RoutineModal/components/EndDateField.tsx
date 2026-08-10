@@ -44,12 +44,12 @@ export const EndDateField = ({
       {isReadOnly ? (
         <Text2
           text={routineEndDate ? routineEndDate : "없음"}
-          className="text-gray-700"
+          className="text-content"
         />
       ) : endDateEnabled ? (
         <DatePicker value={endDate} min={startDate} onChange={setEndDate} />
       ) : (
-        <Text2 text="없음" className="text-gray-500" />
+        <Text2 text="없음" className="text-content-muted" />
       )}
     </div>
   );

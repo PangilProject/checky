@@ -37,17 +37,17 @@ const components: Components = {
     </h3>
   ),
   p: ({ children }) => (
-    <p className="my-3 text-sm leading-relaxed text-gray-700 wrap-break-word">
+    <p className="my-3 text-sm leading-relaxed text-content wrap-break-word">
       {children}
     </p>
   ),
   ul: ({ children }) => (
-    <ul className="my-3 list-disc pl-5 text-sm leading-relaxed text-gray-700">
+    <ul className="my-3 list-disc pl-5 text-sm leading-relaxed text-content">
       {children}
     </ul>
   ),
   ol: ({ children }) => (
-    <ol className="my-3 list-decimal pl-5 text-sm leading-relaxed text-gray-700">
+    <ol className="my-3 list-decimal pl-5 text-sm leading-relaxed text-content">
       {children}
     </ol>
   ),
@@ -57,15 +57,15 @@ const components: Components = {
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="underline underline-offset-2 hover:text-black"
+      className="underline underline-offset-2 hover:text-content"
     >
       {children}
     </a>
   ),
   strong: ({ children }) => (
-    <strong className="font-bold text-gray-900">{children}</strong>
+    <strong className="font-bold text-content">{children}</strong>
   ),
-  hr: () => <hr className="my-8 border-t border-gray-200" />,
+  hr: () => <hr className="my-8 border-t border-line" />,
   // 좁은 화면에서는 칸 안에서 줄바꿈해 표 전체가 보이게 한다.
   // 가로 스크롤은 요약표처럼 중요한 내용이 화면 밖으로 밀려나 놓치기 쉽다.
   // overflow-x-auto 는 줄바꿈으로도 감당이 안 되는 경우의 안전장치로 남긴다.
@@ -75,14 +75,14 @@ const components: Components = {
     </div>
   ),
   th: ({ children }) => (
-    <th className="border-b border-gray-300 px-2 py-2 text-left font-bold whitespace-nowrap sm:px-3">
+    <th className="border-b border-content-subtle px-2 py-2 text-left font-bold whitespace-nowrap sm:px-3">
       {children}
     </th>
   ),
   // break-keep: 칸이 좁으면 한글이 단어 중간에서 잘린다.
   // 어절 단위로 끊어야 "무엇을 수집하나요"가 "무엇 / 을 수 / 집하"로 쪼개지지 않는다.
   td: ({ children }) => (
-    <td className="border-b border-gray-200 px-2 py-2 align-top text-gray-700 break-keep sm:px-3">
+    <td className="border-b border-line px-2 py-2 align-top text-content break-keep sm:px-3">
       {children}
     </td>
   ),

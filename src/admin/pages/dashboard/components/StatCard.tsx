@@ -7,8 +7,8 @@ interface StatCardProps {
 
 function StatCard({ title, value }: StatCardProps) {
   return (
-    <div className="rounded-lg border border-gray-200 p-5 bg-white">
-      <Text3 text={title} className="text-gray-500 mb-2" />
+    <div className="rounded-lg border border-line p-5 bg-surface-raised">
+      <Text3 text={title} className="text-content-muted mb-2" />
       <Text5 text={value.toLocaleString()} className="font-bold" />
     </div>
   );

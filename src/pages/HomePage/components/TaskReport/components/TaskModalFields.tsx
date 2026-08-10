@@ -4,6 +4,7 @@ import { DatePicker } from "@/shared/ui/DatePicker";
 import { TimePicker } from "@/shared/ui/TimePicker";
 import { formatHmLabel, formatYmdLabel } from "@/shared/hooks/formatDate";
 import type { Category } from "@/shared/api/category";
+import { getCategoryColor } from "@/shared/constants/colors";
 
 export const TaskInput = ({
   value,
@@ -18,7 +19,7 @@ export const TaskInput = ({
 }) => {
   return (
     <input
-      className="w-full border-0 border-b border-gray-300 text-[16px] outline-none ime-fallback"
+      className="w-full border-0 border-b border-content-subtle text-[16px] outline-none ime-fallback"
       placeholder="할 일을 입력하세요"
       value={value}
       maxLength={100}
@@ -80,8 +81,8 @@ export const TimeField = ({
             className={`text-xs px-2 py-1 rounded border
               ${
                 enabled
-                  ? "border-black text-black"
-                  : "border-gray-300 text-gray-400"
+                  ? "border-line-strong text-content"
+                  : "border-content-subtle text-content-muted"
               }`}
           >
             {enabled ? "삭제" : "선택"}
@@ -114,9 +115,11 @@ export const CategoryField = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const isDisabled = Boolean(disabled) || categories.length === 0;
   const selected = categories.find((c) => c.id === value);
-  const selectedTextClass = selected?.color
-    ? `text-[${selected.color}]`
-    : "text-gray-400";
+  // Tailwind 는 소스에 그대로 적힌 클래스만 만들어 내므로 `text-[${color}]` 처럼
+  // 조립하면 색이 나오지 않는다. 값이 실행 중에 정해지므로 style 로 넘긴다.
+  const selectedColor = selected?.color
+    ? getCategoryColor(selected.color)
+    : undefined;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -157,15 +160,20 @@ export const CategoryField = ({
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="min-w-30 border-b border-gray-300 text-[14px] text-left pr-6 relative"
+            className="min-w-30 border-b border-content-subtle text-[14px] text-left pr-6 relative"
           >
-            <span className={selectedTextClass}>{selected?.name ?? "-"}</span>
+            <span
+              style={{ color: selectedColor }}
+              className={selectedColor ? undefined : "text-content-muted"}
+            >
+              {selected?.name ?? "-"}
+            </span>
             <span className="absolute right-1 top-1/2 -translate-y-1/2 text-xs">
               ▼
             </span>
           </button>
           {isOpen && (
-            <div className="absolute right-0 mt-2 z-10 min-w-30 bg-white border border-gray-200 rounded-md shadow-sm">
+            <div className="absolute right-0 mt-2 z-10 min-w-30 bg-surface-raised border border-line rounded-md shadow-sm">
               {categories.map((category) => (
                 <button
                   key={category.id}
@@ -174,7 +182,8 @@ export const CategoryField = ({
                     onChange(category.id);
                     setOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2 text-[14px] hover:bg-gray-50 text-[${category.color}] ${
+                  style={{ color: getCategoryColor(category.color) }}
+                  className={`w-full text-left px-3 py-2 text-[14px] hover:bg-surface-sunken ${
                     category.id === value ? "font-bold" : ""
                   }`}
                 >

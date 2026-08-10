@@ -17,7 +17,7 @@ function AdminDashboardPage() {
     return (
       <div className="space-y-4">
         <Text5 text="관리자 대시보드" className="font-bold" />
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-content-muted">
           통계를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.
         </p>
       </div>

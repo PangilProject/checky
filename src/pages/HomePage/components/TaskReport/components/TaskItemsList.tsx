@@ -45,7 +45,7 @@ export const TaskItemsList = ({
   // 옆의 작은 + 아이콘이 유일한 단서라, 무엇을 해야 할지 알기 어렵다.
   if (tasks.length === 0) {
     return (
-      <p className="py-2 pl-1 text-[13px] text-gray-400">
+      <p className="py-2 pl-1 text-[13px] text-content-muted">
         + 를 눌러 할 일을 추가해보세요.
       </p>
     );
@@ -109,7 +109,7 @@ const SortableTaskItem = ({
       {...listeners}
       className={`
           py-1 flex justify-between cursor-grab 
-          ${isDragging ? "bg-gray-100 shadow-md scale-[1.02]" : ""}
+          ${isDragging ? "bg-surface-sunken shadow-md scale-[1.02]" : ""}
         `}
     >
       <div className="flex flex-col min-w-0" onClick={() => onToggle(task.id)}>
@@ -132,14 +132,14 @@ const SortableTaskItem = ({
         <div className="flex">
           <Space6 direction="mr" />
           {task.time && (
-            <Text1 text={task.time} className="ml-1 text-[#8E8E93]" />
+            <Text1 text={task.time} className="ml-1 text-content-muted" />
           )}
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <div className="w-12 text-left">
-          {elapsedDays && <Text1 text={elapsedDays} className="text-[#8E8E93]" />}
+          {elapsedDays && <Text1 text={elapsedDays} className="text-content-muted" />}
         </div>
         <button
           className="pressable"
@@ -148,7 +148,7 @@ const SortableTaskItem = ({
             onClickTask(task);
           }}
         >
-          <HiDotsHorizontal color="#8E8E93" size={20} />
+          <HiDotsHorizontal color="var(--color-content-muted)" size={20} />
         </button>
       </div>
     </div>

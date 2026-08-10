@@ -36,7 +36,7 @@ export const LegalPageLayout = ({ children }: LegalPageLayoutProps) => {
         <button
           type="button"
           onClick={handleBack}
-          className="-ml-2 flex w-fit items-center gap-1 rounded px-2 py-1 text-sm text-gray-500 pressable hover:bg-gray-100"
+          className="-ml-2 flex w-fit items-center gap-1 rounded px-2 py-1 text-sm text-content-muted pressable hover:bg-surface-sunken"
         >
           <IoChevronBack size={16} />
           돌아가기

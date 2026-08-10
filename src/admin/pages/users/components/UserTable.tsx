@@ -117,14 +117,14 @@ function UserTable({ users }: Props) {
         flex items-center gap-1
         font-medium
         transition-colors
-        ${isActive ? "text-black" : "text-gray-400 hover:text-gray-600"}
+        ${isActive ? "text-content" : "text-content-muted hover:text-content-muted"}
       `}
       >
         {label}
         <span
           className={`
           text-xs transition-colors
-          ${isActive ? "text-black" : "text-gray-300"}
+          ${isActive ? "text-content" : "text-content-subtle"}
         `}
         >
           {arrow}
@@ -134,9 +134,9 @@ function UserTable({ users }: Props) {
   };
   return (
     <>
-      <div className="bg-white border rounded-lg overflow-x-auto">
+      <div className="bg-surface-raised border border-line rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
+          <thead className="bg-surface-sunken text-content-muted">
             <tr>
               <th className="px-4 py-2 text-left whitespace-nowrap">
                 {renderHeader("이름", "name")}

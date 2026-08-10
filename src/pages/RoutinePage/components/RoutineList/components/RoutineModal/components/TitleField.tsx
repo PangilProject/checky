@@ -19,7 +19,7 @@ export const TitleField = ({
       <Text3 text="루틴명" className="font-bold" />
       <Space2 direction="mb" />
       <input
-        className="w-full border-0 border-b border-gray-300 text-sm outline-none ime-fallback"
+        className="w-full border-0 border-b border-content-subtle text-sm outline-none ime-fallback"
         placeholder="루틴 입력"
         value={title}
         maxLength={50}

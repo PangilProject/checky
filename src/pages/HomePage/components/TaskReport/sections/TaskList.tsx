@@ -47,14 +47,14 @@ export const TaskListSection = ({
       ) : categories.length === 0 ? (
         // 카테고리가 없으면 빈 공간만 보이므로 다음 행동을 안내한다
         <div className="flex flex-col items-center gap-2 py-8">
-          <Text2 text="아직 카테고리가 없어요." className="text-gray-400" />
+          <Text2 text="아직 카테고리가 없어요." className="text-content-muted" />
           <Text2
             text="카테고리를 먼저 만들어 주세요."
-            className="text-gray-400"
+            className="text-content-muted"
           />
           <Link
             to="/category"
-            className="mt-1 rounded-md bg-black px-4 py-1 text-sm font-bold text-white"
+            className="mt-1 rounded-md bg-primary px-4 py-1 text-sm font-bold text-on-primary"
           >
             카테고리 만들기
           </Link>

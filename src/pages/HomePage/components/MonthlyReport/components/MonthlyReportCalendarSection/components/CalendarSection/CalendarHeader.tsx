@@ -7,7 +7,7 @@ import { Text2 } from "@/shared/ui/Text";
  */
 export function CalendarHeader() {
   return (
-    <div className="flex w-full border-b border-[#8E8E93]">
+    <div className="flex w-full border-b border-content-muted">
       {WEEK_LABELS.map((d, index) => (
         <div
           key={d}

@@ -45,6 +45,7 @@
   --color-on-primary: #ffffff;
   --color-on-accent: #ffffff;
   --color-on-danger: #ffffff;
+  --color-on-success: #ffffff;
 
   /* ----- 그 외 ----- */
   --color-overlay: rgb(0 0 0 / 0.4);
@@ -103,6 +104,7 @@
   --color-on-primary: #141414;
   --color-on-accent: #141414;
   --color-on-danger: #141414;
+  --color-on-success: #141414;
 
   --color-overlay: rgb(0 0 0 / 0.6);
 

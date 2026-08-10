@@ -13,7 +13,7 @@ function AdminUsersPage() {
     return (
       <div className="space-y-4">
         <Text5 text="가입자 관리" className="font-bold" />
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-content-muted">
           가입자 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.
         </p>
       </div>

@@ -46,7 +46,7 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
       className={`w-full flex flex-col
         cursor-grab 
         transition-all duration-200 ease-out
-        ${isDragging ? "bg-white shadow-xl scale-[1.01]" : "hover:bg-gray-100"}
+        ${isDragging ? "bg-surface-raised shadow-xl scale-[1.01]" : "hover:bg-surface-sunken"}
       `}
     >
       <div className="flex justify-between items-center w-full ">
@@ -57,7 +57,7 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
             {/* 루틴 제목 */}
             <div className="flex items-center gap-2">
               {isEnded && (
-                <Text2 text="[종료]" className="text-gray-400 font-bold" />
+                <Text2 text="[종료]" className="text-content-muted font-bold" />
               )}
               <Text3 text={routine.title} className="font-bold" />
             </div>
@@ -69,7 +69,7 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
                 .map((day, index) => (
                   <Text2
                     key={index}
-                    className="text-[#8E8E93]"
+                    className="text-content-muted"
                     text={getDayLabel(day)}
                   />
                 ))}
@@ -79,7 +79,7 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
 
         {/* 더보기 버튼 (상세/수정 모달 트리거) */}
         <button onClick={onClickMore} className="pressable">
-          <HiDotsHorizontal color="#8E8E93" size={20} />
+          <HiDotsHorizontal color="var(--color-content-muted)" size={20} />
         </button>
       </div>
     </div>

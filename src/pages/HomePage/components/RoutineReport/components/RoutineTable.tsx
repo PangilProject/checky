@@ -23,7 +23,7 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
     return (
       <div className="w-full flex flex-col items-center">
         <Space20 direction="mb" />
-        <Text2 className="text-[#8E8E93]" text="해당 기간에 루틴이 없습니다." />
+        <Text2 className="text-content-muted" text="해당 기간에 루틴이 없습니다." />
       </div>
     );
   }
@@ -37,8 +37,8 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
     <div className="w-full overflow-x-auto">
     <table border={1} cellPadding={8} className="w-full min-w-85">
       <thead>
-        <tr className="border-b border-[#8E8E93]">
-          <TD className="border-r border-[#8E8E93]">루틴</TD>
+        <tr className="border-b border-content-muted">
+          <TD className="border-r border-content-muted">루틴</TD>
           {week.days.map((day) => {
             return (
               <TD key={day.date} className={getWeekendTextClass(day.day)}>
@@ -49,7 +49,7 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
               </TD>
             );
           })}
-          <TD className="border-l border-[#8E8E93]">합계</TD>
+          <TD className="border-l border-content-muted">합계</TD>
         </tr>
       </thead>
 
@@ -61,7 +61,7 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
           return (
             <tr key={row.routineId}>
               {/* 1. 루틴 이름 (긴 이름이 표 폭을 밀어내지 않도록 제한) */}
-              <TD className="border-r border-[#8E8E93] max-w-32 wrap-break-word">
+              <TD className="border-r border-content-muted max-w-32 wrap-break-word">
                 {row.routineTitle}
               </TD>
 
@@ -73,7 +73,7 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
                 if (!hasCheck) {
                   return (
                     <TD key={day.date}>
-                      <GoDash size={20} color="#8E8E93" />
+                      <GoDash size={20} color="var(--color-content-muted)" />
                     </TD>
                   );
                 }
@@ -99,7 +99,7 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
               })}
 
               {/* 3. 루틴 합계 */}
-              <TD className="border-l border-[#8E8E93]">
+              <TD className="border-l border-content-muted">
                 <Text2 text={`${doneCount} / ${totalCount}`} />
               </TD>
             </tr>
@@ -121,7 +121,7 @@ const TD = ({ children, className }: TDProps) => {
     <td
       className={`
         h-10
-        hover:bg-[#f4f4f4]
+        hover:bg-surface-sunken
         ${className ?? ""}
       `}
     >

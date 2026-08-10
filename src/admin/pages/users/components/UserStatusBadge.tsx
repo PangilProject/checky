@@ -7,7 +7,7 @@ function UserStatusBadge({ isActive }: Props) {
     <span
       className={`text-xs px-2 py-1 rounded-full
         ${
-          isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+          isActive ? "bg-success/15 text-success" : "bg-surface-sunken text-content-muted"
         }`}
     >
       {isActive ? "활성" : "비활성"}

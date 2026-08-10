@@ -145,7 +145,7 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
         disabled={isReadOnly || isSubmitting}
         maxLength={CONTENT_MAX_LENGTH}
         onChange={(e) => setContent(e.target.value)}
-        className="w-full h-32 resize-none border rounded p-2 text-sm outline-none"
+        className="w-full h-32 resize-none border border-line rounded p-2 text-sm outline-none"
       />
 
       <Space10 direction="mb" />

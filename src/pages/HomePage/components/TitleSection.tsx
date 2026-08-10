@@ -31,7 +31,7 @@ function TitleSection({
           {onRefreshClick && (
             <button
               onClick={onRefreshClick}
-              className="px-3 py-1 text-sm rounded-md bg-gray-100 pressable"
+              className="px-3 py-1 text-sm rounded-md bg-surface-sunken pressable"
             >
               새로고침
             </button>
@@ -40,7 +40,7 @@ function TitleSection({
           {onTodayClick && (
             <button
               onClick={onTodayClick}
-              className="px-3 py-1 text-sm rounded-md bg-gray-100 pressable"
+              className="px-3 py-1 text-sm rounded-md bg-surface-sunken pressable"
             >
               오늘
             </button>
