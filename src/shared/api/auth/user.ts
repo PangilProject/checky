@@ -14,7 +14,7 @@ import {
  */
 
 /** 최초 로그인한 사용자의 프로필 문서를 만든다. Google 계정에서 받은 값을 그대로 담는다. */
-export const createUser = async (user: User) => {
+const createUser = async (user: User) => {
   await setDoc(doc(db, "users", user.uid), {
     uid: user.uid,
     email: user.email,

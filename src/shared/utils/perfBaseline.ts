@@ -4,43 +4,6 @@ const isBaselineEnabled = () => Boolean(import.meta.env.DEV);
 
 const nowMs = () => Math.round(performance.now());
 
-export const baselineSubscribe = (label: string, meta?: BaselineMeta) => {
-  if (!isBaselineEnabled()) {
-    return {
-      onSnapshot: () => {},
-      onUnsubscribe: () => {},
-    };
-  }
-
-  const prefix = `[perf][baseline] ${label}`;
-  const start = nowMs();
-  let first = true;
-
-  console.count(`${prefix} subscribe`);
-  console.info(`${prefix} subscribe`, meta);
-
-  return {
-    onSnapshot: (count: number) => {
-      console.count(`${prefix} snapshot`);
-
-      if (first) {
-        const elapsed = nowMs() - start;
-        console.info(`${prefix} firstSnapshot ${elapsed}ms`, {
-          ...meta,
-          count,
-        });
-        first = false;
-        return;
-      }
-
-      console.info(`${prefix} snapshot`, { ...meta, count });
-    },
-    onUnsubscribe: () => {
-      console.info(`${prefix} unsubscribe`, meta);
-    },
-  };
-};
-
 export const baselineFetch = (label: string, meta?: BaselineMeta) => {
   if (!isBaselineEnabled()) {
     return {

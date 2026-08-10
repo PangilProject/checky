@@ -13,7 +13,7 @@ import { QueryClient, type DefaultOptions } from "@tanstack/react-query";
  * 그 표시를 실행하는 것이 바로 마운트 시 재조회이기 때문이다.
  * 기본값(true)은 "낡았을 때만" 다시 읽으므로 staleTime 안에서는 조회가 늘지 않는다.
  */
-export const queryDefaultOptions: DefaultOptions = {
+const queryDefaultOptions: DefaultOptions = {
   queries: {
     staleTime: 10 * 60_000,
     gcTime: 30 * 60_000,
