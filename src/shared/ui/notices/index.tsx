@@ -80,7 +80,7 @@ export default function NoticeModal({ onClose }: Props) {
                 type="button"
                 onClick={() => setSelectedId(null)}
                 aria-label="공지 목록으로 돌아가기"
-                className="-ml-1 shrink-0 rounded p-1 pressable hover:bg-surface-sunken"
+                className="-ml-1 shrink-0 rounded p-1 pressable hover:bg-surface-hover"
               >
                 <IoChevronBack size={20} />
               </button>

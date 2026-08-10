@@ -29,6 +29,7 @@ const TONE = {
   /** 어두운 면 위에 얹는 글자 */
   inverse: "text-content-inverse",
   danger: "text-danger",
+  warning: "text-warning",
   accent: "text-accent",
   success: "text-success",
 } as const;

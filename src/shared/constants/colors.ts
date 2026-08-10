@@ -36,15 +36,15 @@ export const getCategoryColor = (hex: string): string =>
 /**
  * 주말 글자색.
  *
- * 일요일의 빨강과 토요일의 파랑은 달력의 관습이므로, 값을 직접 적지 않고
- * 같은 뜻을 가진 토큰을 가리킨다. 다크 테마에서 눈부시지 않게 조정된 값이
- * 토큰 쪽에 이미 준비되어 있어, 여기서 테마를 따로 신경 쓸 필요가 없다.
+ * 일요일의 빨강은 위험이 아니고 토요일의 파랑은 강조가 아니다.
+ * danger/accent 를 빌려 쓰면 그 값을 손볼 때 달력 색이 함께 바뀌므로
+ * 뜻이 다른 토큰을 따로 둔다.
  *
  * COLOR / TEXT_CLASS 는 쓰이는 자리가 달라 둘 다 필요하다.
  * 전자는 인라인 style 과 CSS 변수에, 후자는 클래스에 쓴다.
  */
-export const SUNDAY_COLOR = "var(--color-danger)";
-export const SATURDAY_COLOR = "var(--color-accent)";
+export const SUNDAY_COLOR = "var(--color-weekend-sun)";
+export const SATURDAY_COLOR = "var(--color-weekend-sat)";
 
-export const SUNDAY_TEXT_CLASS = "text-danger";
-export const SATURDAY_TEXT_CLASS = "text-accent";
+export const SUNDAY_TEXT_CLASS = "text-weekend-sun";
+export const SATURDAY_TEXT_CLASS = "text-weekend-sat";

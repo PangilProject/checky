@@ -28,7 +28,7 @@ export const NoticeNavButton = ({
       type="button"
       onClick={() => onSelect(notice)}
       aria-label={`${label} 공지: ${notice.title}`}
-      className="flex w-full items-center gap-1.5 rounded px-1 py-1 text-left pressable hover:bg-surface-sunken"
+      className="flex w-full items-center gap-1.5 rounded px-1 py-1 text-left pressable hover:bg-surface-hover"
     >
       <span className="shrink-0 text-content-muted">
         {direction === "prev" ? (

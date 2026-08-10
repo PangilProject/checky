@@ -42,7 +42,7 @@ export const SortableCategoryItem = ({
         w-full flex flex-col py-2
         cursor-grab 
         transition-all duration-200 ease-out
-        ${isDragging ? "bg-surface-raised shadow-[var(--shadow-drag)] scale-[1.01]" : "hover:bg-surface-sunken"}
+        ${isDragging ? "bg-surface-raised shadow-[var(--shadow-drag)] scale-[1.01]" : "hover:bg-surface-hover"}
       `}
     >
       <div className="w-full  flex justify-between items-center">

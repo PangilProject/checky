@@ -14,17 +14,17 @@ const TONE = {
   neutral: {
     fill: "bg-primary text-on-primary",
     outline: "border border-line-strong text-content",
-    ghost: "text-content hover:bg-surface-sunken",
+    ghost: "text-content hover:bg-surface-hover",
   },
   danger: {
     fill: "bg-danger text-on-danger",
     outline: "border border-danger text-danger",
-    ghost: "text-danger hover:bg-surface-sunken",
+    ghost: "text-danger hover:bg-surface-hover",
   },
   accent: {
     fill: "bg-accent text-on-accent",
     outline: "border border-accent text-accent",
-    ghost: "text-accent hover:bg-surface-sunken",
+    ghost: "text-accent hover:bg-surface-hover",
   },
 } as const;
 
@@ -67,6 +67,10 @@ export const Button = ({
       disabled={disabled}
       className={cn(
         "box-border rounded-md font-bold transition",
+        // 키보드로 옮겨 다닐 때 지금 어디에 있는지 보이게 한다.
+        // 마우스로 누를 때는 나타나지 않도록 focus-visible 을 쓴다.
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+        "focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
         TONE[tone][variant],
         SIZE[size],
         fullWidth && "w-full",

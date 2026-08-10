@@ -45,7 +45,7 @@ export function CalendarCell({
       onClick={() => setSelectedDate(new Date(date))}
       className={`
         w-[14.285%] h-15 flex flex-col items-center justify-center gap-1
-        ${isSelected ? "bg-surface-sunken" : isCurrentMonth ? "hover:bg-surface-sunken" : "hover:bg-surface-sunken"}
+        ${isSelected ? "bg-surface-selected" : "hover:bg-surface-hover"}
       `}
     >
       {/* 태스크 개수 */}

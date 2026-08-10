@@ -33,7 +33,7 @@ export default function NoticeList({ notices, onSelect }: Props) {
           */
           className={`cursor-pointer rounded-lg border p-3 pressable transition-colors hover:border-content-muted ${
             notice.pinned
-              ? "border-content-subtle bg-surface-sunken"
+              ? "border-content-subtle bg-surface-selected"
               : "border-line bg-surface-raised"
           }`}
         >

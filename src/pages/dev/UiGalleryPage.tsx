@@ -24,9 +24,12 @@ const SURFACE_TOKENS = [
   { name: "surface", className: "bg-surface" },
   { name: "surface-raised", className: "bg-surface-raised" },
   { name: "surface-sunken", className: "bg-surface-sunken" },
+  { name: "surface-hover", className: "bg-surface-hover" },
+  { name: "surface-selected", className: "bg-surface-selected" },
   { name: "primary", className: "bg-primary" },
   { name: "accent", className: "bg-accent" },
   { name: "danger", className: "bg-danger" },
+  { name: "warning", className: "bg-warning" },
   { name: "success", className: "bg-success" },
 ] as const;
 
@@ -41,6 +44,7 @@ const TEXT_TONES = [
   "muted",
   "subtle",
   "danger",
+  "warning",
   "accent",
   "success",
 ] as const;
@@ -212,6 +216,44 @@ function UiGalleryPage() {
               <Button size="md">md</Button>
               <Button size="lg">lg</Button>
             </Stack>
+          </Stack>
+        </Section>
+
+        <Section title="상태">
+          <Text variant="bodySm" tone="muted">
+            마우스를 올리고 눌러 본다. 다크에서도 hover 와 selected 가 서로,
+            그리고 기본 상태와 구분되어야 한다. Tab 키로 옮겨 다니며 포커스 링도
+            확인한다.
+          </Text>
+          <Stack gap={2} direction="col" className="max-w-sm">
+            <div className="rounded-md bg-surface p-3">
+              <Text variant="bodySm">default — surface</Text>
+            </div>
+            <div className="rounded-md bg-surface-hover p-3">
+              <Text variant="bodySm">hover — surface-hover</Text>
+            </div>
+            <div className="rounded-md bg-surface-selected p-3">
+              <Text variant="bodySm">selected — surface-selected</Text>
+            </div>
+            <div className="rounded-md bg-surface-sunken p-3">
+              <Text variant="bodySm">sunken — 표 머리글처럼 눌린 면</Text>
+            </div>
+            <button
+              type="button"
+              className="rounded-md p-3 text-left hover:bg-surface-hover"
+            >
+              <Text variant="bodySm">직접 올려 보기 (hover)</Text>
+            </button>
+          </Stack>
+        </Section>
+
+        <Section title="주말 색">
+          <Text variant="bodySm" tone="muted">
+            달력의 관습이라 danger/accent 와 값은 비슷하지만 뜻이 다르다.
+          </Text>
+          <Stack gap={4} direction="row">
+            <Text className="text-weekend-sun">일요일</Text>
+            <Text className="text-weekend-sat">토요일</Text>
           </Stack>
         </Section>
 

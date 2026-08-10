@@ -19,13 +19,20 @@
   --color-surface: #ffffff;
   --color-surface-raised: #ffffff;
   --color-surface-sunken: #f4f4f5;
+  /* hover 와 selected 를 sunken 과 나눠 둔다.
+     셋을 한 값으로 쓰면 다크에서 "눌린 면"이 바탕보다 어두워지는 바람에
+     마우스를 올려도 변화가 보이지 않는다. */
+  --color-surface-hover: #ededee;
+  --color-surface-selected: #d9d9de;
 
   /* ----- 글자 ----- */
   /* content: 본문 / muted: 보조 설명 / subtle: 플레이스홀더처럼 더 옅은 것
      inverse: 어두운 면 위에 얹는 글자 (검은 버튼 위 흰 글자) */
   --color-content: #000000;
-  --color-content-muted: #8e8e93;
-  --color-content-subtle: #c4c4c4;
+  /* 흰 배경에서 본문 크기 4.5:1 을 넘도록 잡은 값.
+     원래 쓰던 #8e8e93 은 3.26, #c4c4c4 는 1.74 로 읽기 어려웠다. */
+  --color-content-muted: #74747a;
+  --color-content-subtle: #757575;
   --color-content-inverse: #ffffff;
 
   /* ----- 선 ----- */
@@ -36,9 +43,12 @@
   /* ----- 의미색 ----- */
   /* 버튼의 "빨강"은 색이 아니라 위험이라는 역할이므로 danger 로 부른다. */
   --color-primary: #000000;
-  --color-accent: #0088ff;
-  --color-danger: #ff393c;
-  --color-success: #35c759;
+  /* iOS 시스템 색을 그대로 쓰면 흰 배경에서 3.5:1 안팎이라 본문 크기에 못 미친다.
+     색상(hue)은 유지한 채 명도만 낮춰 4.5:1 을 넘긴 값이다. */
+  --color-accent: #0075db;
+  --color-danger: #eb0004;
+  --color-success: #24873c;
+  --color-warning: #b45309;
 
   /* 위 색을 배경으로 깔았을 때 그 위에 얹는 글자색.
      배경과 짝을 지어 두어야 테마가 바뀌어도 대비가 무너지지 않는다. */
@@ -46,6 +56,13 @@
   --color-on-accent: #ffffff;
   --color-on-danger: #ffffff;
   --color-on-success: #ffffff;
+  --color-on-warning: #ffffff;
+
+  /* 주말 색.
+     일요일의 빨강은 위험이 아니고 토요일의 파랑은 강조가 아니다.
+     danger/accent 를 빌려 쓰면 그 값을 손볼 때 달력 색이 따라 바뀐다. */
+  --color-weekend-sun: #eb0004;
+  --color-weekend-sat: #0075db;
 
   /* ----- 그 외 ----- */
   --color-overlay: rgb(0 0 0 / 0.4);
@@ -97,14 +114,19 @@
 .dark {
   --color-surface: #141414;
   --color-surface-raised: #1f1f22;
-  --color-surface-sunken: #0a0a0b;
+  --color-surface-sunken: #0e0e10;
+  /* 어두운 화면에서 hover 는 밝아지는 쪽이어야 한다.
+     바탕보다 어두운 면으로 바꾸면 변화량이 1.07 밖에 되지 않아 눈에 띄지 않는다. */
+  --color-surface-hover: #26262b;
+  --color-surface-selected: #33333a;
 
   --color-content: #f4f4f5;
   --color-content-muted: #98989f;
-  --color-content-subtle: #6b6b70;
+  --color-content-subtle: #7e7e85;
   --color-content-inverse: #141414;
 
-  --color-line: #2e2e33;
+  /* #2e2e33 은 바탕 대비 1.36 으로 표 경계가 흐릿했다 */
+  --color-line: #3a3a41;
   --color-line-strong: #f4f4f5;
 
   /* 어두운 배경에서는 원색이 눈부시고 파랑 계열은 대비가 떨어지므로
@@ -113,12 +135,17 @@
   --color-accent: #4da3ff;
   --color-danger: #ff6b6d;
   --color-success: #45d268;
+  --color-warning: #ffb454;
 
   /* 밝아진 배경 위에는 흰 글자가 읽히지 않으므로 어두운 글자로 뒤집는다 */
   --color-on-primary: #141414;
   --color-on-accent: #141414;
   --color-on-danger: #141414;
   --color-on-success: #141414;
+  --color-on-warning: #141414;
+
+  --color-weekend-sun: #ff6b6d;
+  --color-weekend-sat: #4da3ff;
 
   --color-overlay: rgb(0 0 0 / 0.6);
 

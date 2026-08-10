@@ -129,7 +129,7 @@ export const TimePicker = ({
 
   const columnItemClass = (selected: boolean) =>
     `w-full rounded-md py-1 text-center text-sm
-     ${selected ? "bg-primary font-bold text-on-primary" : "hover:bg-surface-sunken"}`;
+     ${selected ? "bg-primary font-bold text-on-primary" : "hover:bg-surface-hover"}`;
 
   usePopoverPosition(open && !disabled, triggerRef, panelRef, align);
 

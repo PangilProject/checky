@@ -131,7 +131,7 @@ export const DatePicker = ({
               <button
                 type="button"
                 onClick={() => moveMonth(-1)}
-                className="h-7 w-7 rounded-md text-sm text-content-muted hover:bg-surface-sunken"
+                className="h-7 w-7 rounded-md text-sm text-content-muted hover:bg-surface-hover"
                 aria-label="이전 달"
               >
                 ‹
@@ -142,7 +142,7 @@ export const DatePicker = ({
               <button
                 type="button"
                 onClick={() => moveMonth(1)}
-                className="h-7 w-7 rounded-md text-sm text-content-muted hover:bg-surface-sunken"
+                className="h-7 w-7 rounded-md text-sm text-content-muted hover:bg-surface-hover"
                 aria-label="다음 달"
               >
                 ›
@@ -185,7 +185,7 @@ export const DatePicker = ({
                     className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm
                     ${isSelected ? "bg-primary font-bold" : ""}
                     ${!isSelected && isToday ? "border border-line-strong font-bold" : ""}
-                    ${outOfRange ? "cursor-not-allowed" : "hover:bg-surface-sunken"}`}
+                    ${outOfRange ? "cursor-not-allowed" : "hover:bg-surface-hover"}`}
                     style={{ color: textColor }}
                   >
                     {cell.date.getDate()}
@@ -200,7 +200,7 @@ export const DatePicker = ({
                 type="button"
                 disabled={isOutOfRange(todayYmd)}
                 onClick={() => selectDate(todayYmd)}
-                className="rounded-md px-2 py-1 text-xs text-content-muted hover:bg-surface-sunken disabled:opacity-40"
+                className="rounded-md px-2 py-1 text-xs text-content-muted hover:bg-surface-hover disabled:opacity-40"
               >
                 오늘
               </button>

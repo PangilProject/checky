@@ -189,7 +189,7 @@ export const CategoryField = ({
                     setOpen(false);
                   }}
                   style={{ color: getCategoryColor(category.color) }}
-                  className={`w-full text-left px-3 py-2 text-sm hover:bg-surface-sunken ${
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-surface-hover ${
                     category.id === value ? "font-bold" : ""
                   }`}
                 >
