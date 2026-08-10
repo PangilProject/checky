@@ -18,6 +18,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { clearAdminCache } from "@/shared/api/auth/adminAccess";
 import { useAdminShortcut } from "./hooks/useAdminShortcut";
+import { ThemeSection } from "./components/ThemeSection";
 
 function MyPage() {
   return (
@@ -25,6 +26,8 @@ function MyPage() {
       <TitleText text="마이 정보" />
       <Space4 direction="mb" />
       <UserInfoSection />
+      <Space10 direction="mb" />
+      <ThemeSection />
       <Space10 direction="mb" />
       <ButtonSection />
       <Space10 direction="mb" />
