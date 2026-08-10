@@ -103,20 +103,46 @@ content / content-muted / content-subtle    본문, 보조 설명, 더 옅은 �
 line / line-strong                          구분선, 강조 테두리
 primary / accent / danger / success         의미색
 on-primary / on-accent / ...                위 색을 배경으로 깔았을 때의 글자색
+shadow-popover / -modal / -drag             떠 있는 정도
 ```
 
 다크 테마는 `<html>` 의 `.dark` 에서 **변수 값만 덮어씁니다.**
 따라서 화면 코드에 `dark:` 변형을 뿌릴 필요가 없고, `bg-surface` 한 번이면 양쪽 테마가 모두 그려집니다.
 
+색 토큰은 `@theme` 에, 그림자와 카테고리 색은 `:root` 에 있습니다.
+Tailwind 가 `@theme` 의 그림자 값을 유틸리티 안에 그대로 박아 넣어 `.dark` 의 값 교체가 닿지 않으므로,
+그림자는 `shadow-[var(--shadow-modal)]` 처럼 변수를 참조하는 형태로 씁니다.
+
 테마 선택(라이트/다크/시스템)은 `shared/stores/themeStore.ts` 가 들고 있으며,
 첫 페인트 전에 적용해야 흰 화면이 번쩍이지 않으므로 `index.html` 의 인라인 스크립트가 저장된 선택을 먼저 반영합니다.
 저장 키는 양쪽이 공유하므로 한쪽을 바꾸면 다른 쪽도 함께 고쳐야 합니다.
 
-프리미티브는 `shared/ui/primitives` 에 있습니다.
-`Text`(역할별 크기), `Button`(채움 방식 × 의미 × 크기), `Surface`(면), `Stack`(배치)이며,
+### 프리미티브
+
+`shared/ui/primitives` 에 있습니다. 공통점은 **고를 수 있는 값을 스케일로 좁힌다**는 것입니다.
+
+| | 무엇을 정하는가 |
+| --- | --- |
+| `Text` | 역할별 글자 크기와 색 (`variant`, `tone`) |
+| `Button` | 채움 방식 × 의미 × 크기 (`variant`, `tone`, `size`) |
+| `Input` `TextArea` | 테두리 방식과 포커스 표시 (`variant`) |
+| `Surface` | 면의 높이·여백·모서리 (`level`, `padding`, `radius`) |
+| `Stack` | 배치와 간격 (`direction`, `gap`, `align`, `justify`) |
+
+`Stack` 의 기본 방향은 세로이므로 가로로 늘어놓을 때는 `direction="row"` 를 적어야 합니다.
+입력 요소의 글자 크기는 16px 아래로 내리지 않습니다. iOS 사파리가 그보다 작은 입력창에 포커스가 가면 화면을 확대합니다.
+
 개발 서버에서 `/dev/ui` 를 열면 토큰과 프리미티브를 라이트/다크로 나란히 확인할 수 있습니다.
 
-카테고리 색은 사용자가 고른 값이 그대로 저장되므로 값을 바꿀 수 없습니다.
+### 규칙으로 지키는 것
+
+화면 코드가 `bg-white` 나 `text-gray-400` 같은 팔레트 색을 직접 쓰면 그 자리에는 테마가 적용되지 않습니다.
+리뷰로 잡기 어려운 종류의 실수라 `eslint.config.js` 의 `no-restricted-syntax` 로 막아 두었습니다.
+문자열과 템플릿 리터럴을 모두 보므로 조건부로 붙이는 클래스도 걸립니다.
+
+### 카테고리 색
+
+사용자가 고른 값이 그대로 저장되므로 값을 바꿀 수 없습니다.
 대신 `getCategoryColor` 가 그리는 시점에 테마에 맞는 색을 골라, 다크 배경에서 검정 카테고리가 묻히지 않게 합니다.
 
 ## 프로젝트 구조
@@ -129,7 +155,7 @@ src
 ├─ admin/            # 관리자 화면
 ├─ shared/api/       # 도메인 API 계층
 ├─ shared/ui/        # 공통 UI
-│  └─ primitives/    # Text · Button · Surface · Stack
+│  └─ primitives/    # Text · Button · Input · Surface · Stack
 ├─ shared/hooks/     # 공통 훅
 ├─ shared/stores/    # 앱 전역 상태 (인증, 테마)
 ├─ shared/contexts/  # 화면 간 공유 상태 (선택 날짜 등)
