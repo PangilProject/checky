@@ -1,6 +1,7 @@
 import { Button, Stack, Surface, Text } from "@/shared/ui/primitives";
 import { useTheme } from "@/shared/hooks/useTheme";
 import type { ThemeMode } from "@/shared/stores/themeStore";
+import { COLORS, getCategoryColor } from "@/shared/constants/colors";
 
 /**
  * 디자인 시스템 갤러리.
@@ -89,6 +90,29 @@ function UiGalleryPage() {
                   className={`h-14 rounded-md border border-line ${className}`}
                 />
                 <Text variant="caption" tone="muted">
+                  {name}
+                </Text>
+              </Stack>
+            ))}
+          </Stack>
+        </Section>
+
+        <Section title="카테고리 색">
+          <Text variant="bodySm" tone="muted">
+            저장된 값은 그대로 두고 그릴 때만 바꾼다. 다크에서 검정이 밝게
+            뒤집히는지, 노랑이 눈부시지 않은지 본다.
+          </Text>
+          <Stack direction="row" gap={3} wrap>
+            {COLORS.map(({ name, value }) => (
+              <Stack key={name} gap={1} align="center" className="w-16">
+                <div
+                  className="h-10 w-10 rounded-full border border-line"
+                  style={{ backgroundColor: getCategoryColor(value) }}
+                />
+                <Text
+                  variant="caption"
+                  style={{ color: getCategoryColor(value) }}
+                >
                   {name}
                 </Text>
               </Stack>
