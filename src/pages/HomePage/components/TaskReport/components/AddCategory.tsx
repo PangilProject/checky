@@ -1,7 +1,7 @@
 import { FaCirclePlus } from "react-icons/fa6";
-import { COLOR_CLASS_TEXT_MAP } from "@/shared/constants/colors";
+import { getCategoryColor } from "@/shared/constants/colors";
 import { Space10 } from "@/shared/ui/Space";
-import { Text4 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 
 interface AddCategoryProps {
   categoryName: string;
@@ -17,18 +17,23 @@ export const AddCategory = ({
   canAdd = true,
   onClick,
 }: AddCategoryProps) => {
-  const textColor = COLOR_CLASS_TEXT_MAP[categoryColor];
+  // 저장된 hex 가 아니라 테마에 맞게 고른 색으로 그린다
+  const color = getCategoryColor(categoryColor);
   return (
     <div
       className="flex gap-2 items-center"
       onClick={canAdd ? onClick : undefined}
     >
-      <Text4 text={categoryName} className={`${textColor} font-bold`} />
+      <Text variant="title" style={{ color }}>
+        {categoryName}
+      </Text>
       {canAdd ? (
-        <FaCirclePlus size={15} color={categoryColor} className="pressable" />
+        <FaCirclePlus size={15} color={color} className="pressable" />
       ) : (
         // 왜 더할 수 없는지 알 수 있도록 상태를 적어 둔다
-        <Text4 text="종료됨" className="text-gray-400" />
+        <Text variant="title" tone="muted">
+          종료됨
+        </Text>
       )}
       <Space10 direction="mb" />
     </div>

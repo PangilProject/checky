@@ -1,6 +1,6 @@
-import { Text1, Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import type { Category } from "@/shared/api/category";
-import { COLOR_CLASS_TEXT_MAP } from "@/shared/constants/colors";
+import { getCategoryColor } from "@/shared/constants/colors";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Space2 } from "@/shared/ui/Space";
 import { useState } from "react";
@@ -30,7 +30,8 @@ export const SortableCategoryItem = ({
     transition,
   };
 
-  const textColor = COLOR_CLASS_TEXT_MAP[category.color];
+  // 저장된 hex 가 아니라 테마에 맞게 고른 색으로 그린다
+  const color = getCategoryColor(category.color);
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div
@@ -42,23 +43,24 @@ export const SortableCategoryItem = ({
         w-full flex flex-col
         cursor-grab 
         transition-all duration-200 ease-out
-        ${isDragging ? "bg-white shadow-xl scale-[1.01]" : "hover:bg-gray-100"}
+        ${isDragging ? "bg-surface-raised shadow-xl scale-[1.01]" : "hover:bg-surface-sunken"}
       `}
     >
       <Space2 direction="mb" />
       <div className="w-full  flex justify-between items-center">
         <div className="flex w-2/3 min-w-0 items-center">
-          <Text3
-            text={category.name}
-            className={`${textColor} font-bold min-w-0 flex-1 truncate no-select`}
-          />
+          <Text
+            style={{ color }}
+            className="font-bold min-w-0 flex-1 truncate no-select"
+          >
+            {category.name}
+          </Text>
           {category.status === "ENDED" && (
-            <Text1
-              text={`${formatTimestampToKoreanDate(category.createdAt)} ~ ${formatTimestampToKoreanDate(
+            <Text variant="caption" tone="muted" className="flex-3">
+              {`${formatTimestampToKoreanDate(category.createdAt)} ~ ${formatTimestampToKoreanDate(
                 category.endedAt,
               )}`}
-              className="flex-3 text-[#8E8E93]"
-            />
+            </Text>
           )}
         </div>
         <button
@@ -66,7 +68,7 @@ export const SortableCategoryItem = ({
           aria-label={`${category.name} 카테고리 메뉴 열기`}
           className="pressable shrink-0"
         >
-          <HiDotsHorizontal color="#8E8E93" size={20} />
+          <HiDotsHorizontal color="var(--color-content-muted)" size={20} />
         </button>
       </div>
       <Space2 direction="mb" />

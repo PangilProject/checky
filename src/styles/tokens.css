@@ -50,6 +50,31 @@
   --color-overlay: rgb(0 0 0 / 0.4);
 }
 
+/* =========================================================
+   카테고리 색
+
+   사용자가 고른 값이 Firestore 에 hex 로 저장되어 있으므로 값 자체는 바꿀 수 없다.
+   대신 저장된 hex 를 변수 이름으로 삼아, 그리는 시점에 테마에 맞는 색을 꺼낸다.
+   특히 검정 카테고리는 다크 배경에서 그대로 두면 보이지 않는다.
+
+   @theme 이 아니라 :root 에 두는 이유:
+   이 변수들은 유틸리티 클래스가 아니라 인라인 style 의 var() 로만 참조되므로,
+   Tailwind 가 "쓰이지 않는 색"으로 보고 걷어내지 않도록 직접 선언한다.
+   ========================================================= */
+:root {
+  --color-cat-red: #ff393c;
+  --color-cat-orange: #ff8d28;
+  --color-cat-yellow: #ffcc02;
+  --color-cat-green: #35c759;
+  --color-cat-mint: #00c8b3;
+  --color-cat-blue: #0088ff;
+  --color-cat-indigo: #6155f5;
+  --color-cat-purple: #cb30e0;
+  --color-cat-pink: #f2c555;
+  --color-cat-brown: #ac7f5e;
+  --color-cat-black: #000000;
+}
+
 /* 다크 테마.
    @theme 이 만든 변수는 :root 에 놓이므로, 여기서 값만 덮으면
    bg-surface 같은 유틸리티가 자동으로 다른 색을 그린다.
@@ -80,4 +105,18 @@
   --color-on-danger: #141414;
 
   --color-overlay: rgb(0 0 0 / 0.6);
+
+  /* 어두운 배경에서 읽히도록 명도를 올린 짝.
+     검정은 그대로 두면 배경에 묻히므로 밝은 쪽으로 뒤집는다. */
+  --color-cat-red: #ff7275;
+  --color-cat-orange: #ffa95c;
+  --color-cat-yellow: #ffd84d;
+  --color-cat-green: #5fdc80;
+  --color-cat-mint: #3fdccb;
+  --color-cat-blue: #4da9ff;
+  --color-cat-indigo: #9089f8;
+  --color-cat-purple: #dc6deb;
+  --color-cat-pink: #f5d585;
+  --color-cat-brown: #c79e7f;
+  --color-cat-black: #f4f4f5;
 }

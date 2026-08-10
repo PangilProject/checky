@@ -1,3 +1,9 @@
+/**
+ * 카테고리 색 팔레트.
+ *
+ * value 는 Firestore 에 그대로 저장되는 값이므로 바꾸면 기존 카테고리의 색이 끊긴다.
+ * 화면에 실제로 칠해지는 색은 아래 getCategoryColor 가 테마에 맞춰 골라 준다.
+ */
 export const COLORS = [
   { name: "red", value: "#FF393C" },
   { name: "orange", value: "#FF8D28" },
@@ -12,43 +18,33 @@ export const COLORS = [
   { name: "black", value: "#000000" },
 ];
 
-export const COLOR_CLASS_TEXT_MAP: Record<string, string> = {
-  "#FF393C": "text-[#FF393C]",
-  "#FF8D28": "text-[#FF8D28]",
-  "#FFCC02": "text-[#FFCC02]",
-  "#35C759": "text-[#35C759]",
-  "#00C8B3": "text-[#00C8B3]",
-  "#0088FF": "text-[#0088FF]",
-  "#6155F5": "text-[#6155F5]",
-  "#CB30E0": "text-[#CB30E0]",
-  "#F2C555": "text-[#F2C555]",
-  "#AC7F5E": "text-[#AC7F5E]",
-  "#000000": "text-[#000000]",
-};
-
-export const COLOR_CLASS_BORDER_MAP: Record<string, string> = {
-  "#FF393C": "border-[#FF393C]",
-  "#FF8D28": "border-[#FF8D28]",
-  "#FFCC02": "border-[#FFCC02]",
-  "#35C759": "border-[#35C759]",
-  "#00C8B3": "border-[#00C8B3]",
-  "#0088FF": "border-[#0088FF]",
-  "#6155F5": "border-[#6155F5]",
-  "#CB30E0": "border-[#CB30E0]",
-  "#F2C555": "border-[#F2C555]",
-  "#AC7F5E": "border-[#AC7F5E]",
-  "#000000": "border-[#000000]",
-};
-
-export const SUNDAY_COLOR = "#FF393C";
-export const SATURDAY_COLOR = "#0088FF";
+/** 저장된 hex → 그 색을 담고 있는 CSS 변수 이름 */
+const CATEGORY_COLOR_VARS: Record<string, string> = Object.fromEntries(
+  COLORS.map(({ name, value }) => [value, `var(--color-cat-${name})`]),
+);
 
 /**
- * 주말 글자색 Tailwind 클래스.
+ * 카테고리 색을 화면에 칠할 값으로 바꾼다.
  *
- * Tailwind 는 소스에 그대로 적힌 클래스만 만들어 내므로
- * `text-[${SUNDAY_COLOR}]` 처럼 조립하면 스타일이 나오지 않는다.
- * 위 색상값과 짝을 이루므로 한쪽을 고치면 다른 쪽도 함께 고쳐야 한다.
+ * 저장된 hex 를 그대로 쓰면 다크 배경에서 검정 카테고리가 보이지 않고
+ * 노랑 계열은 눈이 부시다. 값 대신 변수를 돌려주어, 실제 색은 CSS 가 테마를 보고 정한다.
+ * 팔레트에 없는 값(옛 데이터 등)은 본문색으로 떨어뜨려 최소한 읽히게 한다.
  */
-export const SUNDAY_TEXT_CLASS = "text-[#FF393C]";
-export const SATURDAY_TEXT_CLASS = "text-[#0088FF]";
+export const getCategoryColor = (hex: string): string =>
+  CATEGORY_COLOR_VARS[hex] ?? "var(--color-content)";
+
+/**
+ * 주말 글자색.
+ *
+ * 일요일의 빨강과 토요일의 파랑은 달력의 관습이므로, 값을 직접 적지 않고
+ * 같은 뜻을 가진 토큰을 가리킨다. 다크 테마에서 눈부시지 않게 조정된 값이
+ * 토큰 쪽에 이미 준비되어 있어, 여기서 테마를 따로 신경 쓸 필요가 없다.
+ *
+ * COLOR / TEXT_CLASS 는 쓰이는 자리가 달라 둘 다 필요하다.
+ * 전자는 인라인 style 과 CSS 변수에, 후자는 클래스에 쓴다.
+ */
+export const SUNDAY_COLOR = "var(--color-danger)";
+export const SATURDAY_COLOR = "var(--color-accent)";
+
+export const SUNDAY_TEXT_CLASS = "text-danger";
+export const SATURDAY_TEXT_CLASS = "text-accent";
