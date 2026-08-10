@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getCategoryColor } from "@/shared/constants/colors";
+import { getCategoryTextColor } from "@/shared/constants/colors";
 import { Button, Input, Stack } from "@/shared/ui/primitives";
 import { LuCircleDashed } from "react-icons/lu";
 
@@ -16,7 +16,7 @@ export const AddTaskInput = ({
 }: AddTaskInputProps) => {
   const [taskInput, setTaskInput] = useState("");
   // 저장된 hex 가 아니라 테마에 맞게 고른 색으로 그린다
-  const color = getCategoryColor(categoryColor);
+  const color = getCategoryTextColor(categoryColor);
   const inputRef = useRef<HTMLInputElement>(null);
   const isSubmittingRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);

@@ -1,6 +1,6 @@
 import { Text } from "@/shared/ui/primitives";
 import type { Category } from "@/shared/api/category";
-import { getCategoryColor } from "@/shared/constants/colors";
+import { getCategoryTextColor } from "@/shared/constants/colors";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { useState } from "react";
 import CategoryModal from "./CategoryModal";
@@ -30,7 +30,7 @@ export const SortableCategoryItem = ({
   };
 
   // 저장된 hex 가 아니라 테마에 맞게 고른 색으로 그린다
-  const color = getCategoryColor(category.color);
+  const color = getCategoryTextColor(category.color);
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div

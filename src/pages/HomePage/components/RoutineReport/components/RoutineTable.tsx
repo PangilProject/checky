@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import type { RoutineReport } from "@/shared/api/routine";
 import { GoDash } from "react-icons/go";
 import { getWeekendTextClass } from "@/shared/constants/dateLabels";
-import { getCategoryColor } from "@/shared/constants/colors";
+import { getCategoryTextColor } from "@/shared/constants/colors";
 
 interface RoutineTableProps {
   report: RoutineReport;
@@ -92,11 +92,11 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
                         className="pressable"
                       >
                         {checked ? (
-                          <FaCheckCircle size={20} color={getCategoryColor(row.category.color)} />
+                          <FaCheckCircle size={20} color={getCategoryTextColor(row.category.color)} />
                         ) : (
                           <LuCircleDashed
                             size={20}
-                            color={getCategoryColor(row.category.color)}
+                            color={getCategoryTextColor(row.category.color)}
                           />
                         )}
                       </button>

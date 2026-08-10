@@ -89,6 +89,13 @@
    대신 저장된 hex 를 변수 이름으로 삼아, 그리는 시점에 테마에 맞는 색을 꺼낸다.
    특히 검정 카테고리는 다크 배경에서 그대로 두면 보이지 않는다.
 
+   같은 색을 두 벌 둔다.
+   -*      : 색 선택기의 동그라미처럼 "무엇을 고르는지" 보여 주는 자리. 고른 값 그대로.
+   -*-text : 카테고리 이름과 아이콘처럼 "읽혀야 하는" 자리. 흰 배경에서 4.5:1 을 넘긴다.
+
+   노랑을 흰 배경에서 읽히게 만들려면 거의 올리브색까지 내려가야 한다.
+   한 벌로 합치면 팔레트가 통째로 탁해지므로, 고르는 색과 읽는 색을 나눈다.
+
    @theme 이 아니라 :root 에 두는 이유:
    이 변수들은 유틸리티 클래스가 아니라 인라인 style 의 var() 로만 참조되므로,
    Tailwind 가 "쓰이지 않는 색"으로 보고 걷어내지 않도록 직접 선언한다.
@@ -105,6 +112,19 @@
   --color-cat-pink: #f2c555;
   --color-cat-brown: #ac7f5e;
   --color-cat-black: #000000;
+
+  /* 색상은 그대로 두고 명도만 낮춰 4.5:1 을 넘긴 값 */
+  --color-cat-red-text: #ee0004;
+  --color-cat-orange-text: #be5900;
+  --color-cat-yellow-text: #8e7200;
+  --color-cat-green-text: #24873c;
+  --color-cat-mint-text: #008375;
+  --color-cat-blue-text: #0076de;
+  --color-cat-indigo-text: #6155f5;
+  --color-cat-purple-text: #c521db;
+  --color-cat-pink-text: #98700c;
+  --color-cat-brown-text: #986d4e;
+  --color-cat-black-text: #000000;
 }
 
 /* 다크 테마.
@@ -171,4 +191,17 @@
   --color-cat-pink: #f5d585;
   --color-cat-brown: #c79e7f;
   --color-cat-black: #f4f4f5;
+
+  /* 다크에서는 채움용 값이 이미 6.2:1 이상이라 글자용을 따로 낮출 이유가 없다 */
+  --color-cat-red-text: var(--color-cat-red);
+  --color-cat-orange-text: var(--color-cat-orange);
+  --color-cat-yellow-text: var(--color-cat-yellow);
+  --color-cat-green-text: var(--color-cat-green);
+  --color-cat-mint-text: var(--color-cat-mint);
+  --color-cat-blue-text: var(--color-cat-blue);
+  --color-cat-indigo-text: var(--color-cat-indigo);
+  --color-cat-purple-text: var(--color-cat-purple);
+  --color-cat-pink-text: var(--color-cat-pink);
+  --color-cat-brown-text: var(--color-cat-brown);
+  --color-cat-black-text: var(--color-cat-black);
 }

@@ -19,19 +19,31 @@ export const COLORS = [
 ];
 
 /** 저장된 hex → 그 색을 담고 있는 CSS 변수 이름 */
-const CATEGORY_COLOR_VARS: Record<string, string> = Object.fromEntries(
+const FILL_VARS: Record<string, string> = Object.fromEntries(
   COLORS.map(({ name, value }) => [value, `var(--color-cat-${name})`]),
+);
+const TEXT_VARS: Record<string, string> = Object.fromEntries(
+  COLORS.map(({ name, value }) => [value, `var(--color-cat-${name}-text)`]),
 );
 
 /**
- * 카테고리 색을 화면에 칠할 값으로 바꾼다.
+ * 색을 그대로 보여 주는 자리에 쓴다 (색 선택기의 동그라미 등).
  *
- * 저장된 hex 를 그대로 쓰면 다크 배경에서 검정 카테고리가 보이지 않고
+ * 저장된 hex 를 직접 칠하면 다크 배경에서 검정 카테고리가 보이지 않고
  * 노랑 계열은 눈이 부시다. 값 대신 변수를 돌려주어, 실제 색은 CSS 가 테마를 보고 정한다.
  * 팔레트에 없는 값(옛 데이터 등)은 본문색으로 떨어뜨려 최소한 읽히게 한다.
  */
 export const getCategoryColor = (hex: string): string =>
-  CATEGORY_COLOR_VARS[hex] ?? "var(--color-content)";
+  FILL_VARS[hex] ?? "var(--color-content)";
+
+/**
+ * 읽혀야 하는 자리에 쓴다 (카테고리 이름, 아이콘, 입력창 밑줄).
+ *
+ * 흰 배경에서 노랑은 1.5:1, 분홍은 1.6:1 이라 이름이 거의 보이지 않는다.
+ * 고르는 색까지 어둡게 내리면 팔레트가 통째로 탁해지므로 자리에 따라 나눠 쓴다.
+ */
+export const getCategoryTextColor = (hex: string): string =>
+  TEXT_VARS[hex] ?? "var(--color-content)";
 
 /**
  * 주말 글자색.

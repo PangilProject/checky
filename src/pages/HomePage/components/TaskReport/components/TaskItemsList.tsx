@@ -6,7 +6,7 @@ import type { Task } from "@/shared/api/task";
 import type { TaskLog } from "@/shared/api/taskLog";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { getCategoryColor } from "@/shared/constants/colors";
+import { getCategoryTextColor } from "@/shared/constants/colors";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -123,9 +123,9 @@ const SortableTaskItem = ({
         <Stack gap={2} direction="row" align="start" className="min-w-0">
           <div className="shrink-0 mt-0.5">
             {completed ? (
-              <FaCheckCircle size={20} color={getCategoryColor(categoryColor)} />
+              <FaCheckCircle size={20} color={getCategoryTextColor(categoryColor)} />
             ) : (
-              <LuCircleDashed size={20} color={getCategoryColor(categoryColor)} />
+              <LuCircleDashed size={20} color={getCategoryTextColor(categoryColor)} />
             )}
           </div>
 

@@ -4,7 +4,7 @@ import { DatePicker } from "@/shared/ui/DatePicker";
 import { TimePicker } from "@/shared/ui/TimePicker";
 import { formatHmLabel, formatYmdLabel } from "@/shared/hooks/formatDate";
 import type { Category } from "@/shared/api/category";
-import { getCategoryColor } from "@/shared/constants/colors";
+import { getCategoryTextColor } from "@/shared/constants/colors";
 
 export const TaskInput = ({
   value,
@@ -123,7 +123,7 @@ export const CategoryField = ({
   // Tailwind 는 소스에 그대로 적힌 클래스만 만들어 내므로 `text-[${color}]` 처럼
   // 조립하면 색이 나오지 않는다. 값이 실행 중에 정해지므로 style 로 넘긴다.
   const selectedColor = selected?.color
-    ? getCategoryColor(selected.color)
+    ? getCategoryTextColor(selected.color)
     : undefined;
 
   useEffect(() => {
@@ -188,7 +188,7 @@ export const CategoryField = ({
                     onChange(category.id);
                     setOpen(false);
                   }}
-                  style={{ color: getCategoryColor(category.color) }}
+                  style={{ color: getCategoryTextColor(category.color) }}
                   className={`w-full text-left px-3 py-2 text-sm hover:bg-surface-hover ${
                     category.id === value ? "font-bold" : ""
                   }`}

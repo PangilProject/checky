@@ -1,5 +1,5 @@
 import { FaCirclePlus } from "react-icons/fa6";
-import { getCategoryColor } from "@/shared/constants/colors";
+import { getCategoryTextColor } from "@/shared/constants/colors";
 import { Stack, Text } from "@/shared/ui/primitives";
 
 interface AddCategoryProps {
@@ -17,7 +17,7 @@ export const AddCategory = ({
   onClick,
 }: AddCategoryProps) => {
   // 저장된 hex 가 아니라 테마에 맞게 고른 색으로 그린다
-  const color = getCategoryColor(categoryColor);
+  const color = getCategoryTextColor(categoryColor);
   return (
     <Stack
       gap={2}

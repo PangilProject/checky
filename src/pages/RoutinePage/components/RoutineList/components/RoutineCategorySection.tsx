@@ -12,7 +12,7 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { Button, Stack, Text } from "@/shared/ui/primitives";
-import { getCategoryColor } from "@/shared/constants/colors";
+import { getCategoryTextColor } from "@/shared/constants/colors";
 import { RoutineItem } from "./RoutineItem";
 import type { Routine, RoutineCategory } from "@/shared/api/routine";
 
@@ -69,7 +69,7 @@ export const RoutineCategorySection = ({
         <Text
           variant="title"
           // 저장된 hex 가 아니라 테마에 맞게 고른 색으로 그린다
-          style={{ color: getCategoryColor(category.color) }}
+          style={{ color: getCategoryTextColor(category.color) }}
           className="min-w-0 truncate"
         >
           {category.name}
