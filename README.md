@@ -98,13 +98,20 @@ notices/{noticeId}          # 공지 (읽기는 로그인 사용자, 쓰기는 �
 토큰은 `src/styles/tokens.css` 에 CSS 변수로 선언되어 있고, Tailwind 가 이를 유틸리티로 만들어 줍니다.
 
 ```text
-surface / surface-raised / surface-sunken   바탕, 떠 있는 면, 눌린 면
-content / content-muted / content-subtle    본문, 보조 설명, 더 옅은 것
+surface / -raised / -sunken                 바탕, 떠 있는 면, 눌린 면
+surface-hover / -selected                   마우스를 올린 상태, 고른 상태
+content / -muted / -subtle                  본문, 보조 설명, 더 옅은 것
 line / line-strong                          구분선, 강조 테두리
-primary / accent / danger / success         의미색
+primary / accent / danger / warning / success   의미색
 on-primary / on-accent / ...                위 색을 배경으로 깔았을 때의 글자색
+weekend-sun / weekend-sat                   달력의 일요일·토요일
 shadow-popover / -modal / -drag             떠 있는 정도
 ```
+
+색 값은 눈이 아니라 명암비로 정했습니다. 본문 크기 글자는 배경 대비 4.5:1 이상을 지킵니다.
+어두운 화면에서 hover 는 밝아지는 쪽이어야 하므로 `surface-hover` 는 바탕보다 밝고,
+`surface-sunken` 은 표 머리글처럼 실제로 눌린 면에만 씁니다. 둘을 섞으면 다크에서 hover 가 보이지 않습니다.
+일요일의 빨강은 위험이 아니고 토요일의 파랑은 강조가 아니므로 토큰을 나눠 두었습니다.
 
 다크 테마는 `<html>` 의 `.dark` 에서 **변수 값만 덮어씁니다.**
 따라서 화면 코드에 `dark:` 변형을 뿌릴 필요가 없고, `bg-surface` 한 번이면 양쪽 테마가 모두 그려집니다.
