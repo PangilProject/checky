@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
-import { Text3 } from "@/shared/ui/Text";
-import { NormalBlackButton, NormalBlackUnFillButton } from "@/shared/ui/Button";
-import { Space4 } from "@/shared/ui/Space";
+import { Button, Text } from "@/shared/ui/primitives";
 
 interface ConfirmModalProps {
   title: string;
@@ -43,24 +41,22 @@ export function ConfirmModal({
         기존에는 여백이 description 조건 안에 있어 설명이 없으면 간격이 사라졌다.
       */}
       {description && (
-        <>
-          <Text3 text={description} className="opacity-70" />
-          <Space4 direction="mb" />
-        </>
+        <Text tone="muted" className="mb-4">
+          {description}
+        </Text>
       )}
 
       <div className="flex justify-end gap-2">
-        <NormalBlackUnFillButton
-          text="취소"
-          onClick={onClose}
-          disabled={isConfirming}
-        />
-        <NormalBlackButton
-          text={isConfirming ? "처리 중..." : confirmText}
-          className={danger ? "bg-red-500 text-white" : undefined}
+        <Button variant="outline" onClick={onClose} disabled={isConfirming}>
+          취소
+        </Button>
+        <Button
+          tone={danger ? "danger" : "neutral"}
           onClick={() => void handleConfirm()}
           disabled={isConfirming}
-        />
+        >
+          {isConfirming ? "처리 중..." : confirmText}
+        </Button>
       </div>
     </ModalWrapper>
   );

@@ -13,7 +13,7 @@ export default function NoticeList({ notices, onSelect }: Props) {
     // 콘텐츠 영역 높이가 고정되어 있으므로 안내 문구를 중앙에 둔다
     return (
       <div className="flex h-full items-center justify-center">
-        <Text2 text="공지사항이 없습니다." className="text-gray-400" />
+        <Text2 text="공지사항이 없습니다." className="text-content-muted" />
       </div>
     );
   }
@@ -29,10 +29,10 @@ export default function NoticeList({ notices, onSelect }: Props) {
             강조 요소를 여러 개 겹치면 제목보다 장식이 먼저 읽힌다.
             hover 는 배경이 아니라 테두리로 반응시켜, 고정 배경과 충돌하지 않게 한다.
           */
-          className={`cursor-pointer rounded-lg border p-3 pressable transition-colors hover:border-gray-400 ${
+          className={`cursor-pointer rounded-lg border p-3 pressable transition-colors hover:border-content-muted ${
             notice.pinned
-              ? "border-gray-300 bg-gray-50"
-              : "border-gray-200 bg-white"
+              ? "border-content-subtle bg-surface-sunken"
+              : "border-line bg-surface-raised"
           }`}
         >
           <div className="flex items-center justify-between gap-3">
@@ -50,7 +50,7 @@ export default function NoticeList({ notices, onSelect }: Props) {
               {notice.pinned && <NoticePinnedLabel />}
               <Text1
                 text={formatNoticeDate(notice.createdAt)}
-                className="text-gray-400"
+                className="text-content-muted"
               />
             </div>
           </div>

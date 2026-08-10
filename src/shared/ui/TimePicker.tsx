@@ -128,7 +128,7 @@ export const TimePicker = ({
 
   const columnItemClass = (selected: boolean) =>
     `w-full rounded-md py-1 text-center text-[13px]
-     ${selected ? "bg-black font-bold text-white" : "hover:bg-gray-100"}`;
+     ${selected ? "bg-primary font-bold text-on-primary" : "hover:bg-surface-sunken"}`;
 
   usePopoverPosition(open && !disabled, triggerRef, panelRef, align);
 
@@ -139,9 +139,9 @@ export const TimePicker = ({
         type="button"
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
-        className={`border-b border-gray-300 text-[14px] text-left pb-0.5 min-w-24
+        className={`border-b border-content-subtle text-[14px] text-left pb-0.5 min-w-24
           ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
-          ${parsed ? "" : "text-gray-400"}`}
+          ${parsed ? "" : "text-content-muted"}`}
       >
         {formatHmLabel(value) || "시간 선택"}
       </button>
@@ -154,7 +154,7 @@ export const TimePicker = ({
             // 위치는 usePopoverPosition이 뷰포트 기준으로 잡아준다.
             style={{ top: 0, left: 0 }}
             className="fixed z-1100 flex max-h-[calc(100vh-16px)] w-48 gap-1 rounded-xl
-              border border-gray-200 bg-white p-2 shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+              border border-line bg-surface-raised p-2 shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
           >
             {/* 오전 / 오후 */}
             <div className="flex w-14 flex-col gap-1">

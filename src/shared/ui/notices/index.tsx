@@ -81,7 +81,7 @@ export default function NoticeModal({ onClose }: Props) {
                 type="button"
                 onClick={() => setSelectedId(null)}
                 aria-label="공지 목록으로 돌아가기"
-                className="-ml-1 shrink-0 rounded p-1 pressable hover:bg-gray-100"
+                className="-ml-1 shrink-0 rounded p-1 pressable hover:bg-surface-sunken"
               >
                 <IoChevronBack size={20} />
               </button>
@@ -126,7 +126,7 @@ export default function NoticeModal({ onClose }: Props) {
           */}
           <div
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-linear-to-t from-white to-transparent transition-opacity duration-200 ${
+            className={`pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-linear-to-t from-surface-raised to-transparent transition-opacity duration-200 ${
               hasMoreBelow ? "opacity-100" : "opacity-0"
             }`}
           />

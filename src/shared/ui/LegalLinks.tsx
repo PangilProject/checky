@@ -9,11 +9,11 @@ import { Link } from "react-router-dom";
  */
 
 const linkClass =
-  "underline underline-offset-2 hover:text-gray-700 pressable";
+  "underline underline-offset-2 hover:text-content pressable";
 
 export const LegalLinks = () => {
   return (
-    <div className="flex items-center gap-2 text-xs text-gray-400">
+    <div className="flex items-center gap-2 text-xs text-content-muted">
       <Link to="/terms" className={linkClass}>
         이용약관
       </Link>
@@ -34,7 +34,7 @@ export const LegalLinks = () => {
  */
 export const LegalConsentNotice = () => {
   return (
-    <p className="text-center text-xs leading-relaxed text-gray-400">
+    <p className="text-center text-xs leading-relaxed text-content-muted">
       로그인하면{" "}
       <Link to="/terms" className={linkClass}>
         이용약관

@@ -32,6 +32,8 @@ const SIZE = {
   sm: "px-3 py-0.5 text-sm",
   md: "px-4 py-1 text-base",
   lg: "px-6 py-2 text-lg",
+  /** 크기를 호출부가 직접 정하는 경우 (고정 폭 버튼 등) */
+  none: "",
 } as const;
 
 interface ButtonProps

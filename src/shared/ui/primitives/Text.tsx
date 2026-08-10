@@ -1,4 +1,4 @@
-import type { ElementType, ReactNode } from "react";
+import type { CSSProperties, ElementType, ReactNode } from "react";
 import { cn } from "../cn";
 
 /**
@@ -48,6 +48,11 @@ interface TextProps {
   tone?: keyof typeof TONE;
   /** 태그를 직접 정한다 (제목처럼 보이지만 문서 구조상 제목이 아닐 때 등) */
   as?: ElementType;
+  /**
+   * 클래스로 적을 수 없는 색을 위한 통로.
+   * 사용자가 고른 카테고리 색처럼 값이 실행 중에 정해지는 경우에만 쓴다.
+   */
+  style?: CSSProperties;
   className?: string;
   children: ReactNode;
 }
@@ -56,12 +61,13 @@ export const Text = ({
   variant = "body",
   tone = "default",
   as,
+  style,
   className,
   children,
 }: TextProps) => {
   const Tag = as ?? DEFAULT_TAG[variant];
   return (
-    <Tag className={cn(VARIANT[variant], TONE[tone], className)}>
+    <Tag style={style} className={cn(VARIANT[variant], TONE[tone], className)}>
       {children}
     </Tag>
   );

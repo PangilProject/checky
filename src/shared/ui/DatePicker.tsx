@@ -109,9 +109,9 @@ export const DatePicker = ({
         type="button"
         disabled={disabled}
         onClick={toggleOpen}
-        className={`border-b border-gray-300 text-[14px] text-left pb-0.5 min-w-28
+        className={`border-b border-content-subtle text-[14px] text-left pb-0.5 min-w-28
           ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
-          ${value ? "" : "text-gray-400"}`}
+          ${value ? "" : "text-content-muted"}`}
       >
         {formatYmdLabel(value) || "날짜 선택"}
       </button>
@@ -124,14 +124,14 @@ export const DatePicker = ({
             // 위치는 usePopoverPosition이 뷰포트 기준으로 잡아준다.
             style={{ top: 0, left: 0 }}
             className="fixed z-1100 max-h-[calc(100vh-16px)] w-70 overflow-y-auto rounded-xl
-              border border-gray-200 bg-white p-3 shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+              border border-line bg-surface-raised p-3 shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
           >
             {/* 월 이동 헤더 */}
             <div className="flex items-center justify-between px-1">
               <button
                 type="button"
                 onClick={() => moveMonth(-1)}
-                className="h-7 w-7 rounded-md text-sm text-gray-500 hover:bg-gray-100"
+                className="h-7 w-7 rounded-md text-sm text-content-muted hover:bg-surface-sunken"
                 aria-label="이전 달"
               >
                 ‹
@@ -142,7 +142,7 @@ export const DatePicker = ({
               <button
                 type="button"
                 onClick={() => moveMonth(1)}
-                className="h-7 w-7 rounded-md text-sm text-gray-500 hover:bg-gray-100"
+                className="h-7 w-7 rounded-md text-sm text-content-muted hover:bg-surface-sunken"
                 aria-label="다음 달"
               >
                 ›
@@ -155,7 +155,7 @@ export const DatePicker = ({
                 <span
                   key={label}
                   className="py-1 text-center text-[11px]"
-                  style={{ color: getWeekdayColor(index) ?? "#9CA3AF" }}
+                  style={{ color: getWeekdayColor(index) ?? "var(--color-content-muted)" }}
                 >
                   {label}
                 </span>
@@ -171,9 +171,9 @@ export const DatePicker = ({
                 const outOfRange = isOutOfRange(ymd);
 
                 const textColor = isSelected
-                  ? "#FFFFFF"
+                  ? "var(--color-on-primary)"
                   : !cell.isCurrentMonth || outOfRange
-                    ? "#C4C4C4"
+                    ? "var(--color-content-subtle)"
                     : getWeekdayColor(index);
 
                 return (
@@ -183,9 +183,9 @@ export const DatePicker = ({
                     disabled={outOfRange}
                     onClick={() => selectDate(ymd)}
                     className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-[13px]
-                    ${isSelected ? "bg-black font-bold" : ""}
-                    ${!isSelected && isToday ? "border border-black font-bold" : ""}
-                    ${outOfRange ? "cursor-not-allowed" : "hover:bg-gray-100"}`}
+                    ${isSelected ? "bg-primary font-bold" : ""}
+                    ${!isSelected && isToday ? "border border-line-strong font-bold" : ""}
+                    ${outOfRange ? "cursor-not-allowed" : "hover:bg-surface-sunken"}`}
                     style={{ color: textColor }}
                   >
                     {cell.date.getDate()}
@@ -195,12 +195,12 @@ export const DatePicker = ({
             </div>
 
             {/* 오늘로 이동 */}
-            <div className="mt-2 flex justify-end border-t border-gray-100 pt-2">
+            <div className="mt-2 flex justify-end border-t border-line pt-2">
               <button
                 type="button"
                 disabled={isOutOfRange(todayYmd)}
                 onClick={() => selectDate(todayYmd)}
-                className="rounded-md px-2 py-1 text-[12px] text-gray-600 hover:bg-gray-100 disabled:opacity-40"
+                className="rounded-md px-2 py-1 text-[12px] text-content-muted hover:bg-surface-sunken disabled:opacity-40"
               >
                 오늘
               </button>

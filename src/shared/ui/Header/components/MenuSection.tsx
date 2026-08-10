@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { MENUS } from "../constants";
-import { Text3, Text4 } from "../../Text";
-import { LongBlackButton } from "../../Button";
+import { Button } from "../../primitives";
 import NoticeModal from "@/shared/ui/notices";
 
 export const MenuSection = () => {
@@ -22,24 +21,25 @@ export const MenuSection = () => {
                 to={menu.path}
                 className={`pressable ${
                   isActive
-                    ? "font-bold text-black"
-                    : "font-normal text-[#8E8E93]"
+                    ? "font-bold text-content"
+                    : "font-normal text-content-muted"
                 }`}
               >
-                <Text3 text={menu.label} className="block sm:hidden" />
-                <Text4 text={menu.label} className="hidden sm:block" />
+                {/* 굵기는 선택 상태가 정하므로, 여기서는 크기만 반응형으로 둔다 */}
+                <span className="block text-base sm:hidden">{menu.label}</span>
+                <span className="hidden text-lg sm:block">{menu.label}</span>
               </Link>
             );
           })}
         </div>
 
-        <LongBlackButton
-          text="공지"
-          width="w-10"
-          height=""
+        <Button
+          size="none"
           onClick={() => setOpenNotice(true)}
-          className="text-xs sm:text-sm"
-        />
+          className="w-10 text-xs sm:text-sm"
+        >
+          공지
+        </Button>
       </div>
 
       {openNotice && <NoticeModal onClose={() => setOpenNotice(false)} />}

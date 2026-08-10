@@ -23,18 +23,18 @@ export default function NoticeDetail({ notice }: Props) {
         {notice.pinned && <NoticePinnedLabel />}
         <Text1
           text={formatNoticeDate(notice.createdAt)}
-          className="text-gray-400"
+          className="text-content-muted"
         />
       </div>
 
       <Space4 direction="mb" />
       {/* 머리말과 본문을 가르는 얇은 구분선 */}
-      <div className="border-t border-gray-200" />
+      <div className="border-t border-line" />
       <Space4 direction="mb" />
 
       <Text2
         text={notice.content}
-        className="whitespace-pre-wrap wrap-break-word text-gray-700"
+        className="whitespace-pre-wrap wrap-break-word text-content"
       />
     </div>
   );

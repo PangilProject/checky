@@ -28,17 +28,17 @@ export const NoticeNavButton = ({
       type="button"
       onClick={() => onSelect(notice)}
       aria-label={`${label} 공지: ${notice.title}`}
-      className="flex w-full items-center gap-1.5 rounded px-1 py-1 text-left pressable hover:bg-gray-100"
+      className="flex w-full items-center gap-1.5 rounded px-1 py-1 text-left pressable hover:bg-surface-sunken"
     >
-      <span className="shrink-0 text-gray-400">
+      <span className="shrink-0 text-content-muted">
         {direction === "prev" ? (
           <IoChevronUp size={14} />
         ) : (
           <IoChevronDown size={14} />
         )}
       </span>
-      <Text1 text={label} className="shrink-0 text-gray-400" />
-      <Text2 text={title} className="min-w-0 flex-1 truncate text-gray-600" />
+      <Text1 text={label} className="shrink-0 text-content-muted" />
+      <Text2 text={title} className="min-w-0 flex-1 truncate text-content-muted" />
     </button>
   );
 };

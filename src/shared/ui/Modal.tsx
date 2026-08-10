@@ -57,7 +57,7 @@ export const ModalWrapper = ({ onClose, children }: ModalWrapperProps) => {
 
   return (
     <div
-      className="fixed inset-0 z-1000 flex items-center justify-center overflow-y-auto overscroll-contain bg-black/40 p-4 pointer-events-auto"
+      className="fixed inset-0 z-1000 flex items-center justify-center overflow-y-auto overscroll-contain bg-overlay p-4 pointer-events-auto"
       onClick={onClose}
     >
       <div
@@ -65,7 +65,7 @@ export const ModalWrapper = ({ onClose, children }: ModalWrapperProps) => {
         aria-modal="true"
         // 모바일(360px)에서도 잘리지 않도록 가변 폭 + 세로 스크롤 허용.
         // overscroll-contain: 내부 스크롤이 끝에 닿아도 배경으로 전파되지 않게 한다.
-        className="w-full max-w-120 max-h-[90vh] overflow-y-auto overscroll-contain rounded-xl bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.2)] sm:p-8"
+        className="w-full max-w-120 max-h-[90vh] overflow-y-auto overscroll-contain rounded-xl bg-surface-raised p-6 shadow-[0_10px_30px_rgba(0,0,0,0.2)] sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
