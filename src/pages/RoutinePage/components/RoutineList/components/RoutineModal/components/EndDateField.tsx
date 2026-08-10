@@ -1,4 +1,4 @@
-import { Text2, Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { Space2 } from "@/shared/ui/Space";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import { DatePicker } from "@/shared/ui/DatePicker";
@@ -25,13 +25,15 @@ export const EndDateField = ({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <Text3 text="종료 날짜" className="font-bold" />
+        <Text variant="body" className="font-bold">
+          종료 날짜
+        </Text>
         {!isReadOnly && (
           <button
             className="flex items-center gap-1"
             onClick={toggleEndDateEnabled}
           >
-            <Text2 text={endDateEnabled ? "삭제" : "추가"} />
+            <Text variant="bodySm">{endDateEnabled ? "삭제" : "추가"}</Text>
             {endDateEnabled ? (
               <MdCheckBox size={15} />
             ) : (
@@ -42,14 +44,15 @@ export const EndDateField = ({
       </div>
       <Space2 direction="mb" />
       {isReadOnly ? (
-        <Text2
-          text={routineEndDate ? routineEndDate : "없음"}
-          className="text-content"
-        />
+        <Text variant="bodySm" className="text-content">
+          {routineEndDate ? routineEndDate : "없음"}
+        </Text>
       ) : endDateEnabled ? (
         <DatePicker value={endDate} min={startDate} onChange={setEndDate} />
       ) : (
-        <Text2 text="없음" className="text-content-muted" />
+        <Text variant="bodySm" tone="muted">
+          없음
+        </Text>
       )}
     </div>
   );

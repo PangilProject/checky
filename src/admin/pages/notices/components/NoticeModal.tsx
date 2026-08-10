@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Text3 } from "@/shared/ui/Text";
 import { Space10, Space2 } from "@/shared/ui/Space";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
@@ -21,6 +20,7 @@ import { noticeKeys } from "@/shared/api/keys";
 import { toast } from "react-toastify";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import type { AdminNotice } from "../hooks/useAdminNotices";
+import { Text } from "@/shared/ui/primitives";
 
 const TITLE_MAX_LENGTH = 100;
 const CONTENT_MAX_LENGTH = 2000;
@@ -126,7 +126,9 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
     <ModalWrapper onClose={onClose}>
       <ModalTitle text={getModalModeTitle(currentMode, "공지")} />
 
-      <Text3 text="제목" className="font-bold" />
+      <Text variant="body" className="font-bold">
+        제목
+      </Text>
       <Space2 direction="mb" />
       <input
         value={title}
@@ -138,7 +140,9 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
 
       <Space10 direction="mb" />
 
-      <Text3 text="내용" className="font-bold" />
+      <Text variant="body" className="font-bold">
+        내용
+      </Text>
       <Space2 direction="mb" />
       <textarea
         value={content}

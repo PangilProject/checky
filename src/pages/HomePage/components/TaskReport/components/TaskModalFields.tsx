@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import { TimePicker } from "@/shared/ui/TimePicker";
 import { formatHmLabel, formatYmdLabel } from "@/shared/hooks/formatDate";
@@ -45,9 +45,11 @@ export const DateField = ({
 }) => {
   return (
     <div className="flex justify-between items-center">
-      <Text3 text="날짜" />
+      <Text variant="body">날짜</Text>
       {disabled ? (
-        <Text3 text={formatYmdLabel(value)} className="opacity-60" />
+        <Text variant="body" className="opacity-60">
+          {formatYmdLabel(value)}
+        </Text>
       ) : (
         <DatePicker value={value} onChange={onChange} align="right" />
       )}
@@ -70,9 +72,13 @@ export const TimeField = ({
 }) => {
   return (
     <div className="flex justify-between items-center">
-      <Text3 text="시간" />
+      <Text variant="body">시간</Text>
       {disabled ? (
-        enabled && <Text3 text={formatHmLabel(value)} className="opacity-60" />
+        enabled && (
+          <Text variant="body" className="opacity-60">
+            {formatHmLabel(value)}
+          </Text>
+        )
       ) : (
         <div className="flex items-center gap-3">
           <button
@@ -147,14 +153,16 @@ export const CategoryField = ({
 
   return (
     <div className="flex justify-between items-center">
-      <Text3 text="카테고리" />
+      <Text variant="body">카테고리</Text>
       {isDisabled ? (
-        <Text3
-          text={selected?.name ?? "-"}
+        <Text
+          variant="body"
           className={
             selected?.color ? `text-[${selected.color}]` : "opacity-60"
           }
-        />
+        >
+          {selected?.name ?? "-"}
+        </Text>
       ) : (
         <div ref={containerRef} className="relative">
           <button

@@ -6,7 +6,7 @@ import { NormalBlackUnFillButton } from "@/shared/ui/Button";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { Space8 } from "@/shared/ui/Space";
-import { Text2 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { useState, type JSX } from "react";
 import {
   FaArrowAltCircleDown,
@@ -26,7 +26,7 @@ export function TaskSettingModal({
   onConfirm,
 }: TaskSettingModalProps) {
   const [selectedAction, setSelectedAction] = useState<TaskActionType | null>(
-    null
+    null,
   );
   return (
     <ModalWrapper onClose={onClose}>
@@ -84,14 +84,16 @@ const ActionItem = ({ text, icon, isSelected, onClick }: ActionItemProps) => {
     delete: <FaRegTimesCircle size={20} />,
     copy: <FaPlusCircle size={20} className="text-accent" />,
     "delete-all": <FaRegTimesCircle size={20} className="text-danger" />,
-    "recalculate-monthly-stats": <FaRedoAlt size={20} className="text-accent" />,
+    "recalculate-monthly-stats": (
+      <FaRedoAlt size={20} className="text-accent" />
+    ),
   };
 
   return (
     <div className="flex justify-between" onClick={onClick}>
       <div className="flex gap-2">
         {ICON_MAP[icon]}
-        <Text2 text={text} />
+        <Text variant="bodySm">{text}</Text>
       </div>
 
       {isSelected ? (

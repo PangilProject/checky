@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text5 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { useAdminNotices } from "./hooks/useAdminNotices";
 import NoticeTable from "./components/NoticeTable";
@@ -14,7 +14,7 @@ function AdminNoticesPage() {
   if (isError) {
     return (
       <div className="space-y-4">
-        <Text5 text="공지사항 관리" className="font-bold" />
+        <Text variant="heading">공지사항 관리</Text>
         <p className="text-sm text-content-muted">
           공지사항을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.
         </p>
@@ -25,7 +25,7 @@ function AdminNoticesPage() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <Text5 text="공지사항 관리" className="font-bold" />
+        <Text variant="heading">공지사항 관리</Text>
         <NormalBlackButton
           text="공지 추가"
           onClick={() => setOpenCreate(true)}

@@ -1,4 +1,4 @@
-import { Text1, Text2 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import type { ReactNode } from "react";
@@ -23,7 +23,9 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
     return (
       <div className="w-full flex flex-col items-center">
         <Space20 direction="mb" />
-        <Text2 className="text-content-muted" text="해당 기간에 루틴이 없습니다." />
+        <Text variant="bodySm" tone="muted">
+          해당 기간에 루틴이 없습니다.
+        </Text>
       </div>
     );
   }
@@ -35,78 +37,83 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
   return (
     // 좁은 화면에서 페이지 전체가 가로로 밀리지 않도록 표 자체만 스크롤시킨다
     <div className="w-full overflow-x-auto">
-    <table border={1} cellPadding={8} className="w-full min-w-85">
-      <thead>
-        <tr className="border-b border-content-muted">
-          <TD className="border-r border-content-muted">루틴</TD>
-          {week.days.map((day) => {
+      <table border={1} cellPadding={8} className="w-full min-w-85">
+        <thead>
+          <tr className="border-b border-content-muted">
+            <TD className="border-r border-content-muted">루틴</TD>
+            {week.days.map((day) => {
+              return (
+                <TD key={day.date} className={getWeekendTextClass(day.day)}>
+                  <div className="flex flex-col items-center">
+                    <Text variant="caption">{day.label}</Text>
+                    <Text variant="caption">{getDay(day.date)}</Text>
+                  </div>
+                </TD>
+              );
+            })}
+            <TD className="border-l border-content-muted">합계</TD>
+          </tr>
+        </thead>
+
+        <tbody>
+          {rows.map((row) => {
+            const doneCount = Object.values(row.checks).filter(Boolean).length;
+            const totalCount = Object.keys(row.checks).length;
+
             return (
-              <TD key={day.date} className={getWeekendTextClass(day.day)}>
-                <div className="flex flex-col items-center">
-                  <Text1 text={day.label} />
-                  <Text1 text={getDay(day.date)} />
-                </div>
-              </TD>
-            );
-          })}
-          <TD className="border-l border-content-muted">합계</TD>
-        </tr>
-      </thead>
+              <tr key={row.routineId}>
+                {/* 1. 루틴 이름 (긴 이름이 표 폭을 밀어내지 않도록 제한) */}
+                <TD className="border-r border-content-muted max-w-32 wrap-break-word">
+                  {row.routineTitle}
+                </TD>
 
-      <tbody>
-        {rows.map((row) => {
-          const doneCount = Object.values(row.checks).filter(Boolean).length;
-          const totalCount = Object.keys(row.checks).length;
+                {/* 2. 일자 별 루틴 현황 */}
+                {week.days.map((day) => {
+                  const hasCheck = day.date in row.checks;
 
-          return (
-            <tr key={row.routineId}>
-              {/* 1. 루틴 이름 (긴 이름이 표 폭을 밀어내지 않도록 제한) */}
-              <TD className="border-r border-content-muted max-w-32 wrap-break-word">
-                {row.routineTitle}
-              </TD>
+                  // 2-1. 루틴 반복 요일이 아닌 경우
+                  if (!hasCheck) {
+                    return (
+                      <TD key={day.date}>
+                        <GoDash size={20} color="var(--color-content-muted)" />
+                      </TD>
+                    );
+                  }
 
-              {/* 2. 일자 별 루틴 현황 */}
-              {week.days.map((day) => {
-                const hasCheck = day.date in row.checks;
+                  // 체크 여부
+                  const checked = row.checks[day.date];
 
-                // 2-1. 루틴 반복 요일이 아닌 경우
-                if (!hasCheck) {
+                  // 2-2. 루틴 반복 요일인 경우
                   return (
                     <TD key={day.date}>
-                      <GoDash size={20} color="var(--color-content-muted)" />
+                      <button
+                        onClick={() =>
+                          onToggle(row.routineId, day.date, checked)
+                        }
+                        className="pressable"
+                      >
+                        {checked ? (
+                          <FaCheckCircle size={20} color={row.category.color} />
+                        ) : (
+                          <LuCircleDashed
+                            size={20}
+                            color={row.category.color}
+                          />
+                        )}
+                      </button>
                     </TD>
                   );
-                }
+                })}
 
-                // 체크 여부
-                const checked = row.checks[day.date];
-
-                // 2-2. 루틴 반복 요일인 경우
-                return (
-                  <TD key={day.date}>
-                    <button
-                      onClick={() => onToggle(row.routineId, day.date, checked)}
-                      className="pressable"
-                    >
-                      {checked ? (
-                        <FaCheckCircle size={20} color={row.category.color} />
-                      ) : (
-                        <LuCircleDashed size={20} color={row.category.color} />
-                      )}
-                    </button>
-                  </TD>
-                );
-              })}
-
-              {/* 3. 루틴 합계 */}
-              <TD className="border-l border-content-muted">
-                <Text2 text={`${doneCount} / ${totalCount}`} />
-              </TD>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+                {/* 3. 루틴 합계 */}
+                <TD className="border-l border-content-muted">
+                  <Text variant="bodySm">{`${doneCount} / ${totalCount}`}</Text>
+                </TD>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };
@@ -126,7 +133,11 @@ const TD = ({ children, className }: TDProps) => {
       `}
     >
       <div className="flex items-center justify-center h-full">
-        {typeof children === "string" ? <Text2 text={children} /> : children}
+        {typeof children === "string" ? (
+          <Text variant="bodySm">{children}</Text>
+        ) : (
+          children
+        )}
       </div>
     </td>
   );

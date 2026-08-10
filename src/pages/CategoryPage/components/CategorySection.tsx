@@ -6,7 +6,7 @@ import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
 import { TitleText } from "@/shared/ui/TitleText";
 import { NormalBlackButton } from "@/shared/ui/Button";
 import { Space10, Space4 } from "@/shared/ui/Space";
-import { Text2 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import ImageEmpty from "@/assets/images/empty.png";
 import { SortableCategoryItem } from "./SortableCategoryItem";
 import CategoryModal from "./CategoryModal";
@@ -70,12 +70,12 @@ export const CategorySection = ({
         delay: 150, // 150ms 이상 눌러야 drag 시작
         tolerance: 5, // 5px 움직여도 drag 유지
       },
-    })
+    }),
   );
 
   // 서버 데이터를 로컬 상태로 동기화 (드래그 정렬 낙관적 반영용)
   const [syncedData, setSyncedData] = useState<Category[] | undefined>(
-    undefined
+    undefined,
   );
   if (categoriesQuery.data !== syncedData) {
     setSyncedData(categoriesQuery.data);
@@ -146,10 +146,9 @@ export const CategorySection = ({
           <div className="flex flex-col items-center">
             <img src={ImageEmpty} className="h-15" alt="" />
             <Space4 direction="mb" />
-            <Text2
-              text="카테고리를 불러오지 못했습니다."
-              className="text-content-muted"
-            />
+            <Text variant="bodySm" tone="muted">
+              카테고리를 불러오지 못했습니다.
+            </Text>
             <Space4 direction="mb" />
             <NormalBlackButton
               text="다시 시도"
@@ -163,9 +162,13 @@ export const CategorySection = ({
           <div className="flex flex-col items-center">
             <img src={ImageEmpty} className="h-15" alt="" />
             <Space4 direction="mb" />
-            <Text2 text={emptyTitle} className="text-content-muted" />
+            <Text variant="bodySm" tone="muted">
+              {emptyTitle}
+            </Text>
             {emptySubTitle && (
-              <Text2 text={emptySubTitle} className="text-content-muted" />
+              <Text variant="bodySm" tone="muted">
+                {emptySubTitle}
+              </Text>
             )}
             {/* 안내문이 가리키는 버튼을 안내문 옆에 둔다.
                 제목 줄의 "추가"만 있으면 무엇을 눌러야 하는지 눈으로 잇기 어렵다. */}

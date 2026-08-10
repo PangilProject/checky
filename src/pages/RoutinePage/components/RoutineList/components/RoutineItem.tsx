@@ -2,7 +2,7 @@ import type { Routine } from "@/shared/api/routine";
 import { getDayLabel } from "@/shared/constants/dateLabels";
 import { formatDateToYmd } from "@/shared/hooks/formatDate";
 import { Space2 } from "@/shared/ui/Space";
-import { Text2, Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { useSortable } from "@dnd-kit/sortable";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { RiCheckboxBlankFill } from "react-icons/ri";
@@ -57,9 +57,13 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
             {/* 루틴 제목 */}
             <div className="flex items-center gap-2">
               {isEnded && (
-                <Text2 text="[종료]" className="text-content-muted font-bold" />
+                <Text variant="bodySm" tone="muted" className="font-bold">
+                  [종료]
+                </Text>
               )}
-              <Text3 text={routine.title} className="font-bold" />
+              <Text variant="body" className="font-bold">
+                {routine.title}
+              </Text>
             </div>
 
             {/* 반복 요일 표시 */}
@@ -67,11 +71,13 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
               {routine.days
                 .sort((a, b) => a - b)
                 .map((day, index) => (
-                  <Text2
+                  <Text
+                    variant="bodySm"
                     key={index}
                     className="text-content-muted"
-                    text={getDayLabel(day)}
-                  />
+                  >
+                    {getDayLabel(day)}
+                  </Text>
                 ))}
             </div>
           </div>

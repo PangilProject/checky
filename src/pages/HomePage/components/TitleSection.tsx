@@ -1,4 +1,4 @@
-import { Text2 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { TitleText } from "@/shared/ui/TitleText";
 import { VscTriangleLeft } from "react-icons/vsc";
 import { VscTriangleRight } from "react-icons/vsc";
@@ -62,6 +62,6 @@ interface SubTitleProps {
   text: string;
 }
 const SubTitle = ({ text }: SubTitleProps) => {
-  return <Text2 text={text} />;
+  return <Text variant="bodySm">{text}</Text>;
 };
 export default TitleSection;

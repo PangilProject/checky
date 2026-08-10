@@ -13,7 +13,7 @@ import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
 import { ButtonSection } from "../components/TaskModalButtons";
 import { useTaskModalHandlers } from "../hooks/useTaskModalHandlers";
-import { Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { useState } from "react";
@@ -85,10 +85,12 @@ export default function TaskModal({
 
       {isReadOnly ? (
         <div className="flex items-center justify-between gap-3">
-          <Text3
-            text={taskInput}
+          <Text
+            variant="body"
             className="min-w-0 font-semibold wrap-break-word"
-          />
+          >
+            {taskInput}
+          </Text>
           <button
             type="button"
             className="shrink-0"

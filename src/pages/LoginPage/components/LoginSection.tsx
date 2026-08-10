@@ -3,7 +3,7 @@ import { wickedMouseClass } from "@/styles/font";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 import { LongBlackButton } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
-import { Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { Space10, Space12, Space4 } from "@/shared/ui/Space";
 import { signInWithGoogle } from "@/shared/api/auth/auth";
 import { LegalConsentNotice } from "@/shared/ui/LegalLinks";
@@ -32,7 +32,7 @@ const ServiceTitle = () => {
 const ServiceDesc = () => {
   return (
     <>
-      <Text3 text="어제 보다 더 나은 오늘을 위해" />
+      <Text variant="body">어제 보다 더 나은 오늘을 위해</Text>
       <Space10 direction="mb" />
     </>
   );

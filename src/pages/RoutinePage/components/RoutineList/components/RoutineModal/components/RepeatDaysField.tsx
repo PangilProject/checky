@@ -1,4 +1,4 @@
-import { Text2, Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { Space2 } from "@/shared/ui/Space";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import { DAYS } from "@/shared/constants/dateLabels";
@@ -21,13 +21,15 @@ export const RepeatDaysField = ({
   return (
     <div className="flex flex-col">
       <div className="w-full flex justify-between">
-        <Text3 text="반복" className="font-bold" />
+        <Text variant="body" className="font-bold">
+          반복
+        </Text>
         {!isReadOnly && (
           <button
             className="flex items-center gap-1"
             onClick={toggleSelectAllDays}
           >
-            <Text2 text="전체" />
+            <Text variant="bodySm">전체</Text>
             {selectAllDays ? (
               <MdCheckBox size={15} />
             ) : (

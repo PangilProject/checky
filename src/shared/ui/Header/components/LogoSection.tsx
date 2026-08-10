@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Space2 } from "../../Space";
-import { Text4, Text6 } from "../../Text";
 import { wickedMouseClass } from "@/styles/font";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 
@@ -14,14 +13,12 @@ export const LogoSection = () => {
       <div className="flex items-center my-3 sm:my-4">
         <img src={logoSrc} className="w-6 sm:w-8" />
         <Space2 direction="mr" />
-        <Text4
-          className={`block sm:hidden ${wickedMouseClass}`}
-          text="CHECKY"
-        />
-        <Text6
-          className={`hidden sm:block ${wickedMouseClass}`}
-          text="CHECKY"
-        />
+        <span className={`block text-lg sm:hidden ${wickedMouseClass}`}>
+          CHECKY
+        </span>
+        <span className={`hidden text-2xl sm:block ${wickedMouseClass}`}>
+          CHECKY
+        </span>
       </div>
     </Link>
   );

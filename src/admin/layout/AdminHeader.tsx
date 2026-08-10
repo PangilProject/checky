@@ -2,7 +2,7 @@ import { wickedMouseClass } from "@/styles/font";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 import { Link, useLocation } from "react-router-dom";
 import { Space2 } from "@/shared/ui/Space";
-import { Text2, Text3, Text4, Text6 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 
 function AdminHeader() {
   return (
@@ -21,16 +21,16 @@ const LogoSection = () => {
       <div className="flex items-center my-4">
         <img src={logoSrc} className="w-6 sm:w-8" />
         <Space2 direction="mr" />
-        <Text4
-          className={`block sm:hidden ${wickedMouseClass}`}
-          text="CHECKY"
-        />
-        <Text6
-          className={`hidden sm:block ${wickedMouseClass}`}
-          text="CHECKY"
-        />
+        <span className={`block text-lg sm:hidden ${wickedMouseClass}`}>
+          CHECKY
+        </span>
+        <span className={`hidden text-2xl sm:block ${wickedMouseClass}`}>
+          CHECKY
+        </span>
         <Space2 direction="mr" />
-        <Text2 text="ADMIN" className="text-accent font-bold" />
+        <Text variant="bodySm" tone="accent" className="font-bold">
+          ADMIN
+        </Text>
       </div>
     </Link>
   );
@@ -49,11 +49,13 @@ const MenuSection = () => {
             key={menu.path}
             to={menu.path}
             className={`pressable ${
-              isActive ? "font-bold text-content" : "font-normal text-content-muted"
+              isActive
+                ? "font-bold text-content"
+                : "font-normal text-content-muted"
             }`}
           >
-            <Text3 text={menu.label} className="block sm:hidden" />
-            <Text4 text={menu.label} className="hidden sm:block" />
+            <span className="block text-base sm:hidden">{menu.label}</span>
+            <span className="hidden text-lg sm:block">{menu.label}</span>
           </Link>
         );
       })}

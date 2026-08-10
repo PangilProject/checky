@@ -1,4 +1,4 @@
-import { Text2 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { BiListCheck } from "react-icons/bi";
 import { TaskSettingModal } from "../modals/TaskSettingModal";
 import { useState } from "react";
@@ -31,7 +31,7 @@ import { toast } from "react-toastify";
 export function TaskSetting() {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<TaskActionType | null>(
-    null
+    null,
   );
 
   const queryClient = useQueryClient();
@@ -54,12 +54,12 @@ export function TaskSetting() {
       ...uniqueDates.map((date) =>
         queryClient.invalidateQueries({
           queryKey: taskKeys.byDate(user?.uid ?? "", date),
-        })
+        }),
       ),
       ...months.map((month) =>
         queryClient.invalidateQueries({
           queryKey: taskKeys.byMonth(user?.uid ?? "", month),
-        })
+        }),
       ),
       ...months.map((month) =>
         queryClient.invalidateQueries({
@@ -80,7 +80,7 @@ export function TaskSetting() {
   const runBulkAction = async (
     action: () => Promise<number | void>,
     failMessage: string,
-    emptyMessage?: string
+    emptyMessage?: string,
   ) => {
     try {
       const affected = await action();
@@ -122,7 +122,7 @@ export function TaskSetting() {
         "할 일을 오늘로 옮기지 못했습니다. 잠시 후 다시 시도해 주세요.",
         dateString === todayString
           ? "이미 오늘 목록입니다."
-          : "옮길 미완료 할 일이 없습니다."
+          : "옮길 미완료 할 일이 없습니다.",
       );
     }
 
@@ -149,7 +149,7 @@ export function TaskSetting() {
         onClick={() => setIsOpenModal(true)}
       >
         <BiListCheck size={20} />
-        <Text2 text="리스트 메뉴" />
+        <Text variant="bodySm">리스트 메뉴</Text>
       </button>
 
       {isOpenModal && (
@@ -178,7 +178,7 @@ export function TaskSetting() {
                 return moved;
               },
               "할 일 이동에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-              "옮길 미완료 할 일이 없습니다."
+              "옮길 미완료 할 일이 없습니다.",
             );
           }}
         />
@@ -203,7 +203,7 @@ export function TaskSetting() {
                 return copied;
               },
               "할 일 복사에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-              "복사할 할 일이 없습니다."
+              "복사할 할 일이 없습니다.",
             );
           }}
         />
@@ -227,7 +227,7 @@ export function TaskSetting() {
                 return removed;
               },
               "할 일 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-              "삭제할 미완료 할 일이 없습니다."
+              "삭제할 미완료 할 일이 없습니다.",
             );
           }}
         />
@@ -253,7 +253,7 @@ export function TaskSetting() {
                 return removed;
               },
               "할 일 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-              "삭제할 할 일이 없습니다."
+              "삭제할 할 일이 없습니다.",
             );
           }}
         />

@@ -1,4 +1,4 @@
-import { Text2, Text1 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { NoticePinnedLabel } from "./NoticePinnedLabel";
 import { formatNoticeDate } from "./formatNoticeDate";
 import type { Notice } from "../hooks/useNotices";
@@ -13,7 +13,9 @@ export default function NoticeList({ notices, onSelect }: Props) {
     // 콘텐츠 영역 높이가 고정되어 있으므로 안내 문구를 중앙에 둔다
     return (
       <div className="flex h-full items-center justify-center">
-        <Text2 text="공지사항이 없습니다." className="text-content-muted" />
+        <Text variant="bodySm" tone="muted">
+          공지사항이 없습니다.
+        </Text>
       </div>
     );
   }
@@ -36,22 +38,23 @@ export default function NoticeList({ notices, onSelect }: Props) {
           }`}
         >
           <div className="flex items-center justify-between gap-3">
-            <Text2
-              text={notice.title}
+            <Text
+              variant="bodySm"
               className={`min-w-0 flex-1 truncate ${
                 notice.pinned ? "font-semibold" : "font-medium"
               }`}
-            />
+            >
+              {notice.title}
+            </Text>
             {/*
               고정 표시는 날짜와 함께 오른쪽 메타 영역에 둔다.
               제목 앞에 두면 고정 공지만 제목 시작 위치가 밀려 목록의 왼쪽 정렬이 흐트러진다.
             */}
             <div className="flex shrink-0 items-center gap-2">
               {notice.pinned && <NoticePinnedLabel />}
-              <Text1
-                text={formatNoticeDate(notice.createdAt)}
-                className="text-content-muted"
-              />
+              <Text variant="caption" tone="muted">
+                {formatNoticeDate(notice.createdAt)}
+              </Text>
             </div>
           </div>
         </div>

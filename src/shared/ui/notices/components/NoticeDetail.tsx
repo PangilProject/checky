@@ -1,4 +1,4 @@
-import { Text1, Text2, Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { Space2, Space4 } from "@/shared/ui/Space";
 import { NoticePinnedLabel } from "./NoticePinnedLabel";
 import { formatNoticeDate } from "./formatNoticeDate";
@@ -11,7 +11,9 @@ interface Props {
 export default function NoticeDetail({ notice }: Props) {
   return (
     <div>
-      <Text3 text={notice.title} className="font-bold wrap-break-word" />
+      <Text variant="body" className="font-bold wrap-break-word">
+        {notice.title}
+      </Text>
       <Space2 direction="mb" />
 
       {/*
@@ -21,10 +23,9 @@ export default function NoticeDetail({ notice }: Props) {
       */}
       <div className="flex items-center gap-2">
         {notice.pinned && <NoticePinnedLabel />}
-        <Text1
-          text={formatNoticeDate(notice.createdAt)}
-          className="text-content-muted"
-        />
+        <Text variant="caption" tone="muted">
+          {formatNoticeDate(notice.createdAt)}
+        </Text>
       </div>
 
       <Space4 direction="mb" />
@@ -32,10 +33,12 @@ export default function NoticeDetail({ notice }: Props) {
       <div className="border-t border-line" />
       <Space4 direction="mb" />
 
-      <Text2
-        text={notice.content}
+      <Text
+        variant="bodySm"
         className="whitespace-pre-wrap wrap-break-word text-content"
-      />
+      >
+        {notice.content}
+      </Text>
     </div>
   );
 }

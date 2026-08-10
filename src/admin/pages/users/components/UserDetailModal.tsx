@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Text2, Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { Space10, Space2, Space8 } from "@/shared/ui/Space";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
@@ -37,15 +37,15 @@ function diffCalendarDays(date: Date, nowTime: number) {
   const startOfToday = new Date(
     now.getFullYear(),
     now.getMonth(),
-    now.getDate()
+    now.getDate(),
   );
   const startOfThatDay = new Date(
     date.getFullYear(),
     date.getMonth(),
-    date.getDate()
+    date.getDate(),
   );
   return Math.round(
-    (startOfToday.getTime() - startOfThatDay.getTime()) / (1000 * 60 * 60 * 24)
+    (startOfToday.getTime() - startOfThatDay.getTime()) / (1000 * 60 * 60 * 24),
   );
 }
 
@@ -64,10 +64,14 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={`text-sm ${muted ? "text-content-subtle" : "text-content"}`}>
+      <span
+        className={`text-sm ${muted ? "text-content-subtle" : "text-content"}`}
+      >
         {icon}
       </span>
-      <Text2 text={text} className={muted ? "text-content-muted" : ""} />
+      <Text variant="bodySm" className={muted ? "text-content-muted" : ""}>
+        {text}
+      </Text>
     </div>
   );
 }
@@ -83,7 +87,8 @@ export default function UserDetailModal({ user, onClose }: Props) {
 
   // 활성 여부는 실사용을 나타내는 마지막 접속 기준으로 판단한다
   const isActive =
-    user.lastActiveAt && user.lastActiveAt.getTime() >= nowTime - ACTIVE_WINDOW_MS;
+    user.lastActiveAt &&
+    user.lastActiveAt.getTime() >= nowTime - ACTIVE_WINDOW_MS;
 
   return (
     <ModalWrapper onClose={onClose}>
@@ -91,7 +96,9 @@ export default function UserDetailModal({ user, onClose }: Props) {
 
       {/* ================= 기본 정보 ================= */}
       <div>
-        <Text3 text="기본 정보" className="font-bold" />
+        <Text variant="body" className="font-bold">
+          기본 정보
+        </Text>
         <Space2 direction="mb" />
 
         <InfoRow icon={<FiUser />} text={`이름: ${user.name ?? "-"}`} />
@@ -103,7 +110,9 @@ export default function UserDetailModal({ user, onClose }: Props) {
 
       {/* ================= 계정 정보 ================= */}
       <div>
-        <Text3 text="계정 정보" className="font-bold" />
+        <Text variant="body" className="font-bold">
+          계정 정보
+        </Text>
         <Space2 direction="mb" />
 
         <InfoRow
@@ -124,7 +133,9 @@ export default function UserDetailModal({ user, onClose }: Props) {
 
       {/* ================= 상태 요약 ================= */}
       <div>
-        <Text3 text="상태 요약" className="font-bold" />
+        <Text variant="body" className="font-bold">
+          상태 요약
+        </Text>
         <Space2 direction="mb" />
 
         <InfoRow

@@ -1,5 +1,5 @@
 import { Space6 } from "@/shared/ui/Space";
-import { Text1, Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { HiDotsHorizontal } from "react-icons/hi";
@@ -14,13 +14,20 @@ const getElapsedDaysLabel = (createdAt?: Date) => {
   if (!createdAt) return null;
 
   const today = new Date();
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const todayStart = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
   const createdStart = new Date(
     createdAt.getFullYear(),
     createdAt.getMonth(),
-    createdAt.getDate()
+    createdAt.getDate(),
   );
-  const diffDays = Math.max(0, Math.floor((todayStart.getTime() - createdStart.getTime()) / DAY_MS));
+  const diffDays = Math.max(
+    0,
+    Math.floor((todayStart.getTime() - createdStart.getTime()) / DAY_MS),
+  );
 
   if (diffDays === 0) return "D-Day";
   return `D+${diffDays}`;
@@ -122,24 +129,32 @@ const SortableTaskItem = ({
             )}
           </div>
 
-          <Text3
-            text={task.title}
+          <Text
+            variant="body"
             className={`min-w-0 wrap-break-words whitespace-normal ${
               completed ? "line-through opacity-60" : ""
             }`}
-          />
+          >
+            {task.title}
+          </Text>
         </div>
         <div className="flex">
           <Space6 direction="mr" />
           {task.time && (
-            <Text1 text={task.time} className="ml-1 text-content-muted" />
+            <Text variant="caption" tone="muted" className="ml-1">
+              {task.time}
+            </Text>
           )}
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <div className="w-12 text-left">
-          {elapsedDays && <Text1 text={elapsedDays} className="text-content-muted" />}
+          {elapsedDays && (
+            <Text variant="caption" tone="muted">
+              {elapsedDays}
+            </Text>
+          )}
         </div>
         <button
           className="pressable"

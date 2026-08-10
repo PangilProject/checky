@@ -1,5 +1,5 @@
 import { IoChevronDown, IoChevronUp } from "react-icons/io5";
-import { Text1, Text2 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import type { Notice } from "../hooks/useNotices";
 
 interface NoticeNavButtonProps {
@@ -37,8 +37,12 @@ export const NoticeNavButton = ({
           <IoChevronDown size={14} />
         )}
       </span>
-      <Text1 text={label} className="shrink-0 text-content-muted" />
-      <Text2 text={title} className="min-w-0 flex-1 truncate text-content-muted" />
+      <Text variant="caption" tone="muted" className="shrink-0">
+        {label}
+      </Text>
+      <Text variant="bodySm" tone="muted" className="min-w-0 flex-1 truncate">
+        {title}
+      </Text>
     </button>
   );
 };

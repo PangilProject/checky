@@ -1,4 +1,4 @@
-import { Text1 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import {
   SATURDAY_TEXT_CLASS,
   SUNDAY_TEXT_CLASS,
@@ -26,14 +26,13 @@ export function CalendarCell({
   // 요일 계산
   const dayOfWeek = index % 7;
 
-  const textColor =
-    !isCurrentMonth
-      ? "text-content-muted"
-      : dayOfWeek === 0
-        ? SUNDAY_TEXT_CLASS
-        : dayOfWeek === 6
-          ? SATURDAY_TEXT_CLASS
-          : "";
+  const textColor = !isCurrentMonth
+    ? "text-content-muted"
+    : dayOfWeek === 0
+      ? SUNDAY_TEXT_CLASS
+      : dayOfWeek === 6
+        ? SATURDAY_TEXT_CLASS
+        : "";
 
   // 선택된 날짜 여부
   const isSelected =
@@ -71,7 +70,9 @@ export function CalendarCell({
       )}
 
       {/* 날짜 */}
-      <Text1 text={String(day)} className={textColor} />
+      <Text variant="caption" className={textColor}>
+        {String(day)}
+      </Text>
     </button>
   );
 }

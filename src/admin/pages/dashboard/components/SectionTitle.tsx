@@ -1,4 +1,4 @@
-import { Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 
 interface SectionTitleProps {
   title: string;
@@ -10,7 +10,9 @@ function SectionTitle({ title, description, rightElement }: SectionTitleProps) {
   return (
     <div className="flex justify-between items-end mb-3">
       <div>
-        <Text3 text={title} className="font-semibold" />
+        <Text variant="body" className="font-semibold">
+          {title}
+        </Text>
         {description && (
           <p className="text-xs text-content-muted mt-1">{description}</p>
         )}

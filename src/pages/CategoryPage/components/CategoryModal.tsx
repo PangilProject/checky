@@ -1,5 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import {
   NormalBlackButton,
   NormalBlackUnFillButton,
@@ -52,7 +52,10 @@ export default function CategoryModal({
   const isReadOnly = currentMode === "VIEW";
 
   /** 제출 핸들러 공통 래퍼: 중복 실행 차단 + 실패 시 사용자 알림 */
-  const runSubmit = async (action: () => Promise<void>, failMessage: string) => {
+  const runSubmit = async (
+    action: () => Promise<void>,
+    failMessage: string,
+  ) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
@@ -216,7 +219,7 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
   return (
     <div className="w-full flex flex-col items-end">
       <div className="w-full flex justify-between items-center">
-        <Text3 text="색상" />
+        <Text variant="body">색상</Text>
 
         <div
           className={`flex gap-2 items-center ${

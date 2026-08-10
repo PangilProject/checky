@@ -1,4 +1,4 @@
-import { Text5 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { Space10 } from "@/shared/ui/Space";
 import { useAdminStats } from "./hooks/useAdminStats";
 import DashboardGrid from "./components/DashboardGrid";
@@ -16,7 +16,7 @@ function AdminDashboardPage() {
   if (isError) {
     return (
       <div className="space-y-4">
-        <Text5 text="관리자 대시보드" className="font-bold" />
+        <Text variant="heading">관리자 대시보드</Text>
         <p className="text-sm text-content-muted">
           통계를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.
         </p>
@@ -26,7 +26,7 @@ function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <Text5 text="관리자 대시보드" className="font-bold" />
+      <Text variant="heading">관리자 대시보드</Text>
 
       <DashboardGrid stats={stats} />
 

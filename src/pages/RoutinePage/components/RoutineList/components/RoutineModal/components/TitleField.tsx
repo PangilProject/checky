@@ -1,4 +1,4 @@
-import { Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { Space2 } from "@/shared/ui/Space";
 
 interface TitleFieldProps {
@@ -16,7 +16,9 @@ export const TitleField = ({
 }: TitleFieldProps) => {
   return (
     <div>
-      <Text3 text="루틴명" className="font-bold" />
+      <Text variant="body" className="font-bold">
+        루틴명
+      </Text>
       <Space2 direction="mb" />
       <input
         className="w-full border-0 border-b border-content-subtle text-sm outline-none ime-fallback"

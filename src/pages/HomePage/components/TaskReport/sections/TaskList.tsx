@@ -6,7 +6,7 @@ import { TaskCategorySection } from "../components/TaskCategorySection";
 import { TaskListSkeleton } from "../components/TaskListSkeleton";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Text2 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 
 /**
  * 선택 날짜 기준으로 카테고리별 할 일 목록을 렌더링합니다.
@@ -30,11 +30,10 @@ export const TaskListSection = ({
     toggleTask,
     reorderTasks,
     refresh,
-  } =
-    useTaskList({
-      userId: user?.uid,
-      dateString,
-    });
+  } = useTaskList({
+    userId: user?.uid,
+    dateString,
+  });
 
   useEffect(() => {
     onReadyRefresh?.(refresh);
@@ -47,11 +46,12 @@ export const TaskListSection = ({
       ) : categories.length === 0 ? (
         // 카테고리가 없으면 빈 공간만 보이므로 다음 행동을 안내한다
         <div className="flex flex-col items-center gap-2 py-8">
-          <Text2 text="아직 카테고리가 없어요." className="text-content-muted" />
-          <Text2
-            text="카테고리를 먼저 만들어 주세요."
-            className="text-content-muted"
-          />
+          <Text variant="bodySm" tone="muted">
+            아직 카테고리가 없어요.
+          </Text>
+          <Text variant="bodySm" tone="muted">
+            카테고리를 먼저 만들어 주세요.
+          </Text>
           <Link
             to="/category"
             className="mt-1 rounded-md bg-primary px-4 py-1 text-sm font-bold text-on-primary"

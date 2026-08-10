@@ -1,5 +1,8 @@
-import { WEEK_LABELS, getWeekendTextClass } from "@/shared/constants/dateLabels";
-import { Text2 } from "@/shared/ui/Text";
+import {
+  WEEK_LABELS,
+  getWeekendTextClass,
+} from "@/shared/constants/dateLabels";
+import { Text } from "@/shared/ui/primitives";
 
 /**
  * 월간 리포트 캘린더의 요일 헤더(일~토)를 렌더링합니다.
@@ -15,7 +18,7 @@ export function CalendarHeader() {
             getWeekendTextClass(index) ?? ""
           }`}
         >
-          <Text2 text={d} />
+          <Text variant="bodySm">{d}</Text>
         </div>
       ))}
     </div>

@@ -1,4 +1,4 @@
-import { Text2, Text3 } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/primitives";
 import { Space2 } from "@/shared/ui/Space";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import type { Routine } from "@/shared/api/routine";
@@ -33,24 +33,22 @@ export const StartDateField = ({
 }: StartDateFieldProps) => {
   return (
     <div>
-      <Text3
-        text={
-          mode === "CREATE"
-            ? "시작 날짜"
-            : isRepeatChanged
-              ? "변경 적용 날짜"
-              : "시작 날짜"
-        }
-        className="font-bold"
-      />
+      <Text variant="body" className="font-bold">
+        {mode === "CREATE"
+          ? "시작 날짜"
+          : isRepeatChanged
+            ? "변경 적용 날짜"
+            : "시작 날짜"}
+      </Text>
       <Space2 direction="mb" />
       {isReadOnly ? (
-        <Text2 text={startDate} className="text-content" />
+        <Text variant="bodySm" className="text-content">
+          {startDate}
+        </Text>
       ) : mode === "EDIT" && !isRepeatChanged ? (
-        <Text2
-          text={routine?.startDate ?? startDate}
-          className="text-content"
-        />
+        <Text variant="bodySm" className="text-content">
+          {routine?.startDate ?? startDate}
+        </Text>
       ) : mode === "EDIT" && isRepeatChanged ? (
         <DatePicker
           value={effectiveFrom}
