@@ -3,7 +3,7 @@ import { IoChevronBack } from "react-icons/io5";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { Space10 } from "@/shared/ui/Space";
-import { NormalBlackUnFillButton } from "@/shared/ui/Button";
+import { Button } from "@/shared/ui/primitives";
 import { useNotices } from "./hooks/useNotices";
 import NoticeList from "./components/NoticeList";
 import NoticeDetail from "./components/NoticeDetail";
@@ -156,11 +156,9 @@ export default function NoticeModal({ onClose }: Props) {
             )}
           </div>
 
-          <NormalBlackUnFillButton
-            text="닫기"
-            onClick={onClose}
-            className="shrink-0"
-          />
+          <Button variant="outline" onClick={onClose} className="shrink-0">
+            닫기
+          </Button>
         </div>
       </div>
     </ModalWrapper>

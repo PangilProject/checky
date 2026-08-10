@@ -8,7 +8,7 @@ import { RoutineListSkeleton } from "./components/RoutineListSkeleton";
 import EmptyRoutineList from "./components/EmptyRoutineList";
 import { RoutineCategorySection } from "./components/RoutineCategorySection";
 import { RoutineModalContainer } from "./components/RoutineModalContainer";
-import { NormalBlackButton } from "@/shared/ui/Button";
+import { Button } from "@/shared/ui/primitives";
 
 /**
  * 루틴 목록을 카테고리별로 표시하고 관리하는 컴포넌트
@@ -34,7 +34,7 @@ export const RoutineList = () => {
    * (effect 대신 렌더 중 상태 조정 패턴으로 불필요한 중간 렌더를 방지)
    */
   const [syncedData, setSyncedData] = useState<RoutineCategory[] | undefined>(
-    undefined
+    undefined,
   );
   if (data !== syncedData) {
     setSyncedData(data);
@@ -48,8 +48,10 @@ export const RoutineList = () => {
   if (!routineCategories && isError) {
     return (
       <div className="flex flex-col items-center gap-3 py-10">
-        <p className="text-sm text-content-muted">루틴을 불러오지 못했습니다.</p>
-        <NormalBlackButton text="다시 시도" onClick={() => void refetch()} />
+        <p className="text-sm text-content-muted">
+          루틴을 불러오지 못했습니다.
+        </p>
+        <Button onClick={() => void refetch()}>다시 시도</Button>
       </div>
     );
   }

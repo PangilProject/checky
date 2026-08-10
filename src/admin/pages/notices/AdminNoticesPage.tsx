@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Text } from "@/shared/ui/primitives";
-import { NormalBlackButton } from "@/shared/ui/Button";
+import { Button, Text } from "@/shared/ui/primitives";
 import { useAdminNotices } from "./hooks/useAdminNotices";
 import NoticeTable from "./components/NoticeTable";
 import NoticeModal from "./components/NoticeModal";
@@ -26,10 +25,7 @@ function AdminNoticesPage() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <Text variant="heading">공지사항 관리</Text>
-        <NormalBlackButton
-          text="공지 추가"
-          onClick={() => setOpenCreate(true)}
-        />
+        <Button onClick={() => setOpenCreate(true)}>공지 추가</Button>
       </div>
 
       <NoticeTable notices={notices} />

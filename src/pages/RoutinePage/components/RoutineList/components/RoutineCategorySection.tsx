@@ -12,7 +12,7 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { TitleText } from "@/shared/ui/TitleText";
-import { NormalBlackButton } from "@/shared/ui/Button";
+import { Button } from "@/shared/ui/primitives";
 import { getCategoryTextColor } from "@/shared/utils/getCategoryTextColor";
 import { RoutineItem } from "./RoutineItem";
 import type { Routine, RoutineCategory } from "@/shared/api/routine";
@@ -70,7 +70,7 @@ export const RoutineCategorySection = ({
             // 왜 더할 수 없는지 알 수 있도록 상태를 적어 둔다
             <span className="text-sm text-content-muted">종료됨</span>
           ) : (
-            <NormalBlackButton text="추가" onClick={onAdd} />
+            <Button onClick={onAdd}>추가</Button>
           )}
         </span>
       </div>

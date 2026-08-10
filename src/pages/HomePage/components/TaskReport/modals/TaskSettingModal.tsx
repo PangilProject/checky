@@ -2,11 +2,10 @@ import {
   TASK_ACTION_LIST,
   type TaskActionType,
 } from "@/shared/constants/taskActions";
-import { NormalBlackUnFillButton } from "@/shared/ui/Button";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { Space8 } from "@/shared/ui/Space";
-import { Text } from "@/shared/ui/primitives";
+import { Button, Text } from "@/shared/ui/primitives";
 import { useState, type JSX } from "react";
 import {
   FaArrowAltCircleDown,
@@ -125,21 +124,21 @@ const ButtonList = ({
 
   return (
     <div className="w-full flex gap-2 justify-between">
-      <NormalBlackUnFillButton
-        text="취소"
-        className="flex-1"
-        onClick={onClose}
-      />
+      <Button variant="outline" className="flex-1" onClick={onClose}>
+        취소
+      </Button>
 
-      <NormalBlackUnFillButton
-        text="완료"
+      <Button
+        variant="outline"
         className="flex-1"
         disabled={isDisabled}
         onClick={() => {
           if (isDisabled) return;
           onConfirm(selectedAction);
         }}
-      />
+      >
+        완료
+      </Button>
     </div>
   );
 };

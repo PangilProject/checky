@@ -1,10 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { Text } from "@/shared/ui/primitives";
-import {
-  NormalBlackButton,
-  NormalBlackUnFillButton,
-  NormalRedUnFillButton,
-} from "@/shared/ui/Button";
+import { Button, Text } from "@/shared/ui/primitives";
 import { Space10, Space8 } from "@/shared/ui/Space";
 import { RxTriangleDown, RxTriangleUp } from "react-icons/rx";
 import { COLORS } from "@/shared/constants/colors";
@@ -298,16 +293,12 @@ const ButtonSection = ({
     if (categoryStatus === "ENDED") {
       return (
         <div className="flex justify-between">
-          <NormalBlackUnFillButton
-            text="닫기"
-            onClick={onClose}
-            disabled={isSubmitting}
-          />
-          <NormalBlackButton
-            text={isSubmitting ? "처리 중..." : "복구"}
-            onClick={onRestore}
-            disabled={isSubmitting}
-          />
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+            닫기
+          </Button>
+          <Button onClick={onRestore} disabled={isSubmitting}>
+            {isSubmitting ? "처리 중..." : "복구"}
+          </Button>
         </div>
       );
     }
@@ -315,21 +306,20 @@ const ButtonSection = ({
     // ✅ 진행중 카테고리
     return (
       <div className="flex justify-between">
-        <NormalBlackUnFillButton
-          text="닫기"
-          onClick={onClose}
-          disabled={isSubmitting}
-        />
-        <NormalRedUnFillButton
-          text="종료"
+        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+          닫기
+        </Button>
+        <Button
+          variant="outline"
+          tone="danger"
           onClick={onEnd}
           disabled={isSubmitting}
-        />
-        <NormalBlackButton
-          text="수정"
-          onClick={onEdit}
-          disabled={isSubmitting}
-        />
+        >
+          종료
+        </Button>
+        <Button onClick={onEdit} disabled={isSubmitting}>
+          수정
+        </Button>
       </div>
     );
   }
@@ -338,16 +328,12 @@ const ButtonSection = ({
   if (mode === "EDIT") {
     return (
       <div className="flex justify-between">
-        <NormalBlackUnFillButton
-          text="취소"
-          onClick={onClose}
-          disabled={isSubmitting}
-        />
-        <NormalBlackButton
-          text={isSubmitting ? "저장 중..." : "저장"}
-          onClick={onSubmit}
-          disabled={isSubmitting}
-        />
+        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+          취소
+        </Button>
+        <Button onClick={onSubmit} disabled={isSubmitting}>
+          {isSubmitting ? "저장 중..." : "저장"}
+        </Button>
       </div>
     );
   }
@@ -355,16 +341,12 @@ const ButtonSection = ({
   // CREATE
   return (
     <div className="flex justify-between">
-      <NormalBlackUnFillButton
-        text="닫기"
-        onClick={onClose}
-        disabled={isSubmitting}
-      />
-      <NormalBlackButton
-        text={isSubmitting ? "저장 중..." : "완료"}
-        onClick={onSubmit}
-        disabled={isSubmitting}
-      />
+      <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+        닫기
+      </Button>
+      <Button onClick={onSubmit} disabled={isSubmitting}>
+        {isSubmitting ? "저장 중..." : "완료"}
+      </Button>
     </div>
   );
 };

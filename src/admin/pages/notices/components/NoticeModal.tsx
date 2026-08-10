@@ -4,11 +4,6 @@ import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
-import {
-  NormalBlackButton,
-  NormalBlackUnFillButton,
-  NormalRedUnFillButton,
-} from "@/shared/ui/Button";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   createNotice,
@@ -20,7 +15,7 @@ import { noticeKeys } from "@/shared/api/keys";
 import { toast } from "react-toastify";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import type { AdminNotice } from "../hooks/useAdminNotices";
-import { Text } from "@/shared/ui/primitives";
+import { Button, Text } from "@/shared/ui/primitives";
 
 const TITLE_MAX_LENGTH = 100;
 const CONTENT_MAX_LENGTH = 2000;
@@ -191,34 +186,32 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
       {/* 버튼 */}
       {currentMode === "VIEW" ? (
         <div className="flex justify-between">
-          <NormalBlackUnFillButton
-            text="닫기"
-            onClick={onClose}
-            disabled={isSubmitting}
-          />
-          <NormalRedUnFillButton
-            text="삭제"
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+            닫기
+          </Button>
+          <Button
+            variant="outline"
+            tone="danger"
             onClick={() => setDeleteOpen(true)}
             disabled={isSubmitting}
-          />
-          <NormalBlackButton
-            text="수정"
+          >
+            삭제
+          </Button>
+          <Button
             onClick={() => setCurrentMode("EDIT")}
             disabled={isSubmitting}
-          />
+          >
+            수정
+          </Button>
         </div>
       ) : (
         <div className="flex justify-between">
-          <NormalBlackUnFillButton
-            text="취소"
-            onClick={onClose}
-            disabled={isSubmitting}
-          />
-          <NormalBlackButton
-            text={isSubmitting ? "저장 중..." : "저장"}
-            onClick={() => void handleSave()}
-            disabled={isSubmitting}
-          />
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+            취소
+          </Button>
+          <Button onClick={() => void handleSave()} disabled={isSubmitting}>
+            {isSubmitting ? "저장 중..." : "저장"}
+          </Button>
         </div>
       )}
 

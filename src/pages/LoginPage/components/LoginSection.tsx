@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { wickedMouseClass } from "@/styles/font";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
-import { LongBlackButton } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
-import { Text } from "@/shared/ui/primitives";
+import { Button, Text } from "@/shared/ui/primitives";
 import { Space10, Space12, Space4 } from "@/shared/ui/Space";
 import { signInWithGoogle } from "@/shared/api/auth/auth";
 import { LegalConsentNotice } from "@/shared/ui/LegalLinks";
@@ -93,13 +92,14 @@ const LoginButton = () => {
 
   return (
     <div className="flex w-full flex-col max-w-200 items-center">
-      <LongBlackButton
-        text={isLoggingIn ? "로그인 중..." : "Google로 시작하기"}
+      <Button
+        size="none"
         onClick={() => void handleLogin()}
         disabled={isLoggingIn}
-        width="w-50"
-        height="h-10"
-      />
+        className="w-50 h-10"
+      >
+        {isLoggingIn ? "로그인 중..." : "Google로 시작하기"}
+      </Button>
       <Space4 direction="mb" />
       <LegalConsentNotice />
     </div>

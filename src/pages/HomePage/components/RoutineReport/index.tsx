@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { RoutineReportSkeleton } from "./components/RoutineReportSkeleton";
 import { getWeekRangeInfo } from "./utils/getWeekRangeInfo";
 import { useRoutineToggle } from "./hooks/useRoutineToggle";
-import { NormalBlackButton } from "@/shared/ui/Button";
+import { Button } from "@/shared/ui/primitives";
 
 /**
  * 주간 루틴 리포트 섹션을 렌더링합니다.
@@ -64,7 +64,7 @@ function RoutineReportSection() {
           <p className="text-sm text-content-muted">
             루틴 목록을 불러오지 못했습니다.
           </p>
-          <NormalBlackButton text="다시 시도" onClick={() => void refetch()} />
+          <Button onClick={() => void refetch()}>다시 시도</Button>
         </div>
       ) : (
         // 2-3. 테이블

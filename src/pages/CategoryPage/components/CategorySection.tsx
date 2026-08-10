@@ -4,9 +4,8 @@ import { updateCategoryOrder, type Category } from "@/shared/api/category";
 import { useCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
 import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
 import { TitleText } from "@/shared/ui/TitleText";
-import { NormalBlackButton } from "@/shared/ui/Button";
 import { Space10, Space4 } from "@/shared/ui/Space";
-import { Text } from "@/shared/ui/primitives";
+import { Button, Text } from "@/shared/ui/primitives";
 import ImageEmpty from "@/assets/images/empty.png";
 import { SortableCategoryItem } from "./SortableCategoryItem";
 import CategoryModal from "./CategoryModal";
@@ -130,7 +129,7 @@ export const CategorySection = ({
         <TitleText text={title} />
         {showAddButton && (
           <>
-            <NormalBlackButton text="추가" onClick={() => setIsOpen(true)} />
+            <Button onClick={() => setIsOpen(true)}>추가</Button>
             {isOpen && (
               <CategoryModal mode="CREATE" onClose={() => setIsOpen(false)} />
             )}
@@ -150,10 +149,9 @@ export const CategorySection = ({
               카테고리를 불러오지 못했습니다.
             </Text>
             <Space4 direction="mb" />
-            <NormalBlackButton
-              text="다시 시도"
-              onClick={() => void categoriesQuery.refetch()}
-            />
+            <Button onClick={() => void categoriesQuery.refetch()}>
+              다시 시도
+            </Button>
             <Space10 direction="mb" />
           </div>
         ) : categories === null ? (
@@ -175,10 +173,7 @@ export const CategorySection = ({
             {showAddButton && (
               <>
                 <Space4 direction="mb" />
-                <NormalBlackButton
-                  text="카테고리 추가"
-                  onClick={() => setIsOpen(true)}
-                />
+                <Button onClick={() => setIsOpen(true)}>카테고리 추가</Button>
               </>
             )}
             <Space10 direction="mb" />

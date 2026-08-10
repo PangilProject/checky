@@ -1,9 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { Text } from "@/shared/ui/primitives";
+import { Button, Text } from "@/shared/ui/primitives";
 import { Space10, Space2, Space8 } from "@/shared/ui/Space";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
-import { NormalBlackUnFillButton } from "@/shared/ui/Button";
 import type { AdminUser } from "../hooks/useAdminUsers";
 
 import { FiUser, FiMail, FiHash, FiClock, FiActivity } from "react-icons/fi";
@@ -158,7 +157,9 @@ export default function UserDetailModal({ user, onClose }: Props) {
 
       {/* ================= 버튼 ================= */}
       <div className="flex justify-end">
-        <NormalBlackUnFillButton text="닫기" onClick={onClose} />
+        <Button variant="outline" onClick={onClose}>
+          닫기
+        </Button>
       </div>
     </ModalWrapper>
   );

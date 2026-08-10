@@ -1,8 +1,4 @@
-import {
-  NormalBlackButton,
-  NormalBlackUnFillButton,
-  NormalRedUnFillButton,
-} from "@/shared/ui/Button";
+import { Button } from "@/shared/ui/primitives";
 import type { RoutineModalMode } from "../types";
 
 interface ButtonSectionProps {
@@ -25,37 +21,32 @@ export const ButtonSection = ({
   if (mode === "VIEW") {
     return (
       <div className="flex justify-between">
-        <NormalBlackUnFillButton
-          text="닫기"
-          onClick={onClose}
-          disabled={isSubmitting}
-        />
-        <NormalRedUnFillButton
-          text="삭제"
+        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+          닫기
+        </Button>
+        <Button
+          variant="outline"
+          tone="danger"
           onClick={onDelete}
           disabled={isSubmitting}
-        />
-        <NormalBlackButton
-          text="수정"
-          onClick={onEdit}
-          disabled={isSubmitting}
-        />
+        >
+          삭제
+        </Button>
+        <Button onClick={onEdit} disabled={isSubmitting}>
+          수정
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="flex justify-between">
-      <NormalBlackUnFillButton
-        text="취소"
-        onClick={onClose}
-        disabled={isSubmitting}
-      />
-      <NormalBlackButton
-        text={isSubmitting ? "저장 중..." : "저장"}
-        onClick={onSubmit}
-        disabled={isSubmitting}
-      />
+      <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+        취소
+      </Button>
+      <Button onClick={onSubmit} disabled={isSubmitting}>
+        {isSubmitting ? "저장 중..." : "저장"}
+      </Button>
     </div>
   );
 };

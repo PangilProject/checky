@@ -1,7 +1,7 @@
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 
-import { NormalBlackButton, NormalBlackUnFillButton } from "@/shared/ui/Button";
+import { Button } from "@/shared/ui/primitives";
 import { Space10 } from "@/shared/ui/Space";
 import { useState } from "react";
 import { DatePicker } from "@/shared/ui/DatePicker";
@@ -31,16 +31,19 @@ export function DateSelectModal({
       <Space10 direction="mb" />
 
       <div className="flex justify-end gap-2">
-        <NormalBlackUnFillButton text="취소" onClick={onClose} />
-        <NormalBlackButton
-          text={action === "after" ? "이동" : "복사"}
+        <Button variant="outline" onClick={onClose}>
+          취소
+        </Button>
+        <Button
           onClick={() => {
             const selected = parseYmd(value);
             if (!selected) return;
             onConfirm(selected);
             onClose();
           }}
-        />
+        >
+          {action === "after" ? "이동" : "복사"}
+        </Button>
       </div>
     </ModalWrapper>
   );
