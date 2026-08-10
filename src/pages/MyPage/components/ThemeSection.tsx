@@ -1,4 +1,4 @@
-import { Button, Stack, Text } from "@/shared/ui/primitives";
+import { Button, Text } from "@/shared/ui/primitives";
 import { useTheme } from "@/shared/hooks/useTheme";
 import type { ThemeMode } from "@/shared/stores/themeStore";
 
@@ -20,11 +20,11 @@ export const ThemeSection = () => {
   const { mode, setMode } = useTheme();
 
   return (
-    <Stack gap={2}>
+    <div className="flex flex-col gap-2">
       <Text variant="bodySm" tone="muted">
         화면 테마
       </Text>
-      <Stack direction="row" gap={2} wrap>
+      <div className="flex flex-wrap gap-2">
         {OPTIONS.map((option) => {
           const isSelected = mode === option.mode;
           return (
@@ -39,7 +39,7 @@ export const ThemeSection = () => {
             </Button>
           );
         })}
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 };
