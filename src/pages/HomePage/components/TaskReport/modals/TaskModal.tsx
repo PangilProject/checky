@@ -17,6 +17,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { useState } from "react";
 import { DateSelectModal } from "./DateSelectModal";
+import { getCategoryColor } from "@/shared/constants/colors";
 
 interface TaskModalProps {
   mode: "VIEW" | "EDIT";
@@ -100,9 +101,9 @@ export default function TaskModal({
             aria-label={isCompleted ? "완료 해제" : "완료 처리"}
           >
             {isCompleted ? (
-              <FaCheckCircle size={20} color={categoryColor} />
+              <FaCheckCircle size={20} color={getCategoryColor(categoryColor)} />
             ) : (
-              <LuCircleDashed size={20} color={categoryColor} />
+              <LuCircleDashed size={20} color={getCategoryColor(categoryColor)} />
             )}
           </button>
         </Stack>

@@ -11,9 +11,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { TitleText } from "@/shared/ui/TitleText";
-import { Button, Stack } from "@/shared/ui/primitives";
-import { getCategoryTextColor } from "@/shared/utils/getCategoryTextColor";
+import { Button, Stack, Text } from "@/shared/ui/primitives";
+import { getCategoryColor } from "@/shared/constants/colors";
 import { RoutineItem } from "./RoutineItem";
 import type { Routine, RoutineCategory } from "@/shared/api/routine";
 
@@ -67,10 +66,14 @@ export const RoutineCategorySection = ({
         align="center"
         className="mb-2"
       >
-        <TitleText
-          text={category.name}
-          className={`${getCategoryTextColor(category.color)} min-w-0 truncate`}
-        />
+        <Text
+          variant="title"
+          // 저장된 hex 가 아니라 테마에 맞게 고른 색으로 그린다
+          style={{ color: getCategoryColor(category.color) }}
+          className="min-w-0 truncate"
+        >
+          {category.name}
+        </Text>
         <span className="shrink-0">
           {isEnded ? (
             // 왜 더할 수 없는지 알 수 있도록 상태를 적어 둔다

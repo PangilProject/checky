@@ -1,7 +1,7 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { Button, Input, Text } from "@/shared/ui/primitives";
 import { RxTriangleDown, RxTriangleUp } from "react-icons/rx";
-import { COLORS } from "@/shared/constants/colors";
+import { COLORS, getCategoryColor } from "@/shared/constants/colors";
 import {
   createCategory,
   endCategory,
@@ -226,7 +226,7 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
         >
           <div
             className="w-4.5 h-4.5 rounded-4xl"
-            style={{ backgroundColor: value.value }}
+            style={{ backgroundColor: getCategoryColor(value.value) }}
           />
           {!disabled && (isOpen ? <RxTriangleUp /> : <RxTriangleDown />)}
         </div>
@@ -252,7 +252,7 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
                   : "hover:scale-110"
               }
             `}
-            style={{ backgroundColor: color.value }}
+            style={{ backgroundColor: getCategoryColor(color.value) }}
             onClick={() => {
               if (disabled) return;
               onChange(color);

@@ -156,9 +156,8 @@ export const CategoryField = ({
       {isDisabled ? (
         <Text
           variant="body"
-          className={
-            selected?.color ? `text-[${selected.color}]` : "opacity-60"
-          }
+          style={selectedColor ? { color: selectedColor } : undefined}
+          className={selectedColor ? undefined : "opacity-60"}
         >
           {selected?.name ?? "-"}
         </Text>
