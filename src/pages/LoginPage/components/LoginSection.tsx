@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { wickedMouseClass } from "@/styles/font";
-import LogoImage from "../../../assets/images/logoRound.png";
+import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 import { LongBlackButton } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { Text3 } from "@/shared/ui/Text";
@@ -39,9 +39,11 @@ const ServiceDesc = () => {
 };
 
 const ServiceLogo = () => {
+  const logoSrc = useLogoSrc("round");
+
   return (
     <>
-      <img src={LogoImage} alt="checky 로고" className="w-15 h-15" />
+      <img src={logoSrc} alt="checky 로고" className="w-15 h-15" />
       <Space12 direction="mb" />
     </>
   );

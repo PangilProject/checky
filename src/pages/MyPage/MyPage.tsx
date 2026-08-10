@@ -1,7 +1,6 @@
-import { Text2, Text3 } from "@/shared/ui/Text";
-import LogoImage from "../../assets/images/logoRound.png";
+import { Button, Text } from "@/shared/ui/primitives";
+import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 import { Space10, Space4 } from "@/shared/ui/Space";
-import { NormalBlackButton } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
@@ -38,6 +37,7 @@ function MyPage() {
 
 const UserInfoSection = () => {
   const { user, isAdmin } = useAuth();
+  const fallbackLogo = useLogoSrc("round");
   // 관리자만 쓰는 숨은 통로. 관리자가 아니면 핸들러 자체가 붙지 않는다.
   const handleAdminShortcutTap = useAdminShortcut(isAdmin);
 
@@ -47,7 +47,7 @@ const UserInfoSection = () => {
   return (
     <div className="flex">
       <img
-        src={imageUrl || LogoImage}
+        src={imageUrl || fallbackLogo}
         alt=""
         // 누를 수 있어 보이면 숨긴 뜻이 없으므로 커서와 모양은 그대로 둔다.
         // 빠르게 여러 번 누를 때 이미지 끌기나 글자 선택이 끼어들지 않게만 막는다.
@@ -55,13 +55,15 @@ const UserInfoSection = () => {
         draggable={false}
         onClick={handleAdminShortcutTap}
         onError={(e) => {
-          e.currentTarget.src = LogoImage;
+          e.currentTarget.src = fallbackLogo;
         }}
       />
       <Space4 direction="mr" />
       <div className="flex min-w-0 flex-col justify-center">
-        <Text3 text={name || "이름"} className="truncate" />
-        <Text2 text={email || "이메일"} className="truncate" />
+        <Text className="truncate">{name || "이름"}</Text>
+        <Text variant="bodySm" tone="muted" className="truncate">
+          {email || "이메일"}
+        </Text>
       </div>
     </div>
   );
@@ -135,15 +137,10 @@ const ButtonSection = () => {
 
   return (
     <div className="flex gap-3">
-      <NormalBlackButton
-        text="로그아웃"
-        onClick={() => void handleLogout()}
-        disabled={isLoggingOut}
-      />
-      <NormalBlackButton
-        text="회원탈퇴"
-        onClick={() => setWithdrawOpen(true)}
-      />
+      <Button onClick={() => void handleLogout()} disabled={isLoggingOut}>
+        로그아웃
+      </Button>
+      <Button onClick={() => setWithdrawOpen(true)}>회원탈퇴</Button>
 
       {withdrawOpen && (
         <ConfirmModal
