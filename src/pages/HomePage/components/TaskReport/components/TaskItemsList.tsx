@@ -51,7 +51,7 @@ export const TaskItemsList = ({
   // 옆의 작은 + 아이콘이 유일한 단서라, 무엇을 해야 할지 알기 어렵다.
   if (tasks.length === 0) {
     return (
-      <p className="py-2 pl-1 text-[13px] text-content-muted">
+      <p className="py-2 pl-1 text-sm text-content-muted">
         + 를 눌러 할 일을 추가해보세요.
       </p>
     );
@@ -115,7 +115,7 @@ const SortableTaskItem = ({
       {...listeners}
       className={`
           py-1 flex justify-between cursor-grab 
-          ${isDragging ? "bg-surface-sunken shadow-md scale-[1.02]" : ""}
+          ${isDragging ? "bg-surface-sunken shadow-[var(--shadow-drag)] scale-[1.02]" : ""}
         `}
     >
       <div className="flex flex-col min-w-0" onClick={() => onToggle(task.id)}>

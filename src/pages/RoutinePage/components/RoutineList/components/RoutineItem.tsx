@@ -45,7 +45,7 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
       className={`w-full flex flex-col
         cursor-grab 
         transition-all duration-200 ease-out
-        ${isDragging ? "bg-surface-raised shadow-xl scale-[1.01]" : "hover:bg-surface-sunken"}
+        ${isDragging ? "bg-surface-raised shadow-[var(--shadow-drag)] scale-[1.01]" : "hover:bg-surface-sunken"}
       `}
     >
       <div className="flex justify-between items-center w-full ">

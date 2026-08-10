@@ -109,7 +109,7 @@ export const DatePicker = ({
         type="button"
         disabled={disabled}
         onClick={toggleOpen}
-        className={`border-b border-content-subtle text-[14px] text-left pb-0.5 min-w-28
+        className={`border-b border-content-subtle text-sm text-left pb-0.5 min-w-28
           ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
           ${value ? "" : "text-content-muted"}`}
       >
@@ -124,7 +124,7 @@ export const DatePicker = ({
             // 위치는 usePopoverPosition이 뷰포트 기준으로 잡아준다.
             style={{ top: 0, left: 0 }}
             className="fixed z-1100 max-h-[calc(100vh-16px)] w-70 overflow-y-auto rounded-xl
-              border border-line bg-surface-raised p-3 shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+              border border-line bg-surface-raised p-3 shadow-[var(--shadow-popover)]"
           >
             {/* 월 이동 헤더 */}
             <div className="flex items-center justify-between px-1">
@@ -136,7 +136,7 @@ export const DatePicker = ({
               >
                 ‹
               </button>
-              <span className="text-[14px] font-bold">
+              <span className="text-sm font-bold">
                 {viewDate.getFullYear()}년 {viewDate.getMonth() + 1}월
               </span>
               <button
@@ -154,7 +154,7 @@ export const DatePicker = ({
               {WEEK_LABELS.map((label, index) => (
                 <span
                   key={label}
-                  className="py-1 text-center text-[11px]"
+                  className="py-1 text-center text-xs"
                   style={{ color: getWeekdayColor(index) ?? "var(--color-content-muted)" }}
                 >
                   {label}
@@ -182,7 +182,7 @@ export const DatePicker = ({
                     type="button"
                     disabled={outOfRange}
                     onClick={() => selectDate(ymd)}
-                    className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-[13px]
+                    className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm
                     ${isSelected ? "bg-primary font-bold" : ""}
                     ${!isSelected && isToday ? "border border-line-strong font-bold" : ""}
                     ${outOfRange ? "cursor-not-allowed" : "hover:bg-surface-sunken"}`}
@@ -200,7 +200,7 @@ export const DatePicker = ({
                 type="button"
                 disabled={isOutOfRange(todayYmd)}
                 onClick={() => selectDate(todayYmd)}
-                className="rounded-md px-2 py-1 text-[12px] text-content-muted hover:bg-surface-sunken disabled:opacity-40"
+                className="rounded-md px-2 py-1 text-xs text-content-muted hover:bg-surface-sunken disabled:opacity-40"
               >
                 오늘
               </button>

@@ -78,7 +78,7 @@ export const AddTaskInput = ({
           handleSubmit();
         }}
       >
-        <Button size="none" className="h-7 w-15 text-[12px]">
+        <Button size="none" className="h-7 w-15 text-xs">
           추가
         </Button>
       </div>

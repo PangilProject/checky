@@ -77,7 +77,7 @@ export const RoutineCategorySection = ({
 
       {/* 분류를 방금 만든 직후가 가장 허전한 지점이라, 다음에 할 일을 적어 둔다 */}
       {routines.length === 0 && (
-        <p className="pl-1 pb-1 text-[13px] text-content-muted">
+        <p className="pl-1 pb-1 text-sm text-content-muted">
           {isEnded
             ? "루틴이 없습니다."
             : "추가를 눌러 이 분류의 첫 루틴을 만들어보세요."}

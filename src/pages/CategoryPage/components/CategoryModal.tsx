@@ -177,7 +177,7 @@ const Input = ({
 }: InputProps) => {
   return (
     <input
-      className="w-full border-0 border-b border-content-subtle text-[16px] outline-none ime-fallback"
+      className="w-full border-0 border-b border-content-subtle text-base outline-none ime-fallback"
       placeholder="카테고리 입력"
       value={categoryInput}
       maxLength={CATEGORY_NAME_MAX_LENGTH}

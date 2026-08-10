@@ -19,7 +19,7 @@ export const TaskInput = ({
 }) => {
   return (
     <input
-      className="w-full border-0 border-b border-content-subtle text-[16px] outline-none ime-fallback"
+      className="w-full border-0 border-b border-content-subtle text-base outline-none ime-fallback"
       placeholder="할 일을 입력하세요"
       value={value}
       maxLength={100}
@@ -168,7 +168,7 @@ export const CategoryField = ({
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="min-w-30 border-b border-content-subtle text-[14px] text-left pr-6 relative"
+            className="min-w-30 border-b border-content-subtle text-sm text-left pr-6 relative"
           >
             <span
               style={{ color: selectedColor }}
@@ -181,7 +181,7 @@ export const CategoryField = ({
             </span>
           </button>
           {isOpen && (
-            <div className="absolute right-0 mt-2 z-10 min-w-30 bg-surface-raised border border-line rounded-md shadow-sm">
+            <div className="absolute right-0 mt-2 z-10 min-w-30 bg-surface-raised border border-line rounded-md shadow-[var(--shadow-popover)]">
               {categories.map((category) => (
                 <button
                   key={category.id}
@@ -191,7 +191,7 @@ export const CategoryField = ({
                     setOpen(false);
                   }}
                   style={{ color: getCategoryColor(category.color) }}
-                  className={`w-full text-left px-3 py-2 text-[14px] hover:bg-surface-sunken ${
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-surface-sunken ${
                     category.id === value ? "font-bold" : ""
                   }`}
                 >
