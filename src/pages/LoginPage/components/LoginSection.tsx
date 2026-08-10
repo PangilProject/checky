@@ -3,7 +3,6 @@ import { wickedMouseClass } from "@/styles/font";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 import { useNavigate } from "react-router-dom";
 import { Button, Text } from "@/shared/ui/primitives";
-import { Space10, Space12, Space4 } from "@/shared/ui/Space";
 import { signInWithGoogle } from "@/shared/api/auth/auth";
 import { LegalConsentNotice } from "@/shared/ui/LegalLinks";
 import { toast } from "react-toastify";
@@ -20,32 +19,21 @@ export const LoginSection = () => {
 };
 
 const ServiceTitle = () => {
-  return (
-    <>
-      <p className={`text-4xl ${wickedMouseClass}`}>CHECKY</p>
-      <Space4 direction="mb" />
-    </>
-  );
+  return <p className={`mb-4 text-4xl ${wickedMouseClass}`}>CHECKY</p>;
 };
 
 const ServiceDesc = () => {
   return (
-    <>
-      <Text variant="body">어제 보다 더 나은 오늘을 위해</Text>
-      <Space10 direction="mb" />
-    </>
+    <Text variant="body" className="mb-10">
+      어제 보다 더 나은 오늘을 위해
+    </Text>
   );
 };
 
 const ServiceLogo = () => {
   const logoSrc = useLogoSrc("round");
 
-  return (
-    <>
-      <img src={logoSrc} alt="checky 로고" className="w-15 h-15" />
-      <Space12 direction="mb" />
-    </>
-  );
+  return <img src={logoSrc} alt="checky 로고" className="mb-12 w-15 h-15" />;
 };
 
 /** 로그인 실패 원인별 안내 문구를 반환합니다. */
@@ -100,8 +88,9 @@ const LoginButton = () => {
       >
         {isLoggingIn ? "로그인 중..." : "Google로 시작하기"}
       </Button>
-      <Space4 direction="mb" />
-      <LegalConsentNotice />
+      <div className="mt-4">
+        <LegalConsentNotice />
+      </div>
     </div>
   );
 };

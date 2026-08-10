@@ -3,7 +3,6 @@ import AdminHeader from "./AdminHeader";
 import LoadingPage from "@/pages/LoadingPage/LoadingPage";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useMinimumLoading } from "@/shared/hooks/useMinimumLoading";
-import { Space10 } from "@/shared/ui/Space";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 
@@ -41,9 +40,8 @@ function AdminLayout() {
   // 🔹 관리자 정상 접근
   return (
     <div className="w-full flex flex-col items-center px-2">
-      <div className="w-full max-w-200 flex flex-col">
+      <div className="w-full max-w-200 flex flex-col gap-10">
         <AdminHeader />
-        <Space10 direction="mb" />
         <Outlet />
       </div>
     </div>

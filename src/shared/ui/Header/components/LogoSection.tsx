@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { Space2 } from "../../Space";
 import { wickedMouseClass } from "@/styles/font";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 
@@ -10,9 +9,8 @@ export const LogoSection = () => {
     // 헤더는 로그인 상태에서만 노출되므로 홈으로 바로 보낸다.
     // "/" 는 로그인 페이지라 인증 확인과 리다이렉트를 거치며 로딩 화면이 노출된다.
     <Link to="/home">
-      <div className="flex items-center my-3 sm:my-4">
+      <div className="flex items-center gap-2 my-3 sm:my-4">
         <img src={logoSrc} className="w-6 sm:w-8" />
-        <Space2 direction="mr" />
         <span className={`block text-lg sm:hidden ${wickedMouseClass}`}>
           CHECKY
         </span>

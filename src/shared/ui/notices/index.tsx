@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { IoChevronBack } from "react-icons/io5";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
-import { Space10 } from "@/shared/ui/Space";
 import { Button } from "@/shared/ui/primitives";
 import { useNotices } from "./hooks/useNotices";
 import NoticeList from "./components/NoticeList";
@@ -132,13 +131,11 @@ export default function NoticeModal({ onClose }: Props) {
           />
         </div>
 
-        <Space10 direction="mb" />
-
         {/*
           이전/다음 이동은 본문 밖에 두어 스크롤하지 않아도 보이게 한다.
           왼쪽에 위아래로 쌓고 닫기 버튼은 오른쪽에 고정한다.
         */}
-        <div className="flex shrink-0 items-end gap-3">
+        <div className="mt-10 flex shrink-0 items-end gap-3">
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             {prevNotice && selected && (
               <NoticeNavButton

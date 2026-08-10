@@ -4,7 +4,6 @@ import { updateCategoryOrder, type Category } from "@/shared/api/category";
 import { useCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
 import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
 import { TitleText } from "@/shared/ui/TitleText";
-import { Space10, Space4 } from "@/shared/ui/Space";
 import { Button, Text } from "@/shared/ui/primitives";
 import ImageEmpty from "@/assets/images/empty.png";
 import { SortableCategoryItem } from "./SortableCategoryItem";
@@ -125,7 +124,7 @@ export const CategorySection = ({
   return (
     <div className="w-full flex flex-col">
       {/* 타이틀 영역 */}
-      <div className="flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between">
         <TitleText text={title} />
         {showAddButton && (
           <>
@@ -137,46 +136,39 @@ export const CategorySection = ({
         )}
       </div>
 
-      <Space4 direction="mb" />
-
       {/* 내용 영역 */}
       <div className="w-full flex flex-col items-center">
         {categories === null && categoriesQuery.isError ? (
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center gap-4 pb-10">
             <img src={ImageEmpty} className="h-15" alt="" />
-            <Space4 direction="mb" />
             <Text variant="bodySm" tone="muted">
               카테고리를 불러오지 못했습니다.
             </Text>
-            <Space4 direction="mb" />
             <Button onClick={() => void categoriesQuery.refetch()}>
               다시 시도
             </Button>
-            <Space10 direction="mb" />
           </div>
         ) : categories === null ? (
           <CategoryListSkeleton />
         ) : categories.length === 0 ? (
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center gap-4 pb-10">
             <img src={ImageEmpty} className="h-15" alt="" />
-            <Space4 direction="mb" />
-            <Text variant="bodySm" tone="muted">
-              {emptyTitle}
-            </Text>
-            {emptySubTitle && (
+            {/* 두 줄은 한 문단이므로 사이를 벌리지 않는다 */}
+            <div className="text-center">
               <Text variant="bodySm" tone="muted">
-                {emptySubTitle}
+                {emptyTitle}
               </Text>
-            )}
+              {emptySubTitle && (
+                <Text variant="bodySm" tone="muted">
+                  {emptySubTitle}
+                </Text>
+              )}
+            </div>
             {/* 안내문이 가리키는 버튼을 안내문 옆에 둔다.
                 제목 줄의 "추가"만 있으면 무엇을 눌러야 하는지 눈으로 잇기 어렵다. */}
             {showAddButton && (
-              <>
-                <Space4 direction="mb" />
-                <Button onClick={() => setIsOpen(true)}>카테고리 추가</Button>
-              </>
+              <Button onClick={() => setIsOpen(true)}>카테고리 추가</Button>
             )}
-            <Space10 direction="mb" />
           </div>
         ) : (
           <DndContext

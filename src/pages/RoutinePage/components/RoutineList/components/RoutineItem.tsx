@@ -1,7 +1,6 @@
 import type { Routine } from "@/shared/api/routine";
 import { getDayLabel } from "@/shared/constants/dateLabels";
 import { formatDateToYmd } from "@/shared/hooks/formatDate";
-import { Space2 } from "@/shared/ui/Space";
 import { Text } from "@/shared/ui/primitives";
 import { useSortable } from "@dnd-kit/sortable";
 import { HiDotsHorizontal } from "react-icons/hi";
@@ -50,9 +49,8 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
       `}
     >
       <div className="flex justify-between items-center w-full ">
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <RiCheckboxBlankFill size={10} />
-          <Space2 direction="mr" />
           <div className="flex flex-col">
             {/* 루틴 제목 */}
             <div className="flex items-center gap-2">

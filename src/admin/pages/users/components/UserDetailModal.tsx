@@ -1,6 +1,5 @@
 import { useState, type ReactNode } from "react";
 import { Button, Text } from "@/shared/ui/primitives";
-import { Space10, Space2, Space8 } from "@/shared/ui/Space";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import type { AdminUser } from "../hooks/useAdminUsers";
@@ -93,67 +92,60 @@ export default function UserDetailModal({ user, onClose }: Props) {
     <ModalWrapper onClose={onClose}>
       <ModalTitle text="사용자 정보" />
 
-      {/* ================= 기본 정보 ================= */}
-      <div>
-        <Text variant="body" className="font-bold">
-          기본 정보
-        </Text>
-        <Space2 direction="mb" />
+      <div className="mb-10 flex flex-col gap-8">
+        {/* ================= 기본 정보 ================= */}
+        <div>
+          <Text variant="body" className="mb-2 font-bold">
+            기본 정보
+          </Text>
 
-        <InfoRow icon={<FiUser />} text={`이름: ${user.name ?? "-"}`} />
-        <InfoRow icon={<FiMail />} text={`이메일: ${user.email ?? "-"}`} />
-        <InfoRow icon={<FiHash />} text={`UID: ${user.id}`} muted />
+          <InfoRow icon={<FiUser />} text={`이름: ${user.name ?? "-"}`} />
+          <InfoRow icon={<FiMail />} text={`이메일: ${user.email ?? "-"}`} />
+          <InfoRow icon={<FiHash />} text={`UID: ${user.id}`} muted />
+        </div>
+
+        {/* ================= 계정 정보 ================= */}
+        <div>
+          <Text variant="body" className="mb-2 font-bold">
+            계정 정보
+          </Text>
+
+          <InfoRow
+            icon={<FiClock />}
+            text={`가입일: ${formatDateTime(user.createdAt)}`}
+          />
+          <InfoRow
+            icon={<FiClock />}
+            text={`마지막 로그인: ${formatDateTime(user.lastLoginAt)}`}
+          />
+          <InfoRow
+            icon={<FiClock />}
+            text={`마지막 접속: ${formatDateTime(user.lastActiveAt)}`}
+          />
+        </div>
+
+        {/* ================= 상태 요약 ================= */}
+        <div>
+          <Text variant="body" className="mb-2 font-bold">
+            상태 요약
+          </Text>
+
+          <InfoRow
+            icon={<FiActivity />}
+            text={`상태: ${isActive ? "활성" : "비활성"}`}
+          />
+
+          <InfoRow
+            icon={<FiClock />}
+            text={`최근 접속: ${
+              user.lastActiveAt
+                ? `${diffCalendarDays(user.lastActiveAt, nowTime)}일 전`
+                : "기록 없음"
+            }`}
+            muted
+          />
+        </div>
       </div>
-
-      <Space8 direction="mb" />
-
-      {/* ================= 계정 정보 ================= */}
-      <div>
-        <Text variant="body" className="font-bold">
-          계정 정보
-        </Text>
-        <Space2 direction="mb" />
-
-        <InfoRow
-          icon={<FiClock />}
-          text={`가입일: ${formatDateTime(user.createdAt)}`}
-        />
-        <InfoRow
-          icon={<FiClock />}
-          text={`마지막 로그인: ${formatDateTime(user.lastLoginAt)}`}
-        />
-        <InfoRow
-          icon={<FiClock />}
-          text={`마지막 접속: ${formatDateTime(user.lastActiveAt)}`}
-        />
-      </div>
-
-      <Space8 direction="mb" />
-
-      {/* ================= 상태 요약 ================= */}
-      <div>
-        <Text variant="body" className="font-bold">
-          상태 요약
-        </Text>
-        <Space2 direction="mb" />
-
-        <InfoRow
-          icon={<FiActivity />}
-          text={`상태: ${isActive ? "활성" : "비활성"}`}
-        />
-
-        <InfoRow
-          icon={<FiClock />}
-          text={`최근 접속: ${
-            user.lastActiveAt
-              ? `${diffCalendarDays(user.lastActiveAt, nowTime)}일 전`
-              : "기록 없음"
-          }`}
-          muted
-        />
-      </div>
-
-      <Space10 direction="mb" />
 
       {/* ================= 버튼 ================= */}
       <div className="flex justify-end">

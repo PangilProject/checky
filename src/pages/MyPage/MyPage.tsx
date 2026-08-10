@@ -1,6 +1,5 @@
 import { Button, Text } from "@/shared/ui/primitives";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
-import { Space10, Space4 } from "@/shared/ui/Space";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
@@ -22,15 +21,13 @@ import { ThemeSection } from "./components/ThemeSection";
 function MyPage() {
   return (
     <div>
-      <TitleText text="마이 정보" />
-      <Space4 direction="mb" />
-      <UserInfoSection />
-      <Space10 direction="mb" />
-      <ThemeSection />
-      <Space10 direction="mb" />
-      <ButtonSection />
-      <Space10 direction="mb" />
-      <LegalLinks />
+      <TitleText text="마이 정보" className="mb-4" />
+      <div className="flex flex-col gap-10">
+        <UserInfoSection />
+        <ThemeSection />
+        <ButtonSection />
+        <LegalLinks />
+      </div>
     </div>
   );
 }
@@ -45,7 +42,7 @@ const UserInfoSection = () => {
   const email = user?.email || "";
   const imageUrl = user?.photoURL || "";
   return (
-    <div className="flex">
+    <div className="flex gap-4">
       <img
         src={imageUrl || fallbackLogo}
         alt=""
@@ -58,7 +55,6 @@ const UserInfoSection = () => {
           e.currentTarget.src = fallbackLogo;
         }}
       />
-      <Space4 direction="mr" />
       <div className="flex min-w-0 flex-col justify-center">
         <Text className="truncate">{name || "이름"}</Text>
         <Text variant="bodySm" tone="muted" className="truncate">

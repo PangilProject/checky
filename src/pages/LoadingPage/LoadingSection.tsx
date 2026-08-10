@@ -1,7 +1,6 @@
 import { wickedMouseClass } from "@/styles/font";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 import { Text } from "@/shared/ui/primitives";
-import { Space6, Space12 } from "@/shared/ui/Space";
 
 function LoadingSection() {
   const logoSrc = useLogoSrc("round");
@@ -15,15 +14,11 @@ function LoadingSection() {
         </span>
       </div>
 
-      <Space6 direction="mb" />
-
-      <div className="relative w-26 h-1 overflow-hidden rounded-full bg-surface-sunken">
+      <div className="relative my-6 w-26 h-1 overflow-hidden rounded-full bg-surface-sunken">
         <span className="absolute top-0 left-0 h-full w-[42%] rounded-full bg-primary animate-checky-loading" />
       </div>
 
-      <Space12 direction="mb" />
-
-      <Text variant="bodySm" tone="muted">
+      <Text variant="bodySm" tone="muted" className="mt-6">
         오늘도 하나씩, CHECKY
       </Text>
     </div>

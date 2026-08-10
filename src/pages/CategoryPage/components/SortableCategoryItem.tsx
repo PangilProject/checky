@@ -2,7 +2,6 @@ import { Text } from "@/shared/ui/primitives";
 import type { Category } from "@/shared/api/category";
 import { getCategoryColor } from "@/shared/constants/colors";
 import { HiDotsHorizontal } from "react-icons/hi";
-import { Space2 } from "@/shared/ui/Space";
 import { useState } from "react";
 import CategoryModal from "./CategoryModal";
 import { formatTimestampToKoreanDate } from "@/shared/hooks/formatDate";
@@ -40,13 +39,12 @@ export const SortableCategoryItem = ({
       {...attributes}
       {...listeners}
       className={`
-        w-full flex flex-col
+        w-full flex flex-col py-2
         cursor-grab 
         transition-all duration-200 ease-out
         ${isDragging ? "bg-surface-raised shadow-xl scale-[1.01]" : "hover:bg-surface-sunken"}
       `}
     >
-      <Space2 direction="mb" />
       <div className="w-full  flex justify-between items-center">
         <div className="flex w-2/3 min-w-0 items-center">
           <Text
@@ -71,7 +69,6 @@ export const SortableCategoryItem = ({
           <HiDotsHorizontal color="var(--color-content-muted)" size={20} />
         </button>
       </div>
-      <Space2 direction="mb" />
 
       {isOpen && (
         <CategoryModal

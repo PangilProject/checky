@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Space10, Space2 } from "@/shared/ui/Space";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
@@ -121,67 +120,66 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
     <ModalWrapper onClose={onClose}>
       <ModalTitle text={getModalModeTitle(currentMode, "공지")} />
 
-      <Text variant="body" className="font-bold">
-        제목
-      </Text>
-      <Space2 direction="mb" />
-      <input
-        value={title}
-        disabled={isReadOnly || isSubmitting}
-        maxLength={TITLE_MAX_LENGTH}
-        onChange={(e) => setTitle(e.target.value)}
-        className="w-full border-b outline-none text-sm"
-      />
+      {/* 항목 사이 간격은 이 묶음이 소유한다 */}
+      <div className="mb-10 flex flex-col gap-10">
+        <div>
+          <Text variant="body" className="mb-2 font-bold">
+            제목
+          </Text>
+          <input
+            value={title}
+            disabled={isReadOnly || isSubmitting}
+            maxLength={TITLE_MAX_LENGTH}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full border-b outline-none text-sm"
+          />
+        </div>
 
-      <Space10 direction="mb" />
+        <div>
+          <Text variant="body" className="mb-2 font-bold">
+            내용
+          </Text>
+          <textarea
+            value={content}
+            disabled={isReadOnly || isSubmitting}
+            maxLength={CONTENT_MAX_LENGTH}
+            onChange={(e) => setContent(e.target.value)}
+            className="w-full h-32 resize-none border border-line rounded p-2 text-sm outline-none"
+          />
+        </div>
 
-      <Text variant="body" className="font-bold">
-        내용
-      </Text>
-      <Space2 direction="mb" />
-      <textarea
-        value={content}
-        disabled={isReadOnly || isSubmitting}
-        maxLength={CONTENT_MAX_LENGTH}
-        onChange={(e) => setContent(e.target.value)}
-        className="w-full h-32 resize-none border border-line rounded p-2 text-sm outline-none"
-      />
-
-      <Space10 direction="mb" />
-
-      {/*
+        {/*
         상세(VIEW)에서는 누르는 즉시 저장하고, 작성·수정 중에는 저장 버튼을 누를 때
         함께 반영한다. 고정 여부를 바꾸려고 수정 모드까지 들어가지 않아도 된다.
       */}
-      <div className="flex items-center gap-2 text-sm">
-        {/*
+        <div className="flex items-center gap-2 text-sm">
+          {/*
           체크박스만 눌리도록 버튼 범위를 아이콘으로 한정한다.
           아이콘이 작아 누르기 어려워지지 않도록 padding 으로 터치 영역을 넓히고,
           음수 margin 으로 보이는 위치는 그대로 유지한다.
           레이블이 버튼 밖으로 나갔으므로 aria-label 로 무엇을 켜는 버튼인지 알린다.
         */}
-        <button
-          type="button"
-          onClick={
-            isReadOnly
-              ? () => void handleTogglePinned()
-              : () => setPinned(!pinned)
-          }
-          disabled={isSubmitting || (isReadOnly && !notice)}
-          aria-pressed={pinned}
-          aria-label="상단 고정"
-          className="-m-2 p-2 pressable disabled:opacity-40"
-        >
-          {pinned ? (
-            <MdCheckBox size={18} />
-          ) : (
-            <MdCheckBoxOutlineBlank size={18} />
-          )}
-        </button>
-        <span>상단 고정</span>
+          <button
+            type="button"
+            onClick={
+              isReadOnly
+                ? () => void handleTogglePinned()
+                : () => setPinned(!pinned)
+            }
+            disabled={isSubmitting || (isReadOnly && !notice)}
+            aria-pressed={pinned}
+            aria-label="상단 고정"
+            className="-m-2 p-2 pressable disabled:opacity-40"
+          >
+            {pinned ? (
+              <MdCheckBox size={18} />
+            ) : (
+              <MdCheckBoxOutlineBlank size={18} />
+            )}
+          </button>
+          <span>상단 고정</span>
+        </div>
       </div>
-
-      <Space10 direction="mb" />
 
       {/* 버튼 */}
       {currentMode === "VIEW" ? (

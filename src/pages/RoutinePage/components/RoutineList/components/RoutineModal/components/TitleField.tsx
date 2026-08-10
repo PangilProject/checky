@@ -1,5 +1,4 @@
 import { Text } from "@/shared/ui/primitives";
-import { Space2 } from "@/shared/ui/Space";
 
 interface TitleFieldProps {
   title: string;
@@ -16,10 +15,9 @@ export const TitleField = ({
 }: TitleFieldProps) => {
   return (
     <div>
-      <Text variant="body" className="font-bold">
+      <Text variant="body" className="mb-2 font-bold">
         루틴명
       </Text>
-      <Space2 direction="mb" />
       <input
         className="w-full border-0 border-b border-content-subtle text-sm outline-none ime-fallback"
         placeholder="루틴 입력"

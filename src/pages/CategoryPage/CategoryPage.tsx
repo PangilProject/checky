@@ -1,12 +1,10 @@
-import { Space20 } from "@/shared/ui/Space.tsx";
 import { ActiveCategorySection } from "./components/ActiveCategorySection.tsx";
 import { EndedCategorySection } from "./components/EndCategorySection.tsx";
 
 function CategoryPage() {
   return (
-    <div>
+    <div className="flex flex-col gap-20">
       <ActiveCategorySection />
-      <Space20 direction="mb" />
       <EndedCategorySection />
     </div>
   );

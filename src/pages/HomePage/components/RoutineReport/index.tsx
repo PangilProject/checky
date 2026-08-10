@@ -1,7 +1,6 @@
 import TitleSection from "../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { moveWeek } from "@/shared/hooks/dateNavigation";
-import { Space24 } from "@/shared/ui/Space";
 import { RoutineTable } from "./components/RoutineTable";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRoutineReportQuery } from "@/shared/hooks/useRoutineReportQuery";
@@ -41,7 +40,7 @@ function RoutineReportSection() {
   });
 
   return (
-    <div>
+    <div className="pb-24">
       {/* 1. 타이틀 */}
       <TitleSection
         title="루틴 목록"
@@ -70,8 +69,6 @@ function RoutineReportSection() {
         // 2-3. 테이블
         <RoutineTable report={report} onToggle={handleToggle} />
       )}
-
-      <Space24 direction="mb" />
     </div>
   );
 }

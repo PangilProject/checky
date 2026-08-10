@@ -1,4 +1,3 @@
-import { Space6 } from "@/shared/ui/Space";
 import { Text } from "@/shared/ui/primitives";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
@@ -138,8 +137,7 @@ const SortableTaskItem = ({
             {task.title}
           </Text>
         </div>
-        <div className="flex">
-          <Space6 direction="mr" />
+        <div className="flex pl-6">
           {task.time && (
             <Text variant="caption" tone="muted" className="ml-1">
               {task.time}

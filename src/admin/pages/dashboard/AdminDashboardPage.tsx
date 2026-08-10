@@ -1,5 +1,4 @@
 import { Text } from "@/shared/ui/primitives";
-import { Space10 } from "@/shared/ui/Space";
 import { useAdminStats } from "./hooks/useAdminStats";
 import DashboardGrid from "./components/DashboardGrid";
 import UserSignupChart from "./components/UserSignupChart";
@@ -25,7 +24,7 @@ function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
       <Text variant="heading">관리자 대시보드</Text>
 
       <DashboardGrid stats={stats} />
@@ -55,8 +54,6 @@ function AdminDashboardPage() {
           <ActiveUserChart data={stats.activeByDate} />
         </div>
       </div>
-
-      <Space10 direction="mb" />
     </div>
   );
 }

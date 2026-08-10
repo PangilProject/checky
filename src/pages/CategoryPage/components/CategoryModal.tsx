@@ -1,6 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { Button, Text } from "@/shared/ui/primitives";
-import { Space10, Space8 } from "@/shared/ui/Space";
 import { RxTriangleDown, RxTriangleUp } from "react-icons/rx";
 import { COLORS } from "@/shared/constants/colors";
 import {
@@ -134,14 +133,14 @@ export default function CategoryModal({
         }}
         disabled={isReadOnly || isSubmitting}
       />
-      <Space8 direction="mb" />
 
-      <ColorSelector
-        value={selectedColor}
-        onChange={setSelectedColor}
-        disabled={isReadOnly || isSubmitting}
-      />
-      <Space10 direction="mb" />
+      <div className="my-8">
+        <ColorSelector
+          value={selectedColor}
+          onChange={setSelectedColor}
+          disabled={isReadOnly || isSubmitting}
+        />
+      </div>
 
       <ButtonSection
         mode={currentMode}

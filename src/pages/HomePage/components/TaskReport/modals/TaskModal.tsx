@@ -1,4 +1,3 @@
-import { Space10, Space8 } from "@/shared/ui/Space";
 import { useAuth } from "@/shared/hooks/useAuth";
 import type { Task } from "@/shared/api/task";
 import { ModalWrapper } from "@/shared/ui/Modal";
@@ -119,40 +118,39 @@ export default function TaskModal({
           disabled={isReadOnly || isSubmitting}
         />
       )}
-      <Space8 direction="mb" />
 
-      <DateField
-        value={taskDate}
-        onChange={setTaskDate}
-        disabled={isReadOnly}
-      />
-      <Space10 direction="mb" />
+      <div className="mt-8 flex flex-col gap-10">
+        <DateField
+          value={taskDate}
+          onChange={setTaskDate}
+          disabled={isReadOnly}
+        />
 
-      <CategoryField
-        value={selectedCategoryId}
-        categories={categories}
-        onChange={setSelectedCategoryId}
-        disabled={isReadOnly}
-      />
-      <Space10 direction="mb" />
+        <CategoryField
+          value={selectedCategoryId}
+          categories={categories}
+          onChange={setSelectedCategoryId}
+          disabled={isReadOnly}
+        />
 
-      {shouldShowTimeField && (
-        <>
-          <TimeField
-            enabled={timeEnabled}
-            value={taskTime}
-            onToggle={(v) => {
-              setTimeEnabled(v);
-              if (v && !taskTime) {
-                setTaskTime(defaultTime);
-              }
-            }}
-            onChange={setTaskTime}
-            disabled={isReadOnly}
-          />
-          <Space10 direction="mb" />
-        </>
-      )}
+        {shouldShowTimeField && (
+          <>
+            <TimeField
+              enabled={timeEnabled}
+              value={taskTime}
+              onToggle={(v) => {
+                setTimeEnabled(v);
+                if (v && !taskTime) {
+                  setTaskTime(defaultTime);
+                }
+              }}
+              onChange={setTaskTime}
+              disabled={isReadOnly}
+            />
+          </>
+        )}
+      </div>
+
       <ButtonSection
         mode={currentMode}
         isSubmitting={isSubmitting}

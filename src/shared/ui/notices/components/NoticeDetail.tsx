@@ -1,5 +1,4 @@
 import { Text } from "@/shared/ui/primitives";
-import { Space2, Space4 } from "@/shared/ui/Space";
 import { NoticePinnedLabel } from "./NoticePinnedLabel";
 import { formatNoticeDate } from "./formatNoticeDate";
 import type { Notice } from "../hooks/useNotices";
@@ -11,10 +10,9 @@ interface Props {
 export default function NoticeDetail({ notice }: Props) {
   return (
     <div>
-      <Text variant="body" className="font-bold wrap-break-word">
+      <Text variant="body" className="mb-2 font-bold wrap-break-word">
         {notice.title}
       </Text>
-      <Space2 direction="mb" />
 
       {/*
         고정 표시와 작성일은 제목이 아니라 부가 정보이므로 제목 아래에 함께 묶는다.
@@ -28,10 +26,8 @@ export default function NoticeDetail({ notice }: Props) {
         </Text>
       </div>
 
-      <Space4 direction="mb" />
       {/* 머리말과 본문을 가르는 얇은 구분선 */}
-      <div className="border-t border-line" />
-      <Space4 direction="mb" />
+      <div className="my-4 border-t border-line" />
 
       <Text
         variant="bodySm"

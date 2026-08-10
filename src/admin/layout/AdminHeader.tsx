@@ -1,7 +1,6 @@
 import { wickedMouseClass } from "@/styles/font";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 import { Link, useLocation } from "react-router-dom";
-import { Space2 } from "@/shared/ui/Space";
 import { Text } from "@/shared/ui/primitives";
 
 function AdminHeader() {
@@ -18,16 +17,14 @@ const LogoSection = () => {
 
   return (
     <Link to="/admin">
-      <div className="flex items-center my-4">
+      <div className="flex items-center gap-2 my-4">
         <img src={logoSrc} className="w-6 sm:w-8" />
-        <Space2 direction="mr" />
         <span className={`block text-lg sm:hidden ${wickedMouseClass}`}>
           CHECKY
         </span>
         <span className={`hidden text-2xl sm:block ${wickedMouseClass}`}>
           CHECKY
         </span>
-        <Space2 direction="mr" />
         <Text variant="bodySm" tone="accent" className="font-bold">
           ADMIN
         </Text>

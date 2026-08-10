@@ -1,4 +1,3 @@
-import { Space10, Space8 } from "@/shared/ui/Space";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import type { RoutineModalProps } from "./types";
 import { useRoutineModalState } from "./hooks/useRoutineModalState";
@@ -41,52 +40,51 @@ export default function RoutineModal({
       {/* 모달 타이틀 */}
       <ModalTitle text={getModalModeTitle(state.currentMode, "루틴")} />
 
-      {/* 루틴명 */}
-      <TitleField
-        title={state.title}
-        isReadOnly={state.isReadOnly || isSubmitting}
-        setTitle={state.setTitle}
-        onSubmit={onSubmit}
-      />
-      <Space8 direction="mb" />
+      {/* 입력 항목 사이 간격은 이 묶음이 소유한다 */}
+      <div className="mb-10 flex flex-col gap-8">
+        {/* 루틴명 */}
+        <TitleField
+          title={state.title}
+          isReadOnly={state.isReadOnly || isSubmitting}
+          setTitle={state.setTitle}
+          onSubmit={onSubmit}
+        />
 
-      {/* 반복 요일 */}
-      <RepeatDaysField
-        isReadOnly={state.isReadOnly}
-        selectAllDays={state.selectAllDays}
-        selectedDays={state.selectedDays}
-        toggleSelectAllDays={state.toggleSelectAllDays}
-        toggleDay={state.toggleDay}
-      />
-      <Space8 direction="mb" />
+        {/* 반복 요일 */}
+        <RepeatDaysField
+          isReadOnly={state.isReadOnly}
+          selectAllDays={state.selectAllDays}
+          selectedDays={state.selectedDays}
+          toggleSelectAllDays={state.toggleSelectAllDays}
+          toggleDay={state.toggleDay}
+        />
 
-      {/* 시작 날짜 */}
-      <StartDateField
-        mode={state.currentMode}
-        routine={routine}
-        startDate={state.startDate}
-        setStartDate={state.setStartDate}
-        isReadOnly={state.isReadOnly}
-        isRepeatChanged={state.isRepeatChanged}
-        effectiveFrom={state.effectiveFrom}
-        setEffectiveFrom={state.setEffectiveFrom}
-        endDateEnabled={state.endDateEnabled}
-        endDate={state.endDate}
-        setEndDate={state.setEndDate}
-      />
-      <Space8 direction="mb" />
+        {/* 시작 날짜 */}
+        <StartDateField
+          mode={state.currentMode}
+          routine={routine}
+          startDate={state.startDate}
+          setStartDate={state.setStartDate}
+          isReadOnly={state.isReadOnly}
+          isRepeatChanged={state.isRepeatChanged}
+          effectiveFrom={state.effectiveFrom}
+          setEffectiveFrom={state.setEffectiveFrom}
+          endDateEnabled={state.endDateEnabled}
+          endDate={state.endDate}
+          setEndDate={state.setEndDate}
+        />
 
-      {/* 종료 날짜 */}
-      <EndDateField
-        isReadOnly={state.isReadOnly}
-        endDateEnabled={state.endDateEnabled}
-        endDate={state.endDate}
-        startDate={state.startDate}
-        routineEndDate={routine?.endDate}
-        toggleEndDateEnabled={state.toggleEndDateEnabled}
-        setEndDate={state.setEndDate}
-      />
-      <Space10 direction="mb" />
+        {/* 종료 날짜 */}
+        <EndDateField
+          isReadOnly={state.isReadOnly}
+          endDateEnabled={state.endDateEnabled}
+          endDate={state.endDate}
+          startDate={state.startDate}
+          routineEndDate={routine?.endDate}
+          toggleEndDateEnabled={state.toggleEndDateEnabled}
+          setEndDate={state.setEndDate}
+        />
+      </div>
 
       {/* 버튼 영역 */}
       <ButtonSection

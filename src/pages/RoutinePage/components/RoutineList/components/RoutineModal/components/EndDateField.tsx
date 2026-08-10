@@ -1,5 +1,4 @@
 import { Text } from "@/shared/ui/primitives";
-import { Space2 } from "@/shared/ui/Space";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import { DatePicker } from "@/shared/ui/DatePicker";
 
@@ -25,7 +24,7 @@ export const EndDateField = ({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <Text variant="body" className="font-bold">
+        <Text variant="body" className="mb-2 font-bold">
           종료 날짜
         </Text>
         {!isReadOnly && (
@@ -42,7 +41,6 @@ export const EndDateField = ({
           </button>
         )}
       </div>
-      <Space2 direction="mb" />
       {isReadOnly ? (
         <Text variant="bodySm" className="text-content">
           {routineEndDate ? routineEndDate : "없음"}

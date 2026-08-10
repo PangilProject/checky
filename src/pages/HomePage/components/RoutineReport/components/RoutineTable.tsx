@@ -4,7 +4,6 @@ import { LuCircleDashed } from "react-icons/lu";
 import type { ReactNode } from "react";
 import type { RoutineReport } from "@/shared/api/routine";
 import { GoDash } from "react-icons/go";
-import { Space20 } from "@/shared/ui/Space";
 import { getWeekendTextClass } from "@/shared/constants/dateLabels";
 
 interface RoutineTableProps {
@@ -21,8 +20,7 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
 
   if (rows.length === 0) {
     return (
-      <div className="w-full flex flex-col items-center">
-        <Space20 direction="mb" />
+      <div className="w-full flex flex-col items-center pt-20">
         <Text variant="bodySm" tone="muted">
           해당 기간에 루틴이 없습니다.
         </Text>

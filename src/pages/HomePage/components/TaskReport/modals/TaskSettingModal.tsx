@@ -4,7 +4,6 @@ import {
 } from "@/shared/constants/taskActions";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
-import { Space8 } from "@/shared/ui/Space";
 import { Button, Text } from "@/shared/ui/primitives";
 import { useState, type JSX } from "react";
 import {
@@ -34,12 +33,13 @@ export function TaskSettingModal({
         selectedAction={selectedAction}
         onSelect={setSelectedAction}
       />
-      <Space8 direction="mb" />
-      <ButtonList
-        onClose={onClose}
-        selectedAction={selectedAction}
-        onConfirm={onConfirm}
-      />
+      <div className="mt-8">
+        <ButtonList
+          onClose={onClose}
+          selectedAction={selectedAction}
+          onConfirm={onConfirm}
+        />
+      </div>
     </ModalWrapper>
   );
 }

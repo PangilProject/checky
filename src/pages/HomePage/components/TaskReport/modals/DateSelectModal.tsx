@@ -2,7 +2,6 @@ import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 
 import { Button } from "@/shared/ui/primitives";
-import { Space10 } from "@/shared/ui/Space";
 import { useState } from "react";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import { formatDateToYmd, parseYmd } from "@/shared/hooks/formatDate";
@@ -28,9 +27,7 @@ export function DateSelectModal({
 
       <DatePicker value={value} onChange={setValue} />
 
-      <Space10 direction="mb" />
-
-      <div className="flex justify-end gap-2">
+      <div className="mt-10 flex justify-end gap-2">
         <Button variant="outline" onClick={onClose}>
           취소
         </Button>

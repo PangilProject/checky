@@ -2,7 +2,6 @@ import TitleSection from "../../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { moveDay } from "@/shared/hooks/dateNavigation";
 import { TaskListSection } from "./TaskList";
-import { Space8 } from "@/shared/ui/Space";
 import { TaskSetting } from "./TaskSetting";
 import { useRef } from "react";
 
@@ -35,9 +34,9 @@ function TaskReportSection() {
           refreshRef.current = refresh;
         }}
       />
-      <Space8 direction="mb" />
-      <TaskSetting />
-      <Space8 direction="mb" />
+      <div className="mt-8 pb-8">
+        <TaskSetting />
+      </div>
     </div>
   );
 }

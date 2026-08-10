@@ -1,6 +1,5 @@
 import { FaCirclePlus } from "react-icons/fa6";
 import { getCategoryColor } from "@/shared/constants/colors";
-import { Space10 } from "@/shared/ui/Space";
 import { Text } from "@/shared/ui/primitives";
 
 interface AddCategoryProps {
@@ -21,7 +20,8 @@ export const AddCategory = ({
   const color = getCategoryColor(categoryColor);
   return (
     <div
-      className="flex gap-2 items-center"
+      // 여백을 넣던 빈 요소가 만들던 줄 높이를 그대로 유지한다
+      className="flex min-h-10 gap-2 items-center"
       onClick={canAdd ? onClick : undefined}
     >
       <Text variant="title" style={{ color }}>
@@ -35,7 +35,6 @@ export const AddCategory = ({
           종료됨
         </Text>
       )}
-      <Space10 direction="mb" />
     </div>
   );
 };

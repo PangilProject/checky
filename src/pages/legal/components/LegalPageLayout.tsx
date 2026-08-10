@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoChevronBack } from "react-icons/io5";
-import { Space10 } from "@/shared/ui/Space";
 
 /**
  * @file LegalPageLayout.tsx
@@ -42,9 +41,7 @@ export const LegalPageLayout = ({ children }: LegalPageLayoutProps) => {
           돌아가기
         </button>
 
-        <Space10 direction="mb" />
-        {children}
-        <Space10 direction="mb" />
+        <div className="my-10">{children}</div>
       </div>
     </div>
   );

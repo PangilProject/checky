@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Space8 } from "@/shared/ui/Space";
 import TaskModal from "../modals/TaskModal";
 import type { Category } from "@/shared/api/category";
 import type { Task } from "@/shared/api/task";
@@ -12,7 +11,11 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { AddCategory } from "./AddCategory";
 import { AddTaskInput } from "./AddTaskInput";
@@ -64,11 +67,13 @@ export const TaskCategorySection = ({
         delay: 150,
         tolerance: 5,
       },
-    })
+    }),
   );
 
   const filteredTasks = tasks
-    .filter((task) => task.categoryId === category.id && task.date === dateString)
+    .filter(
+      (task) => task.categoryId === category.id && task.date === dateString,
+    )
     .sort((a, b) => a.orderIndex - b.orderIndex);
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -135,8 +140,6 @@ export const TaskCategorySection = ({
           onBlurClose={() => setIsAddOpen(false)}
         />
       )}
-
-      <Space8 direction="mb" />
 
       {isTaskModalOpen && selectedTask && (
         <TaskModal

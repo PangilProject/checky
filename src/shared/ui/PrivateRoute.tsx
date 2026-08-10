@@ -3,7 +3,6 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useMinimumLoading } from "@/shared/hooks/useMinimumLoading";
 import LoadingPage from "../../pages/LoadingPage/LoadingPage";
 import Header from "./Header";
-import { Space10 } from "./Space";
 
 function PrivateRoute() {
   const { user, isLoading } = useAuth();
@@ -16,9 +15,8 @@ function PrivateRoute() {
   return user ? (
     <div className="w-full flex flex-col items-center px-2">
       {/* <div className="w-full max-w-[800px] flex flex-col "> */}
-      <div className="w-full max-w-200 flex flex-col ">
+      <div className="w-full max-w-200 flex flex-col gap-10">
         <Header />
-        <Space10 direction="mb" />
         <Outlet />
       </div>
     </div>

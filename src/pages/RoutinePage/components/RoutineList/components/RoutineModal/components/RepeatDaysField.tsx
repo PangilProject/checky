@@ -1,5 +1,4 @@
 import { Text } from "@/shared/ui/primitives";
-import { Space2 } from "@/shared/ui/Space";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import { DAYS } from "@/shared/constants/dateLabels";
 
@@ -21,7 +20,7 @@ export const RepeatDaysField = ({
   return (
     <div className="flex flex-col">
       <div className="w-full flex justify-between">
-        <Text variant="body" className="font-bold">
+        <Text variant="body" className="mb-2 font-bold">
           반복
         </Text>
         {!isReadOnly && (
@@ -38,7 +37,6 @@ export const RepeatDaysField = ({
           </button>
         )}
       </div>
-      <Space2 direction="mb" />
       <div className="flex gap-3 justify-between">
         {DAYS.map((day) => {
           const active = selectedDays.includes(day.value);
