@@ -25,6 +25,12 @@ const AdminUsersPage = lazy(
 const AdminReportsPage = lazy(
   () => import("./admin/pages/reports/AdminReportsPage")
 );
+/* 디자인 시스템 갤러리 (개발 빌드 전용).
+   조건을 import 자체에 걸어야 한다. lazy(() => import(...)) 를 무조건 만들어 두면
+   라우트를 등록하지 않아도 청크는 그대로 만들어져 배포 폴더에 남는다. */
+const UiGalleryPage = import.meta.env.DEV
+  ? lazy(() => import("@/pages/dev/UiGalleryPage"))
+  : null;
 
 function Router() {
   return (
@@ -53,6 +59,10 @@ function Router() {
             <Route path="notices" element={<AdminNoticesPage />} />
             <Route path="reports" element={<AdminReportsPage />} />
           </Route>
+
+          {UiGalleryPage && (
+            <Route path="/dev/ui" element={<UiGalleryPage />} />
+          )}
 
           {/* fallback */}
           <Route path="*" element={<PageNotFound />} />
