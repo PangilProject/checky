@@ -14,7 +14,7 @@ export type ThemeMode = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
 
 /** 첫 페인트 전에 테마를 적용하는 index.html 의 인라인 스크립트와 공유하는 키 */
-export const THEME_STORAGE_KEY = "checky:theme";
+const THEME_STORAGE_KEY = "checky:theme";
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 
