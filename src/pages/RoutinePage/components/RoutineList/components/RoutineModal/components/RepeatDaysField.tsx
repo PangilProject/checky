@@ -1,4 +1,4 @@
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import { DAYS } from "@/shared/constants/dateLabels";
 
@@ -37,7 +37,7 @@ export const RepeatDaysField = ({
           </button>
         )}
       </div>
-      <div className="flex gap-3 justify-between">
+      <Stack gap={3} direction="row" justify="between">
         {DAYS.map((day) => {
           const active = selectedDays.includes(day.value);
           return (
@@ -59,7 +59,7 @@ export const RepeatDaysField = ({
             </button>
           );
         })}
-      </div>
+      </Stack>
     </div>
   );
 };

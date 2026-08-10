@@ -1,4 +1,5 @@
 import { SkeletonBlock } from "@/shared/ui/Skeleton";
+import { Stack } from "@/shared/ui/primitives";
 
 interface NoticeListSkeletonProps {
   /** 표시할 행 수. 고정 높이 콘텐츠 영역을 채울 만큼만 그린다. */
@@ -20,12 +21,21 @@ export const NoticeListSkeleton = ({ rows = 5 }: NoticeListSkeletonProps) => {
       aria-label="공지사항을 불러오는 중입니다"
     >
       {Array.from({ length: rows }).map((_, index) => (
-        <div key={`notice-skeleton-${index}`} className="border border-line rounded p-3">
+        <div
+          key={`notice-skeleton-${index}`}
+          className="border border-line rounded p-3"
+        >
           {/* h-5: 제목(text-sm)의 줄높이와 동일하게 유지해 행 높이를 맞춘다 */}
-          <div className="flex h-5 items-center justify-between gap-2">
+          <Stack
+            gap={2}
+            direction="row"
+            align="center"
+            justify="between"
+            className="h-5"
+          >
             <SkeletonBlock className="h-4 min-w-0 flex-1" />
             <SkeletonBlock className="h-3 w-14 shrink-0" />
-          </div>
+          </Stack>
         </div>
       ))}
     </div>

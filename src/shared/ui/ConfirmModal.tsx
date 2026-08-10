@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
-import { Button, Text } from "@/shared/ui/primitives";
+import { Button, Stack, Text } from "@/shared/ui/primitives";
 
 interface ConfirmModalProps {
   title: string;
@@ -46,7 +46,7 @@ export function ConfirmModal({
         </Text>
       )}
 
-      <div className="flex justify-end gap-2">
+      <Stack gap={2} direction="row" justify="end">
         <Button variant="outline" onClick={onClose} disabled={isConfirming}>
           취소
         </Button>
@@ -57,7 +57,7 @@ export function ConfirmModal({
         >
           {isConfirming ? "처리 중..." : confirmText}
         </Button>
-      </div>
+      </Stack>
     </ModalWrapper>
   );
 }

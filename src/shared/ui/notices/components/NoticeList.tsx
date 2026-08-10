@@ -1,4 +1,4 @@
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 import { NoticePinnedLabel } from "./NoticePinnedLabel";
 import { formatNoticeDate } from "./formatNoticeDate";
 import type { Notice } from "../hooks/useNotices";
@@ -37,7 +37,7 @@ export default function NoticeList({ notices, onSelect }: Props) {
               : "border-line bg-surface-raised"
           }`}
         >
-          <div className="flex items-center justify-between gap-3">
+          <Stack gap={3} direction="row" align="center" justify="between">
             <Text
               variant="bodySm"
               className={`min-w-0 flex-1 truncate ${
@@ -50,13 +50,13 @@ export default function NoticeList({ notices, onSelect }: Props) {
               고정 표시는 날짜와 함께 오른쪽 메타 영역에 둔다.
               제목 앞에 두면 고정 공지만 제목 시작 위치가 밀려 목록의 왼쪽 정렬이 흐트러진다.
             */}
-            <div className="flex shrink-0 items-center gap-2">
+            <Stack gap={2} direction="row" align="center" className="shrink-0">
               {notice.pinned && <NoticePinnedLabel />}
               <Text variant="caption" tone="muted">
                 {formatNoticeDate(notice.createdAt)}
               </Text>
-            </div>
-          </div>
+            </Stack>
+          </Stack>
         </div>
       ))}
     </div>

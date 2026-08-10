@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getCategoryColor } from "@/shared/constants/colors";
-import { Button } from "@/shared/ui/primitives";
+import { Button, Input, Stack } from "@/shared/ui/primitives";
 import { LuCircleDashed } from "react-icons/lu";
 
 interface AddTaskInputProps {
@@ -51,14 +51,20 @@ export const AddTaskInput = ({
   };
 
   return (
-    <div className="flex items-end gap-2 min-w-0" ref={containerRef}>
+    <Stack
+      gap={2}
+      direction="row"
+      align="end"
+      className="min-w-0"
+      ref={containerRef}
+    >
       <div className="shrink-0">
         <LuCircleDashed size={20} color={color} />
       </div>
-      <input
+      <Input
         ref={inputRef}
         style={{ borderColor: color }}
-        className="outline-none border-b flex-1 min-w-0 ime-fallback"
+        className="flex-1 min-w-0"
         value={taskInput}
         maxLength={100}
         aria-label="할 일 입력"
@@ -82,6 +88,6 @@ export const AddTaskInput = ({
           추가
         </Button>
       </div>
-    </div>
+    </Stack>
   );
 };

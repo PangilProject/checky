@@ -1,4 +1,4 @@
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 import { TitleText } from "@/shared/ui/TitleText";
 import { VscTriangleLeft } from "react-icons/vsc";
 import { VscTriangleRight } from "react-icons/vsc";
@@ -27,7 +27,7 @@ function TitleSection({
           <SubTitle text={subTitle} />
         </div>
 
-        <div className="flex items-center gap-3">
+        <Stack gap={3} direction="row" align="center">
           {onRefreshClick && (
             <button
               onClick={onRefreshClick}
@@ -52,7 +52,7 @@ function TitleSection({
           <div className="pressable" onClick={rightOnClick}>
             <VscTriangleRight size={20} />
           </div>
-        </div>
+        </Stack>
       </div>
     </div>
   );

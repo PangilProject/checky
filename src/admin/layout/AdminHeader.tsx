@@ -1,7 +1,7 @@
 import { wickedMouseClass } from "@/styles/font";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 import { Link, useLocation } from "react-router-dom";
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 
 function AdminHeader() {
   return (
@@ -17,7 +17,7 @@ const LogoSection = () => {
 
   return (
     <Link to="/admin">
-      <div className="flex items-center gap-2 my-4">
+      <Stack gap={2} direction="row" align="center" className="my-4">
         <img src={logoSrc} className="w-6 sm:w-8" />
         <span className={`block text-lg sm:hidden ${wickedMouseClass}`}>
           CHECKY
@@ -28,7 +28,7 @@ const LogoSection = () => {
         <Text variant="bodySm" tone="accent" className="font-bold">
           ADMIN
         </Text>
-      </div>
+      </Stack>
     </Link>
   );
 };
@@ -37,7 +37,7 @@ const MenuSection = () => {
   const { pathname } = useLocation();
 
   return (
-    <div className="flex gap-3">
+    <Stack gap={3} direction="row">
       {MENUS.map((menu) => {
         const isActive = pathname === menu.path;
 
@@ -56,7 +56,7 @@ const MenuSection = () => {
           </Link>
         );
       })}
-    </div>
+    </Stack>
   );
 };
 

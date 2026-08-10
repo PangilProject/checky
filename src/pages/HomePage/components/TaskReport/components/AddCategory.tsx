@@ -1,6 +1,6 @@
 import { FaCirclePlus } from "react-icons/fa6";
 import { getCategoryColor } from "@/shared/constants/colors";
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 
 interface AddCategoryProps {
   categoryName: string;
@@ -19,9 +19,12 @@ export const AddCategory = ({
   // 저장된 hex 가 아니라 테마에 맞게 고른 색으로 그린다
   const color = getCategoryColor(categoryColor);
   return (
-    <div
-      // 여백을 넣던 빈 요소가 만들던 줄 높이를 그대로 유지한다
-      className="flex min-h-10 gap-2 items-center"
+    <Stack
+      gap={2}
+      direction="row"
+      align="center"
+      className="min-h-10" // 여백을 넣던 빈 요소가 만들던 줄 높이를 그대로 유지한다
+
       onClick={canAdd ? onClick : undefined}
     >
       <Text variant="title" style={{ color }}>
@@ -35,6 +38,6 @@ export const AddCategory = ({
           종료됨
         </Text>
       )}
-    </div>
+    </Stack>
   );
 };

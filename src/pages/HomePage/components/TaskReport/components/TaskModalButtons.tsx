@@ -1,4 +1,4 @@
-import { Button } from "@/shared/ui/primitives";
+import { Button, Stack } from "@/shared/ui/primitives";
 
 interface ButtonSectionProps {
   mode: "VIEW" | "EDIT";
@@ -21,7 +21,7 @@ export const ButtonSection = ({
 }: ButtonSectionProps) => {
   if (mode === "VIEW") {
     return (
-      <div className="flex flex-wrap justify-between gap-2">
+      <Stack gap={2} direction="row" wrap justify="between">
         <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
           닫기
         </Button>
@@ -44,7 +44,7 @@ export const ButtonSection = ({
         <Button onClick={onEdit} disabled={isSubmitting}>
           수정
         </Button>
-      </div>
+      </Stack>
     );
   }
 

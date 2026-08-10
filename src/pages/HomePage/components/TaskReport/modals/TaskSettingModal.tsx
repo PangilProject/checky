@@ -4,7 +4,7 @@ import {
 } from "@/shared/constants/taskActions";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
-import { Button, Text } from "@/shared/ui/primitives";
+import { Button, Stack, Text } from "@/shared/ui/primitives";
 import { useState, type JSX } from "react";
 import {
   FaArrowAltCircleDown,
@@ -53,7 +53,7 @@ interface ActionItemListProps {
 }
 const ActionItemList = ({ selectedAction, onSelect }: ActionItemListProps) => {
   return (
-    <div className="flex flex-col gap-3">
+    <Stack gap={3} direction="col">
       {TASK_ACTION_LIST.map((action) => (
         <ActionItem
           key={action.icon}
@@ -63,7 +63,7 @@ const ActionItemList = ({ selectedAction, onSelect }: ActionItemListProps) => {
           onClick={() => onSelect(action.icon)}
         />
       ))}
-    </div>
+    </Stack>
   );
 };
 
@@ -90,10 +90,10 @@ const ActionItem = ({ text, icon, isSelected, onClick }: ActionItemProps) => {
 
   return (
     <div className="flex justify-between" onClick={onClick}>
-      <div className="flex gap-2">
+      <Stack gap={2} direction="row">
         {ICON_MAP[icon]}
         <Text variant="bodySm">{text}</Text>
-      </div>
+      </Stack>
 
       {isSelected ? (
         <FaCheckCircle size={20} />

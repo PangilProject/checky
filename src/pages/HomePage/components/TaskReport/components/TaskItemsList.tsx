@@ -1,4 +1,4 @@
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { HiDotsHorizontal } from "react-icons/hi";
@@ -119,7 +119,7 @@ const SortableTaskItem = ({
         `}
     >
       <div className="flex flex-col min-w-0" onClick={() => onToggle(task.id)}>
-        <div className="flex gap-2 items-start min-w-0">
+        <Stack gap={2} direction="row" align="start" className="min-w-0">
           <div className="shrink-0 mt-0.5">
             {completed ? (
               <FaCheckCircle size={20} color={categoryColor} />
@@ -136,7 +136,7 @@ const SortableTaskItem = ({
           >
             {task.title}
           </Text>
-        </div>
+        </Stack>
         <div className="flex pl-6">
           {task.time && (
             <Text variant="caption" tone="muted" className="ml-1">
@@ -146,7 +146,7 @@ const SortableTaskItem = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <Stack gap={2} direction="row" align="center">
         <div className="w-12 text-left">
           {elapsedDays && (
             <Text variant="caption" tone="muted">
@@ -163,7 +163,7 @@ const SortableTaskItem = ({
         >
           <HiDotsHorizontal color="var(--color-content-muted)" size={20} />
         </button>
-      </div>
+      </Stack>
     </div>
   );
 };

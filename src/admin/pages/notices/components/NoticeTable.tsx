@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { AdminNotice } from "../hooks/useAdminNotices";
 import NoticeRow from "./NoticeRow";
 import NoticeModal from "./NoticeModal";
+import { Surface } from "@/shared/ui/primitives";
 
 interface Props {
   notices: AdminNotice[];
@@ -12,7 +13,7 @@ function NoticeTable({ notices }: Props) {
 
   return (
     <>
-      <div className="bg-surface-raised border border-line rounded-lg overflow-hidden">
+      <Surface radius="lg" bordered className="overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-surface-sunken text-content-muted">
             <tr>
@@ -31,7 +32,7 @@ function NoticeTable({ notices }: Props) {
             ))}
           </tbody>
         </table>
-      </div>
+      </Surface>
 
       {selected && (
         <NoticeModal

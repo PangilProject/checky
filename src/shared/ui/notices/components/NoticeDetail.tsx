@@ -1,4 +1,4 @@
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 import { NoticePinnedLabel } from "./NoticePinnedLabel";
 import { formatNoticeDate } from "./formatNoticeDate";
 import type { Notice } from "../hooks/useNotices";
@@ -19,12 +19,12 @@ export default function NoticeDetail({ notice }: Props) {
         목록에서도 두 정보를 같이 두었으므로 읽는 방식이 일관된다.
         상세에는 작성일이 아예 없어 언제 올라온 공지인지 알 수 없었다.
       */}
-      <div className="flex items-center gap-2">
+      <Stack gap={2} direction="row" align="center">
         {notice.pinned && <NoticePinnedLabel />}
         <Text variant="caption" tone="muted">
           {formatNoticeDate(notice.createdAt)}
         </Text>
-      </div>
+      </Stack>
 
       {/* 머리말과 본문을 가르는 얇은 구분선 */}
       <div className="my-4 border-t border-line" />

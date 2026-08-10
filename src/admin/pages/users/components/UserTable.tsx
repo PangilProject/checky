@@ -2,13 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import type { AdminUser } from "../hooks/useAdminUsers";
 import UserRow from "./UserRow";
 import UserDetailModal from "./UserDetailModal";
+import { Surface } from "@/shared/ui/primitives";
 
-type SortKey =
-  | "name"
-  | "createdAt"
-  | "lastLoginAt"
-  | "lastActiveAt"
-  | "status";
+type SortKey = "name" | "createdAt" | "lastLoginAt" | "lastActiveAt" | "status";
 type SortOrder = "asc" | "desc";
 
 interface Props {
@@ -26,7 +22,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const isActiveUser = (user: AdminUser, nowTime: number) =>
   Boolean(
     user.lastActiveAt &&
-      user.lastActiveAt.getTime() >= nowTime - STATUS_CONDITION * DAY_MS
+    user.lastActiveAt.getTime() >= nowTime - STATUS_CONDITION * DAY_MS,
   );
 
 /** 컬럼을 처음 눌렀을 때의 정렬 방향. 날짜와 상태는 최신·활성이 먼저 보이는 게 유용하다. */
@@ -42,7 +38,7 @@ const DEFAULT_SORT_ORDER: Record<SortKey, SortOrder> = {
 const getSortValue = (
   user: AdminUser,
   key: SortKey,
-  nowTime: number
+  nowTime: number,
 ): string | number | null => {
   switch (key) {
     case "name":
@@ -134,7 +130,7 @@ function UserTable({ users }: Props) {
   };
   return (
     <>
-      <div className="bg-surface-raised border border-line rounded-lg overflow-x-auto">
+      <Surface radius="lg" bordered className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-surface-sunken text-content-muted">
             <tr>
@@ -169,7 +165,7 @@ function UserTable({ users }: Props) {
             ))}
           </tbody>
         </table>
-      </div>
+      </Surface>
 
       {selectedUser && (
         <UserDetailModal

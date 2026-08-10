@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { MENUS } from "../constants";
-import { Button } from "../../primitives";
+import { Button, Stack } from "../../primitives";
 import NoticeModal from "@/shared/ui/notices";
 
 export const MenuSection = () => {
@@ -10,8 +10,8 @@ export const MenuSection = () => {
 
   return (
     <>
-      <div className="flex gap-4">
-        <div className="flex gap-3">
+      <Stack gap={4} direction="row">
+        <Stack gap={3} direction="row">
           {MENUS.map((menu) => {
             const isActive = pathname === menu.path;
 
@@ -31,7 +31,7 @@ export const MenuSection = () => {
               </Link>
             );
           })}
-        </div>
+        </Stack>
 
         <Button
           size="none"
@@ -40,7 +40,7 @@ export const MenuSection = () => {
         >
           공지
         </Button>
-      </div>
+      </Stack>
 
       {openNotice && <NoticeModal onClose={() => setOpenNotice(false)} />}
     </>

@@ -12,7 +12,7 @@ import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
 import { ButtonSection } from "../components/TaskModalButtons";
 import { useTaskModalHandlers } from "../hooks/useTaskModalHandlers";
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { useState } from "react";
@@ -83,7 +83,7 @@ export default function TaskModal({
       <ModalTitle text={getModalModeTitle(currentMode, "태스크")} />
 
       {isReadOnly ? (
-        <div className="flex items-center justify-between gap-3">
+        <Stack gap={3} direction="row" align="center" justify="between">
           <Text
             variant="body"
             className="min-w-0 font-semibold wrap-break-word"
@@ -105,7 +105,7 @@ export default function TaskModal({
               <LuCircleDashed size={20} color={categoryColor} />
             )}
           </button>
-        </div>
+        </Stack>
       ) : (
         <TaskInput
           value={taskInput}

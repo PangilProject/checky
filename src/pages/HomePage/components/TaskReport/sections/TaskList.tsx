@@ -6,7 +6,7 @@ import { TaskCategorySection } from "../components/TaskCategorySection";
 import { TaskListSkeleton } from "../components/TaskListSkeleton";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 
 /**
  * 선택 날짜 기준으로 카테고리별 할 일 목록을 렌더링합니다.
@@ -45,7 +45,7 @@ export const TaskListSection = ({
         <TaskListSkeleton />
       ) : categories.length === 0 ? (
         // 카테고리가 없으면 빈 공간만 보이므로 다음 행동을 안내한다
-        <div className="flex flex-col items-center gap-2 py-8">
+        <Stack gap={2} direction="col" align="center" className="py-8">
           <Text variant="bodySm" tone="muted">
             아직 카테고리가 없어요.
           </Text>
@@ -58,7 +58,7 @@ export const TaskListSection = ({
           >
             카테고리 만들기
           </Link>
-        </div>
+        </Stack>
       ) : (
         <>
           {categories.map((category) => (

@@ -1,5 +1,5 @@
 import ImageEmpty from "@/assets/images/empty.png";
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 import { Link } from "react-router-dom";
 
 function EmptyRoutineList() {
@@ -8,7 +8,7 @@ function EmptyRoutineList() {
       <Text variant="title" className="mb-9">
         루틴 페이지
       </Text>
-      <div className="flex flex-col items-center gap-4 pb-10">
+      <Stack gap={4} direction="col" align="center" className="pb-10">
         <img src={ImageEmpty} className="h-15" />
         {/* 두 줄은 한 문단이므로 사이를 벌리지 않는다 */}
         <div className="text-center">
@@ -22,7 +22,7 @@ function EmptyRoutineList() {
         <Link to="/category" className="text-xs text-accent hover:opacity-70">
           카테고리 만들러 가기
         </Link>
-      </div>
+      </Stack>
     </div>
   );
 }

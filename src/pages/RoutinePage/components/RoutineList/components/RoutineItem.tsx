@@ -1,7 +1,7 @@
 import type { Routine } from "@/shared/api/routine";
 import { getDayLabel } from "@/shared/constants/dateLabels";
 import { formatDateToYmd } from "@/shared/hooks/formatDate";
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 import { useSortable } from "@dnd-kit/sortable";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { RiCheckboxBlankFill } from "react-icons/ri";
@@ -49,11 +49,11 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
       `}
     >
       <div className="flex justify-between items-center w-full ">
-        <div className="flex items-center gap-2">
+        <Stack gap={2} direction="row" align="center">
           <RiCheckboxBlankFill size={10} />
           <div className="flex flex-col">
             {/* 루틴 제목 */}
-            <div className="flex items-center gap-2">
+            <Stack gap={2} direction="row" align="center">
               {isEnded && (
                 <Text variant="bodySm" tone="muted" className="font-bold">
                   [종료]
@@ -62,10 +62,10 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
               <Text variant="body" className="font-bold">
                 {routine.title}
               </Text>
-            </div>
+            </Stack>
 
             {/* 반복 요일 표시 */}
-            <div className="flex gap-2">
+            <Stack gap={2} direction="row">
               {routine.days
                 .sort((a, b) => a - b)
                 .map((day, index) => (
@@ -77,9 +77,9 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
                     {getDayLabel(day)}
                   </Text>
                 ))}
-            </div>
+            </Stack>
           </div>
-        </div>
+        </Stack>
 
         {/* 더보기 버튼 (상세/수정 모달 트리거) */}
         <button onClick={onClickMore} className="pressable">

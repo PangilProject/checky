@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
-import { Button, Text } from "@/shared/ui/primitives";
+import {
+  Button,
+  Input,
+  Stack,
+  Surface,
+  Text,
+  TextArea,
+} from "@/shared/ui/primitives";
 import { useTheme } from "@/shared/hooks/useTheme";
 import type { ThemeMode } from "@/shared/stores/themeStore";
 import { COLORS, getCategoryColor } from "@/shared/constants/colors";
@@ -70,9 +77,9 @@ function UiGalleryPage() {
   return (
     <div className="min-h-screen bg-surface">
       <div className="mx-auto flex max-w-3xl flex-col gap-10 p-6">
-        <div className="flex flex-col gap-3">
+        <Stack gap={3} direction="col">
           <Text variant="display">디자인 시스템</Text>
-          <div className="flex flex-wrap items-center gap-2">
+          <Stack gap={2} direction="row" wrap align="center">
             {THEME_MODES.map((themeMode) => (
               <Button
                 key={themeMode}
@@ -86,22 +93,22 @@ function UiGalleryPage() {
             <Text variant="bodySm" tone="muted">
               지금 그려지는 테마: {resolved}
             </Text>
-          </div>
-        </div>
+          </Stack>
+        </Stack>
 
         <Section title="배경 토큰">
-          <div className="flex flex-wrap gap-3">
+          <Stack gap={3} direction="row" wrap>
             {SURFACE_TOKENS.map(({ name, className }) => (
-              <div key={name} className="flex w-32 flex-col gap-1">
+              <Stack gap={1} direction="col" className="w-32" key={name}>
                 <div
                   className={`h-14 rounded-md border border-line ${className}`}
                 />
                 <Text variant="caption" tone="muted">
                   {name}
                 </Text>
-              </div>
+              </Stack>
             ))}
-          </div>
+          </Stack>
         </Section>
 
         <Section title="그림자">
@@ -109,18 +116,18 @@ function UiGalleryPage() {
             어두운 배경에서는 검은 그림자가 보이지 않으므로, 다크에서 값이
             바뀐다. 떠 있어 보이는지 확인한다.
           </Text>
-          <div className="flex flex-wrap gap-6 py-2">
+          <Stack gap={6} direction="row" wrap className="py-2">
             {SHADOW_TOKENS.map(({ name, className }) => (
-              <div key={name} className="flex w-32 flex-col gap-2">
+              <Stack gap={2} direction="col" className="w-32" key={name}>
                 <div
                   className={`h-16 rounded-lg bg-surface-raised ${className}`}
                 />
                 <Text variant="caption" tone="muted">
                   {name}
                 </Text>
-              </div>
+              </Stack>
             ))}
-          </div>
+          </Stack>
         </Section>
 
         <Section title="카테고리 색">
@@ -128,9 +135,15 @@ function UiGalleryPage() {
             저장된 값은 그대로 두고 그릴 때만 바꾼다. 다크에서 검정이 밝게
             뒤집히는지, 노랑이 눈부시지 않은지 본다.
           </Text>
-          <div className="flex flex-wrap gap-3">
+          <Stack gap={3} direction="row" wrap>
             {COLORS.map(({ name, value }) => (
-              <div key={name} className="flex w-16 flex-col items-center gap-1">
+              <Stack
+                gap={1}
+                direction="col"
+                align="center"
+                className="w-16"
+                key={name}
+              >
                 <div
                   className="h-10 w-10 rounded-full border border-line"
                   style={{ backgroundColor: getCategoryColor(value) }}
@@ -141,23 +154,23 @@ function UiGalleryPage() {
                 >
                   {name}
                 </Text>
-              </div>
+              </Stack>
             ))}
-          </div>
+          </Stack>
         </Section>
 
         <Section title="글자 크기">
-          <div className="flex flex-col gap-2">
+          <Stack gap={2} direction="col">
             {TEXT_VARIANTS.map((variant) => (
               <Text key={variant} variant={variant} as="p">
                 {variant} — 어제보다 더 나은 오늘
               </Text>
             ))}
-          </div>
+          </Stack>
         </Section>
 
         <Section title="글자색">
-          <div className="flex flex-col gap-1">
+          <Stack gap={1} direction="col">
             {TEXT_TONES.map((tone) => (
               <Text key={tone} tone={tone}>
                 {tone} — 어제보다 더 나은 오늘
@@ -171,13 +184,13 @@ function UiGalleryPage() {
                 </span>
               </Text>
             </div>
-          </div>
+          </Stack>
         </Section>
 
         <Section title="버튼">
-          <div className="flex flex-col gap-3">
+          <Stack gap={3} direction="col">
             {BUTTON_VARIANTS.map((variant) => (
-              <div key={variant} className="flex flex-wrap items-center gap-2">
+              <Stack gap={2} direction="row" wrap align="center" key={variant}>
                 <Text variant="bodySm" tone="muted" className="w-16">
                   {variant}
                 </Text>
@@ -189,17 +202,41 @@ function UiGalleryPage() {
                 <Button variant={variant} disabled>
                   disabled
                 </Button>
-              </div>
+              </Stack>
             ))}
-            <div className="flex flex-wrap items-center gap-2">
+            <Stack gap={2} direction="row" wrap align="center">
               <Text variant="bodySm" tone="muted" className="w-16">
                 크기
               </Text>
               <Button size="sm">sm</Button>
               <Button size="md">md</Button>
               <Button size="lg">lg</Button>
-            </div>
-          </div>
+            </Stack>
+          </Stack>
+        </Section>
+
+        <Section title="입력">
+          <Text variant="bodySm" tone="muted">
+            눌러서 포커스가 어디에 있는지 보이는지 확인한다. 글자 크기는 16px
+            아래로 내리지 않는다. iOS 는 그보다 작으면 화면을 확대한다.
+          </Text>
+          <Stack gap={4} direction="col" className="max-w-sm">
+            <Input placeholder="한 줄 입력 (underline)" />
+            <Input variant="box" placeholder="한 줄 입력 (box)" />
+            <Input placeholder="비활성" disabled />
+            <TextArea placeholder="여러 줄 입력" className="h-24 resize-none" />
+          </Stack>
+        </Section>
+
+        <Section title="면">
+          <Stack gap={3} direction="row" wrap>
+            <Surface level="raised" padding="md" radius="lg" bordered>
+              <Text variant="bodySm">raised + bordered</Text>
+            </Surface>
+            <Surface level="sunken" padding="md" radius="lg">
+              <Text variant="bodySm">sunken</Text>
+            </Surface>
+          </Stack>
         </Section>
       </div>
     </div>

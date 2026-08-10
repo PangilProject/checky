@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { RoutineReportSkeleton } from "./components/RoutineReportSkeleton";
 import { getWeekRangeInfo } from "./utils/getWeekRangeInfo";
 import { useRoutineToggle } from "./hooks/useRoutineToggle";
-import { Button } from "@/shared/ui/primitives";
+import { Button, Stack } from "@/shared/ui/primitives";
 
 /**
  * 주간 루틴 리포트 섹션을 렌더링합니다.
@@ -59,12 +59,12 @@ function RoutineReportSection() {
         <RoutineReportSkeleton />
       ) : isError || !report ? (
         // 2-2. 조회 실패: 빈 공간만 보이지 않도록 상태와 재시도를 제공
-        <div className="flex flex-col items-center gap-3 py-8">
+        <Stack gap={3} direction="col" align="center" className="py-8">
           <p className="text-sm text-content-muted">
             루틴 목록을 불러오지 못했습니다.
           </p>
           <Button onClick={() => void refetch()}>다시 시도</Button>
-        </div>
+        </Stack>
       ) : (
         // 2-3. 테이블
         <RoutineTable report={report} onToggle={handleToggle} />

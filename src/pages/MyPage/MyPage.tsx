@@ -1,4 +1,4 @@
-import { Button, Text } from "@/shared/ui/primitives";
+import { Button, Stack, Text } from "@/shared/ui/primitives";
 import { useLogoSrc } from "@/shared/hooks/useLogoSrc";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
@@ -22,12 +22,12 @@ function MyPage() {
   return (
     <div>
       <TitleText text="마이 정보" className="mb-4" />
-      <div className="flex flex-col gap-10">
+      <Stack gap={10} direction="col">
         <UserInfoSection />
         <ThemeSection />
         <ButtonSection />
         <LegalLinks />
-      </div>
+      </Stack>
     </div>
   );
 }
@@ -42,7 +42,7 @@ const UserInfoSection = () => {
   const email = user?.email || "";
   const imageUrl = user?.photoURL || "";
   return (
-    <div className="flex gap-4">
+    <Stack gap={4} direction="row">
       <img
         src={imageUrl || fallbackLogo}
         alt=""
@@ -61,7 +61,7 @@ const UserInfoSection = () => {
           {email || "이메일"}
         </Text>
       </div>
-    </div>
+    </Stack>
   );
 };
 
@@ -132,7 +132,7 @@ const ButtonSection = () => {
   };
 
   return (
-    <div className="flex gap-3">
+    <Stack gap={3} direction="row">
       <Button onClick={() => void handleLogout()} disabled={isLoggingOut}>
         로그아웃
       </Button>
@@ -148,7 +148,7 @@ const ButtonSection = () => {
           onConfirm={handleWithdraw}
         />
       )}
-    </div>
+    </Stack>
   );
 };
 export default MyPage;

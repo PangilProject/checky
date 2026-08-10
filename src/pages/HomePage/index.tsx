@@ -2,6 +2,7 @@ import MonthlyReportSection from "./components/MonthlyReport/index.tsx";
 import RoutineReportSection from "./components/RoutineReport/index.tsx";
 import TaskReportSection from "./components/TaskReport/sections/TaskReportSection.tsx";
 import { SelectedDateProvider } from "@/shared/contexts/SelectedDateProvider";
+import { Stack } from "@/shared/ui/primitives";
 
 /**
  * HomePage 컴포넌트
@@ -10,7 +11,7 @@ import { SelectedDateProvider } from "@/shared/contexts/SelectedDateProvider";
 function HomePage() {
   return (
     <SelectedDateProvider>
-      <div className="flex flex-col gap-20">
+      <Stack gap={20} direction="col">
         {/* 1. 월간 리포트 */}
         <MonthlyReportSection />
 
@@ -19,7 +20,7 @@ function HomePage() {
 
         {/* 3. 할 일 리포트 */}
         <TaskReportSection />
-      </div>
+      </Stack>
     </SelectedDateProvider>
   );
 }

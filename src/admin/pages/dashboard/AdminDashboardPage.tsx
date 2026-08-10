@@ -1,4 +1,4 @@
-import { Text } from "@/shared/ui/primitives";
+import { Stack, Text } from "@/shared/ui/primitives";
 import { useAdminStats } from "./hooks/useAdminStats";
 import DashboardGrid from "./components/DashboardGrid";
 import UserSignupChart from "./components/UserSignupChart";
@@ -30,7 +30,7 @@ function AdminDashboardPage() {
       <DashboardGrid stats={stats} />
 
       {/* 차트 섹션 */}
-      <div className="flex flex-col xl:flex-row gap-6">
+      <Stack gap={6} direction="col" className="xl:flex-row">
         {/* 가입자 추이 */}
         <div className="flex-1">
           <SectionTitle
@@ -53,7 +53,7 @@ function AdminDashboardPage() {
           />
           <ActiveUserChart data={stats.activeByDate} />
         </div>
-      </div>
+      </Stack>
     </div>
   );
 }

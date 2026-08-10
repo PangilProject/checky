@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Button, Text } from "@/shared/ui/primitives";
+import { Button, Stack, Text } from "@/shared/ui/primitives";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import type { AdminUser } from "../hooks/useAdminUsers";
@@ -61,7 +61,7 @@ function InfoRow({
   muted?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <Stack gap={2} direction="row" align="center">
       <span
         className={`text-sm ${muted ? "text-content-subtle" : "text-content"}`}
       >
@@ -70,7 +70,7 @@ function InfoRow({
       <Text variant="bodySm" className={muted ? "text-content-muted" : ""}>
         {text}
       </Text>
-    </div>
+    </Stack>
   );
 }
 

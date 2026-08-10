@@ -12,7 +12,7 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { TitleText } from "@/shared/ui/TitleText";
-import { Button } from "@/shared/ui/primitives";
+import { Button, Stack } from "@/shared/ui/primitives";
 import { getCategoryTextColor } from "@/shared/utils/getCategoryTextColor";
 import { RoutineItem } from "./RoutineItem";
 import type { Routine, RoutineCategory } from "@/shared/api/routine";
@@ -60,7 +60,13 @@ export const RoutineCategorySection = ({
   return (
     <div className="mb-5">
       {/* 카테고리 헤더 */}
-      <div className="flex justify-between items-center gap-2 mb-2">
+      <Stack
+        gap={2}
+        direction="row"
+        justify="between"
+        align="center"
+        className="mb-2"
+      >
         <TitleText
           text={category.name}
           className={`${getCategoryTextColor(category.color)} min-w-0 truncate`}
@@ -73,7 +79,7 @@ export const RoutineCategorySection = ({
             <Button onClick={onAdd}>추가</Button>
           )}
         </span>
-      </div>
+      </Stack>
 
       {/* 분류를 방금 만든 직후가 가장 허전한 지점이라, 다음에 할 일을 적어 둔다 */}
       {routines.length === 0 && (
@@ -96,7 +102,7 @@ export const RoutineCategorySection = ({
           strategy={verticalListSortingStrategy}
         >
           {/* 루틴 리스트 렌더링 */}
-          <div className="flex flex-col gap-2">
+          <Stack gap={2} direction="col">
             {routines.map((routine) => (
               <RoutineItem
                 key={routine.id}
@@ -104,7 +110,7 @@ export const RoutineCategorySection = ({
                 onClickMore={() => onSelect(routine)}
               />
             ))}
-          </div>
+          </Stack>
         </SortableContext>
       </DndContext>
     </div>

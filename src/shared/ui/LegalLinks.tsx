@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Stack } from "@/shared/ui/primitives";
 
 /**
  * @file LegalLinks.tsx
@@ -8,12 +9,16 @@ import { Link } from "react-router-dom";
  * 부족하고, 이미 가입한 이용자가 나중에 다시 찾을 경로도 있어야 한다.
  */
 
-const linkClass =
-  "underline underline-offset-2 hover:text-content pressable";
+const linkClass = "underline underline-offset-2 hover:text-content pressable";
 
 export const LegalLinks = () => {
   return (
-    <div className="flex items-center gap-2 text-xs text-content-muted">
+    <Stack
+      gap={2}
+      direction="row"
+      align="center"
+      className="text-xs text-content-muted"
+    >
       <Link to="/terms" className={linkClass}>
         이용약관
       </Link>
@@ -21,7 +26,7 @@ export const LegalLinks = () => {
       <Link to="/privacy" className={linkClass}>
         개인정보 처리방침
       </Link>
-    </div>
+    </Stack>
   );
 };
 

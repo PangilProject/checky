@@ -1,4 +1,4 @@
-import { Text } from "@/shared/ui/primitives";
+import { Surface, Text } from "@/shared/ui/primitives";
 
 interface StatCardProps {
   title: string;
@@ -7,12 +7,12 @@ interface StatCardProps {
 
 function StatCard({ title, value }: StatCardProps) {
   return (
-    <div className="rounded-lg border border-line p-5 bg-surface-raised">
+    <Surface radius="lg" padding="lg" bordered>
       <Text variant="body" tone="muted" className="mb-2">
         {title}
       </Text>
       <Text variant="heading">{value.toLocaleString()}</Text>
-    </div>
+    </Surface>
   );
 }
 

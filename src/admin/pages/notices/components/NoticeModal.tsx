@@ -14,7 +14,7 @@ import { noticeKeys } from "@/shared/api/keys";
 import { toast } from "react-toastify";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import type { AdminNotice } from "../hooks/useAdminNotices";
-import { Button, Text } from "@/shared/ui/primitives";
+import { Button, Input, Stack, Text, TextArea } from "@/shared/ui/primitives";
 
 const TITLE_MAX_LENGTH = 100;
 const CONTENT_MAX_LENGTH = 2000;
@@ -126,12 +126,11 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
           <Text variant="body" className="mb-2 font-bold">
             제목
           </Text>
-          <input
+          <Input
             value={title}
             disabled={isReadOnly || isSubmitting}
             maxLength={TITLE_MAX_LENGTH}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full border-b outline-none text-sm"
           />
         </div>
 
@@ -139,12 +138,12 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
           <Text variant="body" className="mb-2 font-bold">
             내용
           </Text>
-          <textarea
+          <TextArea
             value={content}
             disabled={isReadOnly || isSubmitting}
             maxLength={CONTENT_MAX_LENGTH}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full h-32 resize-none border border-line rounded p-2 text-sm outline-none"
+            className="h-32 resize-none"
           />
         </div>
 
@@ -152,7 +151,7 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
         상세(VIEW)에서는 누르는 즉시 저장하고, 작성·수정 중에는 저장 버튼을 누를 때
         함께 반영한다. 고정 여부를 바꾸려고 수정 모드까지 들어가지 않아도 된다.
       */}
-        <div className="flex items-center gap-2 text-sm">
+        <Stack gap={2} direction="row" align="center" className="text-sm">
           {/*
           체크박스만 눌리도록 버튼 범위를 아이콘으로 한정한다.
           아이콘이 작아 누르기 어려워지지 않도록 padding 으로 터치 영역을 넓히고,
@@ -178,7 +177,7 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
             )}
           </button>
           <span>상단 고정</span>
-        </div>
+        </Stack>
       </div>
 
       {/* 버튼 */}

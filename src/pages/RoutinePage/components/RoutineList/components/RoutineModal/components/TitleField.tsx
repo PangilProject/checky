@@ -1,4 +1,4 @@
-import { Text } from "@/shared/ui/primitives";
+import { Input, Text } from "@/shared/ui/primitives";
 
 interface TitleFieldProps {
   title: string;
@@ -18,8 +18,7 @@ export const TitleField = ({
       <Text variant="body" className="mb-2 font-bold">
         루틴명
       </Text>
-      <input
-        className="w-full border-0 border-b border-content-subtle text-sm outline-none ime-fallback"
+      <Input
         placeholder="루틴 입력"
         value={title}
         maxLength={50}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatHmLabel } from "@/shared/hooks/formatDate";
 import { usePopoverPosition } from "@/shared/hooks/usePopoverPosition";
+import { Stack } from "@/shared/ui/primitives";
 
 const MERIDIEMS = [
   { key: "AM", label: "오전" },
@@ -157,7 +158,7 @@ export const TimePicker = ({
               border border-line bg-surface-raised p-2 shadow-[var(--shadow-popover)]"
           >
             {/* 오전 / 오후 */}
-            <div className="flex w-14 flex-col gap-1">
+            <Stack gap={1} direction="col" className="w-14">
               {MERIDIEMS.map((item) => (
                 <button
                   key={item.key}
@@ -168,7 +169,7 @@ export const TimePicker = ({
                   {item.label}
                 </button>
               ))}
-            </div>
+            </Stack>
 
             {/* 시 */}
             <div

@@ -1,5 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { Button, Text } from "@/shared/ui/primitives";
+import { Button, Input, Text } from "@/shared/ui/primitives";
 import { RxTriangleDown, RxTriangleUp } from "react-icons/rx";
 import { COLORS } from "@/shared/constants/colors";
 import {
@@ -119,7 +119,7 @@ export default function CategoryModal({
     <ModalWrapper onClose={isSubmitting ? () => {} : onClose}>
       <ModalTitle text={getModalModeTitle(currentMode, "카테고리")} />
 
-      <Input
+      <CategoryNameInput
         categoryInput={categoryInput}
         setCategoryInput={setCategoryInput}
         onEnter={() => {
@@ -169,15 +169,14 @@ interface InputProps {
   disabled?: boolean;
 }
 
-const Input = ({
+const CategoryNameInput = ({
   categoryInput,
   setCategoryInput,
   onEnter,
   disabled,
 }: InputProps) => {
   return (
-    <input
-      className="w-full border-0 border-b border-content-subtle text-base outline-none ime-fallback"
+    <Input
       placeholder="카테고리 입력"
       value={categoryInput}
       maxLength={CATEGORY_NAME_MAX_LENGTH}

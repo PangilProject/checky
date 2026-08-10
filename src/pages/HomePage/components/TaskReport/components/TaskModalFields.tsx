@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Text } from "@/shared/ui/primitives";
+import { Input, Stack, Text } from "@/shared/ui/primitives";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import { TimePicker } from "@/shared/ui/TimePicker";
 import { formatHmLabel, formatYmdLabel } from "@/shared/hooks/formatDate";
@@ -18,8 +18,7 @@ export const TaskInput = ({
   disabled?: boolean;
 }) => {
   return (
-    <input
-      className="w-full border-0 border-b border-content-subtle text-base outline-none ime-fallback"
+    <Input
       placeholder="할 일을 입력하세요"
       value={value}
       maxLength={100}
@@ -80,7 +79,7 @@ export const TimeField = ({
           </Text>
         )
       ) : (
-        <div className="flex items-center gap-3">
+        <Stack gap={3} direction="row" align="center">
           <button
             type="button"
             onClick={() => onToggle(!enabled)}
@@ -100,7 +99,7 @@ export const TimeField = ({
             onChange={onChange}
             align="right"
           />
-        </div>
+        </Stack>
       )}
     </div>
   );

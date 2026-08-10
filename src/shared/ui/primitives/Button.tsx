@@ -36,8 +36,10 @@ const SIZE = {
   none: "",
 } as const;
 
-interface ButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
+interface ButtonProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "className"
+> {
   variant?: "fill" | "outline" | "ghost";
   tone?: keyof typeof TONE;
   size?: keyof typeof SIZE;

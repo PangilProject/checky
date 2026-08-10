@@ -1,12 +1,13 @@
 import { ActiveCategorySection } from "./components/ActiveCategorySection.tsx";
 import { EndedCategorySection } from "./components/EndCategorySection.tsx";
+import { Stack } from "@/shared/ui/primitives";
 
 function CategoryPage() {
   return (
-    <div className="flex flex-col gap-20">
+    <Stack gap={20} direction="col">
       <ActiveCategorySection />
       <EndedCategorySection />
-    </div>
+    </Stack>
   );
 }
 

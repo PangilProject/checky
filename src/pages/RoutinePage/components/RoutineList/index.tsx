@@ -8,7 +8,7 @@ import { RoutineListSkeleton } from "./components/RoutineListSkeleton";
 import EmptyRoutineList from "./components/EmptyRoutineList";
 import { RoutineCategorySection } from "./components/RoutineCategorySection";
 import { RoutineModalContainer } from "./components/RoutineModalContainer";
-import { Button } from "@/shared/ui/primitives";
+import { Button, Stack } from "@/shared/ui/primitives";
 
 /**
  * 루틴 목록을 카테고리별로 표시하고 관리하는 컴포넌트
@@ -47,12 +47,12 @@ export const RoutineList = () => {
   // 조회 실패: 무한 스켈레톤 대신 재시도 안내를 보여준다
   if (!routineCategories && isError) {
     return (
-      <div className="flex flex-col items-center gap-3 py-10">
+      <Stack gap={3} direction="col" align="center" className="py-10">
         <p className="text-sm text-content-muted">
           루틴을 불러오지 못했습니다.
         </p>
         <Button onClick={() => void refetch()}>다시 시도</Button>
-      </div>
+      </Stack>
     );
   }
 
