@@ -1,0 +1,83 @@
+/* =========================================================
+   디자인 토큰
+
+   색을 "생김새"(black, gray-400)가 아니라 "역할"(content, muted)로 부른다.
+   화면 코드가 역할만 참조하면, 테마 전환은 이 파일의 값 교체로 끝난다.
+
+   Tailwind v4 는 @theme 안의 변수로 유틸리티를 만들어 주므로
+   여기 선언한 --color-surface 는 bg-surface / text-surface 등으로 바로 쓸 수 있다.
+   ========================================================= */
+
+/* 다크 모드를 OS 설정이 아니라 앱이 직접 정한다.
+   OS 를 그대로 따르면 사용자가 앱 안에서 고른 테마를 덮어쓰게 되므로,
+   <html> 에 붙는 .dark 클래스를 유일한 기준으로 삼는다. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* ----- 표면 ----- */
+  /* surface: 페이지 바탕 / raised: 카드·모달처럼 떠 있는 면 / sunken: 눌린 면·비활성 영역 */
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #f4f4f5;
+
+  /* ----- 글자 ----- */
+  /* content: 본문 / muted: 보조 설명 / subtle: 플레이스홀더처럼 더 옅은 것
+     inverse: 어두운 면 위에 얹는 글자 (검은 버튼 위 흰 글자) */
+  --color-content: #000000;
+  --color-content-muted: #8e8e93;
+  --color-content-subtle: #c4c4c4;
+  --color-content-inverse: #ffffff;
+
+  /* ----- 선 ----- */
+  /* line: 일반 구분선 / strong: 강조 테두리 */
+  --color-line: #e5e5ea;
+  --color-line-strong: #000000;
+
+  /* ----- 의미색 ----- */
+  /* 버튼의 "빨강"은 색이 아니라 위험이라는 역할이므로 danger 로 부른다. */
+  --color-primary: #000000;
+  --color-accent: #0088ff;
+  --color-danger: #ff393c;
+  --color-success: #35c759;
+
+  /* 위 색을 배경으로 깔았을 때 그 위에 얹는 글자색.
+     배경과 짝을 지어 두어야 테마가 바뀌어도 대비가 무너지지 않는다. */
+  --color-on-primary: #ffffff;
+  --color-on-accent: #ffffff;
+  --color-on-danger: #ffffff;
+
+  /* ----- 그 외 ----- */
+  --color-overlay: rgb(0 0 0 / 0.4);
+}
+
+/* 다크 테마.
+   @theme 이 만든 변수는 :root 에 놓이므로, 여기서 값만 덮으면
+   bg-surface 같은 유틸리티가 자동으로 다른 색을 그린다.
+   즉 화면 코드에 dark: 변형을 뿌릴 필요가 없다. */
+.dark {
+  --color-surface: #141414;
+  --color-surface-raised: #1f1f22;
+  --color-surface-sunken: #0a0a0b;
+
+  --color-content: #f4f4f5;
+  --color-content-muted: #98989f;
+  --color-content-subtle: #6b6b70;
+  --color-content-inverse: #141414;
+
+  --color-line: #2e2e33;
+  --color-line-strong: #f4f4f5;
+
+  /* 어두운 배경에서는 원색이 눈부시고 파랑 계열은 대비가 떨어지므로
+     명도를 올린 짝을 따로 둔다. 라이트 값과 같은 역할, 다른 수치다. */
+  --color-primary: #f4f4f5;
+  --color-accent: #4da3ff;
+  --color-danger: #ff6b6d;
+  --color-success: #45d268;
+
+  /* 밝아진 배경 위에는 흰 글자가 읽히지 않으므로 어두운 글자로 뒤집는다 */
+  --color-on-primary: #141414;
+  --color-on-accent: #141414;
+  --color-on-danger: #141414;
+
+  --color-overlay: rgb(0 0 0 / 0.6);
+}

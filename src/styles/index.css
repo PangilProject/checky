@@ -1,19 +1,26 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 :root {
   font-family: "Paperlogy", system-ui, Avenir, Helvetica, Arial, sans-serif;
 
-  /* UI가 라이트 팔레트로 고정되어 있으므로 light 로 선언한다.
-     light dark 로 두면 OS 다크 모드에서 입력창만 브라우저 기본 다크 스타일이 적용되어
-     흰 배경 위에 밝은 글자가 찍혀 거의 보이지 않는다. */
+  /* OS 설정이 아니라 앱이 고른 테마를 따른다.
+     light dark 로 두면 OS 가 다크일 때 입력창만 브라우저 기본 다크 스타일이 적용되어
+     밝은 배경 위에 밝은 글자가 찍히므로, 한쪽으로 확정해서 알려준다. */
   color-scheme: light;
-  color: #000;
-  background-color: #fff;
+  color: var(--color-content);
+  background-color: var(--color-surface);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* 다크일 때는 입력창·스크롤바 같은 브라우저 기본 UI 도 함께 뒤집는다.
+   :root 와 같은 요소를 가리키므로 뒤에 온 이 선언이 이긴다. */
+.dark {
+  color-scheme: dark;
 }
 
 .font-paperlogy {
