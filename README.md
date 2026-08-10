@@ -38,7 +38,7 @@ Checky는 Task와 Routine을 분리해 다음을 명확히 합니다.
 - `/home`: 일일 실행 허브(Task/Routine/월간 요약)
 - `/category`: 카테고리 관리(활성/종료/정렬)
 - `/routine`: 루틴 등록/수정/정렬
-- `/my`: 사용자 정보/계정 관련 메뉴
+- `/my`: 사용자 정보/계정 관련 메뉴 (화면 테마 선택 포함)
 
 관리자 권한이 필요한 화면
 
@@ -92,18 +92,48 @@ notices/{noticeId}          # 공지 (읽기는 로그인 사용자, 쓰기는 �
 - State/Data: `@tanstack/react-query`, `React Context`, `zustand`
 - Backend: `Firebase Auth`, `Firestore`
 
+## 디자인 시스템
+
+색을 생김새(`black`, `gray-400`)가 아니라 역할(`content`, `muted`, `danger`)로 부릅니다.
+토큰은 `src/styles/tokens.css` 에 CSS 변수로 선언되어 있고, Tailwind 가 이를 유틸리티로 만들어 줍니다.
+
+```text
+surface / surface-raised / surface-sunken   바탕, 떠 있는 면, 눌린 면
+content / content-muted / content-subtle    본문, 보조 설명, 더 옅은 것
+line / line-strong                          구분선, 강조 테두리
+primary / accent / danger / success         의미색
+on-primary / on-accent / ...                위 색을 배경으로 깔았을 때의 글자색
+```
+
+다크 테마는 `<html>` 의 `.dark` 에서 **변수 값만 덮어씁니다.**
+따라서 화면 코드에 `dark:` 변형을 뿌릴 필요가 없고, `bg-surface` 한 번이면 양쪽 테마가 모두 그려집니다.
+
+테마 선택(라이트/다크/시스템)은 `shared/stores/themeStore.ts` 가 들고 있으며,
+첫 페인트 전에 적용해야 흰 화면이 번쩍이지 않으므로 `index.html` 의 인라인 스크립트가 저장된 선택을 먼저 반영합니다.
+저장 키는 양쪽이 공유하므로 한쪽을 바꾸면 다른 쪽도 함께 고쳐야 합니다.
+
+프리미티브는 `shared/ui/primitives` 에 있습니다.
+`Text`(역할별 크기), `Button`(채움 방식 × 의미 × 크기), `Surface`(면), `Stack`(배치)이며,
+개발 서버에서 `/dev/ui` 를 열면 토큰과 프리미티브를 라이트/다크로 나란히 확인할 수 있습니다.
+
+카테고리 색은 사용자가 고른 값이 그대로 저장되므로 값을 바꿀 수 없습니다.
+대신 `getCategoryColor` 가 그리는 시점에 테마에 맞는 색을 골라, 다크 배경에서 검정 카테고리가 묻히지 않게 합니다.
+
 ## 프로젝트 구조
 
 ```text
 src
 ├─ pages/            # 사용자 화면
-│  └─ legal/         # 개인정보 처리방침·이용약관 (문서 원본 포함)
+│  ├─ legal/         # 개인정보 처리방침·이용약관 (문서 원본 포함)
+│  └─ dev/           # 디자인 시스템 갤러리 (개발 빌드에만 포함)
 ├─ admin/            # 관리자 화면
 ├─ shared/api/       # 도메인 API 계층
 ├─ shared/ui/        # 공통 UI
+│  └─ primitives/    # Text · Button · Surface · Stack
 ├─ shared/hooks/     # 공통 훅
-├─ shared/stores/    # 앱 전역 인증 상태 (zustand)
+├─ shared/stores/    # 앱 전역 상태 (인증, 테마)
 ├─ shared/contexts/  # 화면 간 공유 상태 (선택 날짜 등)
+├─ styles/tokens.css # 디자인 토큰 (라이트·다크 값)
 ├─ firebase/         # Firebase 초기화
 └─ router.tsx        # 라우팅 정의
 ```
