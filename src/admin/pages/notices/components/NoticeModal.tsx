@@ -15,9 +15,26 @@ import { toast } from "react-toastify";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import type { AdminNotice } from "../hooks/useAdminNotices";
 import { Button, Input, Stack, Text, TextArea } from "@/shared/ui/primitives";
+import { useDirtyForm } from "@/shared/hooks/useDirtyForm";
+import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
+import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
 
 const TITLE_MAX_LENGTH = 100;
 const CONTENT_MAX_LENGTH = 2000;
+
+/**
+ * 저장했을 때 실제로 나갈 값만 남긴다.
+ * 제목과 내용은 trim 해서 저장하므로 공백만 덧붙인 것은 고친 것이 아니다.
+ */
+const toComparableNoticeValues = (values: {
+  title: string;
+  content: string;
+  pinned: boolean;
+}) => ({
+  title: values.title.trim(),
+  content: values.content.trim(),
+  pinned: values.pinned,
+});
 
 interface Props {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -32,14 +49,33 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
   const refreshNotices = () =>
     queryClient.invalidateQueries({ queryKey: noticeKeys.all });
 
-  const [title, setTitle] = useState(notice?.title ?? "");
-  const [content, setContent] = useState(notice?.content ?? "");
-  const [pinned, setPinned] = useState(notice?.pinned ?? false);
+  const form = useDirtyForm(
+    {
+      title: notice?.title ?? "",
+      content: notice?.content ?? "",
+      pinned: notice?.pinned ?? false,
+    },
+    { comparable: toComparableNoticeValues },
+  );
+  const { title, content, pinned } = form.values;
+  const setTitle = (v: string) => form.patch({ title: v });
+  const setContent = (v: string) => form.patch({ content: v });
+  const setPinned = (v: boolean) => form.patch({ pinned: v });
   const [currentMode, setCurrentMode] = useState(mode);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const isReadOnly = currentMode === "VIEW";
+  const { isGuardOpen, requestClose, confirmClose, cancelClose, cancelEdit } =
+    useEditModalExit({
+      isEditingFromDetail: mode === "VIEW" && currentMode === "EDIT",
+      isDirty: form.isDirty,
+      onRevertToDetail: () => {
+        form.reset();
+        setCurrentMode("VIEW");
+      },
+      onClose,
+    });
 
   const handleSave = async () => {
     const trimmedTitle = title.trim();
@@ -92,6 +128,9 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
     try {
       await setNoticePinned({ noticeId: notice.id, pinned: nextPinned });
       await refreshNotices();
+      // 이미 저장된 값이므로 기준도 함께 옮긴다. 그러지 않으면 닫을 때
+      // "수정 중인 내용이 있다"고 잘못 붙잡는다.
+      form.commit({ pinned: nextPinned });
     } catch {
       setPinned(!nextPinned);
       toast.error("고정 설정에 실패했습니다. 잠시 후 다시 시도해 주세요.");
@@ -117,7 +156,7 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
   };
 
   return (
-    <ModalWrapper onClose={onClose}>
+    <ModalWrapper onClose={isSubmitting ? () => {} : requestClose}>
       <ModalTitle text={getModalModeTitle(currentMode, "공지")} />
 
       {/* 항목 사이 간격은 이 묶음이 소유한다 */}
@@ -183,7 +222,11 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
       {/* 버튼 */}
       {currentMode === "VIEW" ? (
         <div className="flex justify-between">
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            onClick={requestClose}
+            disabled={isSubmitting}
+          >
             닫기
           </Button>
           <Button
@@ -203,13 +246,27 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
         </div>
       ) : (
         <div className="flex justify-between">
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            onClick={cancelEdit}
+            disabled={isSubmitting}
+          >
             취소
           </Button>
-          <Button onClick={() => void handleSave()} disabled={isSubmitting}>
+          <Button
+            onClick={() => void handleSave()}
+            disabled={isSubmitting || !form.isDirty}
+          >
             {isSubmitting ? "저장 중..." : "저장"}
           </Button>
         </div>
+      )}
+
+      {isGuardOpen && (
+        <UnsavedChangesConfirm
+          onConfirm={confirmClose}
+          onClose={cancelClose}
+        />
       )}
 
       {deleteOpen && (

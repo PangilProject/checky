@@ -9,6 +9,8 @@ import { RepeatDaysField } from "./components/RepeatDaysField";
 import { StartDateField } from "./components/StartDateField";
 import { EndDateField } from "./components/EndDateField";
 import { ButtonSection } from "./components/ButtonSection";
+import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
+import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
 
 export default function RoutineModal({
   mode = "CREATE",
@@ -35,8 +37,19 @@ export default function RoutineModal({
       isRepeatChanged: state.isRepeatChanged,
     });
 
+  const { isGuardOpen, requestClose, confirmClose, cancelClose, cancelEdit } =
+    useEditModalExit({
+      isEditingFromDetail: mode === "VIEW" && state.currentMode === "EDIT",
+      isDirty: state.isDirty,
+      onRevertToDetail: () => {
+        state.resetForm();
+        state.setCurrentMode("VIEW");
+      },
+      onClose,
+    });
+
   return (
-    <ModalWrapper onClose={isSubmitting ? () => {} : onClose}>
+    <ModalWrapper onClose={isSubmitting ? () => {} : requestClose}>
       {/* 모달 타이틀 */}
       <ModalTitle text={getModalModeTitle(state.currentMode, "루틴")} />
 
@@ -90,11 +103,20 @@ export default function RoutineModal({
       <ButtonSection
         mode={state.currentMode}
         isSubmitting={isSubmitting}
-        onClose={onClose}
+        onClose={requestClose}
+        onCancel={cancelEdit}
         onEdit={() => state.setCurrentMode("EDIT")}
+        canSubmit={state.isDirty}
         onSubmit={onSubmit}
         onDelete={() => void handleDelete()}
       />
+
+      {isGuardOpen && (
+        <UnsavedChangesConfirm
+          onConfirm={confirmClose}
+          onClose={cancelClose}
+        />
+      )}
     </ModalWrapper>
   );
 }

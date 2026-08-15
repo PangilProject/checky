@@ -10,6 +10,29 @@ import {
   refreshCalendarConsistency,
 } from "@/shared/api/monthlyStats";
 import { toast } from "react-toastify";
+import { useDirtyForm } from "@/shared/hooks/useDirtyForm";
+
+interface TaskFormValues {
+  taskInput: string;
+  taskDate: string;
+  selectedCategoryId: string;
+  timeEnabled: boolean;
+  taskTime: string;
+}
+
+/**
+ * 저장했을 때 실제로 나갈 값만 남긴다.
+ *
+ * 제목은 trim 해서 저장하므로 공백만 덧붙인 것은 고친 것이 아니고,
+ * 시간을 꺼 두면 time 이 아예 실리지 않으므로 그때의 시간 값 변화도 마찬가지다.
+ * 이 규칙은 handleUpdateTask 가 만드는 페이로드와 짝을 이룬다.
+ */
+const toComparableTaskValues = (values: TaskFormValues) => ({
+  title: values.taskInput.trim(),
+  date: values.taskDate,
+  categoryId: values.selectedCategoryId,
+  time: values.timeEnabled ? values.taskTime : undefined,
+});
 
 // 생성은 목록의 인라인 입력(useTaskList.addTask)이 전담한다.
 // 모달은 기존 할 일의 조회·수정만 다룬다. 생성 경로를 두 갈래로 두면
@@ -37,13 +60,24 @@ export const useTaskModalHandlers = ({
 }: UseTaskModalHandlersParams) => {
   const queryClient = useQueryClient();
   const DEFAULT_TIME = "12:00";
-  const [taskInput, setTaskInput] = useState(task?.title ?? "");
-  const [taskDate, setTaskDate] = useState(task?.date ?? selectedDate);
-  const [selectedCategoryId, setSelectedCategoryId] = useState(
-    task?.categoryId ?? categoryId
+  const form = useDirtyForm(
+    {
+      taskInput: task?.title ?? "",
+      taskDate: task?.date ?? selectedDate,
+      selectedCategoryId: task?.categoryId ?? categoryId,
+      timeEnabled: Boolean(task?.time),
+      taskTime: task?.time ?? DEFAULT_TIME,
+    },
+    { comparable: toComparableTaskValues },
   );
-  const [timeEnabled, setTimeEnabled] = useState<boolean>(Boolean(task?.time));
-  const [taskTime, setTaskTime] = useState<string>(task?.time ?? DEFAULT_TIME);
+  const { taskInput, taskDate, selectedCategoryId, timeEnabled, taskTime } =
+    form.values;
+  const setTaskInput = (v: string) => form.patch({ taskInput: v });
+  const setTaskDate = (v: string) => form.patch({ taskDate: v });
+  const setSelectedCategoryId = (v: string) =>
+    form.patch({ selectedCategoryId: v });
+  const setTimeEnabled = (v: boolean) => form.patch({ timeEnabled: v });
+  const setTaskTime = (v: string) => form.patch({ taskTime: v });
   const [currentMode, setCurrentMode] = useState(mode);
   // 저장/삭제/이동 처리 중 중복 실행 방지
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -154,6 +188,26 @@ export const useTaskModalHandlers = ({
     }
   };
 
+  /**
+   * 수정 취소.
+   *
+   * 상세로 열린 모달에서 "수정"으로 들어간 것이라면, 취소는 수정을 그만두겠다는
+   * 뜻이지 모달을 닫겠다는 뜻이 아니다. 고치던 값을 원래 할 일 값으로 되돌리고
+   * 상세 화면으로 돌아간다.
+   *
+   * 반대로 처음부터 EDIT 로 열린 모달은 돌아갈 상세 화면이 없으므로 그대로 닫는다.
+   */
+  const handleCancelEdit = () => {
+    if (isSubmitting) return;
+    if (mode !== "VIEW") {
+      onClose();
+      return;
+    }
+
+    form.reset();
+    setCurrentMode("VIEW");
+  };
+
   const handleDeleteTask = async () => {
     if (!task || !userId) return;
     if (isSubmitting) return;
@@ -223,11 +277,13 @@ export const useTaskModalHandlers = ({
     currentMode,
     setCurrentMode,
     isReadOnly,
+    isDirty: form.isDirty,
     isSubmitting,
     shouldShowTimeField,
     defaultTime: DEFAULT_TIME,
     selectedCategoryColor,
     handleUpdateTask,
+    handleCancelEdit,
     handleDeleteTask,
     handleMoveTask,
   };

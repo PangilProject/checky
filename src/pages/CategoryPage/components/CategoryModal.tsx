@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
 import { Button, Input, Text } from "@/shared/ui/primitives";
 import { RxTriangleDown, RxTriangleUp } from "react-icons/rx";
 import { COLORS, getCategoryColor } from "@/shared/constants/colors";
@@ -16,8 +16,23 @@ import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { useDirtyForm } from "@/shared/hooks/useDirtyForm";
+import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
+import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
 
 const CATEGORY_NAME_MAX_LENGTH = 20;
+
+/**
+ * 저장했을 때 실제로 나갈 값만 남긴다.
+ * 이름은 trim 해서 저장하므로 공백만 덧붙인 것은 고친 것이 아니다.
+ */
+const toComparableCategoryValues = (values: {
+  categoryInput: string;
+  selectedColor: Color;
+}) => ({
+  name: values.categoryInput.trim(),
+  color: values.selectedColor.value,
+});
 
 interface CategoryModalProps {
   mode: "CREATE" | "VIEW" | "EDIT";
@@ -33,17 +48,33 @@ export default function CategoryModal({
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const [categoryInput, setCategoryInput] = useState(category?.name ?? "");
-  const [selectedColor, setSelectedColor] = useState(
-    category
-      ? (COLORS.find((c) => c.value === category.color) ?? COLORS[0])
-      : COLORS[0],
+  const form = useDirtyForm(
+    {
+      categoryInput: category?.name ?? "",
+      selectedColor: category
+        ? (COLORS.find((c) => c.value === category.color) ?? COLORS[0])
+        : COLORS[0],
+    },
+    { comparable: toComparableCategoryValues },
   );
+  const { categoryInput, selectedColor } = form.values;
+  const setCategoryInput = (v: string) => form.patch({ categoryInput: v });
+  const setSelectedColor = (v: Color) => form.patch({ selectedColor: v });
   const [currentMode, setCurrentMode] = useState(mode);
   // 저장/종료/복구 처리 중 중복 실행 방지 (이중 클릭 시 문서 중복 생성 차단)
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isReadOnly = currentMode === "VIEW";
+  const { isGuardOpen, requestClose, confirmClose, cancelClose, cancelEdit } =
+    useEditModalExit({
+      isEditingFromDetail: mode === "VIEW" && currentMode === "EDIT",
+      isDirty: form.isDirty,
+      onRevertToDetail: () => {
+        form.reset();
+        setCurrentMode("VIEW");
+      },
+      onClose,
+    });
 
   /** 제출 핸들러 공통 래퍼: 중복 실행 차단 + 실패 시 사용자 알림 */
   const runSubmit = async (
@@ -116,7 +147,7 @@ export default function CategoryModal({
   };
 
   return (
-    <ModalWrapper onClose={isSubmitting ? () => {} : onClose}>
+    <ModalWrapper onClose={isSubmitting ? () => {} : requestClose}>
       <ModalTitle text={getModalModeTitle(currentMode, "카테고리")} />
 
       <CategoryNameInput
@@ -146,8 +177,10 @@ export default function CategoryModal({
         mode={currentMode}
         categoryStatus={category?.status}
         isSubmitting={isSubmitting}
-        onClose={onClose}
+        onClose={requestClose}
+        onCancel={cancelEdit}
         onEdit={() => setCurrentMode("EDIT")}
+        canSubmit={form.isDirty}
         onSubmit={() => {
           if (currentMode === "CREATE") {
             void handleCreateCategory();
@@ -158,13 +191,20 @@ export default function CategoryModal({
         onEnd={() => void handleEndCategory()}
         onRestore={() => void handleRestoreCategory()}
       />
+
+      {isGuardOpen && (
+        <UnsavedChangesConfirm
+          onConfirm={confirmClose}
+          onClose={cancelClose}
+        />
+      )}
     </ModalWrapper>
   );
 }
 
 interface InputProps {
   categoryInput: string;
-  setCategoryInput: Dispatch<SetStateAction<string>>;
+  setCategoryInput: (value: string) => void;
   onEnter?: () => void;
   disabled?: boolean;
 }
@@ -269,8 +309,13 @@ interface ButtonSectionProps {
   mode: "CREATE" | "VIEW" | "EDIT";
   categoryStatus?: "ACTIVE" | "ENDED";
   isSubmitting?: boolean;
+  /** VIEW·CREATE 의 "닫기" — 모달을 닫는다 */
   onClose: () => void;
+  /** EDIT 의 "취소" — 수정을 그만두고 상세로 돌아간다 */
+  onCancel?: () => void;
   onEdit?: () => void;
+  /** 저장할 것이 있는가. 고친 데가 없으면 저장 버튼을 막는다 */
+  canSubmit?: boolean;
   onSubmit?: () => void;
   onEnd?: () => void;
   onRestore?: () => void;
@@ -280,7 +325,9 @@ const ButtonSection = ({
   categoryStatus,
   isSubmitting = false,
   onClose,
+  onCancel,
   onEdit,
+  canSubmit = true,
   onSubmit,
   onEnd,
   onRestore,
@@ -326,10 +373,14 @@ const ButtonSection = ({
   if (mode === "EDIT") {
     return (
       <div className="flex justify-between">
-        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+        <Button
+          variant="outline"
+          onClick={onCancel ?? onClose}
+          disabled={isSubmitting}
+        >
           취소
         </Button>
-        <Button onClick={onSubmit} disabled={isSubmitting}>
+        <Button onClick={onSubmit} disabled={isSubmitting || !canSubmit}>
           {isSubmitting ? "저장 중..." : "저장"}
         </Button>
       </div>
@@ -342,7 +393,7 @@ const ButtonSection = ({
       <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
         닫기
       </Button>
-      <Button onClick={onSubmit} disabled={isSubmitting}>
+      <Button onClick={onSubmit} disabled={isSubmitting || !canSubmit}>
         {isSubmitting ? "저장 중..." : "완료"}
       </Button>
     </div>
