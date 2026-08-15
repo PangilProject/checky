@@ -10,6 +10,7 @@ import { StartDateField } from "./components/StartDateField";
 import { EndDateField } from "./components/EndDateField";
 import { ButtonSection } from "./components/ButtonSection";
 import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
+import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
 
 export default function RoutineModal({
@@ -37,6 +38,8 @@ export default function RoutineModal({
       isRepeatChanged: state.isRepeatChanged,
     });
 
+  const titleInputRef = useAutoFocus<HTMLInputElement>(!state.isReadOnly);
+
   const { isGuardOpen, requestClose, confirmClose, cancelClose, cancelEdit } =
     useEditModalExit({
       isEditingFromDetail: mode === "VIEW" && state.currentMode === "EDIT",
@@ -57,6 +60,7 @@ export default function RoutineModal({
       <div className="mb-10 flex flex-col gap-8">
         {/* 루틴명 */}
         <TitleField
+          ref={titleInputRef}
           title={state.title}
           isReadOnly={state.isReadOnly || isSubmitting}
           setTitle={state.setTitle}

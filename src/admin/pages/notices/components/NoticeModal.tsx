@@ -17,6 +17,7 @@ import type { AdminNotice } from "../hooks/useAdminNotices";
 import { Button, Input, Stack, Text, TextArea } from "@/shared/ui/primitives";
 import { useDirtyForm } from "@/shared/hooks/useDirtyForm";
 import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
+import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
 
 const TITLE_MAX_LENGTH = 100;
@@ -66,6 +67,8 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const isReadOnly = currentMode === "VIEW";
+  const titleInputRef = useAutoFocus<HTMLInputElement>(!isReadOnly);
+
   const { isGuardOpen, requestClose, confirmClose, cancelClose, cancelEdit } =
     useEditModalExit({
       isEditingFromDetail: mode === "VIEW" && currentMode === "EDIT",
@@ -166,6 +169,7 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
             제목
           </Text>
           <Input
+            ref={titleInputRef}
             value={title}
             disabled={isReadOnly || isSubmitting}
             maxLength={TITLE_MAX_LENGTH}

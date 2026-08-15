@@ -19,6 +19,7 @@ import { useState } from "react";
 import { DateSelectModal } from "./DateSelectModal";
 import { getCategoryTextColor } from "@/shared/constants/colors";
 import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
+import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
 
 interface TaskModalProps {
@@ -83,6 +84,8 @@ export default function TaskModal({
     userId: user?.uid,
   });
 
+  const titleInputRef = useAutoFocus<HTMLInputElement>(!isReadOnly);
+
   const { isGuardOpen, requestClose, confirmClose, cancelClose, cancelEdit } =
     useEditModalExit({
       isEditingFromDetail: mode === "VIEW" && currentMode === "EDIT",
@@ -129,6 +132,7 @@ export default function TaskModal({
           </Stack>
         ) : (
           <TaskInput
+            ref={titleInputRef}
             value={taskInput}
             onChange={setTaskInput}
             onEnter={() => {

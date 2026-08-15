@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type Ref } from "react";
 import { Button, Input, Text } from "@/shared/ui/primitives";
 import { RxTriangleDown, RxTriangleUp } from "react-icons/rx";
 import { COLORS, getCategoryColor } from "@/shared/constants/colors";
@@ -18,6 +18,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useDirtyForm } from "@/shared/hooks/useDirtyForm";
 import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
+import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
 
 const CATEGORY_NAME_MAX_LENGTH = 20;
@@ -65,6 +66,8 @@ export default function CategoryModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isReadOnly = currentMode === "VIEW";
+  const nameInputRef = useAutoFocus<HTMLInputElement>(!isReadOnly);
+
   const { isGuardOpen, requestClose, confirmClose, cancelClose, cancelEdit } =
     useEditModalExit({
       isEditingFromDetail: mode === "VIEW" && currentMode === "EDIT",
@@ -151,6 +154,7 @@ export default function CategoryModal({
       <ModalTitle text={getModalModeTitle(currentMode, "카테고리")} />
 
       <CategoryNameInput
+        ref={nameInputRef}
         categoryInput={categoryInput}
         setCategoryInput={setCategoryInput}
         onEnter={() => {
@@ -207,6 +211,8 @@ interface InputProps {
   setCategoryInput: (value: string) => void;
   onEnter?: () => void;
   disabled?: boolean;
+  /** 편집을 시작할 때 커서를 넣기 위해 실제 입력창을 잡는다 */
+  ref?: Ref<HTMLInputElement>;
 }
 
 const CategoryNameInput = ({
@@ -214,9 +220,11 @@ const CategoryNameInput = ({
   setCategoryInput,
   onEnter,
   disabled,
+  ref,
 }: InputProps) => {
   return (
     <Input
+      ref={ref}
       placeholder="카테고리 입력"
       value={categoryInput}
       maxLength={CATEGORY_NAME_MAX_LENGTH}

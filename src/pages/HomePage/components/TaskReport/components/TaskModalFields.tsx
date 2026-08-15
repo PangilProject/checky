@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type Ref } from "react";
 import { Input, Stack, Text } from "@/shared/ui/primitives";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import { TimePicker } from "@/shared/ui/TimePicker";
@@ -11,14 +11,18 @@ export const TaskInput = ({
   onChange,
   onEnter,
   disabled,
+  ref,
 }: {
   value: string;
   onChange: (v: string) => void;
   onEnter?: () => void;
   disabled?: boolean;
+  /** 수정에 들어갈 때 커서를 넣기 위해 실제 입력창을 잡는다 */
+  ref?: Ref<HTMLInputElement>;
 }) => {
   return (
     <Input
+      ref={ref}
       placeholder="할 일을 입력하세요"
       value={value}
       maxLength={100}
