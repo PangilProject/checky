@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { updateCategoryOrder, type Category } from "@/shared/api/category";
+import {
+  applyCategoryOrderToCache,
+  invalidateCategoryQueries,
+  updateCategoryOrder,
+  type Category,
+} from "@/shared/api/category";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
 import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
 import { TitleText } from "@/shared/ui/TitleText";
@@ -53,6 +59,7 @@ export const CategorySection = ({
   const [categories, setCategories] = useState<Category[] | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const safeUserId = user?.uid ?? "";
+  const queryClient = useQueryClient();
   const { schedule: scheduleOrderCommit } = useDebouncedCommit();
 
   // 정본 카테고리 캐시에서 status 로 걸러 쓴다. ACTIVE/ENDED 두 섹션이
@@ -85,19 +92,32 @@ export const CategorySection = ({
   const saveCategoryOrder = (list: Category[]) => {
     if (!user) return;
 
+    const ordered = list.map((c, index) => ({ id: c.id, orderIndex: index }));
+
     // 연속 드래그를 마지막 상태 한 번으로 합쳐 저장한다. 화면은 로컬 상태로 이미 반영됐다.
     scheduleOrderCommit(`categories:${status}`, () =>
       updateCategoryOrder({
         userId: user.uid,
-        categories: list.map((c, index) => ({
-          id: c.id,
-          orderIndex: index,
-        })),
-      }).catch(() => {
-        // 저장 실패 시 화면 순서만 바뀐 채 어긋나는 것을 막는다
-        toast.error("순서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
-        void categoriesQuery.refetch();
-      }),
+        categories: ordered,
+      })
+        .then(() => {
+          // 화면은 로컬 상태로 맞아 보여도 캐시에는 옛 순서가 남는다. 캐시가
+          // 낡았다고 표시되지 않으므로 다시 마운트해도 서버를 읽지 않는다.
+          // 무엇을 저장했는지 아는 상황이라 다시 읽지 않고 캐시를 직접 고친다.
+          const applied = applyCategoryOrderToCache(
+            queryClient,
+            user.uid,
+            ordered,
+          );
+          // 정본 캐시가 사라진 뒤라면 고칠 대상이 없다. 다음 마운트에서
+          // 서버를 읽도록 낡음 표시만 남긴다.
+          if (!applied) void invalidateCategoryQueries(queryClient, user.uid);
+        })
+        .catch(() => {
+          // 저장 실패 시 화면 순서만 바뀐 채 어긋나는 것을 막는다
+          toast.error("순서 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+          void categoriesQuery.refetch();
+        }),
     );
   };
 

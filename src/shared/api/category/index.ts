@@ -12,3 +12,5 @@ export { getCategoriesOnce } from "./queries";
 export { updateCategoryOrder } from "./order";
 
 export { invalidateCategoryQueries } from "./invalidate";
+
+export { applyCategoryOrderToCache } from "./cache";
