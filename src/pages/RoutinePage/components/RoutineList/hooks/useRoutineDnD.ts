@@ -1,4 +1,3 @@
-import { arrayMove } from "@dnd-kit/sortable";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import {
@@ -7,11 +6,13 @@ import {
 } from "@/shared/api/routine";
 import { routinePageKeys } from "@/shared/api/keys";
 import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
-import type { DragEndEvent } from "@dnd-kit/core";
 import type { Routine, RoutineCategory } from "@/shared/api/routine";
 
 /**
- * 루틴 Drag & Drop 정렬을 처리하는 커스텀 훅
+ * 루틴 정렬의 낙관적 반영과 서버 저장을 처리하는 커스텀 훅.
+ *
+ * 어느 항목이 어디로 갔는지 계산하는 것은 SortableList 가 맡고,
+ * 여기서는 정해진 새 차례를 화면·캐시·서버에 반영하는 일만 한다.
  */
 
 export const useRoutineDnD = (
@@ -23,26 +24,7 @@ export const useRoutineDnD = (
   const queryClient = useQueryClient();
   const { schedule: scheduleOrderCommit } = useDebouncedCommit();
 
-  const handleDragEnd = (
-    event: DragEndEvent,
-    routines: Routine[],
-    categoryId: string,
-  ) => {
-    const { active, over } = event;
-
-    // 드롭 위치가 없거나, 동일한 위치로 이동한 경우 무시
-    if (!over || active.id === over.id) return;
-
-    // 드래그된 요소와 드롭 위치의 index 계산
-    const oldIndex = routines.findIndex((r) => r.id === active.id);
-    const newIndex = routines.findIndex((r) => r.id === over.id);
-
-    // 유효하지 않은 index 방어 처리
-    if (oldIndex < 0 || newIndex < 0) return;
-
-    // 새로운 순서로 배열 재정렬 (불변성 유지)
-    const newList = arrayMove<Routine>(routines, oldIndex, newIndex);
-
+  const handleReorder = (newList: Routine[], categoryId: string) => {
     // 1. Optimistic Update
     // → 서버 응답을 기다리지 않고 UI를 즉시 업데이트하여 UX 개선
     setRoutineCategories((prev) => {
@@ -95,5 +77,5 @@ export const useRoutineDnD = (
     );
   };
 
-  return { handleDragEnd };
+  return { handleReorder };
 };

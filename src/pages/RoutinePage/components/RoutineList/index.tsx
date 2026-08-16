@@ -24,7 +24,7 @@ export const RoutineList = () => {
 
   // hooks
   const { data, isError, refetch } = useRoutineData(userId, !!user);
-  const { handleDragEnd } = useRoutineDnD(userId, setRoutineCategories);
+  const { handleReorder } = useRoutineDnD(userId, setRoutineCategories);
   const modal = useRoutineModal();
 
   /**
@@ -72,7 +72,7 @@ export const RoutineList = () => {
           routines={routines}
           onAdd={() => modal.openCreate(category.id)}
           onSelect={modal.setSelectedRoutine}
-          onDragEnd={(e) => handleDragEnd(e, routines, category.id)}
+          onReorder={(nextRoutines) => handleReorder(nextRoutines, category.id)}
         />
       ))}
 

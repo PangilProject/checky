@@ -3,20 +3,7 @@ import TaskModal from "../modals/TaskModal";
 import type { Category } from "@/shared/api/category";
 import type { Task } from "@/shared/api/task";
 import type { TaskLog } from "@/shared/api/taskLog";
-import {
-  closestCenter,
-  DndContext,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { SortableList } from "@/shared/ui/SortableList";
 import { AddCategory } from "./AddCategory";
 import { AddTaskInput } from "./AddTaskInput";
 import { TaskItemsList } from "./TaskItemsList";
@@ -61,32 +48,11 @@ export const TaskCategorySection = ({
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 150,
-        tolerance: 5,
-      },
-    }),
-  );
-
   const filteredTasks = tasks
     .filter(
       (task) => task.categoryId === category.id && task.date === dateString,
     )
     .sort((a, b) => a.orderIndex - b.orderIndex);
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = filteredTasks.findIndex((task) => task.id === active.id);
-    const newIndex = filteredTasks.findIndex((task) => task.id === over.id);
-
-    const newList = arrayMove(filteredTasks, oldIndex, newIndex);
-
-    onReorder(category.id, newList);
-  };
 
   const handleOpenTaskModal = (task: Task) => {
     setSelectedTask(task);
@@ -107,25 +73,19 @@ export const TaskCategorySection = ({
         onClick={() => setIsAddOpen(true)}
       />
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        modifiers={[restrictToVerticalAxis]}
+      <SortableList
+        items={filteredTasks}
+        getId={(task) => task.id}
+        onReorder={(nextTasks) => onReorder(category.id, nextTasks)}
       >
-        <SortableContext
-          items={filteredTasks.map((task) => task.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <TaskItemsList
-            tasks={filteredTasks}
-            categoryColor={category.color}
-            taskLogMap={taskLogMap}
-            onToggle={onToggleTask}
-            onClickTask={handleOpenTaskModal}
-          />
-        </SortableContext>
-      </DndContext>
+        <TaskItemsList
+          tasks={filteredTasks}
+          categoryColor={category.color}
+          taskLogMap={taskLogMap}
+          onToggle={onToggleTask}
+          onClickTask={handleOpenTaskModal}
+        />
+      </SortableList>
 
       {isAddOpen && !isEnded && (
         <AddTaskInput

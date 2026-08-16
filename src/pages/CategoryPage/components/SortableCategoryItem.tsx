@@ -1,12 +1,11 @@
 import { Text } from "@/shared/ui/primitives";
+import { useSortableItem } from "@/shared/ui/useSortableItem";
 import type { Category } from "@/shared/api/category";
 import { getCategoryTextColor } from "@/shared/constants/colors";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { useState } from "react";
 import CategoryModal from "./CategoryModal";
 import { formatTimestampToKoreanDate } from "@/shared/utils/formatDate";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 
 interface SortableCategoryItemProps {
   category: Category;
@@ -15,29 +14,14 @@ interface SortableCategoryItemProps {
 export const SortableCategoryItem = ({
   category,
 }: SortableCategoryItemProps) => {
-  const {
-    setNodeRef,
-    attributes,
-    listeners,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: category.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  const { isDragging, dragHandleProps } = useSortableItem(category.id);
 
   // 저장된 hex 가 아니라 테마에 맞게 고른 색으로 그린다
   const color = getCategoryTextColor(category.color);
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
+      {...dragHandleProps}
       className={`
         w-full flex flex-col py-2
         cursor-grab 

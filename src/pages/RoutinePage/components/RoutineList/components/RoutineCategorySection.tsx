@@ -1,16 +1,4 @@
-import {
-  DndContext,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { SortableList } from "@/shared/ui/SortableList";
 import { Button, Stack, Text } from "@/shared/ui/primitives";
 import { getCategoryTextColor } from "@/shared/constants/colors";
 import { RoutineItem } from "./RoutineItem";
@@ -19,7 +7,7 @@ import type { Routine, RoutineCategory } from "@/shared/api/routine";
 type Props = {
   category: RoutineCategory["category"]; // or Category 타입
   routines: Routine[];
-  onDragEnd: (event: DragEndEvent) => void;
+  onReorder: (nextRoutines: Routine[]) => void;
   onAdd: () => void;
   onSelect: (routine: Routine) => void;
 };
@@ -31,27 +19,10 @@ type Props = {
 export const RoutineCategorySection = ({
   category,
   routines,
-  onDragEnd,
+  onReorder,
   onAdd,
   onSelect,
 }: Props) => {
-  /**
-   * dnd-kit 센서 설정
-   *
-   * - PointerSensor: 마우스/터치 기반 드래그 감지
-   * - delay: 150ms 이상 눌러야 드래그 시작 (오작동 방지)
-   * - tolerance: 약간의 움직임 허용
-   */
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 150,
-        tolerance: 5,
-      },
-    }),
-  );
-
   // 종료한 카테고리에는 새 루틴을 넣지 못한다.
   // 다만 이미 있는 루틴은 그대로 보여 줘야 고치거나 지울 수 있다.
   const isEnded = category.status !== "ACTIVE";
@@ -94,28 +65,21 @@ export const RoutineCategorySection = ({
       )}
 
       {/* Drag & Drop 영역 */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter} // 가장 가까운 요소 기준으로 drop 위치 계산
-        onDragEnd={onDragEnd} // 드래그 종료 시 순서 변경 처리
-        modifiers={[restrictToVerticalAxis]} // 세로 방향으로만 이동 제한
+      <SortableList
+        items={routines}
+        getId={(routine) => routine.id}
+        onReorder={onReorder}
       >
-        <SortableContext
-          items={routines.map((r) => r.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {/* 루틴 리스트 렌더링 */}
-          <Stack gap={2} direction="col">
-            {routines.map((routine) => (
-              <RoutineItem
-                key={routine.id}
-                routine={routine}
-                onClickMore={() => onSelect(routine)}
-              />
-            ))}
-          </Stack>
-        </SortableContext>
-      </DndContext>
+        <Stack gap={2} direction="col">
+          {routines.map((routine) => (
+            <RoutineItem
+              key={routine.id}
+              routine={routine}
+              onClickMore={() => onSelect(routine)}
+            />
+          ))}
+        </Stack>
+      </SortableList>
     </div>
   );
 };

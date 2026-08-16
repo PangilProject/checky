@@ -1,11 +1,10 @@
 import { Stack, Text } from "@/shared/ui/primitives";
+import { useSortableItem } from "@/shared/ui/useSortableItem";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { HiDotsHorizontal } from "react-icons/hi";
 import type { Task } from "@/shared/api/task";
 import type { TaskLog } from "@/shared/api/taskLog";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { getCategoryTextColor } from "@/shared/constants/colors";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -93,27 +92,12 @@ const SortableTaskItem = ({
   onToggle,
   onClickTask,
 }: SortableTaskItemProps) => {
-  const {
-    setNodeRef,
-    attributes,
-    listeners,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  const { isDragging, dragHandleProps } = useSortableItem(task.id);
   const elapsedDays = getElapsedDaysLabel(task.createdAt);
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
+      {...dragHandleProps}
       className={`
           py-1 flex justify-between cursor-grab 
           ${isDragging ? "bg-surface-raised shadow-[var(--shadow-drag)] scale-[1.02]" : ""}

@@ -15,20 +15,7 @@ import ImageEmpty from "@/assets/images/empty.png";
 import { SortableCategoryItem } from "./SortableCategoryItem";
 import CategoryModal from "./CategoryModal";
 import { CategoryListSkeleton } from "./CategoryListSkeleton";
-import type { DragEndEvent } from "@dnd-kit/core";
-import {
-  useSensor,
-  DndContext,
-  closestCenter,
-  useSensors,
-  PointerSensor,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from "@dnd-kit/sortable";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { SortableList } from "@/shared/ui/SortableList";
 import { toast } from "react-toastify";
 
 interface CategorySectionProps {
@@ -68,15 +55,6 @@ export const CategorySection = ({
     status,
     enabled: Boolean(user?.uid),
   });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 150, // 150ms 이상 눌러야 drag 시작
-        tolerance: 5, // 5px 움직여도 drag 유지
-      },
-    }),
-  );
 
   // 서버 데이터를 로컬 상태로 동기화 (드래그 정렬 낙관적 반영용)
   const [syncedData, setSyncedData] = useState<Category[] | undefined>(
@@ -121,16 +99,7 @@ export const CategorySection = ({
     );
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id || !categories) return;
-
-    const oldIndex = categories.findIndex((c) => c.id === active.id);
-    const newIndex = categories.findIndex((c) => c.id === over.id);
-    if (oldIndex < 0 || newIndex < 0) return;
-
-    const newList = arrayMove(categories, oldIndex, newIndex);
-
+  const handleReorder = (newList: Category[]) => {
     // setState 업데이터가 두 번 호출될 수 있으므로 저장은 밖에서 한 번만 수행
     setCategories(newList);
     saveCategoryOrder(newList);
@@ -191,21 +160,15 @@ export const CategorySection = ({
             )}
           </Stack>
         ) : (
-          <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-            sensors={sensors}
-            modifiers={[restrictToVerticalAxis]}
+          <SortableList
+            items={categories}
+            getId={(category) => category.id}
+            onReorder={handleReorder}
           >
-            <SortableContext
-              items={categories.map((c) => c.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              {categories.map((category) => (
-                <SortableCategoryItem key={category.id} category={category} />
-              ))}
-            </SortableContext>
-          </DndContext>
+            {categories.map((category) => (
+              <SortableCategoryItem key={category.id} category={category} />
+            ))}
+          </SortableList>
         )}
       </div>
     </div>
