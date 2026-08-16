@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { MonthlyActivitySummary } from "@/shared/api/monthlyStats";
-import { buildLegacyMonthlyActivityCountMap } from "./legacyMonthlyActivity";
+import { buildMonthlyActivityCountMap } from "@/shared/api/monthlyStats";
 import type {
   MonthlyActivityCount,
   MonthlyRoutine,
@@ -31,7 +31,7 @@ export const useMonthlyActivityCountMap = ({
   routines: MonthlyRoutine[];
   routineLogs: MonthlyRoutineLog[];
 }) => {
-  const map = useMemo(() => {
+  const map = useMemo<Map<string, MonthlyActivityCount>>(() => {
     // 1. 정식 monthlyStats가 있으면 이를 최우선으로 사용합니다.
     if (monthlyStatsDays) {
       return new Map<string, MonthlyActivityCount>(
@@ -53,8 +53,8 @@ export const useMonthlyActivityCountMap = ({
       );
     }
 
-    // 2. monthlyStats가 없는 구간은 레거시 계산기로 동일 결과를 보장합니다.
-    return buildLegacyMonthlyActivityCountMap({
+    // 2. monthlyStats가 없는 구간은 서버 재계산과 같은 집계기로 직접 셉니다.
+    return buildMonthlyActivityCountMap({
       date,
       tasks,
       taskLogs,

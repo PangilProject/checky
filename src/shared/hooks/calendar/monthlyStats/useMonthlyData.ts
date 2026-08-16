@@ -8,6 +8,7 @@ import {
   getRoutinesByMonthOnce,
 } from "@/shared/api/routine";
 import {
+  buildMonthlyActivityCountMap,
   getMonthlyStatsByMonthOnce,
   recalculateMonthlyStatsByMonth,
   upsertMonthlyStatsByMonth,
@@ -19,7 +20,6 @@ import {
   taskKeys,
   taskLogKeys,
 } from "@/shared/api/keys";
-import { buildLegacyMonthlyActivityCountMap } from "./legacyMonthlyActivity";
 import { convertToMonthlyStatsDays } from "./convertToMonthlyStatsDays";
 import type {
   MonthlyRoutine,
@@ -108,7 +108,7 @@ export const useMonthlyData = (date: Date) => {
       return;
     }
 
-    const fallbackMap = buildLegacyMonthlyActivityCountMap({
+    const fallbackMap = buildMonthlyActivityCountMap({
       date,
       tasks: tasksQuery.data ?? [],
       taskLogs: taskLogsQuery.data ?? [],
