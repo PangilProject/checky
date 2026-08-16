@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
+import { ModalActions } from "@/shared/ui/ModalActions";
 import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
 import type { ModalMode } from "@/shared/utils/getModalModeTitle";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
@@ -224,16 +225,16 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
         </Stack>
       </div>
 
-      {/* 버튼 */}
-      {currentMode === "VIEW" ? (
-        <div className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={requestClose}
-            disabled={isSubmitting}
-          >
-            닫기
-          </Button>
+      <ModalActions
+        isViewing={isReadOnly}
+        isSubmitting={isSubmitting}
+        onClose={requestClose}
+        onCancel={cancelEdit}
+        onEdit={() => setCurrentMode("EDIT")}
+        canSubmit={form.isDirty}
+        onSubmit={() => void handleSave()}
+      >
+        {isReadOnly && (
           <Button
             variant="outline"
             tone="danger"
@@ -242,30 +243,8 @@ export default function NoticeModal({ mode, notice, onClose }: Props) {
           >
             삭제
           </Button>
-          <Button
-            onClick={() => setCurrentMode("EDIT")}
-            disabled={isSubmitting}
-          >
-            수정
-          </Button>
-        </div>
-      ) : (
-        <div className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={cancelEdit}
-            disabled={isSubmitting}
-          >
-            취소
-          </Button>
-          <Button
-            onClick={() => void handleSave()}
-            disabled={isSubmitting || !form.isDirty}
-          >
-            {isSubmitting ? "저장 중..." : "저장"}
-          </Button>
-        </div>
-      )}
+        )}
+      </ModalActions>
 
       {isGuardOpen && (
         <UnsavedChangesConfirm

@@ -10,9 +10,9 @@ import {
 } from "../components/TaskModalFields";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
-import { ButtonSection } from "../components/TaskModalButtons";
+import { ModalActions } from "@/shared/ui/ModalActions";
 import { useTaskModalHandlers } from "../hooks/useTaskModalHandlers";
-import { Stack, Text } from "@/shared/ui/primitives";
+import { Button, Stack, Text } from "@/shared/ui/primitives";
 import { FaCheckCircle } from "react-icons/fa";
 import { LuCircleDashed } from "react-icons/lu";
 import { useState } from "react";
@@ -174,19 +174,38 @@ export default function TaskModal({
           )}
         </Stack>
 
-        <ButtonSection
-          mode={currentMode}
+        <ModalActions
+          isViewing={isReadOnly}
           isSubmitting={isSubmitting}
           onClose={requestClose}
           onCancel={cancelEdit}
           onEdit={() => setCurrentMode("EDIT")}
-          onMove={() => setIsMoveDateModalOpen(true)}
           canSubmit={isDirty}
           onSubmit={() => {
             void handleUpdateTask();
           }}
-          onDelete={() => void handleDeleteTask()}
-        />
+        >
+          {isReadOnly && (
+            <>
+              <Button
+                variant="outline"
+                tone="accent"
+                onClick={() => setIsMoveDateModalOpen(true)}
+                disabled={isSubmitting}
+              >
+                이동
+              </Button>
+              <Button
+                variant="outline"
+                tone="danger"
+                onClick={() => void handleDeleteTask()}
+                disabled={isSubmitting}
+              >
+                삭제
+              </Button>
+            </>
+          )}
+        </ModalActions>
       </Stack>
 
       {isGuardOpen && (

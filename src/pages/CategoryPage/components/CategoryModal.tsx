@@ -13,6 +13,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import type { Category } from "@/shared/api/category";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
+import { ModalActions } from "@/shared/ui/ModalActions";
 import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
 import type { ModalMode } from "@/shared/utils/getModalModeTitle";
 import { useQueryClient } from "@tanstack/react-query";
@@ -178,13 +179,13 @@ export default function CategoryModal({
         />
       </div>
 
-      <ButtonSection
-        mode={currentMode}
-        categoryStatus={category?.status}
+      {/* 종료·복구는 카테고리에만 있는 동작이라 가운데 자리에 직접 넣는다 */}
+      <ModalActions
+        isViewing={isReadOnly}
         isSubmitting={isSubmitting}
         onClose={requestClose}
         onCancel={cancelEdit}
-        onEdit={() => setCurrentMode("EDIT")}
+        onEdit={category?.status === "ENDED" ? undefined : () => setCurrentMode("EDIT")}
         canSubmit={form.isDirty}
         onSubmit={() => {
           if (currentMode === "CREATE") {
@@ -193,9 +194,29 @@ export default function CategoryModal({
           }
           void handleUpdateCategory();
         }}
-        onEnd={() => void handleEndCategory()}
-        onRestore={() => void handleRestoreCategory()}
-      />
+        // 작성 화면에는 되돌릴 편집 상태가 없어 "취소"가 아니라 "닫기"다
+        cancelText={currentMode === "CREATE" ? "닫기" : "취소"}
+        submitText={currentMode === "CREATE" ? "완료" : "저장"}
+      >
+        {isReadOnly &&
+          (category?.status === "ENDED" ? (
+            <Button
+              onClick={() => void handleRestoreCategory()}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "처리 중..." : "복구"}
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              tone="danger"
+              onClick={() => void handleEndCategory()}
+              disabled={isSubmitting}
+            >
+              종료
+            </Button>
+          ))}
+      </ModalActions>
 
       {isGuardOpen && (
         <UnsavedChangesConfirm
@@ -310,101 +331,6 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
           />
         ))}
       </div>
-    </div>
-  );
-};
-
-interface ButtonSectionProps {
-  mode: ModalMode;
-  categoryStatus?: "ACTIVE" | "ENDED";
-  isSubmitting?: boolean;
-  /** VIEW·CREATE 의 "닫기" — 모달을 닫는다 */
-  onClose: () => void;
-  /** EDIT 의 "취소" — 수정을 그만두고 상세로 돌아간다 */
-  onCancel?: () => void;
-  onEdit?: () => void;
-  /** 저장할 것이 있는가. 고친 데가 없으면 저장 버튼을 막는다 */
-  canSubmit?: boolean;
-  onSubmit?: () => void;
-  onEnd?: () => void;
-  onRestore?: () => void;
-}
-const ButtonSection = ({
-  mode,
-  categoryStatus,
-  isSubmitting = false,
-  onClose,
-  onCancel,
-  onEdit,
-  canSubmit = true,
-  onSubmit,
-  onEnd,
-  onRestore,
-}: ButtonSectionProps) => {
-  // VIEW 모드
-  if (mode === "VIEW") {
-    // ✅ 종료된 카테고리
-    if (categoryStatus === "ENDED") {
-      return (
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-            닫기
-          </Button>
-          <Button onClick={onRestore} disabled={isSubmitting}>
-            {isSubmitting ? "처리 중..." : "복구"}
-          </Button>
-        </div>
-      );
-    }
-
-    // ✅ 진행중 카테고리
-    return (
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-          닫기
-        </Button>
-        <Button
-          variant="outline"
-          tone="danger"
-          onClick={onEnd}
-          disabled={isSubmitting}
-        >
-          종료
-        </Button>
-        <Button onClick={onEdit} disabled={isSubmitting}>
-          수정
-        </Button>
-      </div>
-    );
-  }
-
-  // EDIT
-  if (mode === "EDIT") {
-    return (
-      <div className="flex justify-between">
-        <Button
-          variant="outline"
-          onClick={onCancel ?? onClose}
-          disabled={isSubmitting}
-        >
-          취소
-        </Button>
-        <Button onClick={onSubmit} disabled={isSubmitting || !canSubmit}>
-          {isSubmitting ? "저장 중..." : "저장"}
-        </Button>
-      </div>
-    );
-  }
-
-  // CREATE
-  return (
-    <div className="flex justify-between">
-      <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-        닫기
-      </Button>
-      <Button onClick={onSubmit} disabled={isSubmitting || !canSubmit}>
-        {isSubmitting ? "저장 중..." : "완료"}
-      </Button>
     </div>
   );
 };

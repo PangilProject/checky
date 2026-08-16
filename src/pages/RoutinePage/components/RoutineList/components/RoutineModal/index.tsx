@@ -1,3 +1,4 @@
+import { Button } from "@/shared/ui/primitives";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import type { RoutineModalProps } from "./types";
 import { useRoutineModalState } from "./hooks/useRoutineModalState";
@@ -8,7 +9,7 @@ import { TitleField } from "./components/TitleField";
 import { RepeatDaysField } from "./components/RepeatDaysField";
 import { StartDateField } from "./components/StartDateField";
 import { EndDateField } from "./components/EndDateField";
-import { ButtonSection } from "./components/ButtonSection";
+import { ModalActions } from "@/shared/ui/ModalActions";
 import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
@@ -104,16 +105,26 @@ export default function RoutineModal({
       </div>
 
       {/* 버튼 영역 */}
-      <ButtonSection
-        mode={state.currentMode}
+      <ModalActions
+        isViewing={state.isReadOnly}
         isSubmitting={isSubmitting}
         onClose={requestClose}
         onCancel={cancelEdit}
         onEdit={() => state.setCurrentMode("EDIT")}
         canSubmit={state.isDirty}
         onSubmit={onSubmit}
-        onDelete={() => void handleDelete()}
-      />
+      >
+        {state.isReadOnly && (
+          <Button
+            variant="outline"
+            tone="danger"
+            onClick={() => void handleDelete()}
+            disabled={isSubmitting}
+          >
+            삭제
+          </Button>
+        )}
+      </ModalActions>
 
       {isGuardOpen && (
         <UnsavedChangesConfirm
