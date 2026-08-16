@@ -1,6 +1,6 @@
 import { Stack, Text } from "@/shared/ui/primitives";
 import { NoticePinnedLabel } from "./NoticePinnedLabel";
-import { formatNoticeDate } from "./formatNoticeDate";
+import { formatDateDot } from "@/shared/utils/formatDate";
 import type { Notice } from "../hooks/useNotices";
 
 interface Props {
@@ -22,7 +22,7 @@ export default function NoticeDetail({ notice }: Props) {
       <Stack gap={2} direction="row" align="center">
         {notice.pinned && <NoticePinnedLabel />}
         <Text variant="caption" tone="muted">
-          {formatNoticeDate(notice.createdAt)}
+          {formatDateDot(notice.createdAt)}
         </Text>
       </Stack>
 

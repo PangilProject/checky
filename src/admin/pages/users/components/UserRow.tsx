@@ -1,5 +1,6 @@
 import type { AdminUser } from "../hooks/useAdminUsers";
 import UserStatusBadge from "./UserStatusBadge";
+import { formatDateDot } from "@/shared/utils/formatDate";
 
 interface Props {
   user: AdminUser;
@@ -7,21 +8,17 @@ interface Props {
   isActive: boolean;
 }
 
-function formatDate(date?: Date) {
-  if (!date) return "-";
-  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
-}
 
 function UserRow({ user, onClick, isActive }: Props) {
   return (
     <tr onClick={onClick} className="hover:bg-surface-hover cursor-pointer">
       <td className="px-4 py-2 whitespace-nowrap">{user.name ?? "-"}</td>
       <td className="px-4 py-2 whitespace-nowrap hidden sm:table-cell">{user.email ?? "-"}</td>
-      <td className="px-4 py-2 whitespace-nowrap">{formatDate(user.createdAt)}</td>
+      <td className="px-4 py-2 whitespace-nowrap">{formatDateDot(user.createdAt)}</td>
       <td className="px-4 py-2 whitespace-nowrap hidden sm:table-cell">
-        {formatDate(user.lastLoginAt)}
+        {formatDateDot(user.lastLoginAt)}
       </td>
-      <td className="px-4 py-2 whitespace-nowrap">{formatDate(user.lastActiveAt)}</td>
+      <td className="px-4 py-2 whitespace-nowrap">{formatDateDot(user.lastActiveAt)}</td>
       <td className="px-4 py-2 whitespace-nowrap">
         <UserStatusBadge isActive={isActive} />
       </td>

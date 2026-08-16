@@ -3,6 +3,8 @@ import { Button, Stack, Text } from "@/shared/ui/primitives";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import type { AdminUser } from "../hooks/useAdminUsers";
+// 목록은 폭이 좁아 날짜만 보여주고(UserRow), 상세 모달은 시각까지 보여준다.
+import { formatDateTimeDot } from "@/shared/utils/formatDate";
 
 import { FiUser, FiMail, FiHash, FiClock, FiActivity } from "react-icons/fi";
 
@@ -17,13 +19,6 @@ const ACTIVE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
    Utils
 ====================== */
 
-// 목록은 폭이 좁아 날짜만 보여주고(UserRow), 상세 모달은 시각까지 보여준다.
-function formatDateTime(date?: Date) {
-  if (!date) return "-";
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${hours}:${minutes}`;
-}
 
 /**
  * 달력일 기준 며칠 전인지 센다. 어제 밤 11시 접속을 오늘 아침에 보면
@@ -112,15 +107,15 @@ export default function UserDetailModal({ user, onClose }: Props) {
 
           <InfoRow
             icon={<FiClock />}
-            text={`가입일: ${formatDateTime(user.createdAt)}`}
+            text={`가입일: ${formatDateTimeDot(user.createdAt)}`}
           />
           <InfoRow
             icon={<FiClock />}
-            text={`마지막 로그인: ${formatDateTime(user.lastLoginAt)}`}
+            text={`마지막 로그인: ${formatDateTimeDot(user.lastLoginAt)}`}
           />
           <InfoRow
             icon={<FiClock />}
-            text={`마지막 접속: ${formatDateTime(user.lastActiveAt)}`}
+            text={`마지막 접속: ${formatDateTimeDot(user.lastActiveAt)}`}
           />
         </div>
 

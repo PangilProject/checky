@@ -108,6 +108,38 @@ export const formatHmLabel = (value: string) => {
 };
 
 /**
+ * Date -> "YYYY.M.D"
+ *
+ * 목록·표처럼 폭이 좁은 자리에 쓴다. 값이 없으면 빈칸 대신 "-" 를 둬서
+ * 칸이 비어 보이지 않게 한다.
+ *
+ * @example
+ * Date(2026-03-19) -> "2026.3.19"
+ * undefined -> "-"
+ */
+export const formatDateDot = (date?: Date) => {
+  if (!date) return "-";
+  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+};
+
+/**
+ * Date -> "YYYY.M.D HH:MM"
+ *
+ * 날짜만으로는 부족한 자리(관리자 상세 등)에 쓴다. formatDateDot 과 같은
+ * 날짜 표기를 쓰므로, 목록과 상세를 오갈 때 형식이 갈리지 않는다.
+ *
+ * @example
+ * Date(2026-03-19 09:05) -> "2026.3.19 09:05"
+ * undefined -> "-"
+ */
+export const formatDateTimeDot = (date?: Date) => {
+  if (!date) return "-";
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${formatDateDot(date)} ${hours}:${minutes}`;
+};
+
+/**
  * Timestamp 또는 Date -> ko-KR 날짜 문자열
  *
  * mapDoc 을 거친 문서는 Date 로, 거치지 않은 원본은 Timestamp 로 올 수 있어
