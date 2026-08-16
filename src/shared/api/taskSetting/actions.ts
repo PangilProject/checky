@@ -98,52 +98,6 @@ const patchDayStats = async ({
 };
 
 /**
- * 끝내지 못한 할 일을 오늘로 가져온다.
- *
- * 완료한 것은 그대로 두고 남은 것만 옮긴다.
- * 옮기면 두 날짜의 집계가 함께 바뀌므로 월간 요약도 이어서 조정한다.
- */
-export const moveUncompletedTasksToToday = async ({
-  userId,
-  fromDate,
-  toDate,
-}: MoveTasksParams) => {
-  const { tasks, completedTaskIds } = await fetchTasksAndCompleted({
-    userId,
-    date: fromDate,
-  });
-
-  const targets = getUncompletedTasks(tasks, completedTaskIds);
-
-  // 같은 날짜로 옮기는 것은 아무 뜻이 없다. 쓰기도 하지 않는다.
-  // 순서 값을 다시 매기는 쪽이 원본과 대상을 같은 날짜로 보게 되어 값만 밀린다.
-  if (targets.length === 0 || fromDate === toDate) return 0;
-
-  await updateTasksDate({ userId, tasks: targets, toDate });
-
-  const movedCount = targets.length;
-
-  await Promise.all([
-    patchDayStats({
-      userId,
-      date: fromDate,
-      totalDelta: -movedCount,
-      completedDelta: 0,
-      remainingDelta: -movedCount,
-    }),
-    patchDayStats({
-      userId,
-      date: toDate,
-      totalDelta: movedCount,
-      completedDelta: 0,
-      remainingDelta: movedCount,
-    }),
-  ]);
-
-  return movedCount;
-};
-
-/**
  * 끝내지 못한 할 일을 고른 날짜로 옮긴다.
  *
  * 옮기면 두 날짜의 집계가 함께 바뀌므로 월간 요약도 이어서 조정한다.

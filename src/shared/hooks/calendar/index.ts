@@ -1,4 +1,4 @@
-export { getMonthInfo, useCalendar } from "./useCalendar";
+export { useCalendar } from "./useCalendar";
 export { useMonthlyData } from "./monthlyStats/useMonthlyData";
 export type { MonthlyData } from "./monthlyStats/useMonthlyData";
 export { useMonthlyActivityCountMap } from "./monthlyStats/useMonthlyActivityCountMap";
@@ -8,5 +8,4 @@ export type {
   MonthlyTaskLog,
   MonthlyRoutine,
   MonthlyRoutineLog,
-  MonthlyActivityCount,
 } from "./types";

@@ -3,7 +3,7 @@ import { useMemo } from "react";
 /**
  * 월 달력 메타 정보를 계산합니다. (연/월/일수/시작 요일)
  */
-export const getMonthInfo = (date: Date) => {
+const getMonthInfo = (date: Date) => {
   const year = date.getFullYear();
   const month = date.getMonth(); // 0-based
 

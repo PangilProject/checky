@@ -10,6 +10,7 @@
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
 | `mapDoc` | Firestore 문서를 도메인 타입으로 바꾼다. | `mappers.ts` |
+| `updateOrderBatch` | 정렬 순서를 한 번에 저장한다. | `order.ts` |
 | `userCollection` | users/{uid} 아래 컬렉션을 가리키는 경로를 만든다. | `refs.ts` |
 | `userDoc` | users/{uid} 아래 문서 하나를 가리키는 경로를 만든다. | `refs.ts` |
 
@@ -21,21 +22,20 @@
 | --- | --- | --- |
 | `AccountDeletionIncompleteError` | 계정 삭제가 데이터 삭제까지는 성공했지만 Auth 계정 삭제에서 실패한 경우. | `auth.ts` |
 | `clearAdminCache` | 권한 조회 캐시를 비운다. | `adminAccess.ts` |
-| `createUser` | 최초 로그인한 사용자의 프로필 문서를 만든다. Google 계정에서 받은 값을 그대로 담는다. | `user.ts` |
 | `deleteAccount` | 계정과 데이터를 모두 지운다. | `auth.ts` |
 | `deleteAllUserData` | 사용자에게 딸린 Firestore 데이터를 전부 지운다. | `userCleanup.ts` |
 | `deleteUserDoc` | 사용자 프로필 문서를 지운다. 하위 데이터는 따로 지워야 한다. | `user.ts` |
+| `ensureUserProfile` | 프로필 문서가 있는지 확인하고, 없으면 만든다. | `user.ts` |
 | `getUserAccessInfoCached` | 사용자 문서를 한 번만 읽어 권한과 접속 기록을 함께 돌려준다. | `adminAccess.ts` |
-| `getUserDoc` | 사용자 문서를 읽는다. 최초 로그인인지 판단할 때 쓴다. | `user.ts` |
 | `signInWithGoogle` | Google 계정으로 로그인하고 사용자 문서를 맞춘다. | `auth.ts` |
 | `updateLastActive` | 마지막 접속 시각을 기록한다. | `user.ts` |
 | `updateLastLogin` | 구글 인증을 다시 거쳤을 때 마지막 로그인 시각을 갱신한다. | `user.ts` |
-| `UserAccessInfo` | 사용자 문서에서 뽑아낸 관리자 여부와 마지막 접속 시각 | `adminAccess.ts` |
 
 ## category — 분류
 
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
+| `applyCategoryOrderToCache` | 카테고리 순서를 캐시에 반영한다. | `cache.ts` |
 | `Category` | 할 일과 루틴을 묶는 분류. 이름과 색을 가지며 사용자가 순서를 정한다. | `types.ts` |
 | `CategoryStatus` | 분류가 쓰이는 중인지, 사용자가 끝낸 것인지 | `types.ts` |
 | `createCategory` | 분류를 만들어 목록 맨 뒤에 붙인다. | `crud.ts` |
@@ -50,17 +50,22 @@
 
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
-| `buildMonthKeysBetween` | 두 날짜가 걸쳐 있는 달의 키 목록을 만든다. | `monthKeys.ts` |
+| `buildMonthlyActivityCountMap` | 한 달치 기록을 날짜별 개수로 센다. 반환값은 `YYYY-MM-DD` -> DayCount 다. | `countMonth.ts` |
 | `collectAffectedMonths` | 바뀐 날짜들이 걸쳐 있는 달을 모은다. | `helpers/collectAffectedMonths.ts` |
+| `DayCount` | 세는 도중 쓰는 하루치 칸. 합산값과 함께 task/routine 몫을 따로 든다. | `countMonth.ts` |
 | `getMonthlyStatsByMonthOnce` | 한 달치 집계 문서를 읽는다. | `queries.ts` |
 | `getMonthlyStatsMonthsOnce` | 집계 문서가 이미 만들어져 있는 달의 목록을 읽는다. | `queries.ts` |
 | `MonthlyActivitySummary` | 하루치 요약. 그날 할 일과 루틴을 합쳐 전체·완료·남은 개수를 센다. | `types.ts` |
+| `MonthlyRoutine` | — | `countMonth.ts` |
+| `MonthlyRoutineLog` | — | `countMonth.ts` |
 | `MonthlyStats` | 한 달치 요약을 담는 문서. | `types.ts` |
+| `MonthlyTask` | — | `countMonth.ts` |
+| `MonthlyTaskLog` | — | `countMonth.ts` |
 | `patchMonthlyStatsByDayDeltas` | 하루의 집계를 증감값만큼 조정한다. 할 일 경로 전용이다. | `queries.ts` |
 | `patchMonthlyStatsCompletionByDay` | 하루의 완료 수만 고친다. | `queries.ts` |
+| `patchMonthlyStatsDayCache` | 완료 개수가 바뀐 것을 월간 집계 캐시에 먼저 반영한다. | `cache.ts` |
 | `recalculateMonthlyStatsByMonth` | 원본 기록에서 한 달치 집계를 다시 계산해 덮어쓴다. | `recalculate.ts` |
 | `refreshCalendarConsistency` | 달력과 리포트가 실제 기록과 어긋나지 않게 맞춘다. | `helpers/refreshCalendarConsistency.ts` |
-| `replaceMonthlyStatsByMonth` | 한 달치를 통째로 바꾼다. | `queries.ts` |
 | `upsertMonthlyStatsByMonth` | 넘긴 날짜만 덮어쓰고 나머지 날짜는 그대로 둔다. | `queries.ts` |
 
 ## notice — 공지 (사용자별이 아닌 최상위 컬렉션)
@@ -78,6 +83,7 @@
 
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
+| `applyRoutineOrderToReportCache` | 홈의 주간 루틴 표를 새 루틴 순서로 맞춘다. | `cache.ts` |
 | `createRoutine` | 루틴을 만든다. | `crud.ts` |
 | `deleteRoutine` | 루틴과 그 수행 기록(routineLogs)을 함께 지운다. | `crud.ts` |
 | `getRoutineLogsByMonthOnce` | 그달의 루틴 수행 기록을 읽는다. | `queries.ts` |
@@ -88,7 +94,6 @@
 | `RoutineCategory` | 한 분류와 그 분류에 속한 루틴들. 루틴 화면이 분류별로 묶어 보여줄 때 쓴다. | `types.ts` |
 | `RoutineReport` | 주간 리포트 전체. 한 주 정보와 루틴별 줄 목록으로 이루어진다. | `types.ts` |
 | `RoutineReportRow` | 리포트의 루틴 한 줄. checks 는 날짜별 수행 여부다. | `types.ts` |
-| `RoutineReportWeek` | 리포트가 다루는 한 주. 시작·끝 날짜와 요일 일곱 칸을 담는다. | `types.ts` |
 | `RoutineScheduleHistoryItem` | 반복 요일을 바꾼 이력 한 건. effectiveFrom 부터 days 가 적용된다. | `types.ts` |
 | `updateRoutine` | 루틴을 고친다. | `crud.ts` |
 | `updateRoutineOrder` | 루틴 정렬 순서를 한 번에 저장한다. | `order.ts` |
@@ -126,13 +131,10 @@
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
 | `copyAllTasksToDate` | 하루치 할 일을 다른 날짜로 복사한다. | `actions.ts` |
-| `DateOnlyParams` | 하루를 통째로 다루는 동작에 넘기는 값 | `types.ts` |
 | `deleteAllTasksByDate` | 하루치 할 일을 완료 기록과 함께 모두 지운다. | `actions.ts` |
 | `deleteUncompletedTasks` | 끝내지 못한 할 일을 그 완료 기록과 함께 지운다. | `actions.ts` |
-| `MoveTasksParams` | 어느 날짜에서 어느 날짜로 옮길지 | `types.ts` |
 | `moveUncompletedTasksToDate` | 끝내지 못한 할 일을 고른 날짜로 옮긴다. | `actions.ts` |
-| `moveUncompletedTasksToToday` | 끝내지 못한 할 일을 오늘로 가져온다. | `actions.ts` |
 
 ---
 
-공개 항목 76개.
+공개 항목 78개.

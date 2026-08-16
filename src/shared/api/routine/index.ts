@@ -4,7 +4,6 @@ export type {
   RoutineScheduleHistoryItem,
   RoutineReport,
   RoutineReportRow,
-  RoutineReportWeek,
 } from "./types";
 
 export { createRoutine, updateRoutine, deleteRoutine } from "./crud";
