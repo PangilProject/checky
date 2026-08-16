@@ -1,9 +1,8 @@
 import type { Routine } from "@/shared/api/routine";
-
-export type RoutineModalMode = "CREATE" | "VIEW" | "EDIT";
+import type { ModalMode } from "@/shared/utils/getModalModeTitle";
 
 export interface RoutineModalProps {
-  mode?: RoutineModalMode;
+  mode?: ModalMode;
   routine?: Routine;
   categoryId: string;
   onClose: () => void;

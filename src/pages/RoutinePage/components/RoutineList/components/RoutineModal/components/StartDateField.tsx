@@ -1,10 +1,10 @@
 import { Text } from "@/shared/ui/primitives";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import type { Routine } from "@/shared/api/routine";
-import type { RoutineModalMode } from "../types";
+import type { ModalMode } from "@/shared/utils/getModalModeTitle";
 
 interface StartDateFieldProps {
-  mode: RoutineModalMode;
+  mode: ModalMode;
   routine?: Routine;
   startDate: string;
   setStartDate: (date: string) => void;

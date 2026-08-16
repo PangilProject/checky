@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
+import type { ModalMode } from "@/shared/utils/getModalModeTitle";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -38,7 +39,7 @@ const toComparableNoticeValues = (values: {
 });
 
 interface Props {
-  mode: "CREATE" | "VIEW" | "EDIT";
+  mode: ModalMode;
   notice?: AdminNotice;
   onClose: () => void;
 }

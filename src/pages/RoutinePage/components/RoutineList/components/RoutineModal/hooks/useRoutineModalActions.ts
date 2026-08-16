@@ -16,7 +16,7 @@ import {
 } from "@/shared/api/monthlyStats";
 import { getTodayYmd } from "@/shared/utils/formatDate";
 import { buildNextScheduleHistory } from "../utils";
-import type { RoutineModalMode } from "../types";
+import type { ModalMode } from "@/shared/utils/getModalModeTitle";
 
 /**
  * 루틴이 걸쳐 있는 기간. endMonth 가 null 이면 끝나지 않는 루틴이다.
@@ -120,7 +120,7 @@ export const useRoutineModalActions = ({
     endDate,
     isRepeatChanged,
   }: {
-    mode: RoutineModalMode;
+    mode: ModalMode;
     title: string;
     selectedDays: number[];
     startDate: string;

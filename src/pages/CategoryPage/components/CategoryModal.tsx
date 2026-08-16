@@ -14,6 +14,7 @@ import type { Category } from "@/shared/api/category";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { getModalModeTitle } from "@/shared/utils/getModalModeTitle";
+import type { ModalMode } from "@/shared/utils/getModalModeTitle";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useDirtyForm } from "@/shared/hooks/useDirtyForm";
@@ -36,7 +37,7 @@ const toComparableCategoryValues = (values: {
 });
 
 interface CategoryModalProps {
-  mode: "CREATE" | "VIEW" | "EDIT";
+  mode: ModalMode;
   category?: Category; // VIEW / EDIT 시 필요
   onClose: () => void;
 }
@@ -314,7 +315,7 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
 };
 
 interface ButtonSectionProps {
-  mode: "CREATE" | "VIEW" | "EDIT";
+  mode: ModalMode;
   categoryStatus?: "ACTIVE" | "ENDED";
   isSubmitting?: boolean;
   /** VIEW·CREATE 의 "닫기" — 모달을 닫는다 */

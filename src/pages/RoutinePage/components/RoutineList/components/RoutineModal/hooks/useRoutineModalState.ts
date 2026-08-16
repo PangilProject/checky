@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Routine } from "@/shared/api/routine";
-import type { RoutineModalMode } from "../types";
+import type { ModalMode } from "@/shared/utils/getModalModeTitle";
 import { getTodayYmd } from "@/shared/utils/formatDate";
 import { hasSameDays } from "../utils";
 import { DAYS } from "@/shared/constants/dateLabels";
@@ -36,7 +36,7 @@ export const useRoutineModalState = ({
   mode,
   routine,
 }: {
-  mode: RoutineModalMode;
+  mode: ModalMode;
   routine?: Routine;
 }) => {
   const form = useDirtyForm<RoutineFormValues>(
@@ -60,7 +60,7 @@ export const useRoutineModalState = ({
     endDateEnabled,
     endDate,
   } = form.values;
-  const [currentMode, setCurrentMode] = useState<RoutineModalMode>(mode);
+  const [currentMode, setCurrentMode] = useState<ModalMode>(mode);
 
   const setTitle = (value: string) => form.patch({ title: value });
   const setStartDate = (value: string) => form.patch({ startDate: value });

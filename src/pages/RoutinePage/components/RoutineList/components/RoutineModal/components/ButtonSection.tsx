@@ -1,8 +1,8 @@
 import { Button } from "@/shared/ui/primitives";
-import type { RoutineModalMode } from "../types";
+import type { ModalMode } from "@/shared/utils/getModalModeTitle";
 
 interface ButtonSectionProps {
-  mode: RoutineModalMode;
+  mode: ModalMode;
   isSubmitting?: boolean;
   /** VIEW 의 "닫기" — 모달을 닫는다 */
   onClose: () => void;
