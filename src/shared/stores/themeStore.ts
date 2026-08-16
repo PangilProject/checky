@@ -11,7 +11,7 @@ import { create } from "zustand";
 /** 사용자가 고른 값. system 은 "OS 를 따라가겠다"는 선택이며 그 자체로 저장된다. */
 export type ThemeMode = "light" | "dark" | "system";
 /** 실제로 화면에 그려지는 결과 */
-export type ResolvedTheme = "light" | "dark";
+type ResolvedTheme = "light" | "dark";
 
 /** 첫 페인트 전에 테마를 적용하는 index.html 의 인라인 스크립트와 공유하는 키 */
 const THEME_STORAGE_KEY = "checky:theme";

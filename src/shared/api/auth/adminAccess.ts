@@ -6,7 +6,7 @@ import { doc, getDoc } from "firebase/firestore/lite";
  */
 
 /** 사용자 문서에서 뽑아낸 관리자 여부와 마지막 접속 시각 */
-export interface UserAccessInfo {
+interface UserAccessInfo {
   isAdmin: boolean;
   lastActiveAt: Date | null;
   /** 프로필 문서가 실제로 있는지 */

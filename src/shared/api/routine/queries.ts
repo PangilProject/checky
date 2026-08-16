@@ -6,7 +6,7 @@ import { routinesRef } from "./refs";
 import { routineLogsRef } from "@/shared/api/routineLog/refs";
 import type { Routine, RoutineScheduleHistoryItem } from "./types";
 
-export type RoutineMonthly = {
+type RoutineMonthly = {
   id: string;
   startDate: string;
   endDate?: string;
@@ -18,7 +18,7 @@ export type RoutineMonthly = {
    */
   updatedAt?: string | null;
 };
-export type RoutineLogMonthly = { routineId: string; date: string; done: boolean };
+type RoutineLogMonthly = { routineId: string; date: string; done: boolean };
 
 /**
  * 사용자의 루틴을 모두 읽는다. 루틴 화면이 분류별로 묶어 그릴 때 쓴다.

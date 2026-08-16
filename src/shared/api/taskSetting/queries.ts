@@ -14,7 +14,7 @@ import { taskLogsRef } from "@/shared/api/taskLog/refs";
  * 그래서 중복을 없애고 `@/shared/api/task` 의 것 하나만 쓴다.
  */
 
-export type TaskLogRecord = {
+type TaskLogRecord = {
   id: string;
   taskId: string;
   completed: boolean;
