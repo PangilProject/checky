@@ -1,4 +1,5 @@
-import { Stack, Text } from "@/shared/ui/primitives";
+import { Stack } from "@/shared/ui/primitives";
+import { AdminPageShell } from "@/admin/layout/AdminPageShell";
 import { useAdminStats } from "./hooks/useAdminStats";
 import DashboardGrid from "./components/DashboardGrid";
 import UserSignupChart from "./components/UserSignupChart";
@@ -8,25 +9,14 @@ import SectionTitle from "./components/SectionTitle";
 function AdminDashboardPage() {
   const { stats, loading, isError } = useAdminStats();
 
-  if (loading) {
-    return <div>로딩 중...</div>;
-  }
-
-  if (isError) {
-    return (
-      <div className="space-y-4">
-        <Text variant="heading">관리자 대시보드</Text>
-        <p className="text-sm text-content-muted">
-          통계를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6 pb-10">
-      <Text variant="heading">관리자 대시보드</Text>
-
+    <AdminPageShell
+      title="관리자 대시보드"
+      className="space-y-6 pb-10"
+      loading={loading}
+      isError={isError}
+      errorText="통계를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요."
+    >
       <DashboardGrid stats={stats} />
 
       {/* 차트 섹션 */}
@@ -54,7 +44,7 @@ function AdminDashboardPage() {
           <ActiveUserChart data={stats.activeByDate} />
         </div>
       </Stack>
-    </div>
+    </AdminPageShell>
   );
 }
 
