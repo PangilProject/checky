@@ -1,19 +1,10 @@
-import { useRef } from "react";
 import type { QueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
-import {
-  monthlyStatsKeys,
-  routineLogKeys,
-  routineReportKeys,
-} from "@/shared/api/keys";
+import { routineLogKeys, routineReportKeys } from "@/shared/api/keys";
 import type { RoutineReport, RoutineReportRow } from "@/shared/api/routine";
 import { toggleRoutineLog } from "@/shared/api/routineLog";
-import {
-  collectAffectedMonths,
-  patchMonthlyStatsCompletionByDay,
-  recalculateMonthlyStatsByMonth,
-  type MonthlyStats,
-} from "@/shared/api/monthlyStats";
+import { useCompletionToggle } from "@/shared/hooks/useCompletionToggle";
+
+type RoutineLogCacheEntry = { routineId: string; date: string; done: boolean };
 
 interface UseRoutineToggleParams {
   userId?: string;
@@ -25,7 +16,10 @@ interface UseRoutineToggleParams {
 }
 
 /**
- * 루틴 체크 토글 시 낙관적 캐시 업데이트와 서버 반영을 처리합니다.
+ * 루틴 체크 토글.
+ *
+ * 연타 방지·낙관 갱신·집계 반영·실패 롤백은 useCompletionToggle 이 맡는다.
+ * 여기서는 루틴만 쓰는 캐시 두 벌(주간 리포트, 월별 루틴 로그)을 고치고 되돌리는 법만 정한다.
  */
 export function useRoutineToggle({
   userId,
@@ -35,172 +29,71 @@ export function useRoutineToggle({
   const routineReportKey = routineReportKeys.byWeek(
     userId ?? "",
     week.startDate,
-    week.endDate
+    week.endDate,
   );
-  // 처리가 진행 중인 (루틴, 날짜) 칸. 같은 칸의 연타를 막는다.
-  const togglingKeysRef = useRef(new Set<string>());
+
+  const run = useCompletionToggle({
+    kind: "routine",
+    failMessage: "루틴 완료 상태를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+  });
 
   return async (routineId: string, date: string, current: boolean) => {
     if (!userId) return;
 
-    // 호출부가 넘기는 current 는 렌더 시점 값이라, 다시 그려지기 전에 또 누르면
-    // 같은 기준으로 판단해 완료 증감이 같은 방향으로 두 번 나간다.
-    const togglingKey = `${routineId}_${date}`;
-    if (togglingKeysRef.current.has(togglingKey)) return;
-    togglingKeysRef.current.add(togglingKey);
-
-    try {
-      await runToggle(routineId, date, current, userId);
-    } finally {
-      togglingKeysRef.current.delete(togglingKey);
-    }
-  };
-
-  async function runToggle(
-    routineId: string,
-    date: string,
-    current: boolean,
-    userId: string
-  ) {
-    const monthKey = date.slice(0, 7);
-    const dayKey = date.slice(8, 10);
     const done = !current;
-    const completedDelta = done ? 1 : -1;
+    const routineLogKey = routineLogKeys.byMonth(userId, date.slice(0, 7));
 
-    // 루틴 주간 리포트 체크 상태를 먼저 갱신합니다.
-    const prevReport = queryClient.getQueryData<RoutineReport>(routineReportKey);
-    const prevLogs = queryClient.getQueryData<{ routineId: string; date: string; done: boolean }[]>(
-      routineLogKeys.byMonth(userId, monthKey),
-    );
-    const prevMonthly = queryClient.getQueryData<MonthlyStats | null>(
-      monthlyStatsKeys.byMonth(userId, monthKey),
-    );
+    await run({
+      userId,
+      guardKey: `${routineId}_${date}`,
+      date,
+      completedDelta: done ? 1 : -1,
+      applyOptimistic: () => {
+        const prevReport =
+          queryClient.getQueryData<RoutineReport>(routineReportKey);
+        const prevLogs =
+          queryClient.getQueryData<RoutineLogCacheEntry[]>(routineLogKey);
 
-    queryClient.setQueryData<RoutineReport>(routineReportKey, (prev) => {
-      if (!prev) return prev;
+        // 주간 리포트의 체크 상태
+        queryClient.setQueryData<RoutineReport>(routineReportKey, (prev) => {
+          if (!prev) return prev;
 
-      return {
-        ...prev,
-        rows: prev.rows.map((row: RoutineReportRow) =>
-          row.routineId !== routineId
-            ? row
-            : {
-                ...row,
-                checks: {
-                  ...row.checks,
-                  [date]: done,
-                },
-              }
-        ),
-      };
-    });
-
-    // 월별 루틴 로그 캐시를 동기화합니다.
-    queryClient.setQueryData(
-      routineLogKeys.byMonth(userId, monthKey),
-      (prev: { routineId: string; date: string; done: boolean }[] | undefined) => {
-        if (!prev) return prev;
-
-        const index = prev.findIndex(
-          (log) => log.routineId === routineId && log.date === date
-        );
-
-        if (index === -1) {
-          if (!done) return prev;
-          return [...prev, { routineId, date, done }];
-        }
-
-        const next = [...prev];
-        next[index] = { ...next[index], done };
-        return next;
-      }
-    );
-
-    // 월간 통계 캐시의 완료/남은 개수를 동기화합니다.
-    queryClient.setQueryData<MonthlyStats | null>(
-      monthlyStatsKeys.byMonth(userId, monthKey),
-      (prev) => {
-        if (!prev) return prev;
-
-        const currentDay = prev.days?.[dayKey];
-        if (!currentDay) {
           return {
             ...prev,
-            days: {
-              ...prev.days,
-              [dayKey]: {
-                total: 0,
-                completed: Math.max(completedDelta, 0),
-                remaining: 0,
-                hasActivity: false,
-              },
-            },
+            rows: prev.rows.map((row: RoutineReportRow) =>
+              row.routineId !== routineId
+                ? row
+                : { ...row, checks: { ...row.checks, [date]: done } },
+            ),
           };
-        }
+        });
 
-        const completed = Math.max(
-          (currentDay.completed ?? 0) + completedDelta,
-          0
-        );
-        const total = Math.max(currentDay.total ?? 0, 0);
-        const remaining = Math.max(total - completed, 0);
+        // 월별 루틴 로그 캐시
+        queryClient.setQueryData<RoutineLogCacheEntry[]>(
+          routineLogKey,
+          (prev) => {
+            if (!prev) return prev;
 
-        return {
-          ...prev,
-          days: {
-            ...prev.days,
-            [dayKey]: {
-              ...currentDay,
-              completed,
-              remaining,
-              hasActivity: total > 0,
-            },
+            const index = prev.findIndex(
+              (log) => log.routineId === routineId && log.date === date,
+            );
+            if (index === -1) {
+              if (!done) return prev;
+              return [...prev, { routineId, date, done }];
+            }
+
+            const next = [...prev];
+            next[index] = { ...next[index], done };
+            return next;
           },
+        );
+
+        return () => {
+          queryClient.setQueryData(routineReportKey, prevReport);
+          queryClient.setQueryData(routineLogKey, prevLogs);
         };
-      }
-    );
-
-    // 실제 서버 데이터도 반영합니다.
-    try {
-      await toggleRoutineLog({ userId, routineId, date, done });
-      const patchResult = await patchMonthlyStatsCompletionByDay({
-        userId,
-        month: monthKey,
-        day: dayKey,
-        completedDelta,
-        kind: "routine",
-      });
-
-      // 문서는 있는데 그날 칸이 없으면 집계가 실제와 어긋난 상태다.
-      // 지나치면 이 완료가 달력에서 영영 빠지므로 그 달의 루틴 몫을 다시 센다.
-      if (patchResult === "missing-day") {
-        await recalculateMonthlyStatsByMonth({
-          userId,
-          month: monthKey,
-          scope: "routine",
-        });
-        await queryClient.invalidateQueries({
-          queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
-        });
-      }
-    } catch {
-      queryClient.setQueryData(routineReportKey, prevReport);
-      queryClient.setQueryData(routineLogKeys.byMonth(userId, monthKey), prevLogs);
-      queryClient.setQueryData(monthlyStatsKeys.byMonth(userId, monthKey), prevMonthly);
-      const affectedMonths = collectAffectedMonths({ dates: [date] });
-      await Promise.all(
-        affectedMonths.map((month) =>
-          recalculateMonthlyStatsByMonth({
-            userId,
-            month,
-            scope: "routine",
-          }),
-        ),
-      );
-      await queryClient.invalidateQueries({
-        queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
-      });
-      toast.error("루틴 완료 상태를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.");
-    }
-  }
+      },
+      commit: () => toggleRoutineLog({ userId, routineId, date, done }),
+    });
+  };
 }

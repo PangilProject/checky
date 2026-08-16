@@ -20,4 +20,5 @@ export type {
 } from "./countMonth";
 export { buildMonthKeysBetween } from "./monthKeys";
 export { collectAffectedMonths } from "./helpers/collectAffectedMonths";
+export { patchMonthlyStatsDayCache } from "./cache";
 export { refreshCalendarConsistency } from "./helpers/refreshCalendarConsistency";

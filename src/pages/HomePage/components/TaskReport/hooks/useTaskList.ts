@@ -15,10 +15,7 @@ import {
   type TaskLog,
 } from "@/shared/api/taskLog";
 import {
-  collectAffectedMonths,
-  patchMonthlyStatsCompletionByDay,
   patchMonthlyStatsByDayDeltas,
-  recalculateMonthlyStatsByMonth,
   type MonthlyStats,
 } from "@/shared/api/monthlyStats";
 import {
@@ -28,6 +25,7 @@ import {
   taskLogKeys,
 } from "@/shared/api/keys";
 import { baselineCacheCheck } from "@/shared/utils/perfBaseline";
+import { useCompletionToggle } from "@/shared/hooks/useCompletionToggle";
 import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
 
 const EMPTY_CATEGORIES: Category[] = [];
@@ -44,8 +42,6 @@ export const useTaskList = ({
   const queryClient = useQueryClient();
   const { schedule: scheduleOrderCommit } = useDebouncedCommit();
   const tempIdRef = useRef(0);
-  // 완료 처리가 진행 중인 할 일. 같은 항목의 연타를 막는다.
-  const togglingTaskIdsRef = useRef(new Set<string>());
   const lastTaskCacheLogRef = useRef<{ date: string; status?: string }>({
     date: "",
     status: undefined,
@@ -53,6 +49,10 @@ export const useTaskList = ({
   const lastTaskLogCacheLogRef = useRef<{ date: string; status?: string }>({
     date: "",
     status: undefined,
+  });
+  const runCompletionToggle = useCompletionToggle({
+    kind: "task",
+    failMessage: "완료 상태를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.",
   });
   const safeUserId = userId ?? "";
   const taskQueryKey = useMemo(
@@ -285,134 +285,52 @@ export const useTaskList = ({
     }
   };
 
-  const runToggleTask = async (taskId: string, userId: string) => {
-    const currentLog = taskLogMap.get(taskId);
-    const nextCompleted = currentLog ? !currentLog.completed : true;
-    const monthKey = dateString.slice(0, 7);
-    const dayKey = dateString.slice(8, 10);
-    const completedDelta = nextCompleted ? 1 : -1;
-
-    const prevLogs = queryClient.getQueryData<TaskLog[]>(taskLogQueryKey);
-    const prevMonthly = queryClient.getQueryData<MonthlyStats | null>(
-      monthlyStatsKeys.byMonth(userId, monthKey)
-    );
-
-    queryClient.setQueryData<TaskLog[]>(taskLogQueryKey, (prev = []) => {
-      const index = prev.findIndex((log) => log.taskId === taskId);
-      if (index === -1) {
-        if (!nextCompleted) return prev;
-        return [...prev, { id: `temp-${taskId}`, taskId, date: dateString, completed: true }];
-      }
-
-      const next = [...prev];
-      next[index] = { ...next[index], completed: nextCompleted };
-      return next;
-    });
-
-    queryClient.setQueryData<MonthlyStats | null>(
-      monthlyStatsKeys.byMonth(userId, monthKey),
-      (prev) => {
-        if (!prev) return prev;
-        const currentDay = prev.days?.[dayKey];
-        if (!currentDay) {
-          return {
-            ...prev,
-            days: {
-              ...prev.days,
-              [dayKey]: {
-                total: 0,
-                completed: Math.max(completedDelta, 0),
-                remaining: 0,
-                hasActivity: false,
-              },
-            },
-          };
-        }
-
-        const completed = Math.max(
-          (currentDay.completed ?? 0) + completedDelta,
-          0
-        );
-        const total = Math.max(currentDay.total ?? 0, 0);
-        const remaining = Math.max(total - completed, 0);
-
-        return {
-          ...prev,
-          days: {
-            ...prev.days,
-            [dayKey]: {
-              ...currentDay,
-              completed,
-              remaining,
-              hasActivity: total > 0,
-            },
-          },
-        };
-      }
-    );
-
-    try {
-      await toggleTaskLog({
-        userId,
-        taskId,
-        date: dateString,
-        currentLog,
-      });
-
-      const patchResult = await patchMonthlyStatsCompletionByDay({
-        userId,
-        month: monthKey,
-        day: dayKey,
-        completedDelta,
-        kind: "task",
-      });
-
-      // 문서는 있는데 그날 칸이 없으면 집계가 실제와 어긋난 상태다.
-      // 지나치면 이 완료가 달력에서 영영 빠지므로 그 달의 task 몫을 다시 센다.
-      if (patchResult === "missing-day") {
-        await recalculateMonthlyStatsByMonth({
-          userId,
-          month: monthKey,
-          scope: "task",
-        });
-        await queryClient.invalidateQueries({
-          queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
-        });
-      }
-    } catch {
-      queryClient.setQueryData(taskLogQueryKey, prevLogs);
-      queryClient.setQueryData(monthlyStatsKeys.byMonth(userId, monthKey), prevMonthly);
-      const affectedMonths = collectAffectedMonths({ dates: [dateString] });
-      await Promise.all(
-        affectedMonths.map((month) =>
-          recalculateMonthlyStatsByMonth({
-            userId,
-            month,
-            scope: "task",
-          }),
-        ),
-      );
-      await queryClient.invalidateQueries({
-        queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
-      });
-      toast.error("완료 상태를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.");
-    }
-  };
-
+  /**
+   * 할 일 체크 토글.
+   *
+   * 연타 방지·집계 반영·실패 롤백은 useCompletionToggle 이 맡는다.
+   * 여기서는 할 일만 쓰는 캐시(그날의 taskLogs)를 고치고 되돌리는 법만 정한다.
+   */
   const toggleTask = async (taskId: string) => {
     if (!userId) return;
 
-    // 진행 중인 같은 할 일의 체크는 무시한다.
-    // runToggleTask 가 보는 currentLog 는 렌더 시점 값이라, 다시 그려지기 전에 또 누르면
-    // 같은 기준으로 판단해 완료 증감이 같은 방향으로 두 번 나간다.
-    if (togglingTaskIdsRef.current.has(taskId)) return;
-    togglingTaskIdsRef.current.add(taskId);
+    const currentLog = taskLogMap.get(taskId);
+    const nextCompleted = currentLog ? !currentLog.completed : true;
 
-    try {
-      await runToggleTask(taskId, userId);
-    } finally {
-      togglingTaskIdsRef.current.delete(taskId);
-    }
+    await runCompletionToggle({
+      userId,
+      guardKey: taskId,
+      date: dateString,
+      completedDelta: nextCompleted ? 1 : -1,
+      applyOptimistic: () => {
+        const prevLogs = queryClient.getQueryData<TaskLog[]>(taskLogQueryKey);
+
+        queryClient.setQueryData<TaskLog[]>(taskLogQueryKey, (prev = []) => {
+          const index = prev.findIndex((log) => log.taskId === taskId);
+          if (index === -1) {
+            if (!nextCompleted) return prev;
+            return [
+              ...prev,
+              {
+                id: `temp-${taskId}`,
+                taskId,
+                date: dateString,
+                completed: true,
+              },
+            ];
+          }
+
+          const next = [...prev];
+          next[index] = { ...next[index], completed: nextCompleted };
+          return next;
+        });
+
+        return () => queryClient.setQueryData(taskLogQueryKey, prevLogs);
+      },
+      commit: async () => {
+        await toggleTaskLog({ userId, taskId, date: dateString, currentLog });
+      },
+    });
   };
 
   const refresh = async () => {
