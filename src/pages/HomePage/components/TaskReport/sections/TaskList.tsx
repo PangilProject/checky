@@ -1,25 +1,22 @@
-import { useAuth } from "@/shared/hooks/useAuth";
-import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
-import { formatDateToYmd } from "@/shared/utils/formatDate";
-import { useTaskList } from "../hooks/useTaskList";
+import type { useTaskList } from "../hooks/useTaskList";
 import { TaskCategorySection } from "../components/TaskCategorySection";
 import { TaskListSkeleton } from "../components/TaskListSkeleton";
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Stack, Text } from "@/shared/ui/primitives";
 
 /**
- * 선택 날짜 기준으로 카테고리별 할 일 목록을 렌더링합니다.
+ * 카테고리별 할 일 목록을 그린다.
+ *
+ * 데이터는 상위(TaskReportSection)가 읽어 내려 준다. 새로고침 버튼이 그쪽에
+ * 있어 같은 결과를 함께 써야 하기 때문이다.
  */
 export const TaskListSection = ({
-  onReadyRefresh,
+  taskList,
+  dateString,
 }: {
-  onReadyRefresh?: (refresh: () => Promise<void>) => void;
+  taskList: ReturnType<typeof useTaskList>;
+  dateString: string;
 }) => {
-  const { user } = useAuth();
-  const { selectedDate } = useSelectedDate();
-  const dateString = formatDateToYmd(selectedDate);
-
   const {
     categories,
     selectableCategories,
@@ -29,15 +26,7 @@ export const TaskListSection = ({
     addTask,
     toggleTask,
     reorderTasks,
-    refresh,
-  } = useTaskList({
-    userId: user?.uid,
-    dateString,
-  });
-
-  useEffect(() => {
-    onReadyRefresh?.(refresh);
-  }, [onReadyRefresh, refresh]);
+  } = taskList;
 
   return (
     <div className="flex flex-col w-full">
