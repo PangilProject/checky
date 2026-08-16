@@ -1,6 +1,6 @@
 import type { Routine } from "@/shared/api/routine";
 import { getDayLabel } from "@/shared/constants/dateLabels";
-import { formatDateToYmd } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/utils/formatDate";
 import { Stack, Text } from "@/shared/ui/primitives";
 import { useSortable } from "@dnd-kit/sortable";
 import { HiDotsHorizontal } from "react-icons/hi";

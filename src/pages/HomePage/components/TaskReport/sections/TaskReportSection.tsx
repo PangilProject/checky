@@ -1,6 +1,6 @@
 import TitleSection from "../../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
-import { moveDay } from "@/shared/hooks/dateNavigation";
+import { moveDay } from "@/shared/utils/dateNavigation";
 import { TaskListSection } from "./TaskList";
 import { TaskSetting } from "./TaskSetting";
 import { useRef } from "react";

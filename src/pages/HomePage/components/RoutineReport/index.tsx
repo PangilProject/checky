@@ -1,6 +1,6 @@
 import TitleSection from "../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
-import { moveWeek } from "@/shared/hooks/dateNavigation";
+import { moveWeek } from "@/shared/utils/dateNavigation";
 import { RoutineTable } from "./components/RoutineTable";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRoutineReportQuery } from "@/shared/hooks/useRoutineReportQuery";

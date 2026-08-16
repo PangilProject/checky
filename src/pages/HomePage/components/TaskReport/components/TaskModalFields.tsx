@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type Ref } from "react";
 import { Input, Stack, Text } from "@/shared/ui/primitives";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import { TimePicker } from "@/shared/ui/TimePicker";
-import { formatHmLabel, formatYmdLabel } from "@/shared/hooks/formatDate";
+import { formatHmLabel, formatYmdLabel } from "@/shared/utils/formatDate";
 import type { Category } from "@/shared/api/category";
 import { getCategoryTextColor } from "@/shared/constants/colors";
 

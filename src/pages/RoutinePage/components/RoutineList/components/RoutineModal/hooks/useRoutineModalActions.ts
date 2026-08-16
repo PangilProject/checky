@@ -14,7 +14,7 @@ import {
   getMonthlyStatsMonthsOnce,
   refreshCalendarConsistency,
 } from "@/shared/api/monthlyStats";
-import { getTodayYmd } from "@/shared/hooks/formatDate";
+import { getTodayYmd } from "@/shared/utils/formatDate";
 import { buildNextScheduleHistory } from "../utils";
 import type { RoutineModalMode } from "../types";
 

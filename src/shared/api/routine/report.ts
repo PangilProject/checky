@@ -4,7 +4,7 @@ import {
   formatDateLikeToYmd,
   formatDateToYmd,
   parseYmd,
-} from "@/shared/hooks/formatDate";
+} from "@/shared/utils/formatDate";
 import { routineLogsRef, routinesRef } from "./refs";
 import type {
   Routine,

@@ -1,6 +1,6 @@
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
-import { formatDateToYmd } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/utils/formatDate";
 import { useTaskList } from "../hooks/useTaskList";
 import { TaskCategorySection } from "../components/TaskCategorySection";
 import { TaskListSkeleton } from "../components/TaskListSkeleton";

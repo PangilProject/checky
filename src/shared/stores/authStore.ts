@@ -6,7 +6,7 @@ import {
   getUserAccessInfoCached,
 } from "@/shared/api/auth/adminAccess";
 import { ensureUserProfile, updateLastActive } from "@/shared/api/auth/user";
-import { formatDateToYmd } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/utils/formatDate";
 
 /**
  * @file authStore.ts

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { SelectedDateContext } from "./selectedDateContext";
-import { formatDateToYmd } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/utils/formatDate";
 
 /**
  * 날짜 선택 상태를 관리하는 Provider

@@ -5,10 +5,10 @@ import { useState } from "react";
 import type { TaskActionType } from "@/shared/constants/taskActions";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
-import { formatDateToYmd } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/utils/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
-import { moveDay } from "@/shared/hooks/dateNavigation";
+import { moveDay } from "@/shared/utils/dateNavigation";
 import {
   collectAffectedMonths,
   recalculateMonthlyStatsByMonth,

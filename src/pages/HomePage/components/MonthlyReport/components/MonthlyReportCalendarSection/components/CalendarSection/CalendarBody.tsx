@@ -1,7 +1,7 @@
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { useCalendar, useMonthlyActivityCountMap } from "@/shared/hooks/calendar";
 import type { MonthlyData } from "@/shared/hooks/calendar";
-import { formatDateToYmd } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/utils/formatDate";
 import { CalendarCell } from "./CalendarCell";
 
 /**

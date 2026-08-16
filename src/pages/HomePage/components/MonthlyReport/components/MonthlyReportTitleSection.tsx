@@ -1,4 +1,4 @@
-import { moveMonth } from "@/shared/hooks/dateNavigation";
+import { moveMonth } from "@/shared/utils/dateNavigation";
 import TitleSection from "../../TitleSection";
 import { getMonthLabel } from "../utils/getMonthLabel";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";

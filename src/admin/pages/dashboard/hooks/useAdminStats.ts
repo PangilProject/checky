@@ -6,7 +6,7 @@ import {
 } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { adminKeys } from "@/shared/api/keys";
-import { formatDateToYmd } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/utils/formatDate";
 
 interface ChartItem {
   date: string;

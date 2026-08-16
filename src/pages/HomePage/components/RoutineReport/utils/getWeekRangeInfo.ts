@@ -1,4 +1,4 @@
-import { formatDateToYmd } from "@/shared/hooks/formatDate";
+import { formatDateToYmd } from "@/shared/utils/formatDate";
 
 interface WeekRangeInfo {
   start: Date;

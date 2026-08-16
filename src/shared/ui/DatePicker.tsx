@@ -6,7 +6,7 @@ import {
   formatDateToYmd,
   formatYmdLabel,
   parseYmd,
-} from "@/shared/hooks/formatDate";
+} from "@/shared/utils/formatDate";
 import { SATURDAY_COLOR, SUNDAY_COLOR } from "@/shared/constants/colors";
 import { WEEK_LABELS } from "@/shared/constants/dateLabels";
 

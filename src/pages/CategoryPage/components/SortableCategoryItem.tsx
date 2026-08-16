@@ -4,7 +4,7 @@ import { getCategoryTextColor } from "@/shared/constants/colors";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { useState } from "react";
 import CategoryModal from "./CategoryModal";
-import { formatTimestampToKoreanDate } from "@/shared/hooks/formatDate";
+import { formatTimestampToKoreanDate } from "@/shared/utils/formatDate";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 

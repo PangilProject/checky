@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { formatHmLabel } from "@/shared/hooks/formatDate";
+import { formatHmLabel } from "@/shared/utils/formatDate";
 import { usePopoverPosition } from "@/shared/hooks/usePopoverPosition";
 import { Stack } from "@/shared/ui/primitives";
 

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { Routine } from "@/shared/api/routine";
 import type { RoutineModalMode } from "../types";
-import { getTodayYmd } from "@/shared/hooks/formatDate";
+import { getTodayYmd } from "@/shared/utils/formatDate";
 import { hasSameDays } from "../utils";
 import { DAYS } from "@/shared/constants/dateLabels";
 import { useDirtyForm } from "@/shared/hooks/useDirtyForm";

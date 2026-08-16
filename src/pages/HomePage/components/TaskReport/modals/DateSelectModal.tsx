@@ -4,7 +4,7 @@ import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { Button } from "@/shared/ui/primitives";
 import { useState } from "react";
 import { DatePicker } from "@/shared/ui/DatePicker";
-import { formatDateToYmd, parseYmd } from "@/shared/hooks/formatDate";
+import { formatDateToYmd, parseYmd } from "@/shared/utils/formatDate";
 
 interface DateSelectModalProps {
   action: string;
