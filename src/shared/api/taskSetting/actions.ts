@@ -2,7 +2,8 @@ import { doc, serverTimestamp, writeBatch } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
 import { getTasksByDateOnce, type Task } from "@/shared/api/task";
 import { patchMonthlyStatsByDayDeltas } from "@/shared/api/monthlyStats";
-import { taskLogsRef, taskRef, tasksRef } from "./refs";
+import { taskRef, tasksRef } from "@/shared/api/task/refs";
+import { taskLogsRef } from "@/shared/api/taskLog/refs";
 import { fetchTasksAndCompleted, getUncompletedTasks } from "./helpers";
 import type { DateOnlyParams, MoveTasksParams } from "./types";
 

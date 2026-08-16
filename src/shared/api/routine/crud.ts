@@ -11,7 +11,8 @@ import {
   writeBatch,
 } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
-import { routineLogsRef, routineRef, routinesRef } from "./refs";
+import { routineRef, routinesRef } from "./refs";
+import { routineLogsRef } from "@/shared/api/routineLog/refs";
 import type { RoutineScheduleHistoryItem } from "./types";
 
 /**

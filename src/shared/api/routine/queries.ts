@@ -2,7 +2,8 @@ import { getDocs, query, where } from "firebase/firestore/lite";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { mapDoc } from "@/shared/api/_common/mappers";
 import { formatDateLikeToYmd } from "@/shared/utils/formatDate";
-import { routineLogsRef, routinesRef } from "./refs";
+import { routinesRef } from "./refs";
+import { routineLogsRef } from "@/shared/api/routineLog/refs";
 import type { Routine, RoutineScheduleHistoryItem } from "./types";
 
 export type RoutineMonthly = {

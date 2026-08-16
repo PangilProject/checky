@@ -12,14 +12,4 @@ export const routinesRef = (userId: string) =>
 export const routineRef = (userId: string, routineId: string) =>
   userDoc(userId, "routines", routineId);
 
-/**
- * 루틴 로그 컬렉션 레퍼런스를 반환합니다.
- */
-export const routineLogsRef = (userId: string) =>
-  userCollection(userId, "routineLogs");
 
-/**
- * 카테고리 컬렉션 레퍼런스를 반환합니다.
- */
-export const categoriesRef = (userId: string) =>
-  userCollection(userId, "categories");

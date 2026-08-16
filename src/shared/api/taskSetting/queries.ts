@@ -1,5 +1,5 @@
 import { getDocs, query, where } from "firebase/firestore/lite";
-import { taskLogsRef } from "./refs";
+import { taskLogsRef } from "@/shared/api/taskLog/refs";
 
 /**
  * 하루치 할 일을 읽는 함수는 여기 두지 않는다.

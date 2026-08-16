@@ -5,7 +5,8 @@ import {
   formatDateToYmd,
   parseYmd,
 } from "@/shared/utils/formatDate";
-import { routineLogsRef, routinesRef } from "./refs";
+import { routinesRef } from "./refs";
+import { routineLogsRef } from "@/shared/api/routineLog/refs";
 import type {
   Routine,
   RoutineReport,

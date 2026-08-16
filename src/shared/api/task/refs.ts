@@ -12,8 +12,3 @@ export const tasksRef = (userId: string) =>
 export const taskRef = (userId: string, taskId: string) =>
   userDoc(userId, "tasks", taskId);
 
-/**
- * 태스크 로그 컬렉션 레퍼런스를 반환합니다.
- */
-export const taskLogsRef = (userId: string) =>
-  userCollection(userId, "taskLogs");

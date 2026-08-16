@@ -12,7 +12,8 @@ import {
   writeBatch,
 } from "firebase/firestore/lite";
 import { db } from "@/firebase/firebase";
-import { taskLogsRef, taskRef, tasksRef } from "./refs";
+import { taskRef, tasksRef } from "./refs";
+import { taskLogsRef } from "@/shared/api/taskLog/refs";
 import type { Task } from "./types";
 
 /**
