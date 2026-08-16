@@ -1,4 +1,6 @@
-import type { Category } from "@/shared/api/category";
+// barrel(@/shared/api/category)이 아니라 타입 파일을 직접 가리킨다.
+// barrel 은 cache.ts 를 거쳐 다시 이 파일로 돌아오는 순환을 만든다.
+import type { Category } from "@/shared/api/category/types";
 
 /** 반복 요일을 바꾼 이력 한 건. effectiveFrom 부터 days 가 적용된다. */
 export interface RoutineScheduleHistoryItem {
