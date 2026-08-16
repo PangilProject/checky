@@ -7,12 +7,16 @@ import {
 } from "@/shared/utils/formatDate";
 import { routinesRef } from "./refs";
 import { routineLogsRef } from "@/shared/api/routineLog/refs";
+import {
+  getRepeatDaysByDate,
+  hasExplicitScheduleHistory,
+  normalizeScheduleHistory,
+} from "./schedule";
 import type {
   Routine,
   RoutineReport,
   RoutineReportRow,
   RoutineReportWeek,
-  RoutineScheduleHistoryItem,
 } from "./types";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { getDayLabel } from "@/shared/constants/dateLabels";
@@ -83,40 +87,6 @@ const buildLogMap = (logs: RoutineLog[]) => {
   return logMap;
 };
 
-const normalizeScheduleHistory = (
-  routine: Routine
-): RoutineScheduleHistoryItem[] => {
-  const history =
-    routine.scheduleHistory && routine.scheduleHistory.length > 0
-      ? routine.scheduleHistory
-      : [];
-
-  if (history.length > 0) {
-    return [...history].sort((a, b) =>
-      a.effectiveFrom.localeCompare(b.effectiveFrom)
-    );
-  }
-
-  return [{ effectiveFrom: routine.startDate, days: routine.days }];
-};
-
-const getRepeatDaysByDate = ({
-  history,
-  date,
-}: {
-  history: RoutineScheduleHistoryItem[];
-  date: string;
-}): number[] => {
-  for (let i = history.length - 1; i >= 0; i--) {
-    const item = history[i];
-    if (item.effectiveFrom <= date) {
-      return item.days;
-    }
-  }
-
-  return [];
-};
-
 /**
  * 카테고리 목록을 id 로 찾는 맵으로 변환합니다.
  */
@@ -149,8 +119,8 @@ const buildRows = ({
       // 레거시 루틴 게이트의 기준일. 월간 재계산·legacy 집계도 같은 규칙을 쓴다.
       const updatedAt = formatDateLikeToYmd(routine.updatedAt);
       const scheduleHistory = normalizeScheduleHistory(routine);
-      const hasExplicitHistory = Boolean(
-        routine.scheduleHistory && routine.scheduleHistory.length > 0
+      const hasExplicitHistory = hasExplicitScheduleHistory(
+        routine.scheduleHistory
       );
 
       week.days.forEach((day) => {
