@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import type { Category } from "@/shared/api/category";
@@ -24,7 +24,7 @@ import {
   taskKeys,
   taskLogKeys,
 } from "@/shared/api/keys";
-import { baselineCacheCheck } from "@/shared/utils/perfBaseline";
+import { useBaselineCacheLog } from "@/shared/hooks/useBaselineCacheLog";
 import { useCompletionToggle } from "@/shared/hooks/useCompletionToggle";
 import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
 
@@ -42,14 +42,6 @@ export const useTaskList = ({
   const queryClient = useQueryClient();
   const { schedule: scheduleOrderCommit } = useDebouncedCommit();
   const tempIdRef = useRef(0);
-  const lastTaskCacheLogRef = useRef<{ date: string; status?: string }>({
-    date: "",
-    status: undefined,
-  });
-  const lastTaskLogCacheLogRef = useRef<{ date: string; status?: string }>({
-    date: "",
-    status: undefined,
-  });
   const runCompletionToggle = useCompletionToggle({
     kind: "task",
     failMessage: "완료 상태를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.",
@@ -124,39 +116,14 @@ export const useTaskList = ({
   const taskState = queryClient.getQueryState(taskQueryKey);
   const logState = queryClient.getQueryState(taskLogQueryKey);
 
-  useEffect(() => {
-    if (!userId || !dateString) return;
-    const last = lastTaskCacheLogRef.current;
-    const status = taskState?.status;
-    const shouldLog =
-      status === "success" &&
-      (last.date !== dateString || last.status !== status);
-    if (!shouldLog) return;
-
-    lastTaskCacheLogRef.current = { date: dateString, status };
-    baselineCacheCheck("tasks/byDate", {
-      date: dateString,
-      status,
-      updatedAt: taskState?.dataUpdatedAt,
-    });
-  }, [dateString, taskState?.dataUpdatedAt, taskState?.status, userId]);
-
-  useEffect(() => {
-    if (!userId || !dateString) return;
-    const last = lastTaskLogCacheLogRef.current;
-    const status = logState?.status;
-    const shouldLog =
-      status === "success" &&
-      (last.date !== dateString || last.status !== status);
-    if (!shouldLog) return;
-
-    lastTaskLogCacheLogRef.current = { date: dateString, status };
-    baselineCacheCheck("taskLogs/byDate", {
-      date: dateString,
-      status,
-      updatedAt: logState?.dataUpdatedAt,
-    });
-  }, [dateString, logState?.dataUpdatedAt, logState?.status, userId]);
+  const isBaselineScoped = Boolean(userId && dateString);
+  useBaselineCacheLog("tasks/byDate", dateString, taskState, isBaselineScoped);
+  useBaselineCacheLog(
+    "taskLogs/byDate",
+    dateString,
+    logState,
+    isBaselineScoped,
+  );
 
   const taskLogMap = useMemo(
     () => new Map(taskLogs.map((log) => [log.taskId, log])),
