@@ -10,6 +10,9 @@ import { Button, Stack } from "@/shared/ui/primitives";
  * 이 규칙이 모달마다 갈리면 같은 앱에서 저장 버튼이 다르게 동작한다.
  *
  * 가운데 도메인 버튼(종료·복구·삭제·이동)만 모달마다 다르므로 밖에서 받는다.
+ *
+ * 문구는 여기서만 정한다. 예전에는 카테고리 작성 화면만 "닫기 / 완료"였는데,
+ * 같은 동작을 화면마다 다르게 부르면 사용자에게는 다른 일처럼 보인다.
  */
 
 interface ModalActionsProps {
@@ -31,10 +34,6 @@ interface ModalActionsProps {
    */
   canSubmit?: boolean;
   onSubmit?: () => void;
-  /** 왼쪽 버튼 글자. 카테고리 작성 화면만 "닫기" 를 쓴다 */
-  cancelText?: string;
-  /** 저장 버튼 글자. 카테고리 작성 화면만 "완료" 를 쓴다 */
-  submitText?: string;
   /** 닫기와 수정 사이에 들어갈 도메인 버튼들 (삭제·종료·이동 등) */
   children?: ReactNode;
 }
@@ -47,8 +46,6 @@ export const ModalActions = ({
   onEdit,
   canSubmit = true,
   onSubmit,
-  cancelText = "취소",
-  submitText = "저장",
   children,
 }: ModalActionsProps) => {
   if (isViewing) {
@@ -74,11 +71,11 @@ export const ModalActions = ({
         onClick={onCancel ?? onClose}
         disabled={isSubmitting}
       >
-        {cancelText}
+        취소
       </Button>
       {children}
       <Button onClick={onSubmit} disabled={isSubmitting || !canSubmit}>
-        {isSubmitting ? "저장 중..." : submitText}
+        {isSubmitting ? "저장 중..." : "저장"}
       </Button>
     </Stack>
   );

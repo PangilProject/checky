@@ -194,9 +194,6 @@ export default function CategoryModal({
           }
           void handleUpdateCategory();
         }}
-        // 작성 화면에는 되돌릴 편집 상태가 없어 "취소"가 아니라 "닫기"다
-        cancelText={currentMode === "CREATE" ? "닫기" : "취소"}
-        submitText={currentMode === "CREATE" ? "완료" : "저장"}
       >
         {isReadOnly &&
           (category?.status === "ENDED" ? (
