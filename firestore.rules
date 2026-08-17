@@ -123,7 +123,47 @@ service cloud.firestore {
     // 공지사항: 로그인 사용자는 읽기만, 작성/수정/삭제는 관리자만
     match /notices/{noticeId} {
       allow read: if isSignedIn();
-      allow write: if isAdmin();
+
+      // 공지에 둘 수 있는 필드. crud.ts 가 쓰는 것과 같아야 한다.
+      function allowedNoticeFields() {
+        return ['title', 'content', 'pinned', 'createdAt', 'updatedAt'];
+      }
+
+      /**
+       * 공지 내용 검사.
+       *
+       * 권한만 보면 관리자 토큰이 새는 순간 크기 제한이 사라진다. 공지는 로그인한
+       * 모든 사용자가 내려받으므로, 한 문서가 커지면 그 비용이 전체에 퍼진다.
+       *
+       * 길이 상한은 NoticeModal.tsx 의 TITLE_MAX_LENGTH·CONTENT_MAX_LENGTH 와
+       * 짝을 이룬다. 한쪽만 고치면 화면에서는 더 쓸 수 있는데 저장이 거부된다.
+       *
+       * 글자 내용은 검사하지 않는다. `<script>` 같은 문자열도 정상 입력으로 저장하고,
+       * 화면에서 글자로만 보이도록 하는 것이 이 앱의 방침이다(출력 단계 이스케이프).
+       */
+      function noticeIsValid() {
+        let data = request.resource.data;
+        return data.keys().hasOnly(allowedNoticeFields())
+          && data.keys().hasAll(['title', 'content', 'pinned'])
+          && data.title is string
+          && data.title.size() > 0
+          && data.title.size() <= 100
+          && data.content is string
+          && data.content.size() <= 2000
+          && data.pinned is bool
+          && timeFieldsAreTrusted();
+      }
+
+      allow create: if isAdmin() && noticeIsValid();
+
+      // 바뀐 키만 본다. 상단 고정만 전환하는 경로(setNoticePinned)는
+      // pinned·updatedAt 만 보내므로, 전체를 요구하면 그 기능이 막힌다.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(['title', 'content', 'pinned', 'updatedAt'])
+        && noticeIsValid();
+
+      allow delete: if isAdmin();
     }
 
     // 그 외 경로는 모두 차단

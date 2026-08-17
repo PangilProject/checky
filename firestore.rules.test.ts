@@ -88,7 +88,13 @@ beforeEach(async () => {
       title: "공격자의 할 일",
       date: "2026-08-09",
     });
-    await setDoc(doc(db, "notices", "n1"), { title: "공지", content: "본문" });
+    // 실제 crud.ts 가 쓰는 모양과 같게 심는다. pinned 를 빼 두면
+    // 규칙이 요구하는 필드를 테스트가 먼저 어겨 버린다.
+    await setDoc(doc(db, "notices", "n1"), {
+      title: "공지",
+      content: "본문",
+      pinned: false,
+    });
   });
 });
 
@@ -251,7 +257,11 @@ describe("공격 5. 관리자 전용 collection 쓰기", () => {
 
   it("실제 관리자는 쓸 수 있다 (정상 동작 확인)", async () => {
     await assertSucceeds(
-      setDoc(doc(asAdmin(), "notices", "n2"), { title: "진짜 공지" }),
+      setDoc(doc(asAdmin(), "notices", "n2"), {
+        title: "진짜 공지",
+        content: "본문",
+        pinned: false,
+      }),
     );
   });
 
@@ -529,6 +539,155 @@ describe("정상 앱 동작 회귀 확인", () => {
 
   it("로그인 사용자는 공지를 읽을 수 있다", async () => {
     await assertSucceeds(getDocs(collection(asAttacker(), "notices")));
+  });
+
+  it("공지 생성 (createNotice)", async () => {
+    await assertSucceeds(
+      setDoc(doc(asAdmin(), "notices", "new"), {
+        title: "제목",
+        content: "내용",
+        pinned: false,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it("공지 내용 수정 (updateNotice)", async () => {
+    await assertSucceeds(
+      updateDoc(doc(asAdmin(), "notices", "n1"), {
+        title: "고친 제목",
+        content: "고친 내용",
+        pinned: true,
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it("상단 고정만 전환 (setNoticePinned — 부분 업데이트)", async () => {
+    await assertSucceeds(
+      updateDoc(doc(asAdmin(), "notices", "n1"), {
+        pinned: true,
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it("공지 삭제 (deleteNotice)", async () => {
+    await assertSucceeds(deleteDoc(doc(asAdmin(), "notices", "n1")));
+  });
+});
+
+/**
+ * 입력값 검증 — 권한이 있어도 모양이 어긋난 값은 저장되지 않는지 본다.
+ *
+ * 화면의 maxLength 는 UX 를 위한 것이고, SDK 를 직접 부르면 아무 제한이 없다.
+ * 그래서 길이·타입 검사는 규칙에도 있어야 한다.
+ *
+ * 반대로 "악성처럼 보이는 문자열"은 거부하지 않는다. 저장은 원문 그대로 하고
+ * 화면에서 글자로만 보이게 하는 것이 이 앱의 방침이므로, 그 방침도 함께 고정한다.
+ */
+describe("공격 10. 입력값 검증 우회 (공지)", () => {
+  const validNotice = (extra: Record<string, unknown> = {}) => ({
+    title: "제목",
+    content: "내용",
+    pinned: false,
+    ...extra,
+  });
+
+  it("과도하게 긴 제목은 거부된다 (100자 초과)", async () => {
+    await assertFails(
+      setDoc(
+        doc(asAdmin(), "notices", "long-title"),
+        validNotice({ title: "가".repeat(101) }),
+      ),
+    );
+  });
+
+  it("과도하게 긴 내용은 거부된다 (2000자 초과)", async () => {
+    await assertFails(
+      setDoc(
+        doc(asAdmin(), "notices", "long-content"),
+        validNotice({ content: "가".repeat(2001) }),
+      ),
+    );
+  });
+
+  it("경계값은 통과한다 (제목 100자 / 내용 2000자)", async () => {
+    await assertSucceeds(
+      setDoc(
+        doc(asAdmin(), "notices", "boundary"),
+        validNotice({ title: "가".repeat(100), content: "가".repeat(2000) }),
+      ),
+    );
+  });
+
+  it("빈 제목은 거부된다", async () => {
+    await assertFails(
+      setDoc(doc(asAdmin(), "notices", "empty"), validNotice({ title: "" })),
+    );
+  });
+
+  it("제목을 문자열이 아닌 값으로 저장할 수 없다", async () => {
+    await assertFails(
+      setDoc(
+        doc(asAdmin(), "notices", "type-title"),
+        validNotice({ title: { $gt: "" } }),
+      ),
+    );
+  });
+
+  it("pinned 를 boolean 이 아닌 값으로 저장할 수 없다", async () => {
+    await assertFails(
+      setDoc(
+        doc(asAdmin(), "notices", "type-pinned"),
+        validNotice({ pinned: "true" }),
+      ),
+    );
+  });
+
+  it("모르는 필드를 넣을 수 없다 (문서 부풀리기 차단)", async () => {
+    await assertFails(
+      setDoc(
+        doc(asAdmin(), "notices", "extra"),
+        validNotice({ payload: "가".repeat(100_000) }),
+      ),
+    );
+  });
+
+  it("필수 필드 없이 만들 수 없다", async () => {
+    await assertFails(
+      setDoc(doc(asAdmin(), "notices", "partial"), { title: "제목만" }),
+    );
+  });
+
+  it("작성 시각을 임의 값으로 위조할 수 없다", async () => {
+    await assertFails(
+      setDoc(
+        doc(asAdmin(), "notices", "forged-time"),
+        validNotice({ createdAt: new Date("2020-01-01") }),
+      ),
+    );
+  });
+
+  it("수정으로 제목을 지울 수 없다", async () => {
+    await assertFails(
+      updateDoc(doc(asAdmin(), "notices", "n1"), { title: deleteField() }),
+    );
+  });
+
+  it("HTML 문자열은 정상 입력으로 저장된다 (필터링하지 않는다)", async () => {
+    // 저장은 원문 그대로, 이스케이프는 출력 단계에서 한다.
+    // 이 케이스는 나중에 입력 단계 필터링으로 되돌리려는 변경을 막는 역할도 한다.
+    await assertSucceeds(
+      setDoc(
+        doc(asAdmin(), "notices", "html"),
+        validNotice({
+          title: "<script>alert(1)</script>",
+          content: '<img src=x onerror=alert(1)> 그리고 1 < 2 이며 <b>강조</b>',
+        }),
+      ),
+    );
   });
 });
 
