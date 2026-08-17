@@ -84,6 +84,22 @@ notices/{noticeId}          # 공지 (읽기는 로그인 사용자, 쓰기는 �
 규칙과 복합 인덱스는 `firestore.rules`, `firestore.indexes.json` 으로 저장소에서 관리하며
 배포 시 함께 반영됩니다.
 
+### 사용자 입력 처리
+
+입력값은 걸러내지 않고 원문 그대로 저장합니다. 제목에 `1 < 2` 나 `<b>` 를 쓰는 것은
+정당한 입력이고, 입력 단계에서 문자를 지우면 정상적인 글이 깨집니다.
+
+안전은 **출력 단계**에서 지킵니다. 값을 JSX 자식으로 넘겨 React 가 이스케이프하게 하고,
+문자열을 HTML 로 해석하는 통로(`dangerouslySetInnerHTML`, `innerHTML` 등)는
+`eslint.config.js` 의 `no-restricted-syntax` 로 막아 두었습니다.
+특히 일반 사용자가 넣은 프로필 이름이 관리자 화면에 그대로 렌더되므로,
+그 화면에 HTML 렌더가 생기면 저장돼 있던 값이 실행됩니다.
+
+길이·타입 검증은 `firestore.rules` 에도 둡니다. 화면의 `maxLength` 는 UX 를 위한 것이고
+SDK 를 직접 부르면 통하지 않기 때문입니다.
+
+자세한 내용은 `docs/security/README.md` 에 있습니다.
+
 ## 기술 구성
 
 - Frontend: `React 19`, `TypeScript`, `Vite`
