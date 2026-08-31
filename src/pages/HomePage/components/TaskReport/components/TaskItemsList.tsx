@@ -100,7 +100,7 @@ const SortableTaskItem = ({
       {...dragHandleProps}
       className={`
           py-1 flex justify-between cursor-grab 
-          ${isDragging ? "bg-surface-raised shadow-[var(--shadow-drag)] scale-[1.02]" : ""}
+          ${isDragging ? "bg-surface-raised shadow-(--shadow-drag) scale-[1.02]" : ""}
         `}
     >
       <div className="flex flex-col min-w-0" onClick={() => onToggle(task.id)}>

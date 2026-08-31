@@ -124,7 +124,7 @@ export const DatePicker = ({
             // 위치는 usePopoverPosition이 뷰포트 기준으로 잡아준다.
             style={{ top: 0, left: 0 }}
             className="fixed z-1100 max-h-[calc(100vh-16px)] w-70 overflow-y-auto rounded-xl
-              border border-line bg-surface-raised p-3 shadow-[var(--shadow-popover)]"
+              border border-line bg-surface-raised p-3 shadow-(--shadow-popover)"
           >
             {/* 월 이동 헤더 */}
             <div className="flex items-center justify-between px-1">

@@ -183,7 +183,7 @@ export const CategoryField = ({
             </span>
           </button>
           {isOpen && (
-            <div className="absolute right-0 mt-2 z-10 min-w-30 bg-surface-raised border border-line rounded-md shadow-[var(--shadow-popover)]">
+            <div className="absolute right-0 mt-2 z-10 min-w-30 bg-surface-raised border border-line rounded-md shadow-(--shadow-popover)">
               {categories.map((category) => (
                 <button
                   key={category.id}

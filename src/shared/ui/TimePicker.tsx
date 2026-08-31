@@ -155,7 +155,7 @@ export const TimePicker = ({
             // 위치는 usePopoverPosition이 뷰포트 기준으로 잡아준다.
             style={{ top: 0, left: 0 }}
             className="fixed z-1100 flex max-h-[calc(100vh-16px)] w-48 gap-1 rounded-xl
-              border border-line bg-surface-raised p-2 shadow-[var(--shadow-popover)]"
+              border border-line bg-surface-raised p-2 shadow-(--shadow-popover)"
           >
             {/* 오전 / 오후 */}
             <Stack gap={1} direction="col" className="w-14">

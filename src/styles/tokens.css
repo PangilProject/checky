@@ -74,7 +74,7 @@
    @theme 이 아니라 :root 에 두는 이유:
    Tailwind 는 @theme 의 그림자 값을 유틸리티 안에 그대로 박아 넣으므로,
    .dark 에서 변수를 바꿔도 이미 박힌 값에는 닿지 않는다.
-   변수를 참조하는 형태(shadow-[var(--shadow-modal)])로 써야 테마를 따라간다. */
+   변수를 참조하는 형태(shadow-(--shadow-modal))로 써야 테마를 따라간다. */
 :root {
   --shadow-popover: 0 8px 24px rgb(0 0 0 / 0.14);
   --shadow-modal: 0 10px 30px rgb(0 0 0 / 0.2);

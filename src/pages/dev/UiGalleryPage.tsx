@@ -38,9 +38,9 @@ const SURFACE_TOKENS = [
 ] as const;
 
 const SHADOW_TOKENS = [
-  { name: "popover", className: "shadow-[var(--shadow-popover)]" },
-  { name: "modal", className: "shadow-[var(--shadow-modal)]" },
-  { name: "drag", className: "shadow-[var(--shadow-drag)]" },
+  { name: "popover", className: "shadow-(--shadow-popover)" },
+  { name: "modal", className: "shadow-(--shadow-modal)" },
+  { name: "drag", className: "shadow-(--shadow-drag)" },
 ] as const;
 
 const TEXT_TONES = [
