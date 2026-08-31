@@ -37,6 +37,31 @@ const noRawColors = [
 ]
 
 /*
+  변수를 참조하는 유틸리티는 짧은 형태로 쓴다.
+
+  Tailwind v4 는 `shadow-[var(--shadow-modal)]` 과 `shadow-(--shadow-modal)` 을
+  똑같이 처리하지만, 짧은 형태가 정식 표기다. 에디터의 Tailwind 확장은 긴 형태를
+  볼 때마다 경고를 띄우므로, 두 표기가 섞이면 남은 경고가 계속 쌓인다.
+  결과가 같아 사람이 리뷰로 잡을 이유를 느끼기 어려워 규칙으로 세워 둔다.
+
+  값을 그대로 적는 `max-h-[90vh]` 같은 대괄호는 이 규칙과 무관하다 —
+  막는 것은 대괄호 안이 var() 하나뿐인 경우다.
+*/
+const VAR_CLASS = '[a-z-]+-\\[var\\(--[a-z0-9-]+\\)\\]'
+
+const varClassMessage =
+  '변수를 참조하는 유틸리티는 짧은 형태로 쓰세요. ' +
+  '예: shadow-[var(--shadow-modal)] → shadow-(--shadow-modal).'
+
+const noVerboseVarClass = [
+  { selector: `Literal[value=/${VAR_CLASS}/]`, message: varClassMessage },
+  {
+    selector: `TemplateElement[value.raw=/${VAR_CLASS}/]`,
+    message: varClassMessage,
+  },
+]
+
+/*
   문자열을 HTML 로 해석하는 통로를 막는다.
 
   이 앱은 사용자가 넣은 값을 걸러내지 않고 그대로 저장한다. `<script>` 를 제목에
@@ -87,7 +112,12 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      'no-restricted-syntax': ['error', ...noRawColors, ...noDangerousHtml],
+      'no-restricted-syntax': [
+        'error',
+        ...noRawColors,
+        ...noVerboseVarClass,
+        ...noDangerousHtml,
+      ],
     },
   },
   {
@@ -95,7 +125,7 @@ export default defineConfig([
     // 색 규칙만 끄고 HTML 규칙은 남긴다 — 규칙을 통째로 끄면 예외가 조용히 넓어진다.
     files: ['src/shared/constants/colors.ts'],
     rules: {
-      'no-restricted-syntax': ['error', ...noDangerousHtml],
+      'no-restricted-syntax': ['error', ...noVerboseVarClass, ...noDangerousHtml],
     },
   },
 ])
