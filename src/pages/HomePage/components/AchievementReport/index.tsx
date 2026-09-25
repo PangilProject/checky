@@ -3,6 +3,7 @@ import TitleSection from "../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { useMonthlyStatsByMonths } from "@/shared/hooks/calendar";
 import { summarizeRange } from "@/shared/api/monthlyStats";
+import { buildMonthKeysBetween } from "@/shared/api/monthlyStats/monthKeys";
 import { formatDateToYmd, parseYmd } from "@/shared/utils/formatDate";
 import { moveMonth, moveWeek } from "@/shared/utils/dateNavigation";
 import {
@@ -46,9 +47,15 @@ function AchievementReportSection() {
     [selectedYmd, mode, todayYmd],
   );
 
+  // 할 일·루틴을 나눠 보여 주는 것은 지금 기간뿐이라, 비교 기간의 달은 고치지 않는다
+  const periodMonths = useMemo(
+    () => buildMonthKeysBetween(ranges.period.startDate, ranges.period.endDate),
+    [ranges.period],
+  );
+
   const { statsByMonth, isLoading } = useMonthlyStatsByMonths({
     months: ranges.months,
-    repair: true,
+    repairMonths: periodMonths,
     managedMonth: selectedYmd.slice(0, 7),
   });
 
