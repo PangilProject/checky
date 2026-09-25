@@ -11,7 +11,11 @@ import type { MonthlyStats } from "./types";
  * 값을 0 아래나 total 위로 넘기지 않는 것이 이 함수의 책임이다. 할 일과 루틴이
  * 각자 이 계산을 들고 있던 시절에는 한쪽만 고치면 달력 숫자가 음수로 새는 길이 있었다.
  *
+ * 몫 필드(taskCompleted 등)가 있는 칸이면 해당 몫도 함께 고친다. 합산만 고치면
+ * 달성 현황의 할 일·루틴 숫자가 서버 값을 다시 읽을 때까지 체크를 따라오지 못한다.
+ *
  * @param completedDelta 완료가 늘면 +1, 풀리면 -1
+ * @param kind 어느 몫의 완료가 바뀌었는지
  */
 export const patchMonthlyStatsDayCache = (
   queryClient: QueryClient,
@@ -19,6 +23,7 @@ export const patchMonthlyStatsDayCache = (
   month: string,
   day: string,
   completedDelta: number,
+  kind: "task" | "routine",
 ) => {
   queryClient.setQueryData<MonthlyStats | null>(
     monthlyStatsKeys.byMonth(userId, month),
@@ -47,6 +52,17 @@ export const patchMonthlyStatsDayCache = (
       const total = Math.max(currentDay.total ?? 0, 0);
       const remaining = Math.max(total - completed, 0);
 
+      const kindTotal = currentDay[`${kind}Total`];
+      const kindPatch =
+        kindTotal === undefined
+          ? {}
+          : {
+              [`${kind}Completed`]: Math.min(
+                Math.max((currentDay[`${kind}Completed`] ?? 0) + completedDelta, 0),
+                Math.max(kindTotal, 0),
+              ),
+            };
+
       return {
         ...prev,
         days: {
@@ -56,6 +72,7 @@ export const patchMonthlyStatsDayCache = (
             completed,
             remaining,
             hasActivity: total > 0,
+            ...kindPatch,
           },
         },
       };

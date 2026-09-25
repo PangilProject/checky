@@ -78,22 +78,26 @@ export const getMonthlyStatsByMonthOnce = async ({
  *
  * days 를 병합하므로 일부 날짜만 고칠 때 쓴다.
  * 사라진 날짜를 지우지는 못한다. 그 경우에는 replace 를 써야 한다.
+ *
+ * version 은 넘긴 days 가 모든 날짜에 몫 필드를 갖췄을 때만 2 로 올린다.
  */
 export const upsertMonthlyStatsByMonth = async ({
   userId,
   month,
   days,
+  version = 1,
 }: {
   userId: string;
   month: string;
   days: Record<string, MonthlyActivitySummary>;
+  version?: number;
 }) => {
   await setDoc(
     monthlyStatsDocRef(userId, month),
     {
       month,
       days,
-      version: 1,
+      version,
       updatedAt: serverTimestamp(),
     },
     { merge: true }

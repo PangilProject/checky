@@ -15,6 +15,7 @@ import {
   type TaskLog,
 } from "@/shared/api/taskLog";
 import {
+  MONTHLY_STATS_SPLIT_VERSION,
   patchMonthlyStatsByDayDeltas,
   type MonthlyStats,
 } from "@/shared/api/monthlyStats";
@@ -175,6 +176,16 @@ export const useTaskList = ({
         const total = Math.max((currentDay?.total ?? 0) + 1, 0);
         const completed = Math.max(currentDay?.completed ?? 0, 0);
         const remaining = Math.max((currentDay?.remaining ?? 0) + 1, 0);
+        // 몫이 나뉜 문서면 task 몫도 함께 늘린다. 서버 patch 와 같은 규칙이다.
+        const splitPatch =
+          (prev.version ?? 1) >= MONTHLY_STATS_SPLIT_VERSION
+            ? {
+                taskTotal: (currentDay?.taskTotal ?? 0) + 1,
+                taskCompleted: currentDay?.taskCompleted ?? 0,
+                routineTotal: currentDay?.routineTotal ?? 0,
+                routineCompleted: currentDay?.routineCompleted ?? 0,
+              }
+            : {};
 
         return {
           ...prev,
@@ -185,6 +196,7 @@ export const useTaskList = ({
               completed: Math.min(completed, total),
               remaining: Math.min(remaining, total),
               hasActivity: total > 0,
+              ...splitPatch,
             },
           },
         };
@@ -232,6 +244,10 @@ export const useTaskList = ({
             Math.min(currentDay.remaining ?? 0, total),
             0
           );
+          const splitPatch =
+            currentDay.taskTotal === undefined
+              ? {}
+              : { taskTotal: Math.max(currentDay.taskTotal - 1, 0) };
 
           return {
             ...prev,
@@ -243,6 +259,7 @@ export const useTaskList = ({
                 completed,
                 remaining,
                 hasActivity: total > 0,
+                ...splitPatch,
               },
             },
           };
