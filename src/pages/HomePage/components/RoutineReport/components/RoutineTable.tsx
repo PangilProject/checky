@@ -6,6 +6,7 @@ import type { RoutineReport } from "@/shared/api/routine";
 import { GoDash } from "react-icons/go";
 import { getWeekendTextClass } from "@/shared/constants/dateLabels";
 import { getCategoryTextColor } from "@/shared/constants/colors";
+import { getTodayYmd } from "@/shared/utils/formatDate";
 
 interface RoutineTableProps {
   report: RoutineReport;
@@ -112,8 +113,55 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
             );
           })}
         </tbody>
+
+        <RoutineTotalRow report={report} />
       </table>
     </div>
+  );
+};
+
+/**
+ * 요일별 합계 행. 그날 한 루틴 수 / 예정 루틴 수를 보여 준다.
+ *
+ * 오늘 이후는 아직 할 수 없는 날이라 "–" 로 둔다. 맨 끝 칸은 위 행들의 합계와 같은 규칙으로
+ * 이번 주 전체를 센다(오늘 이후 예정도 분모에 들어간다).
+ */
+const RoutineTotalRow = ({ report }: { report: RoutineReport }) => {
+  const { week, rows } = report;
+  const today = getTodayYmd();
+
+  const dayCells = week.days.map((day) => {
+    const scheduled = rows.filter((row) => day.date in row.checks);
+    const done = scheduled.filter((row) => row.checks[day.date]).length;
+    return { day, done, total: scheduled.length };
+  });
+  const weekDone = dayCells.reduce((sum, cell) => sum + cell.done, 0);
+  const weekTotal = dayCells.reduce((sum, cell) => sum + cell.total, 0);
+
+  return (
+    <tfoot>
+      <tr className="border-t border-content-muted">
+        <TD className="border-r border-content-muted">
+          <Text variant="bodySm" className="font-bold">
+            합계
+          </Text>
+        </TD>
+        {dayCells.map(({ day, done, total }) => (
+          <TD key={day.date}>
+            <span
+              className={`text-xs ${getWeekendTextClass(day.day) ?? "text-content-muted"}`}
+            >
+              {day.date > today || total === 0 ? "–" : `${done}/${total}`}
+            </span>
+          </TD>
+        ))}
+        <TD className="border-l border-content-muted">
+          <Text variant="bodySm" className="font-bold">
+            {`${weekDone} / ${weekTotal}`}
+          </Text>
+        </TD>
+      </tr>
+    </tfoot>
   );
 };
 
