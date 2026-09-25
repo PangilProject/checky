@@ -1,3 +1,4 @@
+import AchievementReportSection from "./components/AchievementReport/index.tsx";
 import MonthlyReportSection from "./components/MonthlyReport/index.tsx";
 import RoutineReportSection from "./components/RoutineReport/index.tsx";
 import TaskReportSection from "./components/TaskReport/sections/TaskReportSection.tsx";
@@ -12,13 +13,16 @@ function HomePage() {
   return (
     <SelectedDateProvider>
       <Stack gap={20} direction="col">
-        {/* 1. 월간 리포트 */}
+        {/* 1. 달성 현황 */}
+        <AchievementReportSection />
+
+        {/* 2. 월간 리포트 */}
         <MonthlyReportSection />
 
-        {/* 2. 루틴 리포트 */}
+        {/* 3. 루틴 리포트 */}
         <RoutineReportSection />
 
-        {/* 3. 할 일 리포트 */}
+        {/* 4. 할 일 리포트 */}
         <TaskReportSection />
       </Stack>
     </SelectedDateProvider>

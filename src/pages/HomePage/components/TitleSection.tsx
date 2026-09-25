@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Stack, Text } from "@/shared/ui/primitives";
 import { TitleText } from "@/shared/ui/TitleText";
 import { VscTriangleLeft } from "react-icons/vsc";
@@ -10,6 +11,8 @@ interface TitleSectionProps {
   rightOnClick?: () => void;
   onTodayClick?: () => void;
   onRefreshClick?: () => void;
+  /** 버튼 앞에 두는 섹션 전용 컨트롤 (기간 전환 등) */
+  extra?: ReactNode;
 }
 function TitleSection({
   title,
@@ -18,6 +21,7 @@ function TitleSection({
   rightOnClick,
   onTodayClick,
   onRefreshClick,
+  extra,
 }: TitleSectionProps) {
   return (
     <div>
@@ -28,6 +32,8 @@ function TitleSection({
         </div>
 
         <Stack gap={3} direction="row" align="center">
+          {extra}
+
           {onRefreshClick && (
             <button
               onClick={onRefreshClick}
