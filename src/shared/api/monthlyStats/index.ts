@@ -20,5 +20,7 @@ export type {
 } from "./countMonth";
 export { collectAffectedMonths } from "./helpers/collectAffectedMonths";
 export { convertToMonthlyStatsDays } from "./helpers/convertToMonthlyStatsDays";
+export { summarizeRange, toPercent } from "./helpers/summarizeRange";
+export type { RangeSummary, RangeSummaryDay } from "./helpers/summarizeRange";
 export { patchMonthlyStatsDayCache } from "./cache";
 export { refreshCalendarConsistency } from "./helpers/refreshCalendarConsistency";
