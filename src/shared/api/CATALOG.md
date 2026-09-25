@@ -66,8 +66,12 @@
 | `patchMonthlyStatsByDayDeltas` | 하루의 집계를 증감값만큼 조정한다. 할 일 경로 전용이다. | `queries.ts` |
 | `patchMonthlyStatsCompletionByDay` | 하루의 완료 수만 고친다. | `queries.ts` |
 | `patchMonthlyStatsDayCache` | 완료 개수가 바뀐 것을 월간 집계 캐시에 먼저 반영한다. | `cache.ts` |
+| `RangeSummary` | — | `helpers/summarizeRange.ts` |
+| `RangeSummaryDay` | 기간 안의 하루. 오늘 이후 날짜는 upcoming 이며 합계에 들어가지 않는다. | `helpers/summarizeRange.ts` |
 | `recalculateMonthlyStatsByMonth` | 원본 기록에서 한 달치 집계를 다시 계산해 덮어쓴다. | `recalculate.ts` |
 | `refreshCalendarConsistency` | 달력과 리포트가 실제 기록과 어긋나지 않게 맞춘다. | `helpers/refreshCalendarConsistency.ts` |
+| `summarizeRange` | 여러 달의 monthlyStats 에서 한 기간의 개수를 모은다. | `helpers/summarizeRange.ts` |
+| `toPercent` | 완료 ÷ 전체를 반올림한 백분율. 전체가 0 이면 null 이다(0% 와 "셀 것이 없음"을 가른다). | `helpers/summarizeRange.ts` |
 | `upsertMonthlyStatsByMonth` | 넘긴 날짜만 덮어쓰고 나머지 날짜는 그대로 둔다. | `queries.ts` |
 
 ## notice — 공지 (사용자별이 아닌 최상위 컬렉션)
@@ -139,4 +143,4 @@
 
 ---
 
-공개 항목 80개.
+공개 항목 84개.
