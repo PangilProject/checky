@@ -17,6 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { clearAdminCache } from "@/shared/api/auth/adminAccess";
 import { useAdminShortcut } from "./hooks/useAdminShortcut";
 import { ThemeSection } from "./components/ThemeSection";
+import { MonthlyHistorySection } from "./components/MonthlyHistorySection";
 
 function MyPage() {
   return (
@@ -24,6 +25,7 @@ function MyPage() {
       <TitleText text="마이 정보" className="mb-4" />
       <Stack gap={10} direction="col">
         <UserInfoSection />
+        <MonthlyHistorySection />
         <ThemeSection />
         <ButtonSection />
         <LegalLinks />
