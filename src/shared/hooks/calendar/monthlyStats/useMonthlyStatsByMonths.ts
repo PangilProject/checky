@@ -17,25 +17,28 @@ import {
  */
 const repairStarted = new Set<string>();
 
+const NO_MONTHS: string[] = [];
+
 /**
  * 여러 달의 monthlyStats 를 읽는다. 달성 현황과 월별 기록이 쓴다.
  *
  * 달력(useMonthlyData)과 같은 캐시 키를 쓰므로 이미 읽은 달은 다시 읽지 않고,
  * 체크로 캐시가 바뀌면 여기서도 바로 반영된다.
  *
- * repair 를 켜면 할 일·루틴 몫이 필요한 화면을 위해 두 경우를 한 번 고친다.
+ * repairMonths 에 넘긴 달은 할 일·루틴 몫이 필요한 달이라 두 경우를 한 번 고친다.
  *  - 몫이 없는 옛 문서(version 1): 다시 세어 version 2 로 올린다.
  *  - 문서가 없는 달: 원본에서 세어 만든다. 단 managedMonth 는 달력이 같은 일을 하므로 건너뛴다.
  *    둘이 동시에 만들면 같은 달을 두 번 읽고 두 번 쓴다.
+ * 합산값만 필요한 달(지난 기간 비교 등)은 넘기지 않는다. 다시 세기는 한 달치 원본을 모두 읽는다.
  * 어느 쪽이든 한 번 고친 달은 그 뒤로 추가 비용이 없다.
  */
 export const useMonthlyStatsByMonths = ({
   months,
-  repair = false,
+  repairMonths = NO_MONTHS,
   managedMonth,
 }: {
   months: string[];
-  repair?: boolean;
+  repairMonths?: string[];
   managedMonth?: string;
 }) => {
   const { user } = useAuth();
@@ -59,9 +62,9 @@ export const useMonthlyStatsByMonths = ({
   }, [months, results]);
 
   useEffect(() => {
-    if (!repair || !userId) return;
+    if (!userId) return;
 
-    months.forEach((month) => {
+    repairMonths.forEach((month) => {
       const stats = statsByMonth[month];
       if (stats === undefined) return;
 
@@ -85,7 +88,7 @@ export const useMonthlyStatsByMonths = ({
           console.error("Failed to repair monthlyStats", error);
         });
     });
-  }, [repair, userId, managedMonth, months, statsByMonth, queryClient]);
+  }, [userId, managedMonth, repairMonths, statsByMonth, queryClient]);
 
   return {
     statsByMonth,
