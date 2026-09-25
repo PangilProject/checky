@@ -7,6 +7,8 @@ interface AddCategoryProps {
   categoryColor: string;
   /** 새 할 일을 넣을 수 있는지. 종료한 분류는 false 다. */
   canAdd?: boolean;
+  /** 이 분류에서 그날 끝낸 할 일 수와 전체 수. 할 일이 없으면 넘기지 않는다 */
+  count?: { done: number; total: number };
   onClick: () => void;
 }
 
@@ -14,6 +16,7 @@ export const AddCategory = ({
   categoryName,
   categoryColor,
   canAdd = true,
+  count,
   onClick,
 }: AddCategoryProps) => {
   // 저장된 hex 가 아니라 테마에 맞게 고른 색으로 그린다
@@ -36,6 +39,11 @@ export const AddCategory = ({
         // 왜 더할 수 없는지 알 수 있도록 상태를 적어 둔다
         <Text variant="title" tone="muted">
           종료됨
+        </Text>
+      )}
+      {count && (
+        <Text variant="bodySm" tone="muted" className="ml-auto">
+          {`${count.done} / ${count.total}`}
         </Text>
       )}
     </Stack>
