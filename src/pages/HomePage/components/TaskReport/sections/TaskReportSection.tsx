@@ -26,11 +26,21 @@ function TaskReportSection() {
     selectedDate.getMonth() + 1
   }월 ${selectedDate.getDate()}일`;
 
+  // 그날 할 일 중 몇 개를 끝냈는지. 이미 불러온 목록에서 세므로 조회가 늘지 않는다
+  const dayTasks = taskList.tasks.filter((task) => task.date === dateString);
+  const doneCount = dayTasks.filter(
+    (task) => taskList.taskLogMap.get(task.id)?.completed
+  ).length;
+  const subTitle =
+    !taskList.isLoading && dayTasks.length > 0
+      ? `${label} · ${doneCount} / ${dayTasks.length} 완료`
+      : label;
+
   return (
     <div>
       <TitleSection
         title="할 일 목록"
-        subTitle={label}
+        subTitle={subTitle}
         leftOnClick={() => setSelectedDate(moveDay(selectedDate, -1))}
         rightOnClick={() => setSelectedDate(moveDay(selectedDate, 1))}
         onTodayClick={() => setSelectedDate(new Date())}

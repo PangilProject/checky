@@ -54,6 +54,10 @@ export const TaskCategorySection = ({
     )
     .sort((a, b) => a.orderIndex - b.orderIndex);
 
+  const doneCount = filteredTasks.filter(
+    (task) => taskLogMap.get(task.id)?.completed,
+  ).length;
+
   const handleOpenTaskModal = (task: Task) => {
     setSelectedTask(task);
     setIsTaskModalOpen(true);
@@ -70,6 +74,11 @@ export const TaskCategorySection = ({
         categoryName={category.name}
         categoryColor={category.color}
         canAdd={!isEnded}
+        count={
+          filteredTasks.length > 0
+            ? { done: doneCount, total: filteredTasks.length }
+            : undefined
+        }
         onClick={() => setIsAddOpen(true)}
       />
 
