@@ -8,7 +8,9 @@ import {
   getRoutinesByMonthOnce,
 } from "@/shared/api/routine";
 import {
+  MONTHLY_STATS_SPLIT_VERSION,
   buildMonthlyActivityCountMap,
+  convertToMonthlyStatsDays,
   getMonthlyStatsByMonthOnce,
   recalculateMonthlyStatsByMonth,
   upsertMonthlyStatsByMonth,
@@ -20,7 +22,6 @@ import {
   taskKeys,
   taskLogKeys,
 } from "@/shared/api/keys";
-import { convertToMonthlyStatsDays } from "./convertToMonthlyStatsDays";
 import type {
   MonthlyRoutine,
   MonthlyRoutineLog,
@@ -116,16 +117,20 @@ export const useMonthlyData = (date: Date) => {
       routineLogs: routineLogsQuery.data ?? [],
     });
 
+    // 한 달을 원본에서 통째로 센 결과라 몫 필드가 모든 날짜에 있다. 그래서 v2 로 쓴다.
+    // v1 로 쓰면 달성 현황이 할 일·루틴을 나누려고 같은 달을 다시 세야 한다.
     const days = convertToMonthlyStatsDays({ monthKey, map: fallbackMap });
+    const version = MONTHLY_STATS_SPLIT_VERSION;
 
     // 1회 upsert 후 캐시에 monthlyStats가 생기면 다음 렌더부터 정식 경로를 사용합니다.
     writtenMonthRef.current = monthKey;
-    void upsertMonthlyStatsByMonth({ userId, month: monthKey, days })
+    void upsertMonthlyStatsByMonth({ userId, month: monthKey, days, version })
       .then(() => {
         // 방금 쓴 값을 캐시에 심어, refetch(read) 없이 정식 경로로 전환한다.
         queryClient.setQueryData(monthlyStatsKeys.byMonth(userId, monthKey), {
           month: monthKey,
           days,
+          version,
         });
       })
       .catch((error) => {

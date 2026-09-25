@@ -84,6 +84,7 @@ export const useCompletionToggle = ({
         month,
         day,
         completedDelta,
+        kind,
       );
 
       try {

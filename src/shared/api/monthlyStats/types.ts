@@ -20,10 +20,11 @@ export type MonthlyActivitySummary = {
  * 한 달치 요약을 담는 문서.
  *
  * 달력과 리포트가 날짜별 기록을 일일이 읽지 않도록 미리 세어 둔 값이다.
- * days 의 키는 `YYYY-MM-DD` 다.
+ * days 의 키는 그 달 안의 날짜 두 자리(`05`)다. 문서가 이미 월 단위라 연·월은 붙이지 않는다.
  *
  * version 1 은 합산값만, version 2 는 모든 날짜에 task/routine 몫이 나뉘어 있다.
- * version 2 는 전체 재계산이 실행될 때만 부여한다(별도 백필 없음).
+ * version 2 는 원본에서 한 달을 통째로 센 결과로만 부여한다.
+ * 전체 재계산과, 달력이 문서 없는 달을 처음 만들 때(fallback)가 그 경우다. 별도 백필은 없다.
  */
 export type MonthlyStats = {
   month: string;

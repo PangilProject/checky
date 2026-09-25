@@ -52,9 +52,11 @@
 | --- | --- | --- |
 | `buildMonthlyActivityCountMap` | 한 달치 기록을 날짜별 개수로 센다. 반환값은 `YYYY-MM-DD` -> DayCount 다. | `countMonth.ts` |
 | `collectAffectedMonths` | 바뀐 날짜들이 걸쳐 있는 달을 모은다. | `helpers/collectAffectedMonths.ts` |
+| `convertToMonthlyStatsDays` | 날짜별 Map 을 monthlyStats 문서에 넣을 형태로 바꾼다. | `helpers/convertToMonthlyStatsDays.ts` |
 | `DayCount` | 세는 도중 쓰는 하루치 칸. 합산값과 함께 task/routine 몫을 따로 든다. | `countMonth.ts` |
 | `getMonthlyStatsByMonthOnce` | 한 달치 집계 문서를 읽는다. | `queries.ts` |
 | `getMonthlyStatsMonthsOnce` | 집계 문서가 이미 만들어져 있는 달의 목록을 읽는다. | `queries.ts` |
+| `MONTHLY_STATS_SPLIT_VERSION` | 몫이 나뉜 문서 세대. 이 버전 이상이어야 스코프 재계산이 가능하다. | `types.ts` |
 | `MonthlyActivitySummary` | 하루치 요약. 그날 할 일과 루틴을 합쳐 전체·완료·남은 개수를 센다. | `types.ts` |
 | `MonthlyRoutine` | — | `countMonth.ts` |
 | `MonthlyRoutineLog` | — | `countMonth.ts` |
@@ -137,4 +139,4 @@
 
 ---
 
-공개 항목 78개.
+공개 항목 80개.

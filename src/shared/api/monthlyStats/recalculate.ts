@@ -2,7 +2,7 @@ import { getRoutinesByMonthOnce, getRoutineLogsByMonthOnce } from "@/shared/api/
 import { getTasksByMonthOnce } from "@/shared/api/task/queries";
 import { getTaskLogsByMonthOnce } from "@/shared/api/taskLog/queries";
 import { buildMonthlyActivityCountMap } from "./countMonth";
-import type { DayCount } from "./countMonth";
+import { convertToMonthlyStatsDays } from "./helpers/convertToMonthlyStatsDays";
 import { getMonthlyStatsByMonthOnce, replaceMonthlyStatsByMonth } from "./queries";
 import { MONTHLY_STATS_SPLIT_VERSION } from "./types";
 import type { MonthlyActivitySummary } from "./types";
@@ -17,39 +17,6 @@ import type { MonthlyActivitySummary } from "./types";
  * 세는 규칙은 하나다. **그날 해야 했던 것이 전체, 그중 체크된 것이 완료다.**
  * 할 일은 문서가 곧 하루치지만, 루틴은 문서 하나가 여러 날에 걸치므로 날짜별로 펼쳐서 세야 한다.
  */
-
-/**
- * 날짜별 Map 을 monthlyStats 문서에 넣을 형태로 바꾼다.
- *
- * 문서가 이미 월 단위로 나뉘어 있어 키에 연·월을 되풀이할 필요가 없으므로,
- * `2026-08-15` 대신 `15` 를 키로 쓴다.
- * 다른 달 날짜가 섞여 들어오면 걸러 낸다.
- */
-const convertToMonthlyStatsDays = ({
-  monthKey,
-  map,
-}: {
-  monthKey: string;
-  map: Map<string, DayCount>;
-}) => {
-  const days: Record<string, MonthlyActivitySummary> = {};
-
-  map.forEach((value, dateKey) => {
-    if (!dateKey.startsWith(`${monthKey}-`)) return;
-    const day = dateKey.slice(8, 10);
-    days[day] = {
-      total: value.total,
-      completed: value.completed,
-      remaining: value.remaining,
-      hasActivity: value.total > 0,
-      taskTotal: value.taskTotal,
-      taskCompleted: value.taskCompleted,
-      routineTotal: value.routineTotal,
-      routineCompleted: value.routineCompleted,
-    };
-  });
-  return days;
-};
 
 /** 다시 셀 범위. 바뀐 몫만 지정하면 나머지 몫은 기존 문서 값을 그대로 쓴다. */
 export type RecalculateScope = "all" | "task" | "routine";

@@ -1,4 +1,5 @@
 export type { MonthlyStats, MonthlyActivitySummary } from "./types";
+export { MONTHLY_STATS_SPLIT_VERSION } from "./types";
 
 export {
   getMonthlyStatsByMonthOnce,
@@ -18,5 +19,6 @@ export type {
   DayCount,
 } from "./countMonth";
 export { collectAffectedMonths } from "./helpers/collectAffectedMonths";
+export { convertToMonthlyStatsDays } from "./helpers/convertToMonthlyStatsDays";
 export { patchMonthlyStatsDayCache } from "./cache";
 export { refreshCalendarConsistency } from "./helpers/refreshCalendarConsistency";
