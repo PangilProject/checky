@@ -147,6 +147,7 @@ export const createFilmEffects = (root: HTMLElement, context: EffectContext) => 
   const hitButton = inside("hit", "[data-hit]");
   const cta = actor("cta");
   const themeColor = document.querySelector('meta[name="theme-color"]');
+  const scrollHint = root.querySelector<HTMLElement>("[data-scroll-hint]");
   const dots = Array.from(context.progress?.querySelectorAll<HTMLElement>("[data-scene]") ?? []);
 
   const splitMid = lerp(M.splitStart, M.splitEnd, 0.5);
@@ -272,6 +273,11 @@ export const createFilmEffects = (root: HTMLElement, context: EffectContext) => 
       wasDark = isDark;
       context.onNightChange(isDark);
     }
+
+    /* 스크롤 안내: 첫 할 일이 쌓이기 전에 걷힌다 */
+    const hint = 1 - progressBetween(time, 2, M.pileStart - 1);
+    write.style(scrollHint, "opacity", hint.toFixed(3));
+    write.style(scrollHint, "visibility", hint > 0 ? "visible" : "hidden");
 
     /* 진행 표시 */
     const sceneIndex = getSceneIndex(time);

@@ -4,6 +4,7 @@ import { SCENES, TIMELINE_LENGTH, at } from "../constants/scenes";
 import { useFilmEngine } from "../hooks/useFilmEngine";
 import { FilmActors, FilmHud } from "./FilmActors";
 import { ProgressIndicator } from "./ProgressIndicator";
+import { ScrollHint } from "./ScrollHint";
 import { PileFrame } from "./Frames/PileFrame";
 import { FocusFrame } from "./Frames/FocusFrame";
 import { RevealFrame } from "./Frames/RevealFrame";
@@ -87,6 +88,7 @@ export const Film = () => {
           <div className="absolute inset-0">
             <FilmHud onHeroCheck={handleHeroCheck} />
           </div>
+          <ScrollHint />
         </div>
         <ProgressIndicator
           ref={progress}
