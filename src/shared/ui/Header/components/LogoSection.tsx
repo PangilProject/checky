@@ -8,7 +8,7 @@ export const LogoSection = () => {
 
   return (
     // 헤더는 로그인 상태에서만 노출되므로 홈으로 바로 보낸다.
-    // "/" 는 로그인 페이지라 인증 확인과 리다이렉트를 거치며 로딩 화면이 노출된다.
+    // "/" 는 소개 페이지라 인증 확인과 리다이렉트를 거친다.
     <Link to="/home">
       <Stack gap={2} direction="row" align="center" className="my-3 sm:my-4">
         <img src={logoSrc} className="w-6 sm:w-8" />

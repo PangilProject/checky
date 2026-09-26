@@ -46,7 +46,8 @@ const syncBrowserChrome = (theme: ResolvedTheme) => {
   meta?.setAttribute("content", theme === "dark" ? "#141414" : "#ffffff");
 };
 
-const applyToDocument = (theme: ResolvedTheme) => {
+/** 랜딩 필름처럼 잠시 테마를 직접 다루던 화면이 떠날 때, 원래 테마로 되돌리는 데도 쓴다 */
+export const applyToDocument = (theme: ResolvedTheme) => {
   document.documentElement.classList.toggle("dark", theme === "dark");
   syncBrowserChrome(theme);
 };

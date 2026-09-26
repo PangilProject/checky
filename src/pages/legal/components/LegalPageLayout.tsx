@@ -19,7 +19,7 @@ export const LegalPageLayout = ({ children }: LegalPageLayoutProps) => {
 
   /**
    * 주소를 직접 입력해 들어온 경우에는 돌아갈 이력이 없다.
-   * 그때 뒤로 가면 checky 밖으로 나가버리므로 로그인 화면으로 보낸다.
+   * 그때 뒤로 가면 checky 밖으로 나가버리므로 첫 화면으로 보낸다.
    */
   const handleBack = () => {
     if (window.history.length > 1) {

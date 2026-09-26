@@ -75,7 +75,33 @@ select {
   }
 }
 
+/* 랜딩에서 직접 체크했을 때의 짧은 반응 */
+@keyframes checky-check-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.28);
+  }
+  70% {
+    transform: scale(0.94);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@layer utilities {
+  .animate-checky-check-pop {
+    animation: checky-check-pop 0.42s cubic-bezier(0.3, 0.7, 0.4, 1.4);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .animate-checky-check-pop {
+    animation: none;
+  }
+
   .animate-checky-loading {
     animation: none;
     left: 0;

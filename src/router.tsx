@@ -5,6 +5,7 @@ import LoadingPage from "@/pages/LoadingPage/LoadingPage";
 import PrivateRoute from "./shared/ui/PrivateRoute";
 
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
+const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
 const RoutinePage = lazy(() => import("@/pages/RoutinePage"));
@@ -37,8 +38,10 @@ function Router() {
     <BrowserRouter>
       <Suspense fallback={<LoadingPage />}>
         <Routes>
+          {/* 서비스 소개. 첫 화면이며, 로그인한 사용자와 설치한 앱은 홈으로 보낸다 */}
+          <Route path="/" element={<LandingPage />} />
+
           {/* 로그인 */}
-          <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<LoginPage />} />
 
           {/* 약관·방침은 가입 전에 확인할 수 있어야 하므로 로그인 없이 연다 */}
