@@ -2,7 +2,7 @@
   "name": "checky",
   "short_name": "checky",
   "description": "todolist로, 어제 보다 더 나은 오늘을 위해",
-  "start_url": "/",
+  "start_url": "/home",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
