@@ -18,7 +18,7 @@ function AdminLayout() {
   useEffect(() => {
     if (!isAuthResolving && user && !isAdmin) {
       toast.error("관리자 권한이 없습니다.");
-      navigate("/", { replace: true });
+      navigate("/home", { replace: true });
     }
   }, [isAuthResolving, user, isAdmin, navigate]);
 
@@ -29,7 +29,7 @@ function AdminLayout() {
 
   // 🔹 로그인 안 됨
   if (!user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // 🔹 로그인은 했지만 관리자 아님 (alert 후 이동 중)

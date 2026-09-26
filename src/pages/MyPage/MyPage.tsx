@@ -111,7 +111,7 @@ const ButtonSection = () => {
     try {
       await signOut(auth);
       clearSessionCaches();
-      navigate("/", { replace: true });
+      navigate("/login", { replace: true });
       toast.success("로그아웃 되었습니다.");
     } catch {
       toast.error("로그아웃에 실패했습니다.");
@@ -125,7 +125,7 @@ const ButtonSection = () => {
       await deleteAccount();
       clearSessionCaches();
       setWithdrawOpen(false);
-      navigate("/", { replace: true });
+      navigate("/login", { replace: true });
       toast.success("회원탈퇴가 완료되었습니다.");
     } catch (error) {
       setWithdrawOpen(false);

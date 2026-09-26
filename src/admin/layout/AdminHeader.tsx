@@ -65,6 +65,6 @@ const MENUS = [
   { label: "유저", path: "/admin/users" },
   { label: "공지", path: "/admin/notices" },
   { label: "문의", path: "/admin/reports" },
-  { label: "나가기", path: "/" },
+  { label: "나가기", path: "/home" },
 ];
 export default AdminHeader;

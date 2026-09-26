@@ -39,6 +39,7 @@ function Router() {
         <Routes>
           {/* 로그인 */}
           <Route path="/" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
 
           {/* 약관·방침은 가입 전에 확인할 수 있어야 하므로 로그인 없이 연다 */}
           <Route path="/privacy" element={<PrivacyPage />} />
