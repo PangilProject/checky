@@ -6,6 +6,7 @@ import { useCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
 import {
   createTask,
   getTasksByDateOnce,
+  markTaskMonthsStale,
   updateTaskOrder,
   type Task,
 } from "@/shared/api/task";
@@ -223,6 +224,7 @@ export const useTaskList = ({
         completedDelta: 0,
         remainingDelta: 1,
       });
+      void markTaskMonthsStale({ queryClient, userId, dates: [dateString] });
     } catch {
       queryClient.setQueryData<Task[]>(taskQueryKey, (prev = []) =>
         prev.filter((task) => task.id !== tempId)
@@ -314,6 +316,13 @@ export const useTaskList = ({
       commit: async () => {
         await toggleTaskLog({ userId, taskId, date: dateString, currentLog });
       },
+    });
+    void markTaskMonthsStale({
+      queryClient,
+      userId,
+      dates: [dateString],
+      tasks: false,
+      logs: true,
     });
   };
 

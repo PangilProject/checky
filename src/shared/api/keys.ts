@@ -35,7 +35,8 @@ export const routinePageKeys = {
  * all: 모든 할 일
  * byDate: 특정 날짜의 할 일 목록 (userId, date)
  * byMonth: 특정 월의 할 일 목록 (userId, month)
- * byRange: 기간의 할 일 목록 (userId, startDate, endDate). 기록 화면이 쓴다
+ * byRange: 한 주의 할 일과 완료 기록 (userId, startDate, endDate). 한 주 보기가 한 번에 읽어
+ *          날짜별 캐시에 나눠 심을 때 쓴다(비용 이슈 17)
  */
 export const taskKeys = {
   all: ["tasks"] as const,
@@ -52,7 +53,6 @@ export const taskKeys = {
  * all: 모든 할 일 로그
  * byDate: 특정 날짜의 할 일 로그 (userId, date)
  * byMonth: 특정 월의 할 일 로그 (userId, month)
- * byRange: 기간의 할 일 로그 (userId, startDate, endDate)
  */
 export const taskLogKeys = {
   all: ["taskLogs"] as const,
@@ -60,8 +60,6 @@ export const taskLogKeys = {
     [...taskLogKeys.all, userId, date] as const,
   byMonth: (userId: string, month: string) =>
     [...taskLogKeys.all, userId, "month", month] as const,
-  byRange: (userId: string, startDate: string, endDate: string) =>
-    [...taskLogKeys.all, userId, "range", startDate, endDate] as const,
 };
 
 /**
@@ -84,9 +82,9 @@ export const routineKeys = {
  * all: 모든 루틴 로그
  * byMonth: 특정 월의 루틴 로그 (userId, month)
  * byRoutine: 루틴 하나의 기간 로그 (userId, routineId, startDate, endDate). 루틴 기록 창이 쓴다
- * byRange: 기간의 모든 루틴 로그 (userId, startDate, endDate). 기록 화면이 쓴다
  *
- * routineOf / ranges 는 체크 토글 뒤 무효화할 때 쓰는 접두사다.
+ * routineOf 는 체크 토글이 그 루틴의 기록 창 캐시를 모두 찾아 고칠 때 쓰는 접두사다.
+ * 기록 화면은 byMonth 를 그대로 쓴다(달력 fallback 과 같은 캐시, 토글이 이미 고친다).
  */
 export const routineLogKeys = {
   all: ["routineLogs"] as const,
@@ -101,10 +99,6 @@ export const routineLogKeys = {
     endDate: string,
   ) =>
     [...routineLogKeys.routineOf(userId, routineId), startDate, endDate] as const,
-  ranges: (userId: string) =>
-    [...routineLogKeys.all, userId, "range"] as const,
-  byRange: (userId: string, startDate: string, endDate: string) =>
-    [...routineLogKeys.ranges(userId), startDate, endDate] as const,
 };
 
 /**

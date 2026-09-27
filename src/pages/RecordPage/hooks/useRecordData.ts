@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
 import {
@@ -8,23 +8,23 @@ import {
   taskKeys,
   taskLogKeys,
 } from "@/shared/api/keys";
-import { getTasksByRangeOnce } from "@/shared/api/task";
-import { getTaskLogsByRangeOnce } from "@/shared/api/taskLog";
-import { getRoutineLogsByRangeOnce } from "@/shared/api/routineLog";
-import { getRoutinesOnce } from "@/shared/api/routine";
+import { getTasksByMonthOnce } from "@/shared/api/task";
+import { getTaskLogsByMonthOnce } from "@/shared/api/taskLog";
+import { getRoutineLogsByMonthOnce, getRoutinesOnce } from "@/shared/api/routine";
+import { buildMonthKeysBetween } from "@/shared/api/monthlyStats/monthKeys";
 import { summarizeRecord } from "../utils/summarizeRecord";
 
 /**
  * 기록 화면이 한 기간을 돌아보는 데 필요한 원본을 읽어 센다.
  *
- * 읽는 범위는 기간 시작 ~ 기준일(보통 오늘)까지다. 아직 오지 않은 날은 세지 않으므로 읽지 않는다.
- * 한 달을 처음 열면 그 기간의 할 일·할 일 기록·루틴 기록 수에 루틴 수를 더한 만큼 읽는다.
+ * 원본은 **달 단위 캐시**로 읽고, 기간은 그 안에서 잘라 쓴다. 키와 조회 함수가 달력 fallback
+ * (useMonthlyData)과 같아 캐시를 함께 쓰고, 주간·월간을 오가도 같은 달은 다시 읽지 않는다.
+ * 한 달을 처음 열면 그달 할 일·할 일 기록·루틴 기록 수에 루틴 수를 더한 만큼 읽는다.
  *
- * 할 일은 홈의 여러 곳(추가·체크·이동·일괄 동작)에서 바뀌는데 그 경로들은 날짜별 캐시만 고친다.
- * 그래서 할 일 두 쿼리는 이 화면을 열 때마다 다시 읽는다(staleTime 0). 캐시는 남아 있어
- * 다시 읽는 동안에도 지난 값이 먼저 보인다.
- * 루틴 기록은 체크 토글이 이 캐시를 무효화하고, 루틴 목록은 루틴을 고치면 무효화되므로
- * 전역 기본 신선도를 따른다.
+ * 신선도는 전역 기본값을 따른다. 대신 바뀌는 쪽이 이 캐시를 맞춘다.
+ *  - 루틴 기록: 체크 토글이 월별 캐시를 낙관 반영한다 (비용 이슈 14)
+ *  - 할 일·할 일 기록: 바꾸는 경로가 markTaskMonthsStale 로 그달을 낡음 표시한다 (비용 이슈 16)
+ *  - 루틴 목록: 루틴을 고치면 refreshCalendarConsistency 가 routineKeys.all 을 무효화한다
  */
 export const useRecordData = ({
   startDate,
@@ -37,69 +37,67 @@ export const useRecordData = ({
 }) => {
   const { user } = useAuth();
   const userId = user?.uid ?? "";
-  const fetchEnd = cutoffDate < endDate ? cutoffDate : endDate;
+  const lastCounted = cutoffDate < endDate ? cutoffDate : endDate;
   // 아직 시작하지 않은 기간은 셀 것이 없으므로 읽지 않는다
-  const enabled = Boolean(userId) && startDate <= fetchEnd;
+  const months = useMemo(
+    () => buildMonthKeysBetween(startDate, lastCounted),
+    [startDate, lastCounted],
+  );
+  const enabled = Boolean(userId) && months.length > 0;
 
   const categoriesQuery = useCategoriesQuery(userId, { enabled: Boolean(userId) });
 
-  const tasksQuery = useQuery({
-    queryKey: taskKeys.byRange(userId, startDate, fetchEnd),
-    queryFn: () => getTasksByRangeOnce({ userId, startDate, endDate: fetchEnd }),
-    enabled,
-    staleTime: 0,
+  const tasksQueries = useQueries({
+    queries: months.map((month) => ({
+      queryKey: taskKeys.byMonth(userId, month),
+      queryFn: () => getTasksByMonthOnce({ userId, month }),
+      enabled,
+    })),
   });
-  const taskLogsQuery = useQuery({
-    queryKey: taskLogKeys.byRange(userId, startDate, fetchEnd),
-    queryFn: () => getTaskLogsByRangeOnce({ userId, startDate, endDate: fetchEnd }),
-    enabled,
-    staleTime: 0,
+  const taskLogsQueries = useQueries({
+    queries: months.map((month) => ({
+      queryKey: taskLogKeys.byMonth(userId, month),
+      queryFn: () => getTaskLogsByMonthOnce({ userId, month }),
+      enabled,
+    })),
+  });
+  const routineLogsQueries = useQueries({
+    queries: months.map((month) => ({
+      queryKey: routineLogKeys.byMonth(userId, month),
+      queryFn: () => getRoutineLogsByMonthOnce({ userId, month }),
+      enabled,
+    })),
   });
   const routinesQuery = useQuery({
     queryKey: routineKeys.list(userId),
     queryFn: () => getRoutinesOnce(userId),
     enabled,
   });
-  const routineLogsQuery = useQuery({
-    queryKey: routineLogKeys.byRange(userId, startDate, fetchEnd),
-    queryFn: () =>
-      getRoutineLogsByRangeOnce({ userId, startDate, endDate: fetchEnd }),
-    enabled,
+
+  const monthQueries = [...tasksQueries, ...taskLogsQueries, ...routineLogsQueries];
+  const allQueries = [categoriesQuery, routinesQuery, ...monthQueries];
+  const isLoading = allQueries.some((query) => query.isLoading);
+  const isError = allQueries.some((query) => query.isError);
+
+  const tasks = tasksQueries.flatMap((query) => query.data ?? []);
+  const taskLogs = taskLogsQueries.flatMap((query) => query.data ?? []);
+  const routineLogs = routineLogsQueries.flatMap((query) => query.data ?? []);
+
+  // 루틴 수 × 날짜 수만큼 도는 가벼운 계산이라 렌더마다 센다.
+  // useQueries 결과는 렌더마다 새 배열이라 useMemo 로 묶어도 걸러지지 않는다.
+  const summary = summarizeRecord({
+    tasks,
+    taskLogs,
+    routines: routinesQuery.data ?? [],
+    routineLogs,
+    categories: categoriesQuery.data ?? [],
+    startDate,
+    endDate,
+    cutoffDate,
   });
 
-  const queries = [tasksQuery, taskLogsQuery, routinesQuery, routineLogsQuery];
-  const isLoading =
-    categoriesQuery.isLoading || queries.some((query) => query.isLoading);
-  const isError =
-    categoriesQuery.isError || queries.some((query) => query.isError);
-
-  const summary = useMemo(
-    () =>
-      summarizeRecord({
-        tasks: tasksQuery.data ?? [],
-        taskLogs: taskLogsQuery.data ?? [],
-        routines: routinesQuery.data ?? [],
-        routineLogs: routineLogsQuery.data ?? [],
-        categories: categoriesQuery.data ?? [],
-        startDate,
-        endDate,
-        cutoffDate,
-      }),
-    [
-      tasksQuery.data,
-      taskLogsQuery.data,
-      routinesQuery.data,
-      routineLogsQuery.data,
-      categoriesQuery.data,
-      startDate,
-      endDate,
-      cutoffDate,
-    ],
-  );
-
   const refetch = () => {
-    void categoriesQuery.refetch();
-    queries.forEach((query) => void query.refetch());
+    allQueries.forEach((query) => void query.refetch());
   };
 
   return { summary, isLoading, isError, refetch };

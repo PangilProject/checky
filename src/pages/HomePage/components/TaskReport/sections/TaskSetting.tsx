@@ -7,7 +7,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { formatDateToYmd } from "@/shared/utils/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
-import { monthlyStatsKeys, taskKeys } from "@/shared/api/keys";
+import { monthlyStatsKeys, taskKeys, taskLogKeys } from "@/shared/api/keys";
 import { moveDay } from "@/shared/utils/dateNavigation";
 import {
   collectAffectedMonths,
@@ -59,6 +59,12 @@ export function TaskSetting() {
       ...months.map((month) =>
         queryClient.invalidateQueries({
           queryKey: taskKeys.byMonth(user?.uid ?? "", month),
+        }),
+      ),
+      // 이동·삭제는 완료 기록도 함께 옮기거나 지우므로 기록 화면이 읽는 달 캐시도 비운다
+      ...months.map((month) =>
+        queryClient.invalidateQueries({
+          queryKey: taskLogKeys.byMonth(user?.uid ?? "", month),
         }),
       ),
       ...months.map((month) =>

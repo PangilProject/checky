@@ -1,7 +1,7 @@
 import type { Category } from "@/shared/api/category";
 import type { Task } from "@/shared/api/task";
 import type { TaskLog } from "@/shared/api/taskLog";
-import type { RoutineLog } from "@/shared/api/routineLog";
+import type { MonthlyRoutineLog } from "@/shared/api/monthlyStats";
 import {
   buildRoutineDays,
   summarizeRoutineDays,
@@ -57,7 +57,7 @@ export const summarizeRecord = ({
   tasks: Task[];
   taskLogs: TaskLog[];
   routines: Routine[];
-  routineLogs: RoutineLog[];
+  routineLogs: MonthlyRoutineLog[];
   categories: Category[];
   startDate: string;
   endDate: string;

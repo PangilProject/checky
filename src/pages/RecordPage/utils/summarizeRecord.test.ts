@@ -95,7 +95,7 @@ describe("summarizeRecord", () => {
           scheduleHistory: [{ effectiveFrom: "2026-10-01", days: [1] }],
         },
       ],
-      routineLogs: [{ id: "x", routineId: "r1", date: "2026-09-21", done: true }],
+      routineLogs: [{ routineId: "r1", date: "2026-09-21", done: true }],
     });
 
     expect(summary.routineRows.map((row) => [row.routine.id, row.done, row.total])).toEqual([

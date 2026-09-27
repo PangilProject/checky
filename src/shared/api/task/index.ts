@@ -9,3 +9,4 @@ export {
 } from "./queries";
 
 export { updateTaskOrder } from "./order";
+export { markTaskMonthsStale } from "./cache";

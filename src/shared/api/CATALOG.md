@@ -115,7 +115,6 @@
 
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
-| `getRoutineLogsByRangeOnce` | 기간의 모든 루틴 기록을 읽는다. 기록 화면이 루틴별 수행을 셀 때 쓴다. | `queries.ts` |
 | `getRoutineLogsByRoutineOnce` | 루틴 하나의 기간 기록을 읽는다. 루틴 기록 창이 쓴다. | `queries.ts` |
 | `RoutineLog` | 루틴을 그날 했는지 남기는 기록. 루틴 하나와 날짜 하나에 기록도 하나다. | `types.ts` |
 | `toggleRoutineLog` | 루틴의 특정 날짜 수행 여부를 저장한다. | `crud.ts` |
@@ -129,6 +128,7 @@
 | `getTasksByDateOnce` | 하루치 할 일을 읽는다. 홈 화면이 오늘 목록을 그릴 때 쓴다. | `queries.ts` |
 | `getTasksByMonthOnce` | 그달의 할 일을 읽는다. 달력과 월간 집계를 다시 셀 때 쓴다. | `queries.ts` |
 | `getTasksByRangeOnce` | 기간의 할 일을 읽는다. 기록 화면이 한 주·한 달을 돌아볼 때 쓴다. | `queries.ts` |
+| `markTaskMonthsStale` | 할 일이 바뀐 달의 달 단위 캐시를 낡음으로 표시한다. | `cache.ts` |
 | `Task` | 특정 날짜에 하기로 한 할 일. date 는 `YYYY-MM-DD`, time 은 정한 경우에만 있다. | `types.ts` |
 | `updateTaskOrder` | 할 일 정렬 순서를 한 번에 저장한다. | `order.ts` |
 | `updateTaskWithDateMove` | 할 일을 고치고, 날짜나 분류가 바뀌면 옮긴다. | `crud.ts` |

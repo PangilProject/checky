@@ -44,34 +44,3 @@ export const getRoutineLogsByRoutineOnce = async ({
   perf.end({ count: logs.length });
   return logs;
 };
-
-/**
- * 기간의 모든 루틴 기록을 읽는다. 기록 화면이 루틴별 수행을 셀 때 쓴다.
- *
- * date 한 필드의 범위 조건이라 복합 인덱스가 필요 없다.
- */
-export const getRoutineLogsByRangeOnce = async ({
-  userId,
-  startDate,
-  endDate,
-}: {
-  userId: string;
-  startDate: string;
-  endDate: string;
-}): Promise<RoutineLog[]> => {
-  const perf = baselineFetch("routineLogs/fetch/byRange", {
-    userId,
-    startDate,
-    endDate,
-  });
-  const q = query(
-    routineLogsRef(userId),
-    where("date", ">=", startDate),
-    where("date", "<=", endDate),
-  );
-
-  const snap = await getDocs(q);
-  const logs = snap.docs.map((doc) => mapDoc<RoutineLog>(doc));
-  perf.end({ count: logs.length });
-  return logs;
-};
