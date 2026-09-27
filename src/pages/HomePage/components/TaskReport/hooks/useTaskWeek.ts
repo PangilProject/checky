@@ -1,8 +1,16 @@
 import { useMemo, useState } from "react";
-import { useQueries, useQueryClient } from "@tanstack/react-query";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { getTasksByDateOnce, type Task } from "@/shared/api/task";
-import { getTaskLogsByDateOnce, type TaskLog } from "@/shared/api/taskLog";
+import {
+  getTasksByDateOnce,
+  getTasksByRangeOnce,
+  type Task,
+} from "@/shared/api/task";
+import {
+  getTaskLogsByDateOnce,
+  getTaskLogsByRangeOnce,
+  type TaskLog,
+} from "@/shared/api/taskLog";
 import { taskKeys, taskLogKeys } from "@/shared/api/keys";
 import { buildMonthKeysBetween } from "@/shared/api/monthlyStats/monthKeys";
 import { useCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
@@ -23,8 +31,11 @@ export interface TaskWeekDay {
  * 한 주 보기의 데이터.
  *
  * 하루 보기(useTaskList)와 **같은 날짜별 캐시 키**를 쓴다. 그래서 하루 보기에서 추가·체크·삭제한
- * 결과가 그대로 보이고, 이미 본 날은 다시 읽지 않는다. 처음 여는 주는 날마다 할 일·기록
- * 두 쿼리씩 최대 14번 읽는다(빈 날도 쿼리당 최소 1 read).
+ * 결과가 그대로 보이고, 이미 본 날은 다시 읽지 않는다.
+ *
+ * 다만 날짜별로 읽으면 처음 여는 주에 쿼리가 14개(이레 × 할 일·기록)이고, 빈 날도 쿼리마다
+ * 최소 1 read 가 붙는다. 그래서 비어 있는 날이 있으면 주 범위로 두 번만 읽고, 결과를 날짜별
+ * 캐시에 나눠 심는다. 날짜별 쿼리는 그 뒤에 켜지므로 방금 심은 날은 다시 읽지 않는다 (비용 이슈 17).
  * 루틴 수는 달력과 같은 monthlyStats 문서에서 가져오므로 추가 조회가 거의 없다.
  */
 export const useTaskWeek = ({
@@ -44,18 +55,67 @@ export const useTaskWeek = ({
     enabled: Boolean(userId),
   });
 
+  const weekStart = weekDates[0] ?? "";
+  const weekEnd = weekDates[weekDates.length - 1] ?? "";
+
+  // 이 주를 처음 그릴 때 날짜별 캐시가 빈 날이 있는가. 이레가 모두 있으면 범위로 읽을 필요가 없다.
+  // 주가 바뀔 때만 다시 판단한다. 범위 결과를 심은 뒤에 다시 보면 늘 "다 있음"이 되기 때문이다.
+  const needsRange = useMemo(
+    () =>
+      Boolean(userId) &&
+      weekDates.some(
+        (date) =>
+          queryClient.getQueryData(taskKeys.byDate(safeUserId, date)) === undefined ||
+          queryClient.getQueryData(taskLogKeys.byDate(safeUserId, date)) === undefined,
+      ),
+    [queryClient, safeUserId, userId, weekDates],
+  );
+
+  const rangeQuery = useQuery({
+    queryKey: taskKeys.byRange(safeUserId, weekStart, weekEnd),
+    queryFn: async () => {
+      const [tasks, logs] = await Promise.all([
+        getTasksByRangeOnce({ userId: safeUserId, startDate: weekStart, endDate: weekEnd }),
+        getTaskLogsByRangeOnce({ userId: safeUserId, startDate: weekStart, endDate: weekEnd }),
+      ]);
+      // 이미 있는 캐시는 덮지 않는다. 체크나 추가가 낙관 반영된 값일 수 있다.
+      weekDates.forEach((date) => {
+        const tasksKey = taskKeys.byDate(safeUserId, date);
+        const logsKey = taskLogKeys.byDate(safeUserId, date);
+        if (queryClient.getQueryData(tasksKey) === undefined) {
+          queryClient.setQueryData<Task[]>(
+            tasksKey,
+            tasks.filter((task) => task.date === date),
+          );
+        }
+        if (queryClient.getQueryData(logsKey) === undefined) {
+          queryClient.setQueryData<TaskLog[]>(
+            logsKey,
+            logs.filter((log) => log.date === date),
+          );
+        }
+      });
+      return { taskCount: tasks.length, logCount: logs.length };
+    },
+    enabled: needsRange && weekDates.length > 0,
+  });
+
+  // 범위 조회가 끝나거나 실패한 뒤에 날짜별 쿼리를 켠다. 실패하면 날짜별로 읽는다.
+  const perDateEnabled =
+    Boolean(userId) && (!needsRange || rangeQuery.isSuccess || rangeQuery.isError);
+
   const taskQueries = useQueries({
     queries: weekDates.map((date) => ({
       queryKey: taskKeys.byDate(safeUserId, date),
       queryFn: () => getTasksByDateOnce({ userId: safeUserId, date }),
-      enabled: Boolean(userId),
+      enabled: perDateEnabled,
     })),
   });
   const logQueries = useQueries({
     queries: weekDates.map((date) => ({
       queryKey: taskLogKeys.byDate(safeUserId, date),
       queryFn: () => getTaskLogsByDateOnce({ userId: safeUserId, date }),
-      enabled: Boolean(userId),
+      enabled: perDateEnabled,
     })),
   });
 
@@ -93,7 +153,8 @@ export const useTaskWeek = ({
       doneCount: tasks.filter((task) => logMap.get(task.id)?.completed).length,
       // 문서는 있는데 그날 칸이 없으면 그날 할 것이 없었던 것이다
       routineCount: !monthStats ? null : stat ? (stat.routineTotal ?? null) : 0,
-      isLoading: Boolean(taskQueries[index]?.isLoading),
+      isLoading:
+        (needsRange && rangeQuery.isLoading) || Boolean(taskQueries[index]?.isLoading),
     };
   });
 
