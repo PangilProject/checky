@@ -9,7 +9,7 @@ import { moveMonth, moveWeek } from "@/shared/utils/dateNavigation";
 import {
   getAchievementRanges,
   type AchievementMode,
-} from "./utils/getAchievementRanges";
+} from "@/shared/utils/getAchievementRanges";
 import { ModeToggle } from "./components/ModeToggle";
 import { AchievementSummary } from "./components/AchievementSummary";
 import { AchievementSkeleton } from "./components/AchievementSkeleton";

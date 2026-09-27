@@ -1,6 +1,6 @@
 import { toPercent, type RangeSummary } from "@/shared/api/monthlyStats";
 import { Text } from "@/shared/ui/primitives";
-import type { AchievementMode, AchievementRanges } from "../utils/getAchievementRanges";
+import type { AchievementMode, AchievementRanges } from "@/shared/utils/getAchievementRanges";
 import { WeekDayBars } from "./WeekDayBars";
 import { MonthWeekBars } from "./MonthWeekBars";
 
