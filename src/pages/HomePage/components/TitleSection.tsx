@@ -25,7 +25,8 @@ function TitleSection({
 }: TitleSectionProps) {
   return (
     <div>
-      <div className="flex justify-between items-start">
+      {/* 좁은 화면에서 버튼이 많아지면(할 일 목록의 보기 전환 등) 제목을 밀어내지 않고 다음 줄로 내린다 */}
+      <div className="flex flex-wrap justify-between items-start gap-y-2">
         <div>
           <TitleText text={title} />
           <SubTitle text={subTitle} />
