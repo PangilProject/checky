@@ -9,6 +9,7 @@ const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
 const RoutinePage = lazy(() => import("@/pages/RoutinePage"));
+const RecordPage = lazy(() => import("@/pages/RecordPage"));
 const MyPage = lazy(() => import("@/pages/MyPage"));
 const PageNotFound = lazy(() => import("./pages/PageNotFound"));
 const PrivacyPage = lazy(() => import("@/pages/legal/PrivacyPage"));
@@ -53,6 +54,7 @@ function Router() {
             <Route path="/home" element={<HomePage />} />
             <Route path="/category" element={<CategoryPage />} />
             <Route path="/routine" element={<RoutinePage />} />
+            <Route path="/record" element={<RecordPage />} />
             <Route path="/my" element={<MyPage />} />
           </Route>
 

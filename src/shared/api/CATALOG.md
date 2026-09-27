@@ -90,6 +90,7 @@
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
 | `applyRoutineOrderToReportCache` | 홈의 주간 루틴 표를 새 루틴 순서로 맞춘다. | `cache.ts` |
+| `buildRoutineDays` | startDate ~ endDate 의 날마다 상태를 매긴다. 날짜가 잘못되면 빈 배열이다. | `history.ts` |
 | `createRoutine` | 루틴을 만든다. | `crud.ts` |
 | `deleteRoutine` | 루틴과 그 수행 기록(routineLogs)을 함께 지운다. | `crud.ts` |
 | `getRoutineLogsByMonthOnce` | 그달의 루틴 수행 기록을 읽는다. | `queries.ts` |
@@ -98,9 +99,15 @@
 | `getRoutinesOnce` | 사용자의 루틴을 모두 읽는다. 루틴 화면이 분류별로 묶어 그릴 때 쓴다. | `queries.ts` |
 | `Routine` | 정해진 요일마다 되풀이하는 습관. | `types.ts` |
 | `RoutineCategory` | 한 분류와 그 분류에 속한 루틴들. 루틴 화면이 분류별로 묶어 보여줄 때 쓴다. | `types.ts` |
+| `RoutineCount` | — | `history.ts` |
+| `RoutineDay` | — | `history.ts` |
+| `RoutineDayStatus` | done: 했음 / missed: 해야 했는데 못 함 / off: 루틴 기간 안의 쉬는 날 | `history.ts` |
+| `RoutineHistorySummary` | — | `history.ts` |
 | `RoutineReport` | 주간 리포트 전체. 한 주 정보와 루틴별 줄 목록으로 이루어진다. | `types.ts` |
 | `RoutineReportRow` | 리포트의 루틴 한 줄. checks 는 날짜별 수행 여부다. | `types.ts` |
 | `RoutineScheduleHistoryItem` | 반복 요일을 바꾼 이력 한 건. effectiveFrom 부터 days 가 적용된다. | `types.ts` |
+| `RoutineScheduleSegment` | 반복 요일 이력 한 구간. from ~ until 은 보여 주는 기간 안으로 잘라 둔 날짜다 | `history.ts` |
+| `summarizeRoutineDays` | 펼친 날들을 합계·요일별·반복 요일 이력 구간별로 센다. | `history.ts` |
 | `updateRoutine` | 루틴을 고친다. | `crud.ts` |
 | `updateRoutineOrder` | 루틴 정렬 순서를 한 번에 저장한다. | `order.ts` |
 
@@ -108,6 +115,8 @@
 
 | 이름 | 하는 일 | 파일 |
 | --- | --- | --- |
+| `getRoutineLogsByRangeOnce` | 기간의 모든 루틴 기록을 읽는다. 기록 화면이 루틴별 수행을 셀 때 쓴다. | `queries.ts` |
+| `getRoutineLogsByRoutineOnce` | 루틴 하나의 기간 기록을 읽는다. 루틴 기록 창이 쓴다. | `queries.ts` |
 | `RoutineLog` | 루틴을 그날 했는지 남기는 기록. 루틴 하나와 날짜 하나에 기록도 하나다. | `types.ts` |
 | `toggleRoutineLog` | 루틴의 특정 날짜 수행 여부를 저장한다. | `crud.ts` |
 
@@ -119,6 +128,7 @@
 | `deleteTaskWithLogs` | 할 일과 그 완료 기록을 함께 지운다. | `crud.ts` |
 | `getTasksByDateOnce` | 하루치 할 일을 읽는다. 홈 화면이 오늘 목록을 그릴 때 쓴다. | `queries.ts` |
 | `getTasksByMonthOnce` | 그달의 할 일을 읽는다. 달력과 월간 집계를 다시 셀 때 쓴다. | `queries.ts` |
+| `getTasksByRangeOnce` | 기간의 할 일을 읽는다. 기록 화면이 한 주·한 달을 돌아볼 때 쓴다. | `queries.ts` |
 | `Task` | 특정 날짜에 하기로 한 할 일. date 는 `YYYY-MM-DD`, time 은 정한 경우에만 있다. | `types.ts` |
 | `updateTaskOrder` | 할 일 정렬 순서를 한 번에 저장한다. | `order.ts` |
 | `updateTaskWithDateMove` | 할 일을 고치고, 날짜나 분류가 바뀌면 옮긴다. | `crud.ts` |
@@ -129,6 +139,7 @@
 | --- | --- | --- |
 | `getTaskLogsByDateOnce` | 하루치 완료 기록을 읽는다. 할 일 목록에 체크 표시를 그릴 때 쓴다. | `queries.ts` |
 | `getTaskLogsByMonthOnce` | 그달의 완료 기록을 읽는다. | `queries.ts` |
+| `getTaskLogsByRangeOnce` | 기간의 완료 기록을 읽는다. 기록 화면이 쓴다. | `queries.ts` |
 | `TaskLog` | 할 일을 그날 체크했는지 남기는 기록. 할 일 하나와 날짜 하나에 기록도 하나다. | `types.ts` |
 | `toggleTaskLog` | 할 일의 완료 여부를 뒤집는다. | `crud.ts` |
 
@@ -143,4 +154,4 @@
 
 ---
 
-공개 항목 84개.
+공개 항목 95개.

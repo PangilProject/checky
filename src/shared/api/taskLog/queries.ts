@@ -47,3 +47,34 @@ export const getTaskLogsByMonthOnce = async ({
   perf.end({ count: logs.length });
   return logs;
 };
+
+/**
+ * 기간의 완료 기록을 읽는다. 기록 화면이 쓴다.
+ *
+ * date 한 필드의 범위 조건이라 복합 인덱스가 필요 없다.
+ */
+export const getTaskLogsByRangeOnce = async ({
+  userId,
+  startDate,
+  endDate,
+}: {
+  userId: string;
+  startDate: string;
+  endDate: string;
+}): Promise<TaskLog[]> => {
+  const perf = baselineFetch("taskLogs/fetch/byRange", {
+    userId,
+    startDate,
+    endDate,
+  });
+  const q = query(
+    taskLogsRef(userId),
+    where("date", ">=", startDate),
+    where("date", "<=", endDate),
+  );
+
+  const snap = await getDocs(q);
+  const logs = snap.docs.map((doc) => mapDoc<TaskLog>(doc));
+  perf.end({ count: logs.length });
+  return logs;
+};

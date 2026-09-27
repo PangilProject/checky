@@ -47,3 +47,34 @@ export const getTasksByMonthOnce = async ({
   perf.end({ count: tasks.length });
   return tasks;
 };
+
+/**
+ * 기간의 할 일을 읽는다. 기록 화면이 한 주·한 달을 돌아볼 때 쓴다.
+ *
+ * date 한 필드의 범위 조건이라 복합 인덱스가 필요 없다. 읽기는 기간 안의 할 일 수만큼이다.
+ */
+export const getTasksByRangeOnce = async ({
+  userId,
+  startDate,
+  endDate,
+}: {
+  userId: string;
+  startDate: string;
+  endDate: string;
+}): Promise<Task[]> => {
+  const perf = baselineFetch("tasks/fetch/byRange", {
+    userId,
+    startDate,
+    endDate,
+  });
+  const q = query(
+    tasksRef(userId),
+    where("date", ">=", startDate),
+    where("date", "<=", endDate),
+  );
+
+  const snap = await getDocs(q);
+  const tasks = snap.docs.map(mapTaskDoc);
+  perf.end({ count: tasks.length });
+  return tasks;
+};
