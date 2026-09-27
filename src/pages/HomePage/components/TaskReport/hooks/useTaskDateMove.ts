@@ -1,9 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { updateTaskWithDateMove, type Task } from "@/shared/api/task";
+import {
+  markTaskMonthsStale,
+  updateTaskWithDateMove,
+  type Task,
+} from "@/shared/api/task";
 import { taskKeys } from "@/shared/api/keys";
 import {
   collectAffectedMonths,
+  patchMonthlyStatsByDayDeltas,
   refreshCalendarConsistency,
 } from "@/shared/api/monthlyStats";
 
@@ -19,39 +24,71 @@ export const useTaskDateMove = (userId?: string) => {
   /**
    * 할 일이 다른 날짜로 옮겨진 뒤 달력 집계를 맞춘다.
    *
-   * 이동은 두 날짜의 전체·완료·남은 개수가 동시에 움직이고 완료 기록도 따라가므로,
-   * 증감을 손으로 계산하지 않고 두 날짜가 걸친 달을 원본에서 다시 센다.
-   * 옛 날짜와 새 날짜가 다른 달일 수 있어 둘 다 넘겨야 한다.
+   * 옛 날짜에서 하나 빼고 새 날짜에 하나 더한다. 완료였다면 완료 수도 함께 옮긴다.
+   * 완료 여부는 updateTaskWithDateMove 가 기록을 옮기며 서버에서 읽은 값이라 화면 캐시에 기대지 않는다.
+   * 예전에는 그달 할 일·기록을 전부 다시 셌는데, 끌어 옮기기가 흔해지면서
+   * 비용이 그달에 쌓인 할 일 수에 비례해 커져 증분으로 바꿨다 (비용 이슈 15).
    *
-   * 다시 세는 쪽이 먼저다. 캐시를 먼저 비우면 아직 낡은 문서를 다시 읽어 온다.
+   * 두 패치는 차례로 보낸다. 같은 달이면 같은 문서라 동시에 보내면 트랜잭션이 서로 부딪힌다.
+   * 집계 문서가 없는 달은 패치가 아무것도 하지 않고, 달력이 열릴 때 원본에서 새로 센다.
    *
    * 여기서 실패해도 할 일 자체는 이미 옮겨진 뒤다. 실패를 위로 던지면
    * 저장에 실패했다고 잘못 알리게 되므로, 달력만 어긋났다는 사실과
    * 되돌릴 방법을 따로 알린다.
    */
-  const syncCalendarAfterDateMove = async (dates: string[]) => {
-    if (!userId) return;
+  const syncCalendarAfterDateMove = async ({
+    prevDate,
+    nextDate,
+    wasCompleted,
+  }: {
+    prevDate: string;
+    nextDate: string;
+    wasCompleted: boolean;
+  }) => {
+    if (!userId || !prevDate || !nextDate || prevDate === nextDate) return;
 
-    const uniqueDates = Array.from(new Set(dates.filter(Boolean)));
+    const done = wasCompleted ? 1 : 0;
 
     try {
+      await patchMonthlyStatsByDayDeltas({
+        userId,
+        month: prevDate.slice(0, 7),
+        day: prevDate.slice(8, 10),
+        totalDelta: -1,
+        completedDelta: -done,
+        remainingDelta: -(1 - done),
+      });
+      await patchMonthlyStatsByDayDeltas({
+        userId,
+        month: nextDate.slice(0, 7),
+        day: nextDate.slice(8, 10),
+        totalDelta: 1,
+        completedDelta: done,
+        remainingDelta: 1 - done,
+      });
+
       await refreshCalendarConsistency({
         queryClient,
         userId,
-        affectedMonths: collectAffectedMonths({ dates: uniqueDates }),
-        recalculate: true,
-        // 할 일만 옮겨졌으므로 task 몫만 다시 세고, 루틴 몫은 기존 집계를 쓴다.
-        recalculateScope: "task",
+        affectedMonths: collectAffectedMonths({ dates: [prevDate, nextDate] }),
         invalidateTasksByMonth: true,
       });
 
-      await Promise.all(
-        uniqueDates.map((date) =>
+      await Promise.all([
+        ...[prevDate, nextDate].map((date) =>
           queryClient.invalidateQueries({
             queryKey: taskKeys.byDate(userId, date),
           }),
         ),
-      );
+        // 완료 기록도 새 날짜로 옮겨졌으므로 기록 화면이 읽는 달 캐시도 낡음 표시한다
+        markTaskMonthsStale({
+          queryClient,
+          userId,
+          dates: [prevDate, nextDate],
+          tasks: false,
+          logs: true,
+        }),
+      ]);
     } catch {
       toast.error(
         "할 일은 옮겼지만 달력 숫자를 맞추지 못했습니다. 리스트 메뉴의 월간 통계 재생성을 실행해 주세요.",
@@ -67,7 +104,7 @@ export const useTaskDateMove = (userId?: string) => {
   const moveTaskToDate = async (task: Task, nextDate: string) => {
     if (!userId || !nextDate || nextDate === task.date) return;
 
-    await updateTaskWithDateMove({
+    const { wasCompleted } = await updateTaskWithDateMove({
       userId,
       taskId: task.id,
       title: task.title,
@@ -78,7 +115,7 @@ export const useTaskDateMove = (userId?: string) => {
       categoryId: task.categoryId,
       categoryColor: task.categoryColor,
     });
-    await syncCalendarAfterDateMove([task.date, nextDate]);
+    await syncCalendarAfterDateMove({ prevDate: task.date, nextDate, wasCompleted });
   };
 
   return { syncCalendarAfterDateMove, moveTaskToDate };

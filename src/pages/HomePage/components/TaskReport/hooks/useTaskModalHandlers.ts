@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { deleteTaskWithLogs, updateTaskWithDateMove } from "@/shared/api/task";
+import {
+  deleteTaskWithLogs,
+  markTaskMonthsStale,
+  updateTaskWithDateMove,
+} from "@/shared/api/task";
 import { useTaskDateMove } from "./useTaskDateMove";
 import type { Task } from "@/shared/api/task";
 import type { Category } from "@/shared/api/category";
@@ -92,9 +96,10 @@ export const useTaskModalHandlers = ({
     categories.find((c) => c.id === effectiveCategoryId)?.color ??
     categoryColor;
 
-  const invalidateTaskDates = (dates: string[]) => {
+  const invalidateTaskDates = (dates: string[], { logs = false } = {}) => {
     if (!userId) return;
     const uniqueDates = Array.from(new Set(dates.filter(Boolean)));
+    void markTaskMonthsStale({ queryClient, userId, dates: uniqueDates, logs });
     uniqueDates.forEach((date) => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.byDate(userId, date),
@@ -117,7 +122,7 @@ export const useTaskModalHandlers = ({
     try {
       const isDateChanged = task.date !== taskDate;
 
-      await updateTaskWithDateMove({
+      const { wasCompleted } = await updateTaskWithDateMove({
         userId,
         taskId: task.id,
         title: taskInput.trim(),
@@ -129,9 +134,13 @@ export const useTaskModalHandlers = ({
         categoryColor: selectedCategoryColor,
       });
 
-      // 날짜가 그대로면 날짜별 개수가 바뀌지 않으므로 비싼 재계산을 하지 않는다
+      // 날짜가 그대로면 날짜별 개수가 바뀌지 않으므로 달력 집계를 건드리지 않는다
       if (isDateChanged) {
-        await syncCalendarAfterDateMove([task.date, taskDate]);
+        await syncCalendarAfterDateMove({
+          prevDate: task.date,
+          nextDate: taskDate,
+          wasCompleted,
+        });
       } else {
         invalidateTaskDates([taskDate]);
       }
@@ -181,7 +190,7 @@ export const useTaskModalHandlers = ({
         completedDelta: wasCompleted ? -1 : 0,
         remainingDelta: wasCompleted ? 0 : -1,
       });
-      invalidateTaskDates([task.date]);
+      invalidateTaskDates([task.date], { logs: true });
       onClose();
     } catch {
       toast.error("할 일 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");

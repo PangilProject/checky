@@ -84,6 +84,10 @@ export const createTask = async ({
  * 날짜나 분류가 바뀐 경우에만 옮겨 갈 자리의 orderIndex 를 새로 읽는다.
  * 완료 기록도 새 날짜로 따라가며, 지우고 새로 만드는 두 동작을 한 배치로 묶어
  * 중간에 실패해도 기록이 사라지지 않게 한다.
+ *
+ * 돌려주는 wasCompleted 는 옮긴 할 일이 완료였는지다. 기록을 옮기려고 이미 읽은 값이라
+ * 추가 read 가 없고, 호출부는 이 값으로 달력 집계를 증분으로 맞춘다(비용 이슈 15).
+ * 날짜가 그대로면 기록을 읽지 않으므로 false 다.
  */
 export const updateTaskWithDateMove = async ({
   userId,
@@ -105,7 +109,7 @@ export const updateTaskWithDateMove = async ({
   categoryId: string;
   categoryColor?: string;
   time?: string;
-}) => {
+}): Promise<{ wasCompleted: boolean }> => {
   let nextOrderIndex: number | undefined;
 
   if (prevDate !== nextDate || (prevCategoryId && prevCategoryId !== categoryId)) {
@@ -131,7 +135,7 @@ export const updateTaskWithDateMove = async ({
     updatedAt: serverTimestamp(),
   });
   // 날짜가 그대로면 완료 기록도 그 자리에 맞으므로 읽지도 옮기지도 않는다.
-  if (prevDate === nextDate) return;
+  if (prevDate === nextDate) return { wasCompleted: false };
 
   const prevLogQuery = query(
     taskLogsRef(userId),
@@ -141,9 +145,11 @@ export const updateTaskWithDateMove = async ({
 
   const snapshot = await getDocs(prevLogQuery);
 
-  if (snapshot.empty) return;
+  if (snapshot.empty) return { wasCompleted: false };
 
   const prevLogData = snapshot.docs[0].data();
+  // 새 날짜에 옮겨지는 것은 첫 기록의 값이므로 완료 여부도 그 값을 따른다
+  const wasCompleted = prevLogData.completed === true;
 
   // 삭제와 생성을 하나의 배치로 처리해 중간에 실패해도 완료 기록이 사라지지 않게 한다.
   // 새 기록은 toggleTaskLog 와 같은 고정 ID(`{taskId}_{date}`)로 만든다.
@@ -161,6 +167,8 @@ export const updateTaskWithDateMove = async ({
     { merge: true }
   );
   await batch.commit();
+
+  return { wasCompleted };
 };
 
 /**
