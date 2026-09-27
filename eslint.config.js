@@ -98,7 +98,11 @@ const noDangerousHtml = [
 ]
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  /*
+    .content-studio 와 out 은 .gitignore 에 올라 있는 로컬 전용 콘텐츠 제작 폴더다(Remotion 소스와 렌더 결과).
+    앱 코드가 아니고 저장소에도 없으므로, 여기서 나는 에러가 앱 검사를 실패시키지 않게 뺀다.
+  */
+  globalIgnores(['dist', '.content-studio', 'out']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
