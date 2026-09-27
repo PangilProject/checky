@@ -9,12 +9,18 @@ import { RiCheckboxBlankFill } from "react-icons/ri";
 interface RoutineItemProps {
   routine: Routine;
   onClickMore: () => void;
+  /** 제목을 누르면 그 루틴의 기록을 연다 */
+  onClickTitle: () => void;
 }
 
 /**
  * 개별 루틴 아이템 컴포넌트
  */
-export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
+export const RoutineItem = ({
+  routine,
+  onClickMore,
+  onClickTitle,
+}: RoutineItemProps) => {
   const today = formatDateToYmd(new Date());
   const isEnded = Boolean(routine.endDate && routine.endDate < today);
 
@@ -32,7 +38,13 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
       <div className="flex justify-between items-center w-full ">
         <Stack gap={2} direction="row" align="center">
           <RiCheckboxBlankFill size={10} />
-          <div className="flex flex-col">
+          {/* 짧게 누르면 기록을 연다. 길게 누르면 줄 전체가 드래그로 잡힌다(SortableList 의 감도) */}
+          <button
+            type="button"
+            onClick={onClickTitle}
+            aria-label={`${routine.title} 기록 보기`}
+            className="flex flex-col text-left pressable"
+          >
             {/* 루틴 제목 */}
             <Stack gap={2} direction="row" align="center">
               {isEnded && (
@@ -59,7 +71,7 @@ export const RoutineItem = ({ routine, onClickMore }: RoutineItemProps) => {
                   </Text>
                 ))}
             </Stack>
-          </div>
+          </button>
         </Stack>
 
         {/* 더보기 버튼 (상세/수정 모달 트리거) */}

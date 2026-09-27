@@ -3,12 +3,13 @@ import { useState } from "react";
 import { useRoutineData } from "./hooks/useRoutineData";
 import { useRoutineDnD } from "./hooks/useRoutineDnD";
 import { useRoutineModal } from "./hooks/useRoutineModal";
-import { type RoutineCategory } from "@/shared/api/routine";
+import { type Routine, type RoutineCategory } from "@/shared/api/routine";
 import { RoutineListSkeleton } from "./components/RoutineListSkeleton";
 import EmptyRoutineList from "./components/EmptyRoutineList";
 import { RoutineCategorySection } from "./components/RoutineCategorySection";
 import { RoutineModalContainer } from "./components/RoutineModalContainer";
 import { Button, Stack } from "@/shared/ui/primitives";
+import { RoutineHistoryModal } from "@/shared/ui/RoutineHistory/RoutineHistoryModal";
 
 /**
  * 루틴 목록을 카테고리별로 표시하고 관리하는 컴포넌트
@@ -26,6 +27,11 @@ export const RoutineList = () => {
   const { data, isError, refetch } = useRoutineData(userId, !!user);
   const { handleReorder } = useRoutineDnD(userId, setRoutineCategories);
   const modal = useRoutineModal();
+  // 기록 창에 띄운 루틴과 그 분류. 분류 이름과 색을 기록 창 제목과 칸 색에 쓴다
+  const [historyTarget, setHistoryTarget] = useState<{
+    routine: Routine;
+    category: RoutineCategory["category"];
+  } | null>(null);
 
   /**
    * 서버에서 가져온 루틴 데이터를 로컬 상태로 동기화
@@ -72,9 +78,23 @@ export const RoutineList = () => {
           routines={routines}
           onAdd={() => modal.openCreate(category.id)}
           onSelect={modal.setSelectedRoutine}
+          onOpenHistory={(routine) => setHistoryTarget({ routine, category })}
           onReorder={(nextRoutines) => handleReorder(nextRoutines, category.id)}
         />
       ))}
+
+      {/* 루틴 기록 */}
+      {historyTarget && (
+        <RoutineHistoryModal
+          routine={historyTarget.routine}
+          category={historyTarget.category}
+          onClose={() => setHistoryTarget(null)}
+          onOpenDetail={() => {
+            setHistoryTarget(null);
+            modal.setSelectedRoutine(historyTarget.routine);
+          }}
+        />
+      )}
 
       {/* 루틴 모달 */}
       <RoutineModalContainer

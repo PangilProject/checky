@@ -11,3 +11,11 @@ export { getRoutineReportByWeek } from "./report";
 export { updateRoutineOrder } from "./order";
 export { applyRoutineOrderToReportCache } from "./cache";
 export { getRoutinesOnce, getRoutinesByMonthOnce, getRoutineLogsByMonthOnce } from "./queries";
+export { buildRoutineDays, summarizeRoutineDays } from "./history";
+export type {
+  RoutineDay,
+  RoutineDayStatus,
+  RoutineCount,
+  RoutineHistorySummary,
+  RoutineScheduleSegment,
+} from "./history";

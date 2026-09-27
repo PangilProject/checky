@@ -35,6 +35,7 @@ export const routinePageKeys = {
  * all: 모든 할 일
  * byDate: 특정 날짜의 할 일 목록 (userId, date)
  * byMonth: 특정 월의 할 일 목록 (userId, month)
+ * byRange: 기간의 할 일 목록 (userId, startDate, endDate). 기록 화면이 쓴다
  */
 export const taskKeys = {
   all: ["tasks"] as const,
@@ -42,6 +43,8 @@ export const taskKeys = {
     [...taskKeys.all, userId, date] as const,
   byMonth: (userId: string, month: string) =>
     [...taskKeys.all, userId, "month", month] as const,
+  byRange: (userId: string, startDate: string, endDate: string) =>
+    [...taskKeys.all, userId, "range", startDate, endDate] as const,
 };
 
 /**
@@ -49,6 +52,7 @@ export const taskKeys = {
  * all: 모든 할 일 로그
  * byDate: 특정 날짜의 할 일 로그 (userId, date)
  * byMonth: 특정 월의 할 일 로그 (userId, month)
+ * byRange: 기간의 할 일 로그 (userId, startDate, endDate)
  */
 export const taskLogKeys = {
   all: ["taskLogs"] as const,
@@ -56,28 +60,51 @@ export const taskLogKeys = {
     [...taskLogKeys.all, userId, date] as const,
   byMonth: (userId: string, month: string) =>
     [...taskLogKeys.all, userId, "month", month] as const,
+  byRange: (userId: string, startDate: string, endDate: string) =>
+    [...taskLogKeys.all, userId, "range", startDate, endDate] as const,
 };
 
 /**
  * 루틴 관련 쿼리 키
  * all: 모든 루틴
  * byMonth: 특정 월의 루틴 목록 (userId, month)
+ * list: 사용자의 루틴 전체 (userId). 기록 화면이 쓴다
+ *
+ * 루틴을 만들거나 고치면 refreshCalendarConsistency 가 all 을 무효화하므로 list 도 함께 갱신된다.
  */
 export const routineKeys = {
   all: ["routines"] as const,
   byMonth: (userId: string, month: string) =>
     [...routineKeys.all, userId, "month", month] as const,
+  list: (userId: string) => [...routineKeys.all, userId, "list"] as const,
 };
 
 /**
  * 루틴 로그 관련 쿼리 키
  * all: 모든 루틴 로그
  * byMonth: 특정 월의 루틴 로그 (userId, month)
+ * byRoutine: 루틴 하나의 기간 로그 (userId, routineId, startDate, endDate). 루틴 기록 창이 쓴다
+ * byRange: 기간의 모든 루틴 로그 (userId, startDate, endDate). 기록 화면이 쓴다
+ *
+ * routineOf / ranges 는 체크 토글 뒤 무효화할 때 쓰는 접두사다.
  */
 export const routineLogKeys = {
   all: ["routineLogs"] as const,
   byMonth: (userId: string, month: string) =>
     [...routineLogKeys.all, userId, "month", month] as const,
+  routineOf: (userId: string, routineId: string) =>
+    [...routineLogKeys.all, userId, "routine", routineId] as const,
+  byRoutine: (
+    userId: string,
+    routineId: string,
+    startDate: string,
+    endDate: string,
+  ) =>
+    [...routineLogKeys.routineOf(userId, routineId), startDate, endDate] as const,
+  ranges: (userId: string) =>
+    [...routineLogKeys.all, userId, "range"] as const,
+  byRange: (userId: string, startDate: string, endDate: string) =>
+    [...routineLogKeys.ranges(userId), startDate, endDate] as const,
 };
 
 /**

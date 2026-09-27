@@ -10,6 +10,7 @@ type Props = {
   onReorder: (nextRoutines: Routine[]) => void;
   onAdd: () => void;
   onSelect: (routine: Routine) => void;
+  onOpenHistory: (routine: Routine) => void;
 };
 
 /**
@@ -22,6 +23,7 @@ export const RoutineCategorySection = ({
   onReorder,
   onAdd,
   onSelect,
+  onOpenHistory,
 }: Props) => {
   // 종료한 카테고리에는 새 루틴을 넣지 못한다.
   // 다만 이미 있는 루틴은 그대로 보여 줘야 고치거나 지울 수 있다.
@@ -76,6 +78,7 @@ export const RoutineCategorySection = ({
               key={routine.id}
               routine={routine}
               onClickMore={() => onSelect(routine)}
+              onClickTitle={() => onOpenHistory(routine)}
             />
           ))}
         </Stack>

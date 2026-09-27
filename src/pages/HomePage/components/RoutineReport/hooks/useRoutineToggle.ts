@@ -95,5 +95,14 @@ export function useRoutineToggle({
       },
       commit: () => toggleRoutineLog({ userId, routineId, date, done }),
     });
+
+    // 루틴 기록 창과 기록 화면은 이 체크를 낙관 반영하지 않으므로 다음에 열 때 다시 읽게 한다.
+    // 지금 열려 있지 않으면 표시만 해 두므로 읽기가 늘지 않는다.
+    void queryClient.invalidateQueries({
+      queryKey: routineLogKeys.routineOf(userId, routineId),
+    });
+    void queryClient.invalidateQueries({
+      queryKey: routineLogKeys.ranges(userId),
+    });
   };
 }
