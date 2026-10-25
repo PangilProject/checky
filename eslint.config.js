@@ -132,4 +132,14 @@ export default defineConfig([
       'no-restricted-syntax': ['error', ...noVerboseVarClass, ...noDangerousHtml],
     },
   },
+  {
+    // Playwright 테스트는 React 코드가 아니다. fixture 가 넘기는 use() 를 훅으로 잘못 읽으므로
+    // React 규칙만 끄고, Node 에서 돌므로 Node 전역을 연다.
+    files: ['e2e/**/*.ts', 'playwright.config.ts'],
+    languageOptions: { globals: globals.node },
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
