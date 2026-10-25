@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import { ModalTitle } from "@/shared/ui/ModalTitle";
 import { Button, Stack, Text } from "@/shared/ui/primitives";
+import { cn } from "@/shared/ui/cn";
 
 interface ConfirmModalProps {
   title: string;
@@ -55,7 +56,19 @@ export function ConfirmModal({
           onClick={() => void handleConfirm()}
           disabled={isConfirming}
         >
-          {isConfirming ? "처리 중..." : confirmText}
+          {/*
+            두 문구를 같은 칸에 겹쳐 두고 하나만 보이게 해, 버튼 폭을 긴 쪽에 고정한다.
+            문구가 바뀌며 폭이 달라지면 옆 버튼이 밀리고, 비활성 전환 애니메이션과 겹쳐
+            밀리기 전 버튼 조각이 화면에 잔상으로 남는다.
+          */}
+          <span className="grid">
+            <span className={cn("col-start-1 row-start-1", isConfirming && "invisible")}>
+              {confirmText}
+            </span>
+            <span className={cn("col-start-1 row-start-1", !isConfirming && "invisible")}>
+              처리 중...
+            </span>
+          </span>
         </Button>
       </Stack>
     </ModalWrapper>
