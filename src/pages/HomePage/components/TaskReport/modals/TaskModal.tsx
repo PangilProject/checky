@@ -21,6 +21,7 @@ import { getCategoryTextColor } from "@/shared/constants/colors";
 import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 
 interface TaskModalProps {
   mode: "VIEW" | "EDIT";
@@ -50,6 +51,7 @@ export default function TaskModal({
   onClose,
 }: TaskModalProps) {
   const [isMoveDateModalOpen, setIsMoveDateModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { user } = useAuth();
   const {
     taskInput,
@@ -198,7 +200,7 @@ export default function TaskModal({
               <Button
                 variant="outline"
                 tone="danger"
-                onClick={() => void handleDeleteTask()}
+                onClick={() => setIsDeleteConfirmOpen(true)}
                 disabled={isSubmitting}
               >
                 삭제
@@ -212,6 +214,21 @@ export default function TaskModal({
         <UnsavedChangesConfirm
           onConfirm={confirmClose}
           onClose={cancelClose}
+        />
+      )}
+
+      {/* 완료 기록까지 함께 지워져 되돌릴 수 없으므로 한 번 더 묻는다 */}
+      {isDeleteConfirmOpen && (
+        <ConfirmModal
+          title="할 일을 삭제할까요?"
+          description="완료 기록도 함께 삭제되며, 이 작업은 되돌릴 수 없습니다."
+          confirmText="삭제"
+          danger
+          onClose={() => setIsDeleteConfirmOpen(false)}
+          onConfirm={async () => {
+            await handleDeleteTask();
+            setIsDeleteConfirmOpen(false);
+          }}
         />
       )}
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/shared/ui/primitives";
 import { ModalWrapper } from "@/shared/ui/Modal";
 import type { RoutineModalProps } from "./types";
@@ -13,6 +14,7 @@ import { ModalActions } from "@/shared/ui/ModalActions";
 import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 
 export default function RoutineModal({
   mode = "CREATE",
@@ -21,6 +23,7 @@ export default function RoutineModal({
   onClose,
 }: RoutineModalProps) {
   const state = useRoutineModalState({ mode, routine });
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { handleSubmit, handleDelete, isSubmitting } = useRoutineModalActions({
     routine,
     categoryId,
@@ -118,7 +121,7 @@ export default function RoutineModal({
           <Button
             variant="outline"
             tone="danger"
-            onClick={() => void handleDelete()}
+            onClick={() => setIsDeleteConfirmOpen(true)}
             disabled={isSubmitting}
           >
             삭제
@@ -130,6 +133,21 @@ export default function RoutineModal({
         <UnsavedChangesConfirm
           onConfirm={confirmClose}
           onClose={cancelClose}
+        />
+      )}
+
+      {/* 지금까지의 수행 기록까지 함께 지워져 되돌릴 수 없으므로 한 번 더 묻는다 */}
+      {isDeleteConfirmOpen && (
+        <ConfirmModal
+          title="루틴을 삭제할까요?"
+          description="지금까지의 수행 기록도 함께 삭제되며, 이 작업은 되돌릴 수 없습니다."
+          confirmText="삭제"
+          danger
+          onClose={() => setIsDeleteConfirmOpen(false)}
+          onConfirm={async () => {
+            await handleDelete();
+            setIsDeleteConfirmOpen(false);
+          }}
         />
       )}
     </ModalWrapper>

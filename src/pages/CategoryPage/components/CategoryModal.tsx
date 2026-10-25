@@ -22,6 +22,7 @@ import { useDirtyForm } from "@/shared/hooks/useDirtyForm";
 import { useEditModalExit } from "@/shared/hooks/useEditModalExit";
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { UnsavedChangesConfirm } from "@/shared/ui/UnsavedChangesConfirm";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 
 const CATEGORY_NAME_MAX_LENGTH = 20;
 
@@ -66,6 +67,7 @@ export default function CategoryModal({
   const [currentMode, setCurrentMode] = useState(mode);
   // 저장/종료/복구 처리 중 중복 실행 방지 (이중 클릭 시 문서 중복 생성 차단)
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEndConfirmOpen, setIsEndConfirmOpen] = useState(false);
 
   const isReadOnly = currentMode === "VIEW";
   const nameInputRef = useAutoFocus<HTMLInputElement>(!isReadOnly);
@@ -207,7 +209,7 @@ export default function CategoryModal({
             <Button
               variant="outline"
               tone="danger"
-              onClick={() => void handleEndCategory()}
+              onClick={() => setIsEndConfirmOpen(true)}
               disabled={isSubmitting}
             >
               종료
@@ -219,6 +221,20 @@ export default function CategoryModal({
         <UnsavedChangesConfirm
           onConfirm={confirmClose}
           onClose={cancelClose}
+        />
+      )}
+
+      {/* 종료는 복구할 수 있어 경고가 아니라 안내로 묻는다 */}
+      {isEndConfirmOpen && (
+        <ConfirmModal
+          title="카테고리를 종료할까요?"
+          description="종료한 카테고리는 '종료된 카테고리'에서 언제든 복구할 수 있습니다."
+          confirmText="종료"
+          onClose={() => setIsEndConfirmOpen(false)}
+          onConfirm={async () => {
+            await handleEndCategory();
+            setIsEndConfirmOpen(false);
+          }}
         />
       )}
     </ModalWrapper>
