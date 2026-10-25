@@ -4,7 +4,7 @@ import {
   applyRoutineOrderToReportCache,
   updateRoutineOrder,
 } from "@/shared/api/routine";
-import { routinePageKeys } from "@/shared/api/keys";
+import { routineKeys, routinePageKeys } from "@/shared/api/keys";
 import { useDebouncedCommit } from "@/shared/hooks/useDebouncedCommit";
 import type { Routine, RoutineCategory } from "@/shared/api/routine";
 
@@ -66,6 +66,14 @@ export const useRoutineDnD = (
             queryClient,
             categoryId,
             ordered.map((routine) => routine.id),
+          );
+          // 기록 화면의 루틴별 수행도 이 차례로 늘어놓는다
+          const orderById = new Map(ordered.map(({ id, orderIndex }) => [id, orderIndex]));
+          queryClient.setQueryData<Routine[]>(routineKeys.list(userId), (routines) =>
+            routines?.map((routine) => {
+              const orderIndex = orderById.get(routine.id);
+              return orderIndex === undefined ? routine : { ...routine, orderIndex };
+            }),
           );
         })
         .catch(() => {
