@@ -23,11 +23,13 @@ export const AddCategory = ({
   const color = getCategoryTextColor(categoryColor);
   return (
     <Stack
+      // 누를 수 있을 때만 버튼으로 그려, 키보드와 스크린 리더로도 할 일을 추가할 수 있게 한다
+      as={canAdd ? "button" : "div"}
       gap={2}
       direction="row"
       align="center"
-      className="min-h-10" // 여백을 넣던 빈 요소가 만들던 줄 높이를 그대로 유지한다
-
+      className="min-h-10 w-full text-left" // 여백을 넣던 빈 요소가 만들던 줄 높이를 그대로 유지한다
+      aria-label={canAdd ? `${categoryName}에 할 일 추가` : undefined}
       onClick={canAdd ? onClick : undefined}
     >
       <Text variant="title" style={{ color }}>

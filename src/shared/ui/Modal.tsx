@@ -1,4 +1,5 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
+import { ModalTitleIdContext } from "./modalTitleId";
 
 interface ModalWrapperProps {
   onClose: () => void;
@@ -63,6 +64,7 @@ const unlockBodyScroll = () => {
 
 export const ModalWrapper = ({ onClose, children }: ModalWrapperProps) => {
   const rootRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
   // ESC 로 닫기 (키보드 사용자 탈출 경로). 겹쳐 있을 때는 맨 위 모달만 닫는다.
   useEffect(() => {
@@ -95,12 +97,13 @@ export const ModalWrapper = ({ onClose, children }: ModalWrapperProps) => {
       <div
         role="dialog"
         aria-modal="true"
+        aria-labelledby={titleId}
         // 모바일(360px)에서도 잘리지 않도록 가변 폭 + 세로 스크롤 허용.
         // overscroll-contain: 내부 스크롤이 끝에 닿아도 배경으로 전파되지 않게 한다.
         className="w-full max-w-120 max-h-[90vh] overflow-y-auto overscroll-contain rounded-xl bg-surface-raised p-6 shadow-(--shadow-modal) sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
-        {children}
+        <ModalTitleIdContext value={titleId}>{children}</ModalTitleIdContext>
       </div>
     </div>
   );

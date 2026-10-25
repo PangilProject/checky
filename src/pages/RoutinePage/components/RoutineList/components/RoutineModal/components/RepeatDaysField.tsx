@@ -27,6 +27,7 @@ export const RepeatDaysField = ({
           <button
             className="flex items-center gap-1"
             onClick={toggleSelectAllDays}
+            aria-pressed={selectAllDays}
           >
             <Text variant="bodySm">전체</Text>
             {selectAllDays ? (
@@ -45,6 +46,7 @@ export const RepeatDaysField = ({
               key={day.value}
               disabled={isReadOnly}
               onClick={() => toggleDay(day.value)}
+              aria-pressed={active}
               className={`
                 w-8 h-8 rounded-full text-sm
                 border pressable

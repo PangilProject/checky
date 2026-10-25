@@ -90,6 +90,8 @@ export const RoutineTable = ({ report, onToggle }: RoutineTableProps) => {
                         onClick={() =>
                           onToggle(row.routineId, day.date, checked)
                         }
+                        aria-label={`${row.routineTitle} ${Number(day.date.slice(5, 7))}월 ${Number(day.date.slice(8, 10))}일`}
+                        aria-pressed={checked}
                         className="pressable"
                       >
                         {checked ? (

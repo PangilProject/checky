@@ -261,6 +261,7 @@ const CategoryNameInput = ({
     <Input
       ref={ref}
       placeholder="카테고리 입력"
+      aria-label="카테고리 이름"
       value={categoryInput}
       maxLength={CATEGORY_NAME_MAX_LENGTH}
       disabled={disabled}
@@ -297,22 +298,22 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
       <div className="w-full flex justify-between items-center">
         <Text variant="body">색상</Text>
 
-        <div
+        <button
+          type="button"
+          disabled={disabled}
+          aria-label="색상 선택"
+          aria-expanded={isOpen && !disabled}
           className={`flex gap-2 items-center ${
             disabled ? "cursor-default" : "cursor-pointer"
           }`}
-          onClick={() => {
-            if (!disabled) {
-              setIsOpen((prev) => !prev);
-            }
-          }}
+          onClick={() => setIsOpen((prev) => !prev)}
         >
           <div
             className="w-4.5 h-4.5 rounded-4xl"
             style={{ backgroundColor: getCategoryColor(value.value) }}
           />
           {!disabled && (isOpen ? <RxTriangleUp /> : <RxTriangleDown />)}
-        </div>
+        </button>
       </div>
 
       <div
@@ -327,6 +328,8 @@ const ColorSelector = ({ value, onChange, disabled }: ColorSelectorProps) => {
         {COLORS.map((color) => (
           <button
             key={color.name}
+            aria-label={color.name}
+            aria-pressed={value.name === color.name}
             className={`
               w-4.5 h-4.5 rounded-full transition-transform
               ${
