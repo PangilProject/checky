@@ -40,7 +40,8 @@ export const TaskWeekBoard = ({
   todayYmd: string;
   onSelectDate: (date: string) => void;
 }) => {
-  const [dragging, setDragging] = useState<Task | null>(null);
+  // 끌리는 동안 손을 따라 그리는 카드. 완료 여부도 함께 들고 있어야 체크 표시가 사라지지 않는다
+  const [dragging, setDragging] = useState<{ task: Task; completed: boolean } | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: ACTIVATION_CONSTRAINT }),
   );
@@ -51,7 +52,9 @@ export const TaskWeekBoard = ({
   const maxLoad = Math.max(...loads, 1);
 
   const handleDragStart = (event: DragStartEvent) => {
-    setDragging((event.active.data.current?.task as Task | undefined) ?? null);
+    const task = event.active.data.current?.task as Task | undefined;
+    const completed = Boolean(event.active.data.current?.completed);
+    setDragging(task ? { task, completed } : null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -87,7 +90,7 @@ export const TaskWeekBoard = ({
         <DragOverlay>
           {dragging && (
             <div className="rotate-[-2deg] rounded-md bg-surface-raised px-1.5 py-2 shadow-(--shadow-drag)">
-              <TaskLine task={dragging} completed={false} />
+              <TaskLine task={dragging.task} completed={dragging.completed} />
             </div>
           )}
         </DragOverlay>
@@ -182,7 +185,7 @@ const DraggableTask = ({
 }) => {
   const { setNodeRef, attributes, listeners, isDragging } = useDraggable({
     id: task.id,
-    data: { task },
+    data: { task, completed },
     disabled,
   });
 
