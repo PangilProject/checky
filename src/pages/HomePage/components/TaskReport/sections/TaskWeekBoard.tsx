@@ -89,7 +89,11 @@ export const TaskWeekBoard = ({
 
         <DragOverlay>
           {dragging && (
-            <div className="rotate-[-2deg] rounded-md bg-surface-raised px-1.5 py-2 shadow-(--shadow-drag)">
+            // 손을 따라다니는 그림일 뿐이라 역할도 이름도 없어, 테스트가 찾을 표식을 단다
+            <div
+              data-testid="task-drag-preview"
+              className="rotate-[-2deg] rounded-md bg-surface-raised px-1.5 py-2 shadow-(--shadow-drag)"
+            >
               <TaskLine task={dragging.task} completed={dragging.completed} />
             </div>
           )}
