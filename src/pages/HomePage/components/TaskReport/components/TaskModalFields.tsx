@@ -24,6 +24,7 @@ export const TaskInput = ({
     <Input
       ref={ref}
       placeholder="할 일을 입력하세요"
+      aria-label="할 일 내용"
       value={value}
       maxLength={100}
       disabled={disabled}

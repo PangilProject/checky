@@ -50,6 +50,7 @@ npm run e2e:ui             # 에뮬레이터를 켜고 Playwright UI 창을 연�
 | `fixtures.ts` | `test`, `expect` 는 `@playwright/test` 가 아니라 여기서 가져온다 |
 | `seed.ts` | 시작 데이터 넣기. `const { seed } = await signIn()` 뒤에 `seed.category(...)`, `seed.routine(...)` 처럼 쓴다 |
 | `drag.ts` | 끌어 놓기. `dragTo(page, 집을 것, 놓을 곳)`, 끄는 도중을 확인하려면 `grab()` |
+| `network.ts` | `waitForSaved(page)` 저장이 끝날 때까지 기다리기(새로고침으로 확인하기 전에), `failWrites(page)` 쓰기 실패 흉내 |
 
 ```ts
 test.use({ today: "2026-10-21" });              // 화면의 오늘을 고정
@@ -69,5 +70,7 @@ test("TC-ROUTINE-001 ...", { tag: "@regression" }, async ({ page, signIn }) => {
   역할도 이름도 없는 요소(끌기 미리보기 같은 그림)에만 `data-testid` 를 단다.
 - 헤더 메뉴로 화면을 옮긴 직후에는 새 화면이 뜬 것을 먼저 확인한다. 다음 화면 코드를 받는 동안 이전 화면이 그대로 남아 있어, 같은 이름의 요소를 잘못 잡는다.
 - 고정 대기(`waitForTimeout`)는 쓰지 않는다. `expect(...).toBeVisible()` 처럼 상태를 기다린다. 예외는 `drag.ts` 의 누르고 있기뿐이다.
+- 화면은 저장을 기다리지 않고 먼저 바뀐다. 새로고침이나 다른 화면에서 저장을 확인하려면 먼저 `waitForSaved(page)` 를 부른다.
+- 일부러 실패를 일으켜 콘솔 에러가 나는 테스트는 `test.use({ expectedError: /.../ })` 로 그 에러만 허용한다.
 - 회귀 케이스를 만들면 고친 코드를 잠시 되돌려 테스트가 실제로 실패하는지 확인한다. 통과만 확인한 테스트는 아무것도 지켜 주지 않을 수 있다.
 - 날짜에 따라 결과가 달라지는 화면은 `page.clock` 으로 날짜를 고정한다. 시간대는 설정에서 `Asia/Seoul` 로 고정해 두었다.
