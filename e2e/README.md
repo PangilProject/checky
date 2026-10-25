@@ -43,8 +43,31 @@ npm run e2e:ui             # 에뮬레이터를 켜고 Playwright UI 창을 연�
 - **상태**: 코드에서 뽑아 낸 후보는 `제안` 으로 올리고, 사람이 확인한 뒤 `확정` → 구현하면 `구현됨`
 - **출처**: 직접 추가, 버그 리포트, 커밋 해시 등 이 케이스가 왜 있는지
 
+## 도구
+
+| 파일 | 쓰임 |
+| --- | --- |
+| `fixtures.ts` | `test`, `expect` 는 `@playwright/test` 가 아니라 여기서 가져온다 |
+| `seed.ts` | 시작 데이터 넣기. `const { seed } = await signIn()` 뒤에 `seed.category(...)`, `seed.routine(...)` 처럼 쓴다 |
+| `drag.ts` | 끌어 놓기. `dragTo(page, 집을 것, 놓을 곳)`, 끄는 도중을 확인하려면 `grab()` |
+
+```ts
+test.use({ today: "2026-10-21" });              // 화면의 오늘을 고정
+
+test("TC-ROUTINE-001 ...", { tag: "@regression" }, async ({ page, signIn }) => {
+  const { seed } = await signIn();
+  const category = await seed.category({ name: "건강" });
+  await seed.routine({ title: "독서", categoryId: category.id, orderIndex: 0, startDate: "2026-10-01" });
+  await page.goto("/routine");
+  // ...
+});
+```
+
 ## 작성 규칙
 
 - 셀렉터는 `getByRole`, `getByLabel`, `getByText` 순으로 쓴다. 잡히지 않는 요소는 테스트에서 우회하지 말고 마크업에 레이블을 붙인다.
-- 고정 대기(`waitForTimeout`)는 쓰지 않는다. `expect(...).toBeVisible()` 처럼 상태를 기다린다.
+  역할도 이름도 없는 요소(끌기 미리보기 같은 그림)에만 `data-testid` 를 단다.
+- 헤더 메뉴로 화면을 옮긴 직후에는 새 화면이 뜬 것을 먼저 확인한다. 다음 화면 코드를 받는 동안 이전 화면이 그대로 남아 있어, 같은 이름의 요소를 잘못 잡는다.
+- 고정 대기(`waitForTimeout`)는 쓰지 않는다. `expect(...).toBeVisible()` 처럼 상태를 기다린다. 예외는 `drag.ts` 의 누르고 있기뿐이다.
+- 회귀 케이스를 만들면 고친 코드를 잠시 되돌려 테스트가 실제로 실패하는지 확인한다. 통과만 확인한 테스트는 아무것도 지켜 주지 않을 수 있다.
 - 날짜에 따라 결과가 달라지는 화면은 `page.clock` 으로 날짜를 고정한다. 시간대는 설정에서 `Asia/Seoul` 로 고정해 두었다.
