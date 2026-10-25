@@ -37,18 +37,20 @@ if (import.meta.env.MODE === "e2e") {
   connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
   connectFirestoreEmulator(db, "127.0.0.1", 8080);
 
+  // 토큰의 sub 는 Google 쪽 계정 ID 일 뿐, Firebase uid 는 에뮬레이터가 따로 정한다.
+  // 테스트가 데이터를 넣을 경로를 알아야 하므로 실제 uid 를 돌려준다.
   Object.assign(window, {
-    __e2eSignIn: (uid: string) =>
+    __e2eSignIn: (googleId: string) =>
       signInWithCredential(
         auth,
         GoogleAuthProvider.credential(
           JSON.stringify({
-            sub: uid,
-            email: `${uid}@e2e.test`,
+            sub: googleId,
+            email: `${googleId}@e2e.test`,
             email_verified: true,
             name: "E2E 사용자",
           }),
         ),
-      ).then(() => undefined),
+      ).then(({ user }) => user.uid),
   });
 }
