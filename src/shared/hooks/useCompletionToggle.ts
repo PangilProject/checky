@@ -106,19 +106,25 @@ export const useCompletionToggle = ({
       } catch {
         revertDomainCaches();
         queryClient.setQueryData(monthlyStatsKey, prevMonthly);
-
-        const affectedMonths = collectAffectedMonths({ dates: [date] });
-        await Promise.all(
-          affectedMonths.map((affected) =>
-            recalculateMonthlyStatsByMonth({
-              userId,
-              month: affected,
-              scope: kind,
-            }),
-          ),
-        );
-        await queryClient.invalidateQueries({ queryKey: monthlyStatsKey });
         toast.error(failMessage);
+
+        // 집계 복구도 쓰기라, 네트워크가 끊긴 것처럼 쓰기가 막힌 상황이면 함께 실패한다.
+        // 복구가 실패해도 위의 알림이 가려지지 않도록 알림을 먼저 띄우고 복구는 시도만 한다.
+        try {
+          const affectedMonths = collectAffectedMonths({ dates: [date] });
+          await Promise.all(
+            affectedMonths.map((affected) =>
+              recalculateMonthlyStatsByMonth({
+                userId,
+                month: affected,
+                scope: kind,
+              }),
+            ),
+          );
+          await queryClient.invalidateQueries({ queryKey: monthlyStatsKey });
+        } catch {
+          // 다음에 그 달을 열 때 다시 읽으므로 여기서는 넘긴다
+        }
       } finally {
         runningKeysRef.current.delete(guardKey);
       }
