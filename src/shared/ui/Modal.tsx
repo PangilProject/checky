@@ -87,6 +87,10 @@ export const ModalWrapper = ({ onClose, children }: ModalWrapperProps) => {
       {...{ [MODAL_ROOT_ATTR]: "" }}
       className="fixed inset-0 z-1000 flex items-center justify-center overflow-y-auto overscroll-contain bg-overlay p-4 pointer-events-auto"
       onClick={onClose}
+      // 모달은 끌어서 정렬하는 목록 항목 안에서 열리기도 한다. 누름이 그 항목까지 올라가면
+      // 길게 누르는 동안 끌기가 시작되고, 항목에 걸린 transform 이 fixed 인 모달의
+      // 기준이 되어 모달이 항목 크기로 쪼그라든다. 손을 떼거나 움직이면 순서도 바뀐다.
+      onPointerDown={(e) => e.stopPropagation()}
     >
       <div
         role="dialog"
