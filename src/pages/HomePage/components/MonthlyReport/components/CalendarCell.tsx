@@ -47,6 +47,11 @@ export function CalendarCell({
   return (
     <button
       onClick={() => setSelectedDate(new Date(date))}
+      // 남은 수와 날짜 숫자가 붙어 "121" 처럼 읽히지 않게 이름을 따로 준다
+      aria-label={`${date.getMonth() + 1}월 ${day}일${
+        activity && isCurrentMonth ? `, 남은 일 ${activity.remaining}개` : ""
+      }`}
+      aria-pressed={isSelected}
       className={`
         w-[14.285%] h-15 flex flex-col items-center justify-center gap-1
         ${isSelected ? "bg-surface-selected" : "hover:bg-surface-hover"}

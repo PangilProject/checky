@@ -103,7 +103,14 @@ const SortableTaskItem = ({
           ${isDragging ? "bg-surface-raised shadow-(--shadow-drag) scale-[1.02]" : ""}
         `}
     >
-      <div className="flex flex-col min-w-0" onClick={() => onToggle(task.id)}>
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={Boolean(completed)}
+        aria-label={task.title}
+        className="flex flex-col min-w-0 text-left"
+        onClick={() => onToggle(task.id)}
+      >
         <Stack gap={2} direction="row" align="start" className="min-w-0">
           <div className="shrink-0 mt-0.5">
             {completed ? (
@@ -129,7 +136,7 @@ const SortableTaskItem = ({
             </Text>
           )}
         </div>
-      </div>
+      </button>
 
       <Stack gap={2} direction="row" align="center">
         <div className="w-12 text-left">
@@ -141,6 +148,7 @@ const SortableTaskItem = ({
         </div>
         <button
           className="pressable"
+          aria-label={`${task.title} 상세 보기`}
           onClick={(e) => {
             e.stopPropagation();
             onClickTask(task);

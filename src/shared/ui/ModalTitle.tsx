@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useContext, type ReactNode } from "react";
+import { ModalTitleIdContext } from "./modalTitleId";
 import { Text } from "./primitives/Text";
 
 interface ModalTitleProps {
@@ -15,10 +16,13 @@ interface ModalTitleProps {
  * 제목의 생김새에 관한 결정은 이 컴포넌트 안에만 둔다.
  */
 export const ModalTitle = ({ text, leading }: ModalTitleProps) => {
+  const titleId = useContext(ModalTitleIdContext);
   return (
     <div className="mb-4 flex shrink-0 items-center gap-1">
       {leading}
-      <Text variant="heading">{text}</Text>
+      <Text variant="heading" id={titleId}>
+        {text}
+      </Text>
     </div>
   );
 };

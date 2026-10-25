@@ -55,6 +55,10 @@ interface TextProps {
    */
   style?: CSSProperties;
   className?: string;
+  /** 다른 요소가 이 글자를 이름으로 가리킬 때 (모달 제목 등) */
+  id?: string;
+  /** as="label" 일 때 이 레이블이 가리키는 입력란 */
+  htmlFor?: string;
   children: ReactNode;
 }
 
@@ -64,11 +68,18 @@ export const Text = ({
   as,
   style,
   className,
+  id,
+  htmlFor,
   children,
 }: TextProps) => {
   const Tag = as ?? DEFAULT_TAG[variant];
   return (
-    <Tag style={style} className={cn(VARIANT[variant], TONE[tone], className)}>
+    <Tag
+      id={id}
+      htmlFor={htmlFor}
+      style={style}
+      className={cn(VARIANT[variant], TONE[tone], className)}
+    >
       {children}
     </Tag>
   );

@@ -75,7 +75,11 @@ export const RoutineItem = ({
         </Stack>
 
         {/* 더보기 버튼 (상세/수정 모달 트리거) */}
-        <button onClick={onClickMore} className="pressable">
+        <button
+          onClick={onClickMore}
+          aria-label={`${routine.title} 상세 보기`}
+          className="pressable"
+        >
           <HiDotsHorizontal color="var(--color-content-muted)" size={20} />
         </button>
       </div>
