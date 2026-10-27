@@ -2,7 +2,7 @@ import { expect, type Page, type Request } from "@playwright/test";
 
 /**
  * Firestore 요청 다루기. 앱은 firestore/lite 라 요청이 모두 REST 다.
- * 쓰기는 `documents:commit`, 읽기는 `:runQuery`·`:batchGet` 로 나간다.
+ * 쓰기는 `documents:commit`, 읽기는 `documents:batchGet`(문서)과 `documents/users/{uid}:runQuery`(목록)로 나간다.
  */
 const FIRESTORE = /127\.0\.0\.1:8080\//;
 const WRITE = "**/documents:commit*";
