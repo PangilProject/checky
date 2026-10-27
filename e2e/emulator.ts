@@ -42,6 +42,12 @@ export const inspect = {
     return body.fields ?? {};
   },
 
+  /** 그 달의 월간 통계 문서가 있는지 */
+  monthlyStatsExists: async (uid: string, month: string) => {
+    const response = await fetch(`${DOCUMENTS}/users/${uid}/monthlyStats/${month}`, { headers: OWNER });
+    return response.ok;
+  },
+
   /** users/{uid} 아래에 문서가 하나라도 남은 하위 컬렉션 이름 */
   userCollections: async (uid: string) => {
     const response = await fetch(`${DOCUMENTS}/users/${uid}:listCollectionIds`, {

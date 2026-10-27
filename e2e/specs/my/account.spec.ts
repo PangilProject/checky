@@ -30,13 +30,20 @@ test.describe("마이: 계정", { tag: "@feature" }, () => {
       const popup = await popupPromise;
       // 계정 선택 창은 목록을 불러온 뒤 다시 그려, 그 전에 누르면 강조만 되고 넘어가지 않는다.
       // 창이 닫힐 때까지 다시 누른다. 에뮬레이터의 모든 계정이 나오므로 이 테스트의 계정을 이메일로 고른다
+      // 누른 뒤 창은 에뮬레이터와 주고받은 다음 닫히는데, 부하가 크면 몇 초 걸린다.
+      // 그사이 다시 누르면 진행 중인 처리를 방해하므로 충분히 기다린 뒤에만 다시 누른다
       await popup.waitForLoadState("networkidle");
-      await expect(async () => {
-        if (popup.isClosed()) return;
+      const closed = popup.waitForEvent("close", { timeout: 30_000 });
+      for (let attempt = 0; attempt < 3 && !popup.isClosed(); attempt++) {
         // 행 전체가 클릭을 받으므로 글자가 아니라 행을 누른다
-        await popup.getByRole("listitem").filter({ hasText: email }).click({ timeout: 2_000 });
-        await popup.waitForEvent("close", { timeout: 2_000 });
-      }).toPass({ timeout: 15_000 });
+        await popup
+          .getByRole("listitem")
+          .filter({ hasText: email })
+          .click({ timeout: 5_000 })
+          .catch(() => {});
+        await Promise.race([closed, popup.waitForTimeout(8_000).catch(() => {})]);
+      }
+      await closed;
 
       await expect(page).toHaveURL(/\/login$/);
       await expect(page.getByText("회원탈퇴가 완료되었습니다.")).toBeVisible();

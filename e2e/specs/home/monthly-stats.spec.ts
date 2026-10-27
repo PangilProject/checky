@@ -1,5 +1,6 @@
 import { test, expect } from "../../fixtures";
 import { waitForSaved } from "../../network";
+import { inspect } from "../../emulator";
 
 test.use({ today: "2026-10-21" });
 
@@ -8,7 +9,7 @@ test(
   { tag: "@regression", annotation: { type: "출처", description: "9a95573" } },
   async ({ page, signIn }) => {
     // 이 달의 월간 통계 문서는 없다. 홈을 처음 열 때 만들어진다
-    const { seed } = await signIn();
+    const { uid, seed } = await signIn();
     const category = await seed.category({ name: "업무" });
     await seed.routine({ title: "독서", categoryId: category.id, orderIndex: 0, startDate: "2026-10-01" });
     await page.goto("/home");
@@ -16,7 +17,9 @@ test(
       page.getByRole("button", { name: `10월 21일, 남은 일 ${remaining}개` });
     await expect(day21(1)).toBeVisible();
     // 첫 화면은 원본에서 센 값을 보여 주며 문서를 만든다. 만드는 중에 조작하면 그 조작이
-    // 집계에서 빠지는 별개의 문제가 있어(TC-HOME-016), 여기서는 문서가 생긴 뒤에 조작한다
+    // 집계에서 빠지는 별개의 문제가 있어(TC-HOME-016), 여기서는 문서가 생긴 뒤에 조작한다.
+    // 네트워크가 조용해지기를 기다리면 부하가 클 때 저장이 시작되기도 전에 끝나므로 문서를 직접 본다
+    await expect.poll(() => inspect.monthlyStatsExists(uid, "2026-10")).toBe(true);
     await waitForSaved(page);
 
     await page.getByRole("button", { name: "업무에 할 일 추가" }).click();
