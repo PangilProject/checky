@@ -9,14 +9,18 @@ import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
  */
 export function MonthlyReportTitleSection({
   refresh,
+  titleId,
 }: {
   refresh: () => Promise<void>;
+  /** 캘린더 섹션이 이름으로 거는 제목 id */
+  titleId?: string;
 }) {
   const { selectedDate, setSelectedDate } = useSelectedDate();
   // 캘린더 헤더에 표시할 월 정보 생성
   const label = getMonthLabel(selectedDate);
   return (
     <TitleSection
+      titleId={titleId}
       title="캘린더"
       subTitle={label}
       leftOnClick={() => setSelectedDate(moveMonth(selectedDate, -1))}

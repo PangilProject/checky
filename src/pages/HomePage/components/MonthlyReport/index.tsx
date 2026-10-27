@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { useMonthlyData } from "@/shared/hooks/calendar";
 import { CalendarBody } from "./components/CalendarBody";
@@ -18,10 +19,13 @@ function MonthlyReportSection() {
   const { selectedDate } = useSelectedDate();
   const monthlyData = useMonthlyData(selectedDate);
 
+  // 섹션 전체가 제목을 이름으로 갖는 영역이 된다. TitleSection 이 같은 id 를 제목에 단다
+  const titleId = useId();
+
   return (
-    <div className="w-full flex flex-col">
+    <section aria-labelledby={titleId} className="w-full flex flex-col">
       {/* 1. 타이틀 섹션 */}
-      <MonthlyReportTitleSection refresh={monthlyData.refresh} />
+      <MonthlyReportTitleSection refresh={monthlyData.refresh} titleId={titleId} />
 
       {/* 2. 캘린더 섹션 */}
       {monthlyData.isLoading ? (
@@ -32,7 +36,7 @@ function MonthlyReportSection() {
           <CalendarBody monthlyData={monthlyData} />
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
