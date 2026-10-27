@@ -11,7 +11,13 @@ type Fixtures = {
    *
    * 모든 데이터가 users/{uid} 아래에 있어, 사용자를 나누면 병렬로 돌려도 서로 보지 못한다.
    */
-  signIn: () => Promise<{ uid: string; seed: Seeder }>;
+  signIn: (options?: {
+    /**
+     * 새로고침 없이 지금 화면에서 로그인한다. 같은 탭에서 계정을 바꾸는 흐름처럼
+     * 앱의 메모리 상태가 이어져야 하는 테스트에서 쓴다. 기본은 로그인 전용 화면을 새로 연다.
+     */
+    inPlace?: boolean;
+  }) => Promise<{ uid: string; email: string; seed: Seeder }>;
   /** 콘솔 에러와 처리되지 않은 예외를 모은다. 하나라도 있으면 테스트를 실패시킨다. */
   pageErrors: string[];
   /**
@@ -85,16 +91,18 @@ export const test = base.extend<Fixtures>({
   ],
 
   signIn: async ({ page }, use) => {
-    await use(async () => {
+    await use(async ({ inPlace = false } = {}) => {
       // 로그인 화면은 로그인하자마자 홈으로 보내, 홈이 시드보다 먼저 데이터를 읽고 월간 통계를
       // 만들어 버린다. 데이터를 읽지도 다른 곳으로 보내지도 않는 화면에서 로그인한다
-      await page.goto("/privacy");
+      if (!inPlace) await page.goto("/privacy");
       await page.waitForFunction(() => "__e2eSignIn" in window);
+      const googleId = `e2e-${randomUUID()}`;
       const uid = await page.evaluate(
-        (googleId) => (window as unknown as E2EWindow).__e2eSignIn(googleId),
-        `e2e-${randomUUID()}`,
+        (id) => (window as unknown as E2EWindow).__e2eSignIn(id),
+        googleId,
       );
-      return { uid, seed: createSeeder(uid) };
+      // 이메일은 src/firebase/firebase.ts 의 테스트용 로그인 통로가 만드는 값과 같다
+      return { uid, email: `${googleId}@e2e.test`, seed: createSeeder(uid) };
     });
   },
 });

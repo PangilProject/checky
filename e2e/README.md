@@ -50,6 +50,7 @@ npm run e2e:ui             # 에뮬레이터를 켜고 Playwright UI 창을 연�
 | `fixtures.ts` | `test`, `expect` 는 `@playwright/test` 가 아니라 여기서 가져온다 |
 | `seed.ts` | 시작 데이터 넣기. `const { seed } = await signIn()` 뒤에 `seed.category(...)`, `seed.routine(...)` 처럼 쓴다 |
 | `drag.ts` | 끌어 놓기. `dragTo(page, 집을 것, 놓을 곳)`, 끄는 도중을 확인하려면 `grab()` |
+| `emulator.ts` | `inspect.userDoc(uid)`, `inspect.userCollections(uid)`, `inspect.authUserExists(uid)` 관리자 권한으로 에뮬레이터 들여다보기(탈퇴 뒤 데이터 확인 등) |
 | `network.ts` | `waitForSaved(page)` 저장이 끝날 때까지 기다리기(새로고침으로 확인하기 전에), `failWrites(page)` 쓰기 실패 흉내 |
 
 ```ts
@@ -68,6 +69,7 @@ test("TC-ROUTINE-001 ...", { tag: "@regression" }, async ({ page, signIn }) => {
 
 - 셀렉터는 `getByRole`, `getByLabel`, `getByText` 순으로 쓴다. 잡히지 않는 요소는 테스트에서 우회하지 말고 마크업에 레이블을 붙인다.
   역할도 이름도 없는 요소(끌기 미리보기 같은 그림)에만 `data-testid` 를 단다.
+- `signIn()` 은 로그인 전용 화면을 새로 열어 로그인한다. 같은 탭에서 계정을 바꾸는 흐름처럼 새로고침 없이 이어져야 하면 `signIn({ inPlace: true })` 를 쓴다.
 - 헤더 메뉴로 화면을 옮긴 직후에는 새 화면이 뜬 것을 먼저 확인한다. 다음 화면 코드를 받는 동안 이전 화면이 그대로 남아 있어, 같은 이름의 요소를 잘못 잡는다.
 - 고정 대기(`waitForTimeout`)는 쓰지 않는다. `expect(...).toBeVisible()` 처럼 상태를 기다린다. 예외는 `drag.ts` 의 누르고 있기뿐이다.
 - 화면은 저장을 기다리지 않고 먼저 바뀐다. 새로고침이나 다른 화면에서 저장을 확인하려면 먼저 `waitForSaved(page)` 를 부른다.

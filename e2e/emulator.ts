@@ -24,3 +24,42 @@ export const clearEmulators = async () => {
     }
   }
 };
+
+const OWNER = { Authorization: "Bearer owner", "Content-Type": "application/json" };
+const DOCUMENTS = `${FIRESTORE_EMULATOR}/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
+
+/**
+ * 관리자 권한으로 에뮬레이터를 들여다본다. 화면으로는 알 수 없는 것
+ * (탈퇴 뒤 데이터가 정말 지워졌는지, 프로필 문서가 만들어졌는지)을 확인할 때 쓴다.
+ * 보안 규칙을 건너뛰므로 앱이 할 수 있는 일을 확인하는 용도로는 쓰지 않는다.
+ */
+export const inspect = {
+  /** users/{uid} 문서의 필드. 없으면 null */
+  userDoc: async (uid: string) => {
+    const response = await fetch(`${DOCUMENTS}/users/${uid}`, { headers: OWNER });
+    if (response.status === 404) return null;
+    const body = (await response.json()) as { fields?: Record<string, unknown> };
+    return body.fields ?? {};
+  },
+
+  /** users/{uid} 아래에 문서가 하나라도 남은 하위 컬렉션 이름 */
+  userCollections: async (uid: string) => {
+    const response = await fetch(`${DOCUMENTS}/users/${uid}:listCollectionIds`, {
+      method: "POST",
+      headers: OWNER,
+      body: "{}",
+    });
+    const body = (await response.json()) as { collectionIds?: string[] };
+    return body.collectionIds ?? [];
+  },
+
+  /** Auth 에뮬레이터에 그 계정이 있는지 */
+  authUserExists: async (uid: string) => {
+    const response = await fetch(
+      `${AUTH_EMULATOR}/identitytoolkit.googleapis.com/v1/projects/${PROJECT_ID}/accounts:lookup`,
+      { method: "POST", headers: OWNER, body: JSON.stringify({ localId: [uid] }) },
+    );
+    const body = (await response.json()) as { users?: unknown[] };
+    return (body.users?.length ?? 0) > 0;
+  },
+};
