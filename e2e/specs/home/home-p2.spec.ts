@@ -66,6 +66,39 @@ test.describe("홈: 할 일 옮기기", { tag: "@feature" }, () => {
     await expect(page.getByRole("checkbox", { name: "미완료" })).not.toBeChecked();
   });
 
+  test("TC-HOME-017 리스트 메뉴로 미완료 할 일을 다른 날(다음 날)로 옮긴다", async ({ page, signIn }) => {
+    const { seed } = await signIn();
+    const category = await seed.category({ name: "업무" });
+    await seed.task({ title: "미완료", category, date: "2026-10-21", orderIndex: 0 });
+    const done = await seed.task({ title: "완료함", category, date: "2026-10-21", orderIndex: 1 });
+    await seed.taskLog({ taskId: done.id, date: "2026-10-21", completed: true });
+    await page.goto("/home");
+    await expect(page.getByRole("checkbox", { name: "미완료" })).toBeVisible();
+
+    // 녹화한 흐름: 리스트 메뉴 → 다른 날 하기 → 완료 → 날짜 선택(기본값 다음 날) → 이동
+    await openListMenu(page, "미완료 할 일을 다른 날 하기");
+    const pick = page.getByRole("dialog", { name: "날짜 선택" });
+    await expect(pick.getByRole("button", { name: "2026. 10. 22." })).toBeVisible();
+    await pick.getByRole("button", { name: "이동" }).click();
+    await expect(pick).toHaveCount(0);
+
+    // 완료한 할 일은 남고 미완료만 옮겨진다
+    await expect(page.getByRole("checkbox", { name: "미완료" })).toHaveCount(0);
+    await expect(page.getByRole("checkbox", { name: "완료함" })).toBeChecked();
+    await expect(calendarDay(page, 21)).toHaveAccessibleName("10월 21일, 남은 일 0개");
+    await expect(calendarDay(page, 22)).toHaveAccessibleName("10월 22일, 남은 일 1개");
+
+    await region(page, "할 일 목록").getByRole("button", { name: "다음" }).click();
+    await expect(taskSubtitle(page, /^2026년 10월 22일/)).toBeVisible();
+    await expect(page.getByRole("checkbox", { name: "미완료" })).not.toBeChecked();
+
+    // 옮길 것이 없는 날에서 하면 알린다
+    await region(page, "할 일 목록").getByRole("button", { name: "오늘" }).click();
+    await openListMenu(page, "미완료 할 일을 다른 날 하기");
+    await pick.getByRole("button", { name: "이동" }).click();
+    await expect(page.getByText("옮길 미완료 할 일이 없습니다.")).toBeVisible();
+  });
+
   test("TC-HOME-010 한 주 보기에서 끌어 옮기면 개수와 하루 보기에 반영된다", async ({ page, signIn }) => {
     const { seed } = await signIn();
     const category = await seed.category({ name: "업무" });

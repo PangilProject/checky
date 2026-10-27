@@ -110,3 +110,11 @@
 - 발견: 문서가 없을 때의 집계 반영은 건너뛰고 곧이어 저장되는 문서는 조작 전에 센 값이라, 조작이 영구히 빠졌다. 건너뛴 조작을 세어 두고, 첫 문서를 만든 쪽이 그 수가 바뀌었으면 원본에서 다시 세도록 고쳤다
 - 근거: src/shared/hooks/calendar/monthlyStats/useMonthlyData.ts (첫 문서 저장), src/shared/api/monthlyStats/queries.ts (patchMonthlyStatsByDayDeltas 의 missing-doc)
 - 재현: 첫 monthlyStats 커밋을 page.route 로 2초 붙잡고 그 사이에 할 일을 추가한다
+
+### TC-HOME-017 리스트 메뉴로 미완료 할 일을 다른 날(다음 날)로 옮긴다
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
+- 전제: 10-21 에 미완료 1개, 완료 1개. today 2026-10-21
+- 절차: 리스트 메뉴 → "미완료 할 일을 다른 날 하기" → "완료" → 날짜 선택(기본값 다음 날) → "이동"
+- 기대: 21일에는 완료한 것만 남고, 22일에 미완료가 보인다. 캘린더 21일 남은 일 0개, 22일 1개. 옮길 것이 없으면 "옮길 미완료 할 일이 없습니다."
+- 근거: src/pages/HomePage/components/TaskReport/sections/TaskSetting.tsx ("after" 동작)
+- 출처: 녹화 모드로 직접 추가 (`npm run e2e:record`)
