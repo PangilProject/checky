@@ -10,6 +10,7 @@ export {
 } from "./queries";
 
 export { recalculateMonthlyStatsByMonth } from "./recalculate";
+export { countMissedPatches } from "./missedPatches";
 export { buildMonthlyActivityCountMap } from "./countMonth";
 export type {
   MonthlyTask,
