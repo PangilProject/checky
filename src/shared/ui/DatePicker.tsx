@@ -182,6 +182,9 @@ export const DatePicker = ({
                     type="button"
                     disabled={outOfRange}
                     onClick={() => selectDate(ymd)}
+                    // 앞뒤 달 칸도 같은 숫자를 보여 주므로, 숫자만으로는 어느 날인지 알 수 없다
+                    aria-label={`${cell.date.getFullYear()}년 ${cell.date.getMonth() + 1}월 ${cell.date.getDate()}일`}
+                    aria-pressed={isSelected}
                     className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm
                     ${isSelected ? "bg-primary font-bold" : ""}
                     ${!isSelected && isToday ? "border border-line-strong font-bold" : ""}

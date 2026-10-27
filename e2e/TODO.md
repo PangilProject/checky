@@ -13,7 +13,6 @@ P1 케이스가 거치는 요소는 이름을 붙였다. 남은 것은 P2·P3 �
 | 같은 파일 | 섹션 제목이 heading 이 아니라 "오늘"·"새로고침" 을 섹션별로 좁혀 잡을 수 없다 | `section aria-labelledby` 로 감싸기 |
 | src/pages/HomePage/components/TaskReport/modals/TaskSettingModal.tsx:101 | 선택 버튼이 빈 `button` | `role="radio"` + `aria-checked` |
 | src/pages/RoutinePage/.../EndDateField.tsx:31-35 | "추가"/"삭제" 가 다른 버튼과 이름이 겹침 | `aria-label="종료 날짜 추가"` |
-| src/shared/ui/DatePicker.tsx:180-191 | 날짜 버튼 이름이 숫자뿐 | `aria-label="2026년 10월 20일"` |
 | src/shared/ui/notices/components/NoticeList.tsx:27 | 공지 항목이 클릭만 되는 `div` | `button` |
 
 ## seed 확장
