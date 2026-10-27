@@ -203,8 +203,10 @@ export function useFilmEngine(refs: FilmEngineRefs) {
       effects(time);
     };
 
+    // 무대가 아직 자리를 잡지 않았거나 화면을 떠나는 중이면 높이가 0 이라 0/0 = NaN 이 된다.
+    // NaN 이 배우의 좌표로 흘러 들어가지 않도록 그때는 첫 장면에 둔다
     const readTarget = () =>
-      clamp((window.scrollY - top) / unit, 0, TIMELINE_LENGTH);
+      unit > 0 ? clamp((window.scrollY - top) / unit, 0, TIMELINE_LENGTH) : 0;
 
     const layout = () => {
       const size = { w: stage.clientWidth, h: stage.clientHeight };
