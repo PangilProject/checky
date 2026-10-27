@@ -83,6 +83,7 @@ export const StartDateField = ({
 
       {fieldMode === "PICK_EFFECTIVE_FROM" && (
         <DatePicker
+          label="변경 적용 날짜"
           value={effectiveFrom}
           // 루틴이 시작하기도 전의 날짜부터 새 요일을 적용할 수는 없다
           min={routine?.startDate}
@@ -92,6 +93,7 @@ export const StartDateField = ({
 
       {fieldMode === "PICK_START" && (
         <DatePicker
+          label="시작 날짜"
           value={startDate}
           onChange={(next) => {
             setStartDate(next);

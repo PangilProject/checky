@@ -48,7 +48,7 @@ export const EndDateField = ({
           {routineEndDate ? routineEndDate : "없음"}
         </Text>
       ) : endDateEnabled ? (
-        <DatePicker value={endDate} min={startDate} onChange={setEndDate} />
+        <DatePicker label="종료 날짜" value={endDate} min={startDate} onChange={setEndDate} />
       ) : (
         <Text variant="bodySm" tone="muted">
           없음
