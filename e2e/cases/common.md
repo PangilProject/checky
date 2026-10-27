@@ -1,7 +1,7 @@
 # 공통 (헤더·푸터·로그인 흐름)
 
 ### TC-COMMON-001 처음 로그인하면 프로필 문서가 자동으로 생긴다
-- 우선순위: P1 / 태그: @regression / 상태: 제안
+- 우선순위: P1 / 태그: @regression / 상태: 구현됨
 - 절차: 로그인만 하고 /home 이 뜨기를 기다린 뒤 관리자 권한으로 users/{uid} 를 읽는다
 - 기대: 문서가 있고 uid, name 이 있으며 isAdmin 은 없다
 - 근거: src/shared/stores/authStore.ts:95-101, firestore.rules:83-87, de153af

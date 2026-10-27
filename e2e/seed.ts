@@ -134,6 +134,24 @@ export const createSeeder = (uid: string) => {
       return { id };
     },
 
+    /** 루틴을 그날 했는지. 문서 ID 는 앱과 같이 `{routineId}_{date}` 로 둔다 */
+    routineLog: async ({
+      routineId,
+      date,
+      done,
+    }: {
+      routineId: string;
+      date: string;
+      done: boolean;
+    }) => {
+      await write("routineLogs", `${routineId}_${date}`, {
+        routineId,
+        date,
+        done,
+        updatedAt: new Date(),
+      });
+    },
+
     /** 문서 ID 는 앱과 같이 `{taskId}_{date}` 로 둔다 */
     taskLog: async ({
       taskId,
