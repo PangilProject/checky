@@ -16,7 +16,8 @@
     "test": "vitest run",
     "test:rules": "firebase emulators:exec --only firestore \"vitest run --config vitest.rules.config.ts\"",
     "e2e": "firebase emulators:exec --only auth,firestore --project demo-checky \"playwright test\"",
-    "e2e:ui": "firebase emulators:exec --only auth,firestore --project demo-checky \"playwright test --ui\""
+    "e2e:ui": "firebase emulators:exec --only auth,firestore --project demo-checky \"playwright test --ui\"",
+    "e2e:record": "firebase emulators:exec --only auth,firestore --project demo-checky \"playwright test -c playwright.record.config.ts\""
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

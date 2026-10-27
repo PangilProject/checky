@@ -14,6 +14,17 @@ npm run e2e:ui             # 에뮬레이터를 켜고 Playwright UI 창을 연�
 
 케이스를 골라 돌리기, ID·태그로 거르기, 반복 실행은 UI 창 안에서 한다.
 
+### 클릭으로 테스트 만들기
+
+```bash
+npm run e2e:record
+```
+
+새 테스트 사용자로 로그인하고 예시 데이터(카테고리·할 일·루틴)를 넣은 홈 화면에서 멈춘다.
+함께 뜨는 Playwright Inspector 에서 **Record** 를 누르고 화면을 조작하면 그 조작이 코드로 쌓인다.
+코드를 복사해 케이스 설명(`cases/*.md` 형식)과 함께 넘기거나 spec 에 붙인다. 창을 닫으면 끝난다.
+녹화한 코드는 `getByRole` 같은 셀렉터를 고르지만 확인(`expect`)은 넣지 않으므로, spec 으로 옮길 때 기대 결과를 더한다.
+
 ## CI
 
 `.github/workflows/test.yml` 이 PR 과 main 푸시마다 `npm run check` 와 `npm run e2e` 를 돌린다.
