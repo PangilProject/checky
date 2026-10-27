@@ -39,51 +39,51 @@
 - 근거: src/pages/RecordPage/hooks/useRecordData.ts:42-45
 
 ### TC-RECORD-006 이전·다음으로 오가며 기간이 바뀌고, 미래 기간은 세지 않는다
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 절차: 월간 "이전 달" → "다음 달" → "다음 달" → "이번 달"
 - 기대: 2026년 9월 → 10월 → 11월 "아직 오지 않은 기간이에요." → 10월
 - 근거: src/pages/RecordPage/index.tsx:66-69, 111-114
 
 ### TC-RECORD-007 연도가 바뀌는 달로 이동한다
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: today 2027-01-05. 2026-12-31 에 완료한 할 일
 - 기대: "이전 달" 은 2026년 12월, 해낸 할 일 1 / 1. 주간 "이번 주" 는 1월 3일 ~ 1월 9일
 - 근거: src/shared/utils/dateNavigation.ts:11-16
 
 ### TC-RECORD-008 주간·월간을 바꿔도 고른 날짜가 유지된다
-- 우선순위: P3 / 태그: @feature / 상태: 제안
+- 우선순위: P3 / 태그: @feature / 상태: 구현됨
 - 절차: 월간 "이전 달"(9월) → 주간
 - 기대: 8월 30일 ~ 9월 5일. 달을 옮기면 날짜가 1일로 맞춰지므로 그 달 1일이 속한 주가 나온다 (의도한 동작)
 - 근거: src/shared/utils/dateNavigation.ts:13
 
 ### TC-RECORD-009 루틴 행을 누르면 체크한 날이 "했음" 으로 보인다
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: 매일 루틴 "독서". 기록에서 독서 기록 창을 한 번 열었다 닫는다
 - 절차: 홈에서 10-20 체크 → 기록 → "독서 기록 보기"
 - 기대: "10월 20일 했음"
 - 근거: useRoutineToggle.ts:96-114
 
 ### TC-RECORD-010 홈에서 추가·삭제한 할 일이 반영된다
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: 오늘 완료한 할 일 C. 기록을 먼저 연다
 - 절차: 홈에서 D 추가 → 기록 → 홈에서 C 삭제 → 기록
 - 기대: 1 / 2 와 남은 할 일 D → 0 / 1 과 "이 기간에 해낸 할 일이 없어요."
 - 근거: useTaskList.ts:227, useTaskModalHandlers.ts:193
 
 ### TC-RECORD-011 홈에서 일괄 이동하면 반영된다
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: 10-20 에 미완료 2개. 기록을 먼저 연다
 - 절차: 홈 리스트 메뉴로 오늘로 옮긴다 → 기록
 - 기대: 남은 할 일 2개가 모두 "오늘"
 - 근거: src/pages/HomePage/components/TaskReport/sections/TaskSetting.tsx:50-76
 
 ### TC-RECORD-012 남은 할 일이 10개를 넘으면 접고 펼친다
-- 우선순위: P3 / 태그: @feature / 상태: 제안
+- 우선순위: P3 / 태그: @feature / 상태: 구현됨
 - 전제: 이번 달 미완료 12개
 - 기대: 10개 → "2개 더 보기" 12개 → "접기" 10개
 - 근거: src/pages/RecordPage/components/RecordSections.tsx:13, 162-170
 
 ### TC-RECORD-013 빈 사용자는 "-" 와 안내 문구를 본다
-- 우선순위: P3 / 태그: @feature / 상태: 제안
+- 우선순위: P3 / 태그: @feature / 상태: 구현됨
 - 기대: 달성률 "-", 세 영역의 빈 안내
 - 근거: RecordSections.tsx:34, 73-76, 133-136, 187-190
