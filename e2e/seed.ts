@@ -42,66 +42,104 @@ const toValue = (value: unknown): FirestoreValue => {
 const toFields = (data: Record<string, unknown>) =>
   Object.fromEntries(Object.entries(data).map(([key, value]) => [key, toValue(value)]));
 
+/** 경로에 문서 하나를 통째로 쓴다. 보안 규칙을 건너뛴다 */
+const writeDoc = async (path: string, data: Record<string, unknown>) => {
+  const response = await fetch(
+    `${FIRESTORE_EMULATOR}/v1/projects/${PROJECT_ID}/databases/(default)/documents/${path}`,
+    {
+      method: "PATCH",
+      headers: { Authorization: "Bearer owner", "Content-Type": "application/json" },
+      body: JSON.stringify({ fields: toFields(data) }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`시드 실패 (${path}): ${response.status} ${await response.text()}`);
+  }
+};
+
+/**
+ * 공지. 사용자 아래가 아니라 모든 사용자가 함께 보는 최상위 컬렉션에 쓴다.
+ * 병렬로 도는 다른 테스트에도 보이므로 제목에 고유한 값을 넣어 구분한다.
+ */
+export const seedNotice = async ({
+  title,
+  content = "",
+  pinned = false,
+  createdAt = new Date(),
+}: {
+  title: string;
+  content?: string;
+  pinned?: boolean;
+  createdAt?: Date;
+}) => {
+  const id = `notice-${randomSuffix()}`;
+  await writeDoc(`notices/${id}`, { title, content, pinned, createdAt });
+  return { id };
+};
+
+const randomSuffix = () => Math.random().toString(36).slice(2, 10);
+
 export const createSeeder = (uid: string) => {
-  const write = async (collection: string, id: string, data: Record<string, unknown>) => {
-    const path = `users/${uid}/${collection}/${id}`;
-    const response = await fetch(
-      `${FIRESTORE_EMULATOR}/v1/projects/${PROJECT_ID}/databases/(default)/documents/${path}`,
-      {
-        method: "PATCH",
-        headers: { Authorization: "Bearer owner", "Content-Type": "application/json" },
-        body: JSON.stringify({ fields: toFields(data) }),
-      },
-    );
-    if (!response.ok) {
-      throw new Error(`시드 실패 (${path}): ${response.status} ${await response.text()}`);
-    }
-  };
+  const write = (collection: string, id: string, data: Record<string, unknown>) =>
+    writeDoc(`users/${uid}/${collection}/${id}`, data);
 
   return {
+    /** ended 를 넘기면 그날 종료한 카테고리가 된다 */
     category: async ({
       name,
       color = "#6155F5",
       orderIndex = 0,
+      ended,
     }: {
       name: string;
       color?: string;
       orderIndex?: number;
+      ended?: Date;
     }) => {
       const id = newId("category");
       const now = new Date();
       await write("categories", id, {
         name,
         color,
-        status: "ACTIVE",
+        status: ended ? "ENDED" : "ACTIVE",
         orderIndex,
         createdAt: now,
         updatedAt: now,
+        ...(ended && { endedAt: ended }),
       });
       return { id, color };
     },
 
-    /** days 는 0(일)~6(토). 기본은 매일 */
+    /**
+     * days 는 0(일)~6(토). 기본은 매일.
+     * scheduleHistory 를 넘기면 요일을 바꿔 온 이력이 된다. 마지막 구간의 요일이 지금 요일(days)이다.
+     */
     routine: async ({
       title,
       categoryId,
       orderIndex,
       startDate,
       days = [0, 1, 2, 3, 4, 5, 6],
+      endDate,
+      scheduleHistory,
     }: {
       title: string;
       categoryId: string;
       orderIndex: number;
       startDate: string;
       days?: number[];
+      endDate?: string;
+      scheduleHistory?: { effectiveFrom: string; days: number[] }[];
     }) => {
       const id = newId("routine");
+      const history = scheduleHistory ?? [{ effectiveFrom: startDate, days }];
       await write("routines", id, {
         title,
         categoryId,
-        days,
-        scheduleHistory: [{ effectiveFrom: startDate, days }],
+        days: history[history.length - 1].days,
+        scheduleHistory: history,
         startDate,
+        ...(endDate && { endDate }),
         orderIndex,
         status: "ACTIVE",
         createdAt: new Date(),
@@ -114,11 +152,14 @@ export const createSeeder = (uid: string) => {
       category,
       date,
       orderIndex = 0,
+      time,
     }: {
       title: string;
       category: { id: string; color: string };
       date: string;
       orderIndex?: number;
+      /** "HH:mm" */
+      time?: string;
     }) => {
       const id = newId("task");
       const now = new Date();
@@ -127,6 +168,7 @@ export const createSeeder = (uid: string) => {
         categoryId: category.id,
         categoryColor: category.color,
         date,
+        ...(time && { time }),
         orderIndex,
         createdAt: now,
         updatedAt: now,
@@ -148,6 +190,41 @@ export const createSeeder = (uid: string) => {
         routineId,
         date,
         done,
+        updatedAt: new Date(),
+      });
+    },
+
+    /**
+     * 한 달의 월간 통계 문서. days 의 키는 "01"~"31".
+     * 문서가 없는 달은 홈이 원본에서 세어 만들므로, 이미 있는 상태나 옛 문서(version 1)를 재현할 때만 쓴다.
+     */
+    monthlyStats: async ({
+      month,
+      days,
+      version = 2,
+    }: {
+      month: string;
+      days: Record<
+        string,
+        {
+          total: number;
+          completed: number;
+          remaining: number;
+          taskTotal?: number;
+          taskCompleted?: number;
+          routineTotal?: number;
+          routineCompleted?: number;
+        }
+      >;
+      version?: number;
+    }) => {
+      const withActivity = Object.fromEntries(
+        Object.entries(days).map(([day, value]) => [day, { ...value, hasActivity: value.total > 0 }]),
+      );
+      await write("monthlyStats", month, {
+        month,
+        days: withActivity,
+        version,
         updatedAt: new Date(),
       });
     },
