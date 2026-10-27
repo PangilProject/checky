@@ -69,9 +69,10 @@ export const MonthlyHistorySection = () => {
           ))}
         </Stack>
       ) : (
-        <Stack gap={2} direction="col">
+        // 달마다 한 줄인 목록이다. 줄 단위로 읽혀야 "9월 70%" 가 한 덩어리로 전달된다
+        <Stack as="ul" gap={2} direction="col">
           {rows.map((row) => (
-            <div
+            <li
               key={row.key}
               className="grid grid-cols-[40px_1fr_84px] items-center gap-2.5 text-sm"
             >
@@ -100,7 +101,7 @@ export const MonthlyHistorySection = () => {
                   </>
                 )}
               </span>
-            </div>
+            </li>
           ))}
         </Stack>
       )}
