@@ -20,6 +20,8 @@ import { parseYmd } from "@/shared/utils/formatDate";
 import { cn } from "@/shared/ui/cn";
 import { SkeletonBlock } from "@/shared/ui/Skeleton";
 import { Text } from "@/shared/ui/primitives";
+import { useAuth } from "@/shared/hooks/useAuth";
+import { useCategoriesQuery } from "@/shared/hooks/useCategoriesQuery";
 import type { TaskWeekDay, useTaskWeek } from "../hooks/useTaskWeek";
 
 /** 목록 정렬(SortableList)과 같은 감도. 짧게 누른 것은 끌기가 아니라 누르기다 */
@@ -45,6 +47,14 @@ export const TaskWeekBoard = ({
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: ACTIVATION_CONSTRAINT }),
   );
+
+  // 할 일 문서의 색은 만들 때 복사해 둔 값이라 분류 색을 바꿔도 따라오지 않는다.
+  // 지금의 분류 색을 쓰고, 분류를 찾지 못할 때만 복사해 둔 값으로 그린다(기록 화면과 같은 규칙)
+  const { user } = useAuth();
+  const { data: categories } = useCategoriesQuery(user?.uid ?? "");
+  const colorOf = (task: Task) =>
+    categories?.find((category) => category.id === task.categoryId)?.color ??
+    task.categoryColor;
 
   const loads = week.days.map(
     (day) => day.tasks.length + (day.routineCount ?? 0),
@@ -82,6 +92,7 @@ export const TaskWeekBoard = ({
               isToday={day.date === todayYmd}
               loadRatio={loads[index] / maxLoad}
               movingIds={week.movingIds}
+              colorOf={colorOf}
               onSelectDate={onSelectDate}
             />
           ))}
@@ -94,7 +105,11 @@ export const TaskWeekBoard = ({
               data-testid="task-drag-preview"
               className="rotate-[-2deg] rounded-md bg-surface-raised px-1.5 py-2 shadow-(--shadow-drag)"
             >
-              <TaskLine task={dragging.task} completed={dragging.completed} />
+              <TaskLine
+                task={dragging.task}
+                completed={dragging.completed}
+                color={colorOf(dragging.task)}
+              />
             </div>
           )}
         </DragOverlay>
@@ -112,12 +127,14 @@ const DayColumn = ({
   isToday,
   loadRatio,
   movingIds,
+  colorOf,
   onSelectDate,
 }: {
   day: TaskWeekDay;
   isToday: boolean;
   loadRatio: number;
   movingIds: Set<string>;
+  colorOf: (task: Task) => string;
   onSelectDate: (date: string) => void;
 }) => {
   const { setNodeRef, isOver } = useDroppable({ id: day.date });
@@ -169,6 +186,7 @@ const DayColumn = ({
               key={task.id}
               task={task}
               completed={Boolean(day.logMap.get(task.id)?.completed)}
+              color={colorOf(task)}
               disabled={task.id.startsWith("temp-") || movingIds.has(task.id)}
             />
           ))}
@@ -181,10 +199,12 @@ const DayColumn = ({
 const DraggableTask = ({
   task,
   completed,
+  color,
   disabled,
 }: {
   task: Task;
   completed: boolean;
+  color: string;
   disabled: boolean;
 }) => {
   const { setNodeRef, attributes, listeners, isDragging } = useDraggable({
@@ -205,13 +225,22 @@ const DraggableTask = ({
         disabled && "cursor-default opacity-60",
       )}
     >
-      <TaskLine task={task} completed={completed} />
+      <TaskLine task={task} completed={completed} color={color} />
     </li>
   );
 };
 
-const TaskLine = ({ task, completed }: { task: Task; completed: boolean }) => {
-  const color = getCategoryTextColor(task.categoryColor);
+const TaskLine = ({
+  task,
+  completed,
+  color: categoryColor,
+}: {
+  task: Task;
+  completed: boolean;
+  /** 분류의 지금 색 (저장된 hex) */
+  color: string;
+}) => {
+  const color = getCategoryTextColor(categoryColor);
   return (
     <div className="flex items-start gap-1.5 text-[13px] leading-snug">
       <span className="mt-0.5 shrink-0">
