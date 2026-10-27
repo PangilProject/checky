@@ -1,10 +1,11 @@
-import type { Locator, Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 /**
  * dnd-kit 끌기를 사람 손처럼 재현한다.
  *
  * 앱은 150ms 이상 눌러야 끌기로 본다(SortableList·TaskWeekBoard 의 ACTIVATION_CONSTRAINT).
  * locator.dragTo() 는 누르자마자 움직여 짧은 누르기로 처리되므로 쓰지 않는다.
+ * 누른 채로 끌기가 실제로 시작될 때까지 기다린 뒤 움직인다.
  *
  * 끄는 도중의 화면을 확인할 수 있게 집기·옮기기·놓기를 나눠 둔다.
  */
@@ -14,8 +15,10 @@ export const grab = async (page: Page, source: Locator) => {
   const from = await center(source);
   await page.mouse.move(from.x, from.y);
   await page.mouse.down();
-  // 고정 대기를 쓰지 않는다는 규칙의 예외. 기다릴 상태가 없고, 시간 자체가 조건이다
-  await page.waitForTimeout(250);
+  // 끌기가 시작되면 dnd-kit 이 끌리는 항목에 aria-pressed="true" 를 단다. 시간을 정해 두고 기다리면
+  // 부하가 클 때 앱의 150ms 타이머가 늦게 돌아, 시작되기 전에 움직여 끌기가 취소된다
+  const handle = source.locator("xpath=ancestor-or-self::*[@aria-roledescription][1]");
+  await expect(handle).toHaveAttribute("aria-pressed", "true");
 
   return {
     moveTo: async (target: Locator) => {

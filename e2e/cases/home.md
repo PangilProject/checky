@@ -44,60 +44,60 @@
 - 근거: src/pages/HomePage/components/TaskReport/hooks/useTaskModalHandlers.ts:113, :175, TaskModal.tsx (삭제 확인)
 
 ### TC-HOME-007 "이동" 으로 완료한 할 일을 다른 날로 옮긴다
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: 10-21 에 완료한 할 일. today 2026-10-21
 - 절차: ⋯ → "이동" → 10-23 → 확인 → 캘린더 23일 클릭
 - 기대: 21일에서 사라지고 23일에 완료 상태로 보인다. 캘린더 숫자가 맞게 바뀐다
 - 근거: src/pages/HomePage/components/TaskReport/hooks/useTaskDateMove.ts:42-96
 
 ### TC-HOME-008 리스트 메뉴 "미완료 할 일을 오늘 하기"
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: 10-20 에 미완료 1개, 완료 1개. today 2026-10-21
-- 절차: ◀ 로 20일 → 리스트 메뉴 → 항목 선택 → "완료" → "오늘"
+- 절차: ◀ 로 20일 → 리스트 메뉴 → "미완료 할 일을 오늘 하기" → "완료" → 할 일 목록 "오늘"
 - 기대: 20일엔 완료만 남고 21일에 미완료 1개. 오늘 날짜에서 하면 "이미 오늘 목록입니다."
 - 근거: src/pages/HomePage/components/TaskReport/sections/TaskSetting.tsx:86-130
 
 ### TC-HOME-009 "모든 할 일 삭제" 확인과 빈 대상 안내
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: (a) 할 일 2개 (b) 할 일 없음
 - 절차: 리스트 메뉴 → "모든 할 일 삭제" → "완료" → 확인에서 "삭제" / "취소"
 - 기대: (a) 삭제하면 목록이 비고, 취소하면 그대로 (b) "삭제할 할 일이 없습니다."
 - 근거: TaskSetting.tsx:93, :243
 
 ### TC-HOME-010 한 주 보기에서 끌어 옮기면 개수와 하루 보기에 반영된다
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: 10-21 에 미완료 할 일 1개. today 2026-10-21
 - 절차: "한 주" → 할 일을 "10월 23일" 로 끈다 → "10월 23일 하루 보기"
 - 기대: 21일 칸 "할 일 0", 23일 칸 "할 일 1", 하루 보기 23일에 보인다
 - 근거: src/pages/HomePage/components/TaskReport/hooks/useTaskWeek.ts:167-215 (두 날짜 캐시를 손으로 고침)
 
 ### TC-HOME-011 끌어 옮기기에 실패하면 원래 날로 돌아간다
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: TC-HOME-010 과 같고 쓰기를 실패시킨다
 - 기대: "할 일 이동에 실패했습니다…" 토스트, 21일 칸으로 돌아간다
 - 근거: useTaskWeek.ts:202-208
 
 ### TC-HOME-012 루틴 표 체크가 합계·캘린더에 반영된다
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: 10-01 부터 매일 루틴 1개. today 2026-10-21
 - 절차: 21일 칸 체크 → 새로고침
 - 기대: 행 합계 "1 / 7", 합계 행 21일 "1/1", 22일 이후 "–", 캘린더 21일 완료 색. 새로고침해도 유지
 - 근거: src/pages/HomePage/components/RoutineReport/hooks/useRoutineToggle.ts:43-123
 
 ### TC-HOME-013 캘린더 날짜를 누르면 모든 섹션이 그 날을 따라간다
-- 우선순위: P2 / 태그: @feature / 상태: 제안
+- 우선순위: P2 / 태그: @feature / 상태: 구현됨
 - 전제: 10-14 에 할 일 "지난주 일". today 2026-10-21
 - 절차: 캘린더 14일 → 할 일 목록 "오늘"
-- 기대: 할 일·루틴 주·달성 현황이 14일 기준으로 바뀌고, "오늘" 을 누르면 21일로 돌아온다
+- 기대: 할 일·루틴 주(10/11~17, 일요일 시작)·달성 현황이 14일 기준으로 바뀌고, "오늘" 을 누르면 21일로 돌아온다
 - 근거: src/pages/HomePage/components/MonthlyReport/components/CalendarCell.tsx:49
 
 ### TC-HOME-014 새 사용자의 빈 상태
-- 우선순위: P3 / 태그: @feature / 상태: 제안
+- 우선순위: P3 / 태그: @feature / 상태: 구현됨
 - 기대: "아직 카테고리가 없어요." 와 "카테고리 만들기" 링크(→ /category), 달성 현황 빈 안내
 - 근거: src/pages/HomePage/components/TaskReport/sections/TaskList.tsx:35
 
 ### TC-HOME-015 루틴 목록을 불러오지 못하면 다시 시도할 수 있다
-- 우선순위: P3 / 태그: @feature / 상태: 제안
+- 우선순위: P3 / 태그: @feature / 상태: 구현됨
 - 전제: 루틴 조회를 첫 번째만 실패시킨다
 - 기대: "루틴 목록을 불러오지 못했습니다." → "다시 시도" 로 표가 보인다
 - 근거: src/pages/HomePage/components/RoutineReport/index.tsx:60-66
