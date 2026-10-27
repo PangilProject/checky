@@ -1,3 +1,4 @@
+import { useId } from "react";
 import TitleSection from "../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { moveWeek } from "@/shared/utils/dateNavigation";
@@ -39,10 +40,14 @@ function RoutineReportSection() {
     week,
   });
 
+  // 섹션 전체가 제목을 이름으로 갖는 영역이 된다. TitleSection 이 같은 id 를 제목에 단다
+  const titleId = useId();
+
   return (
-    <div className="pb-24">
+    <section aria-labelledby={titleId} className="pb-24">
       {/* 1. 타이틀 */}
       <TitleSection
+        titleId={titleId}
         title="루틴 목록"
         subTitle={label}
         leftOnClick={() => setSelectedDate(moveWeek(selectedDate, -1))}
@@ -69,7 +74,7 @@ function RoutineReportSection() {
         // 2-3. 테이블
         <RoutineTable report={report} onToggle={handleToggle} />
       )}
-    </div>
+    </section>
   );
 }
 

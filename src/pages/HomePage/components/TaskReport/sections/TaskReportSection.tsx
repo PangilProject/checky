@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useId } from "react";
 import TitleSection from "../../TitleSection";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
@@ -86,9 +86,13 @@ function TaskReportSection() {
       isWeek ? moveWeek(selectedDate, diff) : moveDay(selectedDate, diff),
     );
 
+  // 섹션 전체가 제목을 이름으로 갖는 영역이 된다. TitleSection 이 같은 id 를 제목에 단다
+  const titleId = useId();
+
   return (
-    <div>
+    <section aria-labelledby={titleId}>
       <TitleSection
+        titleId={titleId}
         title="할 일 목록"
         subTitle={isWeek ? weekSubTitle : daySubTitle}
         leftOnClick={() => move(-1)}
@@ -126,7 +130,7 @@ function TaskReportSection() {
           </div>
         </>
       )}
-    </div>
+    </section>
   );
 }
 

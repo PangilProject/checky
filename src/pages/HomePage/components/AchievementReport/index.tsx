@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useId } from "react";
 import TitleSection from "../TitleSection";
 import { useSelectedDate } from "@/shared/contexts/useSelectedDate";
 import { useMonthlyStatsByMonths } from "@/shared/hooks/calendar";
@@ -74,9 +74,13 @@ function AchievementReportSection() {
       mode === "week" ? moveWeek(selectedDate, diff) : moveMonth(selectedDate, diff),
     );
 
+  // 섹션 전체가 제목을 이름으로 갖는 영역이 된다. TitleSection 이 같은 id 를 제목에 단다
+  const titleId = useId();
+
   return (
-    <div>
+    <section aria-labelledby={titleId}>
       <TitleSection
+        titleId={titleId}
         title="달성 현황"
         subTitle={getLabel(mode, ranges.period.startDate, ranges.period.endDate)}
         leftOnClick={() => move(-1)}
@@ -96,7 +100,7 @@ function AchievementReportSection() {
           todayYmd={todayYmd}
         />
       )}
-    </div>
+    </section>
   );
 }
 
