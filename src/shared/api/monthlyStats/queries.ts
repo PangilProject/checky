@@ -12,6 +12,7 @@ import { db } from "@/firebase/firebase";
 import { baselineFetch } from "@/shared/utils/perfBaseline";
 import { monthlyStatsCollectionRef, monthlyStatsDocRef } from "./refs";
 import { MONTHLY_STATS_SPLIT_VERSION } from "./types";
+import { noteMissedPatch } from "./missedPatches";
 import type { MonthlyActivitySummary, MonthlyStats } from "./types";
 
 const MONTH_KEY_PATTERN = /^\d{4}-\d{2}$/;
@@ -161,9 +162,9 @@ export const patchMonthlyStatsCompletionByDay = async ({
 }): Promise<"patched" | "missing-doc" | "missing-day"> => {
   const ref = monthlyStatsDocRef(userId, month);
 
-  return await runTransaction(db, async (transaction) => {
+  const result = await runTransaction(db, async (transaction) => {
     const snap = await transaction.get(ref);
-    if (!snap.exists()) return "missing-doc";
+    if (!snap.exists()) return "missing-doc" as const;
 
     const data = snap.data() as MonthlyStats;
     const current = data.days?.[day];
@@ -231,8 +232,11 @@ export const patchMonthlyStatsCompletionByDay = async ({
       },
       { merge: true }
     );
-    return "patched";
+    return "patched" as const;
   });
+
+  if (result === "missing-doc") noteMissedPatch(userId, month);
+  return result;
 };
 
 /**
@@ -272,9 +276,9 @@ export const patchMonthlyStatsByDayDeltas = async ({
 
   const ref = monthlyStatsDocRef(userId, month);
 
-  await runTransaction(db, async (transaction) => {
+  const missingDoc = await runTransaction(db, async (transaction) => {
     const snap = await transaction.get(ref);
-    if (!snap.exists()) return;
+    if (!snap.exists()) return true;
 
     const data = snap.data() as MonthlyStats;
     const current = data.days?.[day];
@@ -318,7 +322,7 @@ export const patchMonthlyStatsByDayDeltas = async ({
         },
         { merge: true }
       );
-      return;
+      return false;
     }
 
     const nextTotal = Math.max((current?.total ?? 0) + totalDelta, 0);
@@ -348,5 +352,8 @@ export const patchMonthlyStatsByDayDeltas = async ({
       },
       { merge: true }
     );
+    return false;
   });
+
+  if (missingDoc) noteMissedPatch(userId, month);
 };

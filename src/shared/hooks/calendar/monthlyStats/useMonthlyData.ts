@@ -11,6 +11,7 @@ import {
   MONTHLY_STATS_SPLIT_VERSION,
   buildMonthlyActivityCountMap,
   convertToMonthlyStatsDays,
+  countMissedPatches,
   getMonthlyStatsByMonthOnce,
   recalculateMonthlyStatsByMonth,
   upsertMonthlyStatsByMonth,
@@ -65,6 +66,17 @@ export const useMonthlyData = (date: Date) => {
 
   // 같은 monthKey에 대해 fallback upsert 중복 실행을 방지합니다.
   const writtenMonthRef = useRef<string | null>(null);
+
+  // 원본을 읽기 시작할 때 건너뛴 조작 수. 저장을 마친 뒤와 비교해 그사이 빠진 조작이 있는지 본다
+  const missedAtStartRef = useRef<{ month: string; count: number } | null>(null);
+  useEffect(() => {
+    if (!shouldUseLegacyFallback || !userId) return;
+    if (missedAtStartRef.current?.month === monthKey) return;
+    missedAtStartRef.current = {
+      month: monthKey,
+      count: countMissedPatches(userId, monthKey),
+    };
+  }, [monthKey, shouldUseLegacyFallback, userId]);
 
   // 2) monthlyStats가 비어 있을 때만 fallback 원천 데이터 쿼리를 활성화합니다.
   const tasksQuery = useQuery<MonthlyTask[]>({
@@ -124,8 +136,21 @@ export const useMonthlyData = (date: Date) => {
 
     // 1회 upsert 후 캐시에 monthlyStats가 생기면 다음 렌더부터 정식 경로를 사용합니다.
     writtenMonthRef.current = monthKey;
+    const missedAtStart =
+      missedAtStartRef.current?.month === monthKey
+        ? missedAtStartRef.current.count
+        : countMissedPatches(userId, monthKey);
     void upsertMonthlyStatsByMonth({ userId, month: monthKey, days, version })
-      .then(() => {
+      .then(async () => {
+        // 원본을 읽고 쓰는 사이에 할 일 추가·체크가 있었다면, 그 반영은 문서가 없어 건너뛰었고
+        // 방금 쓴 값에도 들어 있지 않다. 이때만 원본에서 다시 세어 덮어쓴다.
+        if (countMissedPatches(userId, monthKey) !== missedAtStart) {
+          await recalculateMonthlyStatsByMonth({ userId, month: monthKey });
+          await queryClient.invalidateQueries({
+            queryKey: monthlyStatsKeys.byMonth(userId, monthKey),
+          });
+          return;
+        }
         // 방금 쓴 값을 캐시에 심어, refetch(read) 없이 정식 경로로 전환한다.
         queryClient.setQueryData(monthlyStatsKeys.byMonth(userId, monthKey), {
           month: monthKey,
