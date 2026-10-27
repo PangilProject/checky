@@ -53,7 +53,7 @@ interface ActionItemListProps {
 }
 const ActionItemList = ({ selectedAction, onSelect }: ActionItemListProps) => {
   return (
-    <Stack gap={3} direction="col">
+    <Stack gap={3} direction="col" role="radiogroup" aria-label="할 작업">
       {TASK_ACTION_LIST.map((action) => (
         <ActionItem
           key={action.icon}
@@ -89,7 +89,14 @@ const ActionItem = ({ text, icon, isSelected, onClick }: ActionItemProps) => {
   };
 
   return (
-    <div className="flex justify-between" onClick={onClick}>
+    // 줄 전체가 하나의 선택지다. 오른쪽 동그라미만 버튼이면 이름도 선택 상태도 없어 무엇을 고르는지 알 수 없다
+    <button
+      type="button"
+      role="radio"
+      aria-checked={isSelected}
+      className="flex w-full justify-between text-left"
+      onClick={onClick}
+    >
       <Stack gap={2} direction="row">
         {ICON_MAP[icon]}
         <Text variant="bodySm">{text}</Text>
@@ -98,13 +105,9 @@ const ActionItem = ({ text, icon, isSelected, onClick }: ActionItemProps) => {
       {isSelected ? (
         <FaCheckCircle size={20} />
       ) : (
-        <button
-          type="button"
-          onClick={onClick}
-          className="w-5 h-5 border-2 border-content-muted rounded-2xl"
-        />
+        <span className="w-5 h-5 border-2 border-content-muted rounded-2xl" />
       )}
-    </div>
+    </button>
   );
 };
 

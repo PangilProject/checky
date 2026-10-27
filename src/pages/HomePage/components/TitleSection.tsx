@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { Stack, Text } from "@/shared/ui/primitives";
 import { TitleText } from "@/shared/ui/TitleText";
 import { VscTriangleLeft } from "react-icons/vsc";
@@ -23,12 +23,15 @@ function TitleSection({
   onRefreshClick,
   extra,
 }: TitleSectionProps) {
+  // 홈의 섹션 넷이 "오늘"·"새로고침"·이전·다음을 같은 이름으로 가진다. 제목을 섹션 이름으로 걸어
+  // 어느 섹션의 버튼인지 스크린 리더와 테스트가 구분할 수 있게 한다
+  const titleId = useId();
   return (
-    <div>
+    <section aria-labelledby={titleId}>
       {/* 좁은 화면에서 버튼이 많아지면(할 일 목록의 보기 전환 등) 제목을 밀어내지 않고 다음 줄로 내린다 */}
       <div className="flex flex-wrap justify-between items-start gap-y-2">
         <div>
-          <TitleText text={title} />
+          <TitleText text={title} id={titleId} />
           <SubTitle text={subTitle} />
         </div>
 
@@ -53,15 +56,15 @@ function TitleSection({
             </button>
           )}
 
-          <div className="pressable" onClick={leftOnClick}>
+          <button type="button" className="pressable" onClick={leftOnClick} aria-label="이전">
             <VscTriangleLeft size={20} />
-          </div>
-          <div className="pressable" onClick={rightOnClick}>
+          </button>
+          <button type="button" className="pressable" onClick={rightOnClick} aria-label="다음">
             <VscTriangleRight size={20} />
-          </div>
+          </button>
         </Stack>
       </div>
-    </div>
+    </section>
   );
 }
 
