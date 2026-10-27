@@ -14,6 +14,13 @@ npm run e2e:ui             # 에뮬레이터를 켜고 Playwright UI 창을 연�
 
 케이스를 골라 돌리기, ID·태그로 거르기, 반복 실행은 UI 창 안에서 한다.
 
+## CI
+
+`.github/workflows/test.yml` 이 PR 과 main 푸시마다 `npm run check` 와 `npm run e2e` 를 돌린다.
+CI 에서는 실패한 테스트를 두 번까지 다시 돌리고, 다시 돌려 통과한 테스트는 실패가 아니라 flaky 로 표시된다.
+실패하면 실행 화면의 Artifacts 에서 `playwright-report` 를 내려받아 `npx playwright show-report playwright-report` 로 본다.
+화면을 단계별로 되감아 보려면 `npx playwright show-trace <test-results 안의 trace.zip>` 를 쓴다.
+
 ## 어떻게 동작하나
 
 | 문제 | 해결 |
