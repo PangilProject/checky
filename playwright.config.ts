@@ -19,6 +19,8 @@ export default defineConfig({
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
   reporter: isCI ? [["list"], ["html", { open: "never" }]] : "list",
+  // 에뮬레이터를 거치는 저장·조회는 PC 부하에 따라 몇 초씩 늦어진다. 정상이면 바로 통과하므로 넉넉히 둔다
+  expect: { timeout: 10_000 },
   use: {
     baseURL: `http://localhost:${PORT}`,
     locale: "ko-KR",
