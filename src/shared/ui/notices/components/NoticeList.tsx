@@ -23,7 +23,8 @@ export default function NoticeList({ notices, onSelect }: Props) {
   return (
     <div className="space-y-3">
       {notices.map((notice) => (
-        <div
+        <button
+          type="button"
           key={notice.id}
           onClick={() => onSelect(notice)}
           /*
@@ -31,7 +32,7 @@ export default function NoticeList({ notices, onSelect }: Props) {
             강조 요소를 여러 개 겹치면 제목보다 장식이 먼저 읽힌다.
             hover 는 배경이 아니라 테두리로 반응시켜, 고정 배경과 충돌하지 않게 한다.
           */
-          className={`cursor-pointer rounded-lg border p-3 pressable transition-colors hover:border-content-muted ${
+          className={`block w-full text-left cursor-pointer rounded-lg border p-3 pressable transition-colors hover:border-content-muted ${
             notice.pinned
               ? "border-content-subtle bg-surface-selected"
               : "border-line bg-surface-raised"
@@ -57,7 +58,7 @@ export default function NoticeList({ notices, onSelect }: Props) {
               </Text>
             </Stack>
           </Stack>
-        </div>
+        </button>
       ))}
     </div>
   );

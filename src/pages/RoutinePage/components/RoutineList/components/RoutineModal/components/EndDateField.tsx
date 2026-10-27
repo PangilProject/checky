@@ -31,6 +31,8 @@ export const EndDateField = ({
           <button
             className="flex items-center gap-1"
             onClick={toggleEndDateEnabled}
+            // 보이는 글자가 "추가"/"삭제"뿐이라 다른 추가·삭제 버튼과 이름이 겹친다
+            aria-label={endDateEnabled ? "종료 날짜 삭제" : "종료 날짜 추가"}
           >
             <Text variant="bodySm">{endDateEnabled ? "삭제" : "추가"}</Text>
             {endDateEnabled ? (
