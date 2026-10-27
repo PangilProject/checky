@@ -29,6 +29,11 @@ interface DatePickerProps {
   /** 팝오버가 트리거 기준 어느 쪽으로 펼쳐질지 */
   align?: "left" | "right";
   className?: string;
+  /**
+   * 무엇의 날짜인지 ("시작 날짜" 등). 버튼 글자가 날짜뿐이라 한 화면에 선택기가 둘이면 구분되지 않는다.
+   * 넘기면 버튼 이름이 "시작 날짜 2026. 10. 28." 처럼 지금 값과 함께 붙는다
+   */
+  label?: string;
 }
 
 /**
@@ -43,6 +48,7 @@ export const DatePicker = ({
   disabled = false,
   align = "left",
   className = "",
+  label,
 }: DatePickerProps) => {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -73,7 +79,11 @@ export const DatePicker = ({
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key !== "Escape") return;
+      // 모달 안의 선택기에서 Esc 는 선택기만 닫는다. 모달도 Esc 를 window 에서 듣기 때문에
+      // 여기서 멈추지 않으면 모달까지 닫히거나 "수정 중인 내용" 확인이 뜬다
+      event.stopPropagation();
+      setOpen(false);
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -109,6 +119,7 @@ export const DatePicker = ({
         type="button"
         disabled={disabled}
         onClick={toggleOpen}
+        aria-label={label ? (value ? `${label} ${formatYmdLabel(value)}` : `${label} 선택`) : undefined}
         className={`border-b border-content-subtle text-sm text-left pb-0.5 min-w-28
           ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
           ${value ? "" : "text-content-muted"}`}
