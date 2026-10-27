@@ -15,6 +15,9 @@ test(
     const day21 = (remaining: number) =>
       page.getByRole("button", { name: `10월 21일, 남은 일 ${remaining}개` });
     await expect(day21(1)).toBeVisible();
+    // 첫 화면은 원본에서 센 값을 보여 주며 문서를 만든다. 만드는 중에 조작하면 그 조작이
+    // 집계에서 빠지는 별개의 문제가 있어(TC-HOME-016), 여기서는 문서가 생긴 뒤에 조작한다
+    await waitForSaved(page);
 
     await page.getByRole("button", { name: "업무에 할 일 추가" }).click();
     await page.getByLabel("할 일 입력").fill("보고서");

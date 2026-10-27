@@ -101,3 +101,12 @@
 - 전제: 루틴 조회를 첫 번째만 실패시킨다
 - 기대: "루틴 목록을 불러오지 못했습니다." → "다시 시도" 로 표가 보인다
 - 근거: src/pages/HomePage/components/RoutineReport/index.tsx:60-66
+
+### TC-HOME-016 월간 통계 문서를 처음 만드는 중에 할 일을 추가해도 집계에서 빠지지 않는다
+- 우선순위: P1 / 태그: @regression / 상태: 제안 (버그 확인됨, 수정 방식 결정 필요)
+- 전제: 이 달의 월간 통계 문서가 없다. 10-01 부터 매일 루틴 1개. today 2026-10-21
+- 절차: 홈을 연다 → 문서가 저장되기 전에 할 일을 추가한다 → 새로고침
+- 기대: 캘린더 21일 "남은 일 2개"
+- 실제: "남은 일 1개". 문서가 없을 때 할 일 추가의 집계 반영은 건너뛰고, 곧이어 저장되는 문서는 추가 전에 센 값이라 할 일이 영구히 빠진다
+- 근거: src/shared/hooks/calendar/monthlyStats/useMonthlyData.ts (첫 문서 저장), src/shared/api/monthlyStats/queries.ts (patchMonthlyStatsByDayDeltas 의 missing-doc)
+- 재현: 첫 monthlyStats 커밋을 page.route 로 2초 붙잡고 그 사이에 할 일을 추가한다
